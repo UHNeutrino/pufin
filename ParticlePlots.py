@@ -22,7 +22,7 @@ ROOT.TH1.AddDirectory(False)
 
 
 # First get the data into a dataframe
-fileName = f"{HOME}/generators/Flat_NEUT_1GeV_1e6.root"
+fileName = f"{HOME}/t2k-nova/FlatTrees/Flat_NEUT_1GeV_1e6.root"
 treeName = "FlatTree_VARS"
 parts = fileName.split('/')
 NameRoot = parts[4]
@@ -72,8 +72,7 @@ def Plot2P2H(v1, v2, histogramInfo, title):
     hist.Draw("COLZ")
 
     # saves hist a specific directory I made in my home dir 
-    c.SaveAs(f"{HOME}/generators/plots/{title}{Name}.png")
-    # Change this ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    c.SaveAs(f"{HOME}/t2k-nova/plots/{title}{Name}.png")
 
 
 def Plot1PI(v1, v2, histogramInfo, title):
@@ -89,8 +88,8 @@ def Plot1PI(v1, v2, histogramInfo, title):
     hist.Draw("COLZ")
 
     # saves hist to your home directory
-    c.SaveAs(f"{HOME}/generators/plots/{title}{Name}.png")
-    # Change this ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    c.SaveAs(f"{HOME}/t2k-nova//plots/{title}{Name}.png")
+ 
 
 
 

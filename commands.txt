@@ -1,0 +1,4 @@
+Command for generating 1000 events on Carbon and Oxygen with Flux files used in our starting assignment
+
+nuis gen NEUT -t C,O -n 1000 -f /home/lboe/assign/flat_trees/fluxes/t2k/fhc_numu_t2k_flux.root,enu_nd5_tuned23a_numu -o test.root
+
