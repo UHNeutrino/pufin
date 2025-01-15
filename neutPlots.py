@@ -14,4 +14,4 @@ v1 = 'W'
 v2 = 'Q2'
 histInfo = ("name",f"{v1} vs {v2} plot",50,0,1,50,0.8,1.6)
 # print(histInfo)
-ParticlePlots.Plot1PI(v1,v2,histInfo,"W_v_Q2_hist")
+ParticlePlots.Plot1PI(v1,v2,histInfo,"Zoomed_W_v_Q2_hist")
