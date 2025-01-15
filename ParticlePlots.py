@@ -1,6 +1,15 @@
 import ROOT
 import os
 
+print("test upload")
+
+ROOT.gStyle.SetStatX(0.85)  # Closer to the left edge
+ROOT.gStyle.SetStatY(0.9)  # Slightly below the top edge
+
+# Apply a modern color palette
+ROOT.gStyle.SetPalette(ROOT.kRainBow)  # Choose a visually pleasing palette
+ROOT.gStyle.SetNumberContours(50)     # Increase the number of colors in the gradient
+
 
 # lets me use other people's home directories
 HOME = os.getenv("HOME", "/home/lboe")
@@ -16,26 +25,23 @@ ROOT.TH1.AddDirectory(False)
 # Plan is to get the q0, q3, Q^2 and W for all events where Mode = 2
 
 
-
-
-
 # First get the data into a dataframe
-fileName = f"{HOME}/t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e6.root"
+fileName = f"{HOME}/nuisance/Genie_1E6_FlatFlux_.7GeV_numu_flattree.root"
 treeName = "FlatTree_VARS"
 parts = fileName.split('/')
-NameRoot = parts[5]
-NameParts = NameRoot.split('.root')
-Name = NameParts[0]
+NameRoot = parts[4]
+# NameParts = NameRoot.split('.')
+# Name = NameParts[0]
+NameParts = NameRoot.split('_')
+Name = NameParts[0] + "_" + NameParts[1] + "_" + NameParts[3]
 
 
-
-def formatHist(hist, xlabel, ylabel, title, max = -1):
-    hist.GetXaxis().SetTitle(xlabel)
-    hist.GetYaxis().SetTitle(ylabel)
+def formatHist(hist, xlabel, ylabel, max = -1):
+    hist.GetXaxis().SetTitle(f"{xlabel} (Gev)")
+    hist.GetYaxis().SetTitle(f"{ylabel} (GeV)")
     if max != -1:
         hist.SetMaximum(max)
-    hist.SetStats(0)
-    hist.SetTitle(title)
+    hist.SetTitle(f"{ylabel} vs. {xlabel} ({NameParts[0]}: {NameParts[1]} events at {NameParts[3]})")
     hist.GetXaxis().SetLabelSize(0.05)
     hist.GetXaxis().SetTitleSize(0.05)
     hist.GetYaxis().SetLabelSize(0.05)
@@ -74,13 +80,19 @@ def Plot2P2H(v1, v2, histogramInfo, title):
     c = ROOT.TCanvas()
     # c.SetCanvasSize(1500, 1500)
     # c.SetWindowSize(500, 500)
+    
+    # Adjust margins; Default is 0.1; increase as needed
+    c.SetLeftMargin(0.15)  # Adjust the left margin to avoid cutting off the y-axis label
+    c.SetRightMargin(0.15) #Adjust the right margin to make space for the legend
+    c.SetBottomMargin(0.15) #Adjust the bottom margin to avoid cutting off the x-axis label
     hist.Draw("COLZ")
     # c.SetCanvasSize(600,500)
     c.SetCanvasSize(c.GetWw()+200,c.GetWh())
     # print(f'{c.GetWindowHeight()}')
 
     # saves hist a specific directory I made in my home dir 
-    c.SaveAs(f"{HOME}/t2k-nova/plots/{title}{Name}.png")
+    c.SaveAs(f"{HOME}/nuisance/plots/{title}_{Name}.png")
+    # Change this ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 def Plot1PI(v1, v2, histogramInfo, title):
@@ -92,20 +104,17 @@ def Plot1PI(v1, v2, histogramInfo, title):
     hist1 = df.Filter(cut1).Histo2D(histogramInfo,v2,v1)
     hist = formatHist(hist1,'Q^{2} (GeV)','W (GeV)',"Q^{2} vs W of"+Name)
     c = ROOT.TCanvas()
-
+    c.SetLeftMargin(0.15)
+    c.SetRightMargin(0.15)
+    c.SetBottomMargin(0.15)
     hist.Draw("COLZ")
 
     c.SetCanvasSize(c.GetWw()+200,c.GetWh())
 
 
     # saves hist to your home directory
-    c.SaveAs(f"{HOME}/t2k-nova/plots/{title}{Name}.png")
- 
-
-
-
-
-
+    c.SaveAs(f"{HOME}/nuisance/plots/{title}_{Name}.png")
+    # Change this ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 if __name__=="__main__":
@@ -113,12 +122,12 @@ if __name__=="__main__":
     v1 = 'q0'
     v2 = 'q3'
     histInfo = ("name",f"{v1} vs {v2} plot",40,0,2,40,0,2)
-    Plot2P2H(v1,v2,histInfo, "qvqhist")
+    Plot2P2H(v1,v2,histInfo, "q0_v_q3_hist")
     v1 = 'Q2'
     v2 = 'W'
     histInfo = ("name",f"{v1} vs {v2} plot",40,0,2,40,0,2)
     # print(histInfo)
-    Plot1PI(v1,v2,histInfo,"Q2vWhist")
+    Plot1PI(v1,v2,histInfo,"Q2_v_W_hist")
 
 
 
