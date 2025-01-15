@@ -2,10 +2,6 @@ import ROOT
 import os
 
 
-print("test upload")
-
-# lets me use other people's home directoriesimport ROOT
-import os
 
 
 
@@ -32,7 +28,9 @@ ROOT.TH1.AddDirectory(False)
 
 
 # First get the data into a dataframe
-fileName = f"{HOME}/t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e6.root"
+dir_location = input("Give Flat Tree Directory Location (not including home): ")
+
+fileName = f"{HOME}/{dir_location}"
 treeName = "FlatTree_VARS"
 parts = fileName.split('/')
 NameRoot = parts[5]
@@ -41,7 +39,10 @@ NameRoot = parts[5]
 NameParts = NameRoot.split('_')
 # print(NameParts)
 
-Name = NameParts[0] + "_" + NameParts[1] + "_" + NameParts[3]
+
+NameParts[3] = NameParts[3].split('.root')[0]
+Name = NameParts[0] + "_" + NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+
 # print(Name)
 
 
@@ -50,7 +51,7 @@ def formatHist(hist, xlabel, ylabel, max = -1):
     hist.GetYaxis().SetTitle(f"{ylabel} (GeV)")
     if max != -1:
         hist.SetMaximum(max)
-    hist.SetTitle(f"{ylabel} vs. {xlabel} ({NameParts[0]}: {NameParts[1]} events at {NameParts[3]})")
+    hist.SetTitle(f"{ylabel} vs. {xlabel} ({NameParts[0]}: {NameParts[1]} events at {NameParts[2]})")
     hist.GetXaxis().SetLabelSize(0.05)
     hist.GetXaxis().SetTitleSize(0.05)
     hist.GetYaxis().SetLabelSize(0.05)
