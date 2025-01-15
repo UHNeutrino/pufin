@@ -47,8 +47,8 @@ Name = NameParts[0] + "_" + NameParts[1] + "_" + NameParts[2] + "_" + NameParts[
 
 
 def formatHist(hist, xlabel, ylabel, max = -1):
-    hist.GetXaxis().SetTitle(f"{xlabel} (Gev)")
-    hist.GetYaxis().SetTitle(f"{ylabel} (GeV)")
+    hist.GetXaxis().SetTitle(f"{xlabel}")
+    hist.GetYaxis().SetTitle(f"{ylabel}")
     if max != -1:
         hist.SetMaximum(max)
     hist.SetTitle(f"{ylabel} vs. {xlabel} ({NameParts[0]}: {NameParts[1]} events at {NameParts[2]})")
@@ -112,7 +112,7 @@ def Plot1PI(v1, v2, histogramInfo, title):
     cut1 = 'Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 '
 
     hist1 = df.Filter(cut1).Histo2D(histogramInfo,v2,v1)
-    hist = formatHist(hist1,'Q^{2} (GeV)','W (GeV)')
+    hist = formatHist(hist1,'Q^{2} (GeV)^{2}','W (GeV)')
     c = ROOT.TCanvas()
     c.SetLeftMargin(0.15)
     c.SetRightMargin(0.15)
@@ -133,11 +133,11 @@ if __name__=="__main__":
     v2 = 'q3'
     histInfo = ("name",f"{v1} vs {v2} plot",40,0,2,40,0,2)
     Plot2P2H(v1,v2,histInfo, "q0_v_q3_hist")
-    v1 = 'Q2'
-    v2 = 'W'
-    histInfo = ("name",f"{v1} vs {v2} plot",40,0,2,40,0,2)
+    v1 = 'W'
+    v2 = 'Q2'
+    histInfo = ("name",f"{v1} vs {v2} plot",40,0,1,40,0.8,1.6)
     # print(histInfo)
-    Plot1PI(v1,v2,histInfo,"Q2_v_W_hist")
+    Plot1PI(v1,v2,histInfo,"W_v_Q2_hist")
 
 
 
