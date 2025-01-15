@@ -47,6 +47,10 @@ def formatHist(hist, xlabel, ylabel, max = -1):
     hist.GetYaxis().SetLabelSize(0.05)
     hist.GetYaxis().SetTitleSize(0.05)
     hist.GetZaxis().SetLabelSize(0.05)
+
+    # hist.GetXaxis().SetLabelSize(0);
+    # hist.GetXaxis().SetTickLength(0);
+
     return hist.Clone()
 
 def Plot2P2H(v1, v2, histogramInfo, title):
@@ -60,14 +64,16 @@ def Plot2P2H(v1, v2, histogramInfo, title):
 
 
     # Mode 2 is the 2P2H interaction
-    cut1 = 'Mode == 2 && cc == 1'
+    cut1 = 'Mode == 2'
 
 
     # entries1 = df.Filter(cut1)\
     #              .Count()
     # print('{} entries passed all filters'.format(entries1.GetValue()))
 
-    hist = formatHist(df.Filter(cut1).Histo2D(histogramInfo,v2,v1),v2,v1)
+    hist1 = df.Filter(cut1).Histo2D(histogramInfo,v2,v1)
+
+    hist = formatHist(hist1 ,'q_{3} (GeV)','q_{0} (GeV)', f'q_{3} vs q_{0} of {Name}')
 
     # Histo2D(("name","title",40,0,2,40,0,2),v1,v2),v2,v2)
     
@@ -80,6 +86,9 @@ def Plot2P2H(v1, v2, histogramInfo, title):
     c.SetRightMargin(0.15) #Adjust the right margin to make space for the legend
     c.SetBottomMargin(0.15) #Adjust the bottom margin to avoid cutting off the x-axis label
     hist.Draw("COLZ")
+    # c.SetCanvasSize(600,500)
+    c.SetCanvasSize(c.GetWw()+200,c.GetWh())
+    # print(f'{c.GetWindowHeight()}')
 
     # saves hist a specific directory I made in my home dir 
     c.SaveAs(f"{HOME}/nuisance/plots/{title}_{Name}.png")
@@ -89,17 +98,19 @@ def Plot2P2H(v1, v2, histogramInfo, title):
 def Plot1PI(v1, v2, histogramInfo, title):
     df = ROOT.RDataFrame(treeName,fileName)
 
-
     # Modes for single Pi are 11-16
-    cut1 = 'Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 && cc == 1'
+    cut1 = 'Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 '
 
-
-    hist = formatHist(df.Filter(cut1).Histo2D(histogramInfo,v2,v1),v2,v1)
+    hist1 = df.Filter(cut1).Histo2D(histogramInfo,v2,v1)
+    hist = formatHist(hist1,'Q^{2} (GeV)','W (GeV)',"Q^{2} vs W of"+Name)
     c = ROOT.TCanvas()
     c.SetLeftMargin(0.15)
     c.SetRightMargin(0.15)
     c.SetBottomMargin(0.15)
     hist.Draw("COLZ")
+
+    c.SetCanvasSize(c.GetWw()+200,c.GetWh())
+
 
     # saves hist to your home directory
     c.SaveAs(f"{HOME}/nuisance/plots/{title}_{Name}.png")
