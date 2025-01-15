@@ -41,7 +41,7 @@ NameParts = NameRoot.split('_')
 
 
 NameParts[3] = NameParts[3].split('.root')[0]
-Name = NameParts[0] + "_" + NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
 
 # print(Name)
 
@@ -132,12 +132,12 @@ if __name__=="__main__":
     v1 = 'q0'
     v2 = 'q3'
     histInfo = ("name",f"{v1} vs {v2} plot",60,0,3,60,0,3)
-    Plot2P2H(v1,v2,histInfo, "q0_v_q3_hist")
+    Plot2P2H(v1,v2,histInfo, "2P2H_hist")
     v1 = 'W'
     v2 = 'Q2'
     histInfo = ("name",f"{v1} vs {v2} plot",60,0,3,120,0,6)
     # print(histInfo)
-    Plot1PI(v1,v2,histInfo,"W_v_Q2_hist")
+    Plot1PI(v1,v2,histInfo,"1PI_hist")
 
 
 
