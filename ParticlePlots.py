@@ -83,7 +83,7 @@ def Plot2P2H(v1, v2, histogramInfo, title):
 
     hist1 = df.Filter(cut1).Histo2D(histogramInfo,v2,v1)
 
-    hist = formatHist(hist1 ,'q_{3} (GeV)','q_{0} (GeV)')
+    hist = formatHist(hist1 ,'q_{0} (GeV)','q_{3} (GeV)')
 
     # Histo2D(("name","title",40,0,2,40,0,2),v1,v2),v2,v2)
     
@@ -131,11 +131,11 @@ if __name__=="__main__":
     # print("hi")
     v1 = 'q0'
     v2 = 'q3'
-    histInfo = ("name",f"{v1} vs {v2} plot",40,0,2,40,0,2)
+    histInfo = ("name",f"{v1} vs {v2} plot",60,0,3,60,0,3)
     Plot2P2H(v1,v2,histInfo, "q0_v_q3_hist")
     v1 = 'W'
     v2 = 'Q2'
-    histInfo = ("name",f"{v1} vs {v2} plot",40,0,1,40,0.8,1.6)
+    histInfo = ("name",f"{v1} vs {v2} plot",60,0,3,120,0,6)
     # print(histInfo)
     Plot1PI(v1,v2,histInfo,"W_v_Q2_hist")
 
