@@ -47,6 +47,7 @@ Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
 
 
 def formatHist(hist, xlabel, ylabel, max = -1):
+    hist.SetStats(0)
     hist.GetXaxis().SetTitle(f"{xlabel}")
     hist.GetYaxis().SetTitle(f"{ylabel}")
     if max != -1:
