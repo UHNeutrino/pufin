@@ -29,13 +29,13 @@ ROOT.TH1.AddDirectory(False)
 
 
 
-def formatHist(NameParts, hist, xlabel, ylabel, max = -1):
+def formatHist(NameParts, hist, xvar, xunit, yvar, yunit, max = -1):
     hist.SetStats(0)
-    hist.GetXaxis().SetTitle(f"{xlabel}")
-    hist.GetYaxis().SetTitle(f"{ylabel}")
+    hist.GetXaxis().SetTitle(f"{xvar} {xunit}")
+    hist.GetYaxis().SetTitle(f"{yvar} {yunit}")
     if max != -1:
         hist.SetMaximum(max)
-    hist.SetTitle(f"{ylabel} vs. {xlabel} ({NameParts[0]}: {NameParts[1]} events at {NameParts[2]})")
+    hist.SetTitle(f"{yvar} vs. {xvar} ({NameParts[1]}: {NameParts[3]} events at {NameParts[2]})")
     hist.GetXaxis().SetLabelSize(0.05)
     hist.GetXaxis().SetTitleSize(0.05)
     hist.GetYaxis().SetLabelSize(0.05)
@@ -90,7 +90,7 @@ def Plot2P2H(x, y, histogramInfo, title, file_path = None):
 
     hist1 = df.Filter(cut1).Histo2D(histogramInfo,x,y)
 
-    hist = formatHist(NameParts, hist1 ,f'{x} (GeV)',f'{y} (GeV)')
+    hist = formatHist(NameParts, hist1 ,'q_{3}', '(GeV)', 'q_{0}', '(GeV)')
 
     # Histo2D(("name","title",40,0,2,40,0,2),x,y),y,y)
     
@@ -139,7 +139,7 @@ def Plot1PI(x, y, histogramInfo, title, file_path = None):
     cut1 = 'Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 '
 
     hist1 = df.Filter(cut1).Histo2D(histogramInfo,x,y)
-    hist = formatHist(NameParts, hist1,f'{x} (GeV)',f'{y} (GeV)^2')
+    hist = formatHist(NameParts, hist1,'W', '(GeV)', 'Q^{2}', '(GeV)^{2}')
     c = ROOT.TCanvas()
     c.SetLeftMargin(0.15)
     c.SetRightMargin(0.15)
