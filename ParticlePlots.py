@@ -27,26 +27,10 @@ ROOT.TH1.AddDirectory(False)
 # Plan is to get the q0, q3, Q^2 and W for all events where Mode = 2
 
 
-# First get the data into a dataframe
-dir_location = input("Give Flat Tree Directory Location (not including home): ")
-
-fileName = f"{HOME}/{dir_location}"
-treeName = "FlatTree_VARS"
-parts = fileName.split('/')
-NameRoot = parts[5]
-# NameParts = NameRoot.split('.')
-# Name = NameParts[0]
-NameParts = NameRoot.split('_')
-# print(NameParts)
 
 
-NameParts[3] = NameParts[3].split('.root')[0]
-Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
-
-# print(Name)
-
-
-def formatHist(hist, xlabel, ylabel, max = -1):
+def formatHist(NameParts, hist, xlabel, ylabel, max = -1):
+    hist.SetStats(0)
     hist.GetXaxis().SetTitle(f"{xlabel}")
     hist.GetYaxis().SetTitle(f"{ylabel}")
     if max != -1:
@@ -63,7 +47,30 @@ def formatHist(hist, xlabel, ylabel, max = -1):
 
     return hist.Clone()
 
-def Plot2P2H(v1, v2, histogramInfo, title):
+def Plot2P2H(v1, v2, histogramInfo, title, file_path = None):
+    # First get the data into a dataframe
+    if file_path is None:
+        dir_location = input("Give Flat Tree Directory Location (not including home): ")
+    else:
+        dir_location = file_path
+
+    fileName = f"{HOME}/{dir_location}"
+    treeName = "FlatTree_VARS"
+    parts = fileName.split('/')
+    NameRoot = parts[5]
+    # NameParts = NameRoot.split('.')
+    # Name = NameParts[0]
+    NameParts = NameRoot.split('_')
+    # print(NameParts)
+
+
+    NameParts[3] = NameParts[3].split('.root')[0]
+    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+
+    # print(Name)
+
+
+
     df = ROOT.RDataFrame(treeName,fileName)
 
     # entries1 = D.Filter(cut1)\
@@ -83,7 +90,7 @@ def Plot2P2H(v1, v2, histogramInfo, title):
 
     hist1 = df.Filter(cut1).Histo2D(histogramInfo,v2,v1)
 
-    hist = formatHist(hist1 ,'q_{0} (GeV)','q_{3} (GeV)')
+    hist = formatHist(NameParts, hist1 ,'q_{0} (GeV)','q_{3} (GeV)')
 
     # Histo2D(("name","title",40,0,2,40,0,2),v1,v2),v2,v2)
     
@@ -105,14 +112,34 @@ def Plot2P2H(v1, v2, histogramInfo, title):
     # Change this ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-def Plot1PI(v1, v2, histogramInfo, title):
+def Plot1PI(v1, v2, histogramInfo, title, file_path = None):
+    if file_path is None:
+        dir_location = input("Give Flat Tree Directory Location (not including home): ")
+    else:
+        dir_location = file_path
+
+    fileName = f"{HOME}/{dir_location}"
+    treeName = "FlatTree_VARS"
+    parts = fileName.split('/')
+    NameRoot = parts[5]
+    # NameParts = NameRoot.split('.')
+    # Name = NameParts[0]
+    NameParts = NameRoot.split('_')
+    # print(NameParts)
+
+
+    NameParts[3] = NameParts[3].split('.root')[0]
+    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+
+    # print(Name)
+
     df = ROOT.RDataFrame(treeName,fileName)
 
     # Modes for single Pi are 11-16
     cut1 = 'Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 '
 
     hist1 = df.Filter(cut1).Histo2D(histogramInfo,v2,v1)
-    hist = formatHist(hist1,'Q^{2} (GeV)^{2}','W (GeV)')
+    hist = formatHist(NameParts, hist1,'W (GeV)','Q^{2} (GeV)^{2}')
     c = ROOT.TCanvas()
     c.SetLeftMargin(0.15)
     c.SetRightMargin(0.15)
