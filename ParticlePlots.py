@@ -47,7 +47,7 @@ def formatHist(NameParts, hist, xlabel, ylabel, max = -1):
 
     return hist.Clone()
 
-def Plot2P2H(v1, v2, histogramInfo, title, file_path = None):
+def Plot2P2H(x, y, histogramInfo, title, file_path = None):
     # First get the data into a dataframe
     if file_path is None:
         dir_location = input("Give Flat Tree Directory Location (not including home): ")
@@ -88,11 +88,11 @@ def Plot2P2H(v1, v2, histogramInfo, title, file_path = None):
     #              .Count()
     # print('{} entries passed all filters'.format(entries1.GetValue()))
 
-    hist1 = df.Filter(cut1).Histo2D(histogramInfo,v2,v1)
+    hist1 = df.Filter(cut1).Histo2D(histogramInfo,x,y)
 
-    hist = formatHist(NameParts, hist1 ,'q_{3} (GeV)','q_{0} (GeV)')
+    hist = formatHist(NameParts, hist1 ,f'{x} (GeV)',f'{y} (GeV)')
 
-    # Histo2D(("name","title",40,0,2,40,0,2),v1,v2),v2,v2)
+    # Histo2D(("name","title",40,0,2,40,0,2),x,y),y,y)
     
     c = ROOT.TCanvas()
     # c.SetCanvasSize(1500, 1500)
@@ -112,7 +112,7 @@ def Plot2P2H(v1, v2, histogramInfo, title, file_path = None):
     # Change this ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-def Plot1PI(v1, v2, histogramInfo, title, file_path = None):
+def Plot1PI(x, y, histogramInfo, title, file_path = None):
     if file_path is None:
         dir_location = input("Give Flat Tree Directory Location (not including home): ")
     else:
@@ -138,8 +138,8 @@ def Plot1PI(v1, v2, histogramInfo, title, file_path = None):
     # Modes for single Pi are 11-16
     cut1 = 'Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 '
 
-    hist1 = df.Filter(cut1).Histo2D(histogramInfo,v2,v1)
-    hist = formatHist(NameParts, hist1,'W (GeV)','Q^{2} (GeV)^{2}')
+    hist1 = df.Filter(cut1).Histo2D(histogramInfo,x,y)
+    hist = formatHist(NameParts, hist1,f'{x} (GeV)',f'{y} (GeV)^2')
     c = ROOT.TCanvas()
     c.SetLeftMargin(0.15)
     c.SetRightMargin(0.15)
@@ -156,15 +156,15 @@ def Plot1PI(v1, v2, histogramInfo, title, file_path = None):
 
 if __name__=="__main__":
     # print("hi")
-    v1 = 'q0'
-    v2 = 'q3'
-    histInfo = ("name",f"{v1} vs {v2} plot",60,0,3,60,0,3)
-    Plot2P2H(v1,v2,histInfo, "2P2H_hist")
-    v1 = 'W'
-    v2 = 'Q2'
-    histInfo = ("name",f"{v1} vs {v2} plot",60,0,3,120,0,6)
+    x = 'q0'
+    y = 'q3'
+    histInfo = ("name",f"{y} vs {x} plot",60,0,3,60,0,3)
+    Plot2P2H(x,y,histInfo, "2P2H_hist")
+    x = 'W'
+    y = 'Q2'
+    histInfo = ("name",f"{y} vs {x} plot",60,0,3,120,0,6)
     # print(histInfo)
-    Plot1PI(v1,v2,histInfo,"1PI_hist")
+    Plot1PI(x,y,histInfo,"1PI_hist")
 
 
 
