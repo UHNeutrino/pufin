@@ -35,7 +35,7 @@ def formatHist(NameParts, hist, xvar, xunit, yvar, yunit, max = -1):
     hist.GetYaxis().SetTitle(f"{yvar} {yunit}")
     if max != -1:
         hist.SetMaximum(max)
-    hist.SetTitle(f"{yvar} vs. {xvar} ({NameParts[1]}: {NameParts[3]} events at {NameParts[2]})")
+    hist.SetTitle(f"{yvar} vs. {xvar} ({NameParts[1]}: {NameParts[3]} #nu_{{#mu}} events at {NameParts[2]})")
     hist.GetXaxis().SetLabelSize(0.05)
     hist.GetXaxis().SetTitleSize(0.05)
     hist.GetYaxis().SetLabelSize(0.05)
