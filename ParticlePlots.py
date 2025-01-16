@@ -90,7 +90,7 @@ def Plot2P2H(v1, v2, histogramInfo, title, file_path = None):
 
     hist1 = df.Filter(cut1).Histo2D(histogramInfo,v2,v1)
 
-    hist = formatHist(NameParts, hist1 ,'q_{0} (GeV)','q_{3} (GeV)')
+    hist = formatHist(NameParts, hist1 ,'q_{3} (GeV)','q_{0} (GeV)')
 
     # Histo2D(("name","title",40,0,2,40,0,2),v1,v2),v2,v2)
     
@@ -149,9 +149,9 @@ def Plot1PI(v1, v2, histogramInfo, title, file_path = None):
     c.SetCanvasSize(c.GetWw()+200,c.GetWh())
 
 
-    # saves hist to your home directory
+    # saves hist to a plots directory
     c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
-    # Change this ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 
 if __name__=="__main__":
