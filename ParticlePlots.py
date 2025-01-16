@@ -156,8 +156,8 @@ def Plot1PI(x, y, histogramInfo, title, file_path = None):
 
 if __name__=="__main__":
     # print("hi")
-    x = 'q0'
-    y = 'q3'
+    x = 'q3'
+    y = 'q0'
     histInfo = ("name",f"{y} vs {x} plot",60,0,3,60,0,3)
     Plot2P2H(x,y,histInfo, "2P2H_hist")
     x = 'W'
