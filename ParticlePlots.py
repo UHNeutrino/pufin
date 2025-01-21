@@ -27,7 +27,7 @@ ROOT.TH1.AddDirectory(False)
 
 
 def formatHist(NameParts, hist, xvar, xunit, yvar, yunit, max = -1):
-    hist.SetStats(0)
+    hist.SetStats(1) #1 for a legend 0 for no legend
     hist.GetXaxis().SetTitle(f"{xvar} {xunit}")
     hist.GetYaxis().SetTitle(f"{yvar} {yunit}")
     if max != -1:
@@ -73,7 +73,7 @@ def Plot2P2H(x, y, histogramInfo, title, file_path = None):
     # Mode 2 is the 2P2H interaction
     cut1 = 'Mode == 2'
     hist1 = df.Filter(cut1).Histo2D(histogramInfo,x,y)
-    hist = formatHist(NameParts, hist1 ,f'{x} (GeV)',f'{y} (GeV)')
+    # hist = formatHist(NameParts, hist1 ,f'{x} (GeV)',f'{y} (GeV)')
 
     hist = formatHist(NameParts, hist1 ,'q_{3}', '(GeV)', 'q_{0}', '(GeV)')
 
