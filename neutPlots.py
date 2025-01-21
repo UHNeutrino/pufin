@@ -1,5 +1,3 @@
-import ROOT
-import os
 import ParticlePlots
 
 
@@ -13,7 +11,7 @@ import ParticlePlots
 x = 'W'
 y = 'Q2'
 histInfo1 = ("name",f"{x} vs {y} plot",60,0,3,124,-0.2,6)
-histInfo2 = ("name",f"{x} vs {y} plot",60,0,3,60,0,3)
+histInfo2 = ("name",f"{x} vs {y} plot",60,0,1.2,60,0,1.2)
 # print(histInfo)
 ParticlePlots.Plot1PI(x,y,histInfo1,"1PI_hist","t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e6.root")
 ParticlePlots.Plot1PI(x,y,histInfo1,"1PI_hist","t2k-nova/FlatTrees/Flat_NEUT_1.0GeV_1e6.root")
