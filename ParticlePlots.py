@@ -13,11 +13,11 @@ ROOT.gStyle.SetNumberContours(50)     # Increase the number of colors in the gra
 # lets me use other people's home directories
 HOME = os.getenv("HOME", "/home/lboe")
 
-# enables multiprocessing
-ROOT.EnableImplicitMT()
+# enables multiprocessing **currently has not multiprocessing***
+# ROOT.EnableImplicitMT()
 
-# Allows python to manage the memeory rather than ROOT
-ROOT.TH1.AddDirectory(False)
+# Allows python to manage the memeory rather than ROOT ***might be causing seg faults***
+# ROOT.TH1.AddDirectory(False)
 
 
 # use Rdataframes to plot the q0 v q3 2DHisto and Q^2 vs W 2DHisto for 2P2H interacions, which have mode 2
@@ -33,7 +33,6 @@ def formatName(dir_location):
     NameParts[3] = NameParts[3].split('.root')[0]
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     return fileName, treeName, NameParts, Name
-
 
 def formatHist(NameParts, hist, xvar, xunit, yvar, yunit, max = -1):
     hist.SetStats(1) #1 for a legend 0 for no legend
@@ -91,7 +90,10 @@ def Plot2P2H(x, y, histogramInfo, title, file_path = None, max = None):
 
     formatTcanvas(hist,c)
     # saves hist to a specific directory 
-    c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
+    if max is not None:
+        c.SaveAs(f"{HOME}/t2k-nova/plots_constant_z_axis/{title}_{Name}.png")
+    else:
+        c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
 
 
 def Plot1PI(x, y, histogramInfo, title, file_path = None, max = None):
@@ -108,13 +110,16 @@ def Plot1PI(x, y, histogramInfo, title, file_path = None, max = None):
     cut1 = 'Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 '
     hist1 = df.Filter(cut1).Histo2D(histogramInfo,x,y)
     if max is None:
-        hist = formatHist(NameParts, hist1 ,'q_{3}', '(GeV)', 'q_{0}', '(GeV)')
+        hist = formatHist(NameParts, hist1,'W', '(GeV)', 'Q^{2}', '(GeV)^{2}')
     else:
-        hist = formatHist(NameParts, hist1 ,'q_{3}', '(GeV)', 'q_{0}', '(GeV)', max = max)
+        hist = formatHist(NameParts, hist1,'W', '(GeV)', 'Q^{2}', '(GeV)^{2}', max = max)
     c = ROOT.TCanvas()
     formatTcanvas(hist,c)
     # saves hist to a plots directory
-    c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
+    if max is not None:
+        c.SaveAs(f"{HOME}/t2k-nova/plots_constant_z_axis/{title}_{Name}.png")
+    else:
+        c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
 
 
 if __name__=="__main__":
