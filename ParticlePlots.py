@@ -24,6 +24,15 @@ ROOT.TH1.AddDirectory(False)
 # Plan is to get the q0, q3, Q^2 and W for all events where Mode = 2
 
 
+def formatName(dir_location):
+    fileName = f"{HOME}/{dir_location}"
+    treeName = "FlatTree_VARS"
+    parts = fileName.split('/')
+    NameRoot = parts[5]
+    NameParts = NameRoot.split('_')
+    NameParts[3] = NameParts[3].split('.root')[0]
+    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+    return fileName, treeName, NameParts, Name
 
 
 def formatHist(NameParts, hist, xvar, xunit, yvar, yunit, max = -1):
@@ -53,78 +62,59 @@ def formatTcanvas(hist, c):
     # c.SetCanvasSize(600,500)
     c.SetCanvasSize(c.GetWw()+200,c.GetWh())
 
-def Plot2P2H(x, y, histogramInfo, title, file_path = None):
+def Plot2P2H(x, y, histogramInfo, title, file_path = None, max = None):
     # First get the data into a dataframe
     if file_path is None:
         dir_location = input("Give Flat Tree Directory Location (not including home): ")
     else:
         dir_location = file_path
-
-    fileName = f"{HOME}/{dir_location}"
-    treeName = "FlatTree_VARS"
-    parts = fileName.split('/')
-    NameRoot = parts[5]
-    NameParts = NameRoot.split('_')
-    NameParts[3] = NameParts[3].split('.root')[0]
-    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+    # fileName = f"{HOME}/{dir_location}"
+    # treeName = "FlatTree_VARS"
+    # parts = fileName.split('/')
+    # NameRoot = parts[5]
+    # NameParts = NameRoot.split('_')
+    # NameParts[3] = NameParts[3].split('.root')[0]
+    # Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+    fileName, treeName, NameParts, Name = formatName(dir_location)
 
     df = ROOT.RDataFrame(treeName,fileName)
                          
     # Mode 2 is the 2P2H interaction
     cut1 = 'Mode == 2'
     hist1 = df.Filter(cut1).Histo2D(histogramInfo,x,y)
-    # hist = formatHist(NameParts, hist1 ,f'{x} (GeV)',f'{y} (GeV)')
 
-    hist = formatHist(NameParts, hist1 ,'q_{3}', '(GeV)', 'q_{0}', '(GeV)')
-
-    # Histo2D(("name","title",40,0,2,40,0,2),x,y),y,y)
-    
+    if max is None:
+        hist = formatHist(NameParts, hist1 ,'q_{3}', '(GeV)', 'q_{0}', '(GeV)')
+    else:
+        hist = formatHist(NameParts, hist1 ,'q_{3}', '(GeV)', 'q_{0}', '(GeV)', max = max)
     c = ROOT.TCanvas()
 
-    # # Adjust margins; Default is 0.1; increase as needed
-    # c.SetLeftMargin(0.15)  # Adjust the left margin to avoid cutting off the y-axis label
-    # c.SetRightMargin(0.15) #Adjust the right margin to make space for the legend
-    # c.SetBottomMargin(0.15) #Adjust the bottom margin to avoid cutting off the x-axis label
-    # hist.Draw("COLZ")
-    # # c.SetCanvasSize(600,500)
-    # c.SetCanvasSize(c.GetWw()+200,c.GetWh())
-
     formatTcanvas(hist,c)
-
-
-    # saves hist a specific directory I made in my home dir 
+    # saves hist to a specific directory 
     c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
-    # Change this ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-def Plot1PI(x, y, histogramInfo, title, file_path = None):
+def Plot1PI(x, y, histogramInfo, title, file_path = None, max = None):
     if file_path is None:
         dir_location = input("Give Flat Tree Directory Location (not including home): ")
     else:
         dir_location = file_path
 
-    fileName = f"{HOME}/{dir_location}"
-    treeName = "FlatTree_VARS"
-    parts = fileName.split('/')
-    NameRoot = parts[5]
-    NameParts = NameRoot.split('_')
-    NameParts[3] = NameParts[3].split('.root')[0]
-    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
-
-    # print(Name)
+    fileName, treeName, NameParts, Name = formatName(dir_location)
 
     df = ROOT.RDataFrame(treeName,fileName)
 
     # Modes for single Pi are 11-16
     cut1 = 'Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 '
-
     hist1 = df.Filter(cut1).Histo2D(histogramInfo,x,y)
-    hist = formatHist(NameParts, hist1,'W', '(GeV)', 'Q^{2}', '(GeV)^{2}')
+    if max is None:
+        hist = formatHist(NameParts, hist1 ,'q_{3}', '(GeV)', 'q_{0}', '(GeV)')
+    else:
+        hist = formatHist(NameParts, hist1 ,'q_{3}', '(GeV)', 'q_{0}', '(GeV)', max = max)
     c = ROOT.TCanvas()
     formatTcanvas(hist,c)
     # saves hist to a plots directory
     c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
-
 
 
 if __name__=="__main__":
