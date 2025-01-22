@@ -1,8 +1,12 @@
 import ParticlePlots
 import glob
+import os
 
 
-userFolder = "/home/lboe/t2k-nova/FlatTrees"
+HOME = os.getenv("HOME", "/home/lboe")
+
+
+userFolder = f"{HOME}/t2k-nova/FlatTrees"
 root_files = glob.glob(userFolder + '/*.root')
 
 # print(root_files)
