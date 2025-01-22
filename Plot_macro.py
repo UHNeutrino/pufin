@@ -1,5 +1,4 @@
 import ParticlePlots
-import os
 import glob
 
 

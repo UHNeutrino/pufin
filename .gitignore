@@ -3,6 +3,6 @@ FlatTrees/*
 NEUT_generation_excess/*
 
 *.png
-
+*.card
 
 *.root
