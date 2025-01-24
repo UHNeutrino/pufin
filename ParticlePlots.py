@@ -95,6 +95,8 @@ def Plot2P2H(x, y, histogramInfo, title, file_path = None, max = None, Normalize
         c.SaveAs(f"{HOME}/t2k-nova/plots_normalized/{title}_{Name}.png")
     else:
         c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
+        
+    return hist 
 
 
 def Plot1PI(x, y, histogramInfo, title, file_path = None, max = None, Normalize = 0):
@@ -130,6 +132,8 @@ def Plot1PI(x, y, histogramInfo, title, file_path = None, max = None, Normalize 
         c.SaveAs(f"{HOME}/t2k-nova/plots_normalized/{title}_{Name}.png")
     else:
         c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
+        
+    return hist
 
 
 if __name__=="__main__":
