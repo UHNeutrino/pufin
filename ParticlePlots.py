@@ -32,7 +32,7 @@ def formatName(dir_location):
     NameParts = NameRoot.split('_')
     NameParts[3] = NameParts[3].split('.root')[0]
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
-    return fileName, treeName, NameParts, Name
+    return NameParts
 
 def formatHist(NameParts, hist, xvar, xunit, yvar, yunit, max = -1):
     hist.SetStats(1) #1 for a legend 0 for no legend
@@ -46,10 +46,6 @@ def formatHist(NameParts, hist, xvar, xunit, yvar, yunit, max = -1):
     hist.GetYaxis().SetLabelSize(0.05)
     hist.GetYaxis().SetTitleSize(0.05)
     hist.GetZaxis().SetLabelSize(0.05)
-
-    # hist.GetXaxis().SetLabelSize(0);
-    # hist.GetXaxis().SetTickLength(0);
-
     return hist.Clone()
 
 def formatTcanvas(hist, c):
@@ -61,30 +57,66 @@ def formatTcanvas(hist, c):
     # c.SetCanvasSize(600,500)
     c.SetCanvasSize(c.GetWw()+200,c.GetWh())
 
-def Plot2P2H(x, y, histogramInfo, title, file_path = None, max = None, Normalize = 0):
+def Plot2P2H(x, y, histogramInfo, file_path = None):
     # First get the data into a dataframe
     if file_path is None:
         dir_location = input("Give Flat Tree Directory Location (not including home): ")
     else:
         dir_location = file_path
-    fileName, treeName, NameParts, Name = formatName(dir_location)
+    
+    
+    fileName = f"{HOME}/{dir_location}"
+    treeName = "FlatTree_VARS"
 
     df = ROOT.RDataFrame(treeName,fileName)
                          
     # Mode 2 is the 2P2H interaction
     cut1 = 'Mode == 2'
-    hist1 = df.Filter(cut1).Histo2D(histogramInfo,x,y)
+    hist = df.Filter(cut1).Histo2D(histogramInfo,x,y)
+    
+    return hist, file_path
+
+
+def Plot1PI(x, y, histogramInfo, file_path = None):
+    if file_path is None:
+        dir_location = input("Give Flat Tree Directory Location (not including home): ")
+    else:
+        dir_location = file_path
+
+    fileName = f"{HOME}/{dir_location}"
+    treeName = "FlatTree_VARS"
+
+    df = ROOT.RDataFrame(treeName,fileName)
+
+    # Modes for single Pi are 11-16
+    cut1 = 'Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 '
+    hist = df.Filter(cut1).Histo2D(histogramInfo,x,y)
+
+    return hist, file_path
+
+
+def SavePlot(hist, title, AxisInfo, dir_location, max = None, Normalize = 0):
+    NameParts = formatName(dir_location)
+    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+
+    xvar = AxisInfo[0]
+    xunit = AxisInfo[1]
+    yvar = AxisInfo[2]
+    yunit = AxisInfo[3]
 
     if Normalize == 1:
-       scale = 1/(hist1.Integral())
+       scale = 1/(hist.Integral())
     #    print(scale)
-       hist1.Scale(scale)
+       hist.Scale(scale)
 
+    
 
     if max is None:
-        hist = formatHist(NameParts, hist1 ,'q_{3}', '(GeV)', 'q_{0}', '(GeV)')
+        hist = formatHist(NameParts, hist ,xvar, xunit, yvar, yunit)
     else:
-        hist = formatHist(NameParts, hist1 ,'q_{3}', '(GeV)', 'q_{0}', '(GeV)', max = max)
+        hist = formatHist(NameParts, hist ,xvar, xunit, yvar, yunit, max = max)
+    
+    
     c = ROOT.TCanvas()
 
     formatTcanvas(hist,c)
@@ -96,51 +128,21 @@ def Plot2P2H(x, y, histogramInfo, title, file_path = None, max = None, Normalize
     else:
         c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
 
-
-def Plot1PI(x, y, histogramInfo, title, file_path = None, max = None, Normalize = 0):
-    if file_path is None:
-        dir_location = input("Give Flat Tree Directory Location (not including home): ")
-    else:
-        dir_location = file_path
-
-    fileName, treeName, NameParts, Name = formatName(dir_location)
-
-    df = ROOT.RDataFrame(treeName,fileName)
-
-    # Modes for single Pi are 11-16
-    cut1 = 'Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 '
-    hist1 = df.Filter(cut1).Histo2D(histogramInfo,x,y)
-
-    if Normalize == 1:
-       scale = 1/(hist1.Integral())
-    #    print(scale)
-       hist1.Scale(scale)
-
-
-    if max is None:
-        hist = formatHist(NameParts, hist1,'W', '(GeV)', 'Q^{2}', '(GeV)^{2}')
-    else:
-        hist = formatHist(NameParts, hist1,'W', '(GeV)', 'Q^{2}', '(GeV)^{2}', max = max)
-    c = ROOT.TCanvas()
-    formatTcanvas(hist,c)
-    # saves hist to a plots directory
-    if max is not None:
-        c.SaveAs(f"{HOME}/t2k-nova/plots_constant_z_axis/{title}_{Name}.png")
-    elif Normalize == 1:
-        c.SaveAs(f"{HOME}/t2k-nova/plots_normalized/{title}_{Name}.png")
-    else:
-        c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
-
-
 if __name__=="__main__":
+    # Test functions in this area
+    # print("What are you testing?")
     x = 'q3'
     y = 'q0'
+    AxisInfo = ['q_{3}', '(GeV)','q_{0}', '(GeV)']
     histInfo = ("name",f"{y} vs {x} plot",60,0,3,60,0,3)
-    Plot2P2H(x,y,histInfo,"2P2H_hist","skibidi.com", Normalize = 1)
-    # x = 'W'
-    # y = 'Q2'
-    # histInfo = ("name",f"{y} vs {x} plot",60,0,3,120,0,6)
-    # Plot1PI(x,y,histInfo,"1PI_hist","t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e6.root")
+    hist, file_path = Plot2P2H(x,y,histInfo,"t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e6.root")
+    SavePlot(hist,"titlename1",AxisInfo, file_path)
+    x = 'W'
+    y = 'Q2'
+    AxisInfo = ['W', '(GeV)','Q^{2}', '(GeV)^{2}']
+    histInfo = ("name",f"{y} vs {x} plot",60,0,3,120,0,6)
+    hist, file_path = Plot1PI(x,y,histInfo,"t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e6.root")
+    SavePlot(hist,"testname2",AxisInfo, file_path)
 
 
 
