@@ -35,7 +35,7 @@ def formatName(dir_location):
     return NameParts
 
 def formatHist(NameParts, hist, xvar, xunit, yvar, yunit, max = -1):
-    hist.SetStats(1) #1 for a legend 0 for no legend
+    hist.SetStats(0) #1 for a legend 0 for no legend
     hist.GetXaxis().SetTitle(f"{xvar} {xunit}")
     hist.GetYaxis().SetTitle(f"{yvar} {yunit}")
     if max != -1:

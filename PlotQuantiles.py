@@ -15,14 +15,21 @@ ROOT.gStyle.SetNumberContours(50)     # Increase the number of colors in the gra
 # lets me use other people's home directories
 HOME = os.getenv("HOME", "/home/lboe")
 
-file_path="t2k-nova/FlatTrees/Flat_GenieNOvA_.7GeV_10E6.root"
-dir_location = file_path
-fileName = f"{HOME}/{dir_location}"
-treeName = "FlatTree_VARS"
+file_path = "t2k-nova/FlatTrees/Flat_NEUT_1.0GeV_1e6.root"
+# dir_location = file_path
+# fileName = f"{HOME}/{dir_location}"
+# treeName = "FlatTree_VARS"
 
-def constant_binning(x, y):
+def constant_binning(x, y, file_path):
     # First get the data into a dataframe
+    dir_location = file_path
+    fileName = f"{HOME}/{dir_location}"
+    treeName = "FlatTree_VARS"
     df = ROOT.RDataFrame(treeName, fileName)
+
+
+    histogramInfo = ("name", f"{y} vs {x} plot", 1000000, 0, 3, 1, 0, 3) #just need 1 bin in y
+
 
     # Mode 2 is the 2P2H interaction
     cut1 = 'Mode == 2'
@@ -57,14 +64,19 @@ def constant_binning(x, y):
 
     return x_bins, total_events
 
-def quantile_cutting(x, y, x_bins):
+def quantile_cutting(x, y, x_bins, file_path):
     """
     Returns:
     - A list of filtered RDataFrames, one for each quantile.
     """
+    dir_location = file_path
+    fileName = f"{HOME}/{dir_location}"
+    treeName = "FlatTree_VARS"  
     # Get each quantile into a separate dataframe
     df = ROOT.RDataFrame(treeName, fileName)
-                         
+    df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+
+
     # Mode 2 is the 2P2H interaction
     cut1 = 'Mode == 2'
     df_filtered = df.Filter(cut1)
@@ -88,14 +100,16 @@ def quantile_cutting(x, y, x_bins):
     
     return quantile_dfs
 
-def PlotQuantiles(x, y, histogramInfo):
-   
+def PlotQuantiles(x, y, histogramInfo, file_path, df, title):
+    dir_location = file_path
     hist1 = df.Histo2D(histogramInfo,x,y)
     
     NameParts = pp.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     
-    hist = pp.formatHist(NameParts, hist1 ,'cos theta', '', 'E Lep', '(GeV)')
+    hist = pp.formatHist(NameParts, hist1 ,'P Lep', '(GeV)', 'cos theta', '')
+
+
    
     c = ROOT.TCanvas()
 
@@ -109,29 +123,29 @@ if __name__ == "__main__":
     # Make q0 vs q3 histogram to find quantiles with equal events
     x = 'q3'
     y = 'q0'
-    histogramInfo = ("name", f"{y} vs {x} plot", 1200, 0, 3, 1, 0, 3) #just need 1 bin in y
     
-    x_bins, total_events = constant_binning(x, y)
+    
+    x_bins, total_events = constant_binning(x, y, file_path=file_path)
     
     # Apply quantile_cutting to make a new dataframe for each quantile 
-    quantile_dfs = quantile_cutting(x, y, x_bins)
+    quantile_dfs = quantile_cutting(x, y, x_bins, file_path=file_path)
     
     # Check: Print the number of events in each quantile
     for i, df in enumerate(quantile_dfs):
         print(f"Quantile {i+1}: {df.Count().GetValue()} events")
         
     # Make plots for each dataframe
-    x = 'CosLep'
-    y = 'ELep'
+    y = 'CosLep'
+    x = 'PLep'
     
     #AxisInfo = ['cos{theta}', '', 'E Lep', '(GeV)'] not using this yet
-    histInfo = ("name", f"{y} vs {x} plot", 20, 0, 1, 60, 0, 3)
+    histInfo = ("name", f"{y} vs {x} plot", 60, 0, 3.3, 102, -1.02, 1.02)
     
     # Create and save a plot for each quantile
     for i, df in enumerate(quantile_dfs):
         # Define a title for the current quantile plot
         title = f"Quantile_{i+1}"
-        PlotQuantiles(x, y, histInfo)
+        PlotQuantiles(x, y, histInfo, file_path=file_path, df=df, title = title)
         
     
 
