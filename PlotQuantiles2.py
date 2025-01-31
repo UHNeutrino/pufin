@@ -6,6 +6,7 @@ import ParticlePlots as pp
 
 ROOT.gStyle.SetStatX(0.85)  # Closer to the left edge
 ROOT.gStyle.SetStatY(0.9)  # Slightly below the top edge
+ROOT.gStyle.SetOptStat(10)  # Only show the number of entries (N)
 
 # Apply a modern color palette
 ROOT.gStyle.SetPalette(ROOT.kRainBow)  # Choose a visually pleasing palette
@@ -16,11 +17,11 @@ ROOT.gStyle.SetNumberContours(50)     # Increase the number of colors in the gra
 HOME = os.getenv("HOME", "/home/lboe")
 
 file_path="t2k-nova/FlatTrees/Flat_GenieNOvA_.7GeV_10E6.root"
-dir_location = file_path
-fileName = f"{HOME}/{dir_location}"
-treeName = "FlatTree_VARS"
-NameParts = pp.formatName(dir_location)
-Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+# dir_location = file_path
+# fileName = f"{HOME}/{dir_location}"
+# treeName = "FlatTree_VARS"
+# NameParts = pp.formatName(dir_location)
+# Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
 
 def constant_binning(x, y, file_path):
     # First get the data into a dataframe
@@ -47,9 +48,9 @@ def constant_binning(x, y, file_path):
 
     # Now that we have cumulative events, let's split them into 6 sections
     x_bins = [0]  # Start at 0
-    target_events_per_section = total_events / 6
+    target_events_per_section = total_events / 5
 
-    for i in range(1, 6):  # Divide into 6 sections
+    for i in range(1, 5):  # Divide into 5 sections
         target = i * target_events_per_section
 
         # Find the first bin index where the cumulative event count exceeds the target
@@ -60,7 +61,7 @@ def constant_binning(x, y, file_path):
     # Add the final bin edge to ensure full coverage
     x_bins.append(df_filtered.GetXaxis().GetXmax())
 
-    print(f"x-axis bins (6 equal-event sections): {x_bins}")
+    print(f"x-axis bins (5 equal-event sections): {x_bins}")
 
     return x_bins, total_events
 
@@ -101,6 +102,9 @@ def quantile_cutting(x, y, x_bins, file_path):
 
 def PlotQuantiles(df, x, y, histogramInfo, output_root_file, file_path):
     dir_location = file_path
+    NameParts = pp.formatName(dir_location)
+    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+    
     hist1 = df.Histo2D(histogramInfo,x,y)
     
     hist = pp.formatHist(NameParts, hist1 ,'P Lep', '(GeV)', 'cos theta', '')
@@ -118,6 +122,10 @@ def PlotQuantiles(df, x, y, histogramInfo, output_root_file, file_path):
     return hist 
 
 if __name__ == "__main__":
+    
+    dir_location = file_path
+    NameParts = pp.formatName(dir_location)
+    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     
     # Make q0 vs q3 histogram to find quantiles with equal events
     x = 'q3'
@@ -148,6 +156,18 @@ if __name__ == "__main__":
         # Define a title for the current quantile plot
         title = f"Quantile_{i+1}"
         PlotQuantiles(df, x, y, histInfo, output_root_file, file_path=file_path)
+        
+    # Define x and y for Plot2P2H
+    x = "PLep"
+    y = "CosLep"
+    histInfo = ("2P2H", f"{y} vs {x} 2P2H plot", 60, 0, 3.3, 102, -1.02, 1.02)
+
+    # Generate the 2P2H histogram
+    hist_Full2P2H, _ = pp.Plot2P2H(x, y, histInfo, file_path=file_path)
+
+    # Write the 2P2H histogram to the output ROOT file
+    output_root_file.cd()
+    hist_Full2P2H.Write("2P2H_Histogram")
         
     # Clost the ROOT file after writing all histograms
     output_root_file.Close()
