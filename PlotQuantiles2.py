@@ -22,9 +22,14 @@ treeName = "FlatTree_VARS"
 NameParts = pp.formatName(dir_location)
 Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
 
-def constant_binning(x, y):
+def constant_binning(x, y, file_path):
     # First get the data into a dataframe
+    dir_location = file_path
+    fileName = f"{HOME}/{dir_location}"
+    treeName = "FlatTree_VARS"
     df = ROOT.RDataFrame(treeName, fileName)
+    
+    histogramInfo = ("name", f"{y} vs {x} plot", 1000000, 0, 3, 1, 0, 3) #just need 1 bin in y
 
     # Mode 2 is the 2P2H interaction
     cut1 = 'Mode == 2'
@@ -40,11 +45,11 @@ def constant_binning(x, y):
         bin_total = sum(df_filtered.GetBinContent(i, j) for j in range(1, df_filtered.GetNbinsY() + 1))
         cumulative_events.append(cumulative_events[-1] + bin_total)
 
-    # Now that we have cumulative events, let's split them into 5 sections
+    # Now that we have cumulative events, let's split them into 6 sections
     x_bins = [0]  # Start at 0
-    target_events_per_section = total_events / 5
+    target_events_per_section = total_events / 6
 
-    for i in range(1, 5):  # Divide into 5 sections
+    for i in range(1, 6):  # Divide into 6 sections
         target = i * target_events_per_section
 
         # Find the first bin index where the cumulative event count exceeds the target
@@ -55,17 +60,21 @@ def constant_binning(x, y):
     # Add the final bin edge to ensure full coverage
     x_bins.append(df_filtered.GetXaxis().GetXmax())
 
-    print(f"x-axis bins (5 equal-event sections): {x_bins}")
+    print(f"x-axis bins (6 equal-event sections): {x_bins}")
 
     return x_bins, total_events
 
-def quantile_cutting(x, y, x_bins):
+def quantile_cutting(x, y, x_bins, file_path):
     """
     Returns:
     - A list of filtered RDataFrames, one for each quantile.
     """
+    dir_location = file_path
+    fileName = f"{HOME}/{dir_location}"
+    treeName = "FlatTree_VARS" 
     # Get each quantile into a separate dataframe
     df = ROOT.RDataFrame(treeName, fileName)
+    df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
                          
     # Mode 2 is the 2P2H interaction
     cut1 = 'Mode == 2'
@@ -90,11 +99,11 @@ def quantile_cutting(x, y, x_bins):
     
     return quantile_dfs
 
-def PlotQuantiles(df, x, y, histogramInfo, output_root_file):
-   
+def PlotQuantiles(df, x, y, histogramInfo, output_root_file, file_path):
+    dir_location = file_path
     hist1 = df.Histo2D(histogramInfo,x,y)
     
-    hist = pp.formatHist(NameParts, hist1 ,'cos theta', '', 'E Lep', '(GeV)')
+    hist = pp.formatHist(NameParts, hist1 ,'P Lep', '(GeV)', 'cos theta', '')
     
     #Write histogram to the ROOT file
     output_root_file.cd() # Make sure we write to the correct file
@@ -115,21 +124,21 @@ if __name__ == "__main__":
     y = 'q0'
     histogramInfo = ("name", f"{y} vs {x} plot", 1200, 0, 3, 1, 0, 3) #just need 1 bin in y
     
-    x_bins, total_events = constant_binning(x, y)
+    x_bins, total_events = constant_binning(x, y, file_path=file_path)
     
     # Apply quantile_cutting to make a new dataframe for each quantile 
-    quantile_dfs = quantile_cutting(x, y, x_bins)
+    quantile_dfs = quantile_cutting(x, y, x_bins, file_path=file_path)
     
     # Check: Print the number of events in each quantile
     for i, df in enumerate(quantile_dfs):
         print(f"Quantile {i+1}: {df.Count().GetValue()} events")
         
     # Make plots for each dataframe
-    x = 'CosLep'
-    y = 'ELep'
+    x = 'PLep'
+    y = 'CosLep'
     
     #AxisInfo = ['cos{theta}', '', 'E Lep', '(GeV)'] not using this yet
-    histInfo = ("name", f"{y} vs {x} plot", 20, 0, 1, 60, 0, 3)
+    histInfo = ("name", f"{y} vs {x} plot", 60, 0, 3.3, 102, -1.02, 1.02)
     
     # Open a signle ROOT file to save all histograms
     output_root_file = ROOT.TFile(f"{HOME}/t2k-nova/plots_quantiles/Hists_{Name}.root", "RECREATE")
@@ -138,7 +147,7 @@ if __name__ == "__main__":
     for i, df in enumerate(quantile_dfs):
         # Define a title for the current quantile plot
         title = f"Quantile_{i+1}"
-        PlotQuantiles(df, x, y, histInfo, output_root_file)
+        PlotQuantiles(df, x, y, histInfo, output_root_file, file_path=file_path)
         
     # Clost the ROOT file after writing all histograms
     output_root_file.Close()
