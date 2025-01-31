@@ -4,6 +4,8 @@ import os
 
 ROOT.gStyle.SetStatX(0.85)  # Closer to the left edge
 ROOT.gStyle.SetStatY(0.9)  # Slightly below the top edge
+ROOT.gStyle.SetOptStat(10)  # Only show the number of entries (N)
+
 
 # Apply a modern color palette
 ROOT.gStyle.SetPalette(ROOT.kRainBow)  # Choose a visually pleasing palette
@@ -35,7 +37,7 @@ def formatName(dir_location):
     return NameParts
 
 def formatHist(NameParts, hist, xvar, xunit, yvar, yunit, max = -1):
-    hist.SetStats(0) #1 for a legend 0 for no legend
+    hist.SetStats(1) #1 for a legend 0 for no legend
     hist.GetXaxis().SetTitle(f"{xvar} {xunit}")
     hist.GetYaxis().SetTitle(f"{yvar} {yunit}")
     if max != -1:
@@ -69,6 +71,7 @@ def Plot2P2H(x, y, histogramInfo, file_path = None):
     treeName = "FlatTree_VARS"
 
     df = ROOT.RDataFrame(treeName,fileName)
+    df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
                          
     # Mode 2 is the 2P2H interaction
     cut1 = 'Mode == 2'
@@ -137,13 +140,13 @@ if __name__=="__main__":
     y = 'q0'
     AxisInfo = ['q_{3}', '(GeV)','q_{0}', '(GeV)']
     histInfo = ("name",f"{y} vs {x} plot",60,0,3,60,0,3)
-    hist, file_path = Plot2P2H(x,y,histInfo,"t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e6.root")
+    hist, file_path = Plot2P2H(x,y,histInfo,"t2k-nova/FlatTrees/Flat_GenieNOvA_.7GeV_10E6.root")
     SavePlot(hist,"titlename1",AxisInfo, file_path)
     x = 'W'
     y = 'Q2'
     AxisInfo = ['W', '(GeV)','Q^{2}', '(GeV)^{2}']
     histInfo = ("name",f"{y} vs {x} plot",60,0,3,120,0,6)
-    hist, file_path = Plot1PI(x,y,histInfo,"t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e6.root")
+    hist, file_path = Plot1PI(x,y,histInfo,"t2k-nova/FlatTrees/Flat_GenieNOvA_.7GeV_10E6.root")
     SavePlot(hist,"testname2",AxisInfo, file_path)
 
 
