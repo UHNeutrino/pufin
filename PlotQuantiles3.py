@@ -17,6 +17,7 @@ ROOT.gStyle.SetNumberContours(50)     # Increase the number of colors in the gra
 # lets me use other people's home directories
 HOME = os.getenv("HOME", "/home/lboe")
 
+
 file_path = "t2k-nova/FlatTrees/Flat_GenieNOvA_.7GeV_10E6.root"
 # dir_location = file_path
 # fileName = f"{HOME}/{dir_location}"
