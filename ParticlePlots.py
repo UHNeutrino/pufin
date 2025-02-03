@@ -1,9 +1,9 @@
 import ROOT
-
+import os
 import Setup
 
 
-Setup.setupROOT()
+Setup.setupRoot()
 
 
 
@@ -15,7 +15,7 @@ Setup.setupROOT()
 
 # use Rdataframes to plot the q0 v q3 2DHisto and Q^2 vs W 2DHisto for 2P2H interacions, which have mode 2
 # Plan is to get the q0, q3, Q^2 and W for all events where Mode = 2
-
+HOME = os.getenv("HOME", "/home/lboe")
 
 
 def Plot2P2H(x, y, histogramInfo, file_path = None):
@@ -26,8 +26,9 @@ def Plot2P2H(x, y, histogramInfo, file_path = None):
         dir_location = file_path
     
     
-    fileName = f"{HOME}/{dir_location}"
+    fileName = f"/data/{dir_location}"
     treeName = "FlatTree_VARS"
+    print(fileName)
 
     df = ROOT.RDataFrame(treeName,fileName)
     df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
@@ -45,7 +46,7 @@ def Plot1PI(x, y, histogramInfo, file_path = None):
     else:
         dir_location = file_path
 
-    fileName = f"{HOME}/{dir_location}"
+    fileName = f"/data/{dir_location}"
     treeName = "FlatTree_VARS"
 
     df = ROOT.RDataFrame(treeName,fileName)
@@ -99,13 +100,13 @@ if __name__=="__main__":
     y = 'q0'
     AxisInfo = ['q_{3}', '(GeV)','q_{0}', '(GeV)']
     histInfo = ("name",f"{y} vs {x} plot",60,0,3,60,0,3)
-    hist, file_path = Plot2P2H(x,y,histInfo,"t2k-nova/FlatTrees/Flat_GenieNOvA_.7GeV_10E6.root")
+    hist, file_path = Plot2P2H(x,y,histInfo,"t2k-nova/FlatTrees/FLAT_NEUT_1.0GeV_1e7.root")
     SavePlot(hist,"titlename1",AxisInfo, file_path)
     x = 'W'
     y = 'Q2'
     AxisInfo = ['W', '(GeV)','Q^{2}', '(GeV)^{2}']
     histInfo = ("name",f"{y} vs {x} plot",60,0,3,120,0,6)
-    hist, file_path = Plot1PI(x,y,histInfo,"t2k-nova/FlatTrees/Flat_GenieNOvA_.7GeV_10E6.root")
+    hist, file_path = Plot1PI(x,y,histInfo,"t2k-nova/FlatTrees/FLAT_NEUT_1.0GeV_1e7.root")
     SavePlot(hist,"testname2",AxisInfo, file_path)
 
 

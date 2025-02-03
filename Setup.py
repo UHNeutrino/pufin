@@ -5,18 +5,17 @@ def setupRoot():
     ROOT.gStyle.SetStatX(0.85)  # Closer to the left edge
     ROOT.gStyle.SetStatY(0.9)  # Slightly below the top edge
     ROOT.gStyle.SetOptStat(10)  # Only show the number of entries (N)
-
-
     # Apply a modern color palette
     ROOT.gStyle.SetPalette(ROOT.kRainBow)  # Choose a visually pleasing palette
     ROOT.gStyle.SetNumberContours(50)     # Increase the number of colors in the gradient
 
 def formatName(dir_location):
-    HOME = os.getenv("HOME", "/home/lboe")
+    # HOME = os.getenv("HOME", "/home/lboe")
+    HOME = "/data"
     fileName = f"{HOME}/{dir_location}"
     treeName = "FlatTree_VARS"
     parts = fileName.split('/')
-    NameRoot = parts[5]
+    NameRoot = parts[4]
     NameParts = NameRoot.split('_')
     NameParts[3] = NameParts[3].split('.root')[0]
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
