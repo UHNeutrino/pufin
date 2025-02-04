@@ -5,27 +5,19 @@ import os
 from array import array  # Use for ROOT-compatible arrays
 import numpy as np 
 import ParticlePlots as pp 
+import Setup as s
 
-ROOT.gStyle.SetStatX(0.85)  # Closer to the left edge
-ROOT.gStyle.SetStatY(0.9)  # Slightly below the top edge
-
-# Apply a modern color palette
-ROOT.gStyle.SetPalette(ROOT.kRainBow)  # Choose a visually pleasing palette
-ROOT.gStyle.SetNumberContours(50)     # Increase the number of colors in the gradient
-
+s.setupRoot
 
 # lets me use other people's home directories
 HOME = os.getenv("HOME", "/home/lboe")
 
-file_path = "t2k-nova/FlatTrees/Flat_GenieNOvA_.7GeV_10E6.root"
-# dir_location = file_path
-# fileName = f"{HOME}/{dir_location}"
-# treeName = "FlatTree_VARS"
+file_path = "t2k-nova/FlatTrees/Flat_GenieNOvA_.7GeV_1e7.root"
 
 def constant_binning(x, y, file_path):
     # First get the data into a dataframe
     dir_location = file_path
-    fileName = f"{HOME}/{dir_location}"
+    fileName = f"/data/{dir_location}"
     treeName = "FlatTree_VARS"
     df = ROOT.RDataFrame(treeName, fileName)
 
@@ -72,7 +64,7 @@ def quantile_cutting(x, y, x_bins, file_path):
     - A list of filtered RDataFrames, one for each quantile.
     """
     dir_location = file_path
-    fileName = f"{HOME}/{dir_location}"
+    fileName = f"/data/{dir_location}"
     treeName = "FlatTree_VARS"  
     # Get each quantile into a separate dataframe
     df = ROOT.RDataFrame(treeName, fileName)
@@ -107,10 +99,10 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
     dir_location = file_path
     hist1 = df.Histo2D(histogramInfo,x,y)
     
-    NameParts = pp.formatName(dir_location)
+    NameParts = s.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     
-    hist = pp.formatHist(NameParts, hist1 ,'P Lep', '(GeV)', 'cos theta', '')
+    hist = s.formatHist(NameParts, hist1 ,'Lepton Momentum', '(GeV)', 'cos #theta', '')
     if Normalize == 1:
        scale = 1/(hist.Integral())
        hist.Scale(scale)
@@ -127,7 +119,7 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
    
     c = ROOT.TCanvas()
 
-    pp.formatTcanvas(hist,c)
+    s.formatTcanvas(hist,c)
     ROOT.gStyle.SetOptStat(0)  # Remove statistics box
     c.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{title}_{Name}.png")
         
@@ -136,7 +128,7 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
 def MultiPlot(histos, file_path):
     dir_location = file_path
     
-    NameParts = pp.formatName(dir_location)
+    NameParts = s.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     # Create a canvas
     cFull = ROOT.TCanvas("cFull", "Canvas with Subdivisions", 1200, 800)  
@@ -234,11 +226,11 @@ def MultiPlot(histos, file_path):
     ROOT.gPad.Update()
     cFull.Update()
     # Save the canvas
-    cFull.SaveAs("test2.png")
+    cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{NameParts[2]}_2P2H_Quantiles.png")
 
 if __name__ == "__main__":
     dir_location = file_path
-    NameParts = pp.formatName(dir_location)
+    NameParts = s.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     # Make q0 vs q3 histogram to find quantiles with equal events
     x = 'q3'
@@ -286,7 +278,7 @@ if __name__ == "__main__":
     hist_Full2P2H.SetMaximum(0.04)  # Ensures max value displayed is 0.04
     
     cfull2P2H = ROOT.TCanvas()
-    pp.formatTcanvas(hist_Full2P2H,cfull2P2H)
+    s.formatTcanvas(hist_Full2P2H,cfull2P2H)
     
     title = hist_Full2P2H.GetName()
     print(f"{title}")
