@@ -21,7 +21,6 @@ def constant_binning(x, y, file_path):
     treeName = "FlatTree_VARS"
     df = ROOT.RDataFrame(treeName, fileName)
 
-
     histogramInfo = ("name", f"{y} vs {x} plot", 1000000, 0, 3, 1, 0, 3) #just need 1 bin in y
 
 
@@ -125,7 +124,7 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
         
     return hist 
 
-def MultiPlot(histos, file_path):
+def MultiPlot(histos, slice, file_path):
     dir_location = file_path
     
     NameParts = s.formatName(dir_location)
@@ -226,21 +225,23 @@ def MultiPlot(histos, file_path):
     ROOT.gPad.Update()
     cFull.Update()
     # Save the canvas
-    cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{NameParts[2]}_2P2H_Quantiles.png")
+    cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{NameParts[2]}_2P2H_{slice}_Quantiles.png")
 
 if __name__ == "__main__":
     dir_location = file_path
     NameParts = s.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     # Make q0 vs q3 histogram to find quantiles with equal events
-    x = 'q3'
-    y = 'q0'
+    x1 = 'q3'
+    y1 = 'q0'
     
+    # Now define slice after x1 and y1 exist
+    slice = x1  # For slices by q3; Change to y1 to name slices by q0
     
-    x_bins, total_events = constant_binning(x, y, file_path=file_path)
+    x_bins, total_events = constant_binning(x1, y1, file_path=file_path)
     
     # Apply quantile_cutting to make a new dataframe for each quantile 
-    quantile_dfs = quantile_cutting(x, y, x_bins, file_path=file_path)
+    quantile_dfs = quantile_cutting(x1, y1, x_bins, file_path=file_path)
         
     event_counts = {}  # Dictionary to store event counts
     # Check: Print the number of events in each quantile
@@ -259,7 +260,7 @@ if __name__ == "__main__":
         # Define title to use as the name of the histogram for multiplot text
         lower_bound = x_bins[i]
         upper_bound = x_bins[i + 1]
-        title = f"q3 range: {lower_bound:.2f} to {upper_bound:.2f} GeV_{event_counts[i]}"
+        title = f"{slice} range: {lower_bound:.2f} to {upper_bound:.2f} GeV_{event_counts[i]}"
         histInfo = (f"{title}", f"{y} vs {x} plot", 60, 0, 3.3, 102, -1.02, 1.02)
         hist = PlotQuantiles(x, y, histInfo, file_path=file_path, df=df, title = title, Normalize = 1)
         histos.append(hist)
@@ -285,7 +286,7 @@ if __name__ == "__main__":
     cfull2P2H.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{title}_{Name}.png")
     
     histos.append(hist_Full2P2H)
-    MultiPlot(histos, file_path=file_path)
+    MultiPlot(histos, slice, file_path=file_path)
     
 
 
