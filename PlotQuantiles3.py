@@ -1,9 +1,5 @@
-# could use hist.Draw("text") to draw text before making 6 plots!
-
 import ROOT
 import os
-from array import array  # Use for ROOT-compatible arrays
-import numpy as np 
 import ParticlePlots as pp 
 import Setup as s
 
@@ -134,7 +130,7 @@ def MultiPlot(histos, file_path):
     dir_location = file_path
     
     NameParts = s.formatName(dir_location)
-    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+    # Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     # Create a canvas
     cFull = ROOT.TCanvas("cFull", "Canvas", 800, 600)
 
@@ -188,7 +184,6 @@ def MultiPlot(histos, file_path):
         # Go back to the main canvas to add a title and axis labels
     cFull.cd()
 
-
     # Add a global title
     title = ROOT.TLatex()
     title.SetTextSize(0.04)
@@ -198,15 +193,15 @@ def MultiPlot(histos, file_path):
     # Add X-axis label (centered at the bottom)
     xlabel = ROOT.TLatex()
     xlabel.SetTextSize(0.04)
-    xlabel.SetTextAlign(22)
-    xlabel.DrawLatexNDC(0.5, 0.02, "P_{#mu} (GeV)")  # Adjust as needed
+    xlabel.SetTextAlign(0)
+    xlabel.DrawLatexNDC(0.5, 0.85, "P_{#mu} (GeV)")  # Adjust as needed
 
     # Add Y-axis label (centered vertically on the left)
     ylabel = ROOT.TLatex()
     ylabel.SetTextSize(0.04)
     ylabel.SetTextAngle(90)  # Rotate text vertically
-    ylabel.SetTextAlign(22)
-    ylabel.DrawLatexNDC(0.02, 0.5, "COS #theta")  # Adjust as needed
+    ylabel.SetTextAlign(0)
+    ylabel.DrawLatexNDC(0.03, 0.85, "COS #theta")  # Adjust as needed
     
     # Now, create a new pad for the palette, which will be placed outside the plotting region
     # cFull.SetRightMargin(0.45)  # Increase the right margin of the full canvas
@@ -222,23 +217,24 @@ def MultiPlot(histos, file_path):
 
     # # Draw the saved palette in the new pad
     # palette.Draw()
+    ROOT.gPad.Update()
 
     # Save the canvas
-    cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/comparisons3.png")
+    cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/allQuantiles.png")
 
 if __name__ == "__main__":
     dir_location = file_path
     NameParts = s.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     # Make q0 vs q3 histogram to find quantiles with equal events
-    x = 'q3'
-    y = 'q0'
+    x1 = 'q0'
+    y1 = 'q3'
     
     
-    x_bins, total_events = constant_binning(x, y, file_path=file_path)
+    x_bins, total_events = constant_binning(x1, y1, file_path=file_path)
     
     # Apply quantile_cutting to make a new dataframe for each quantile 
-    quantile_dfs = quantile_cutting(x, y, x_bins, file_path=file_path)
+    quantile_dfs = quantile_cutting(x1, y1, x_bins, file_path=file_path)
         
     event_counts = {}  # Dictionary to store event counts
     # Check: Print the number of events in each quantile
@@ -257,7 +253,7 @@ if __name__ == "__main__":
         # Define title to use as the name of the histogram for multiplot text
         lower_bound = x_bins[i]
         upper_bound = x_bins[i + 1]
-        title = f"q3 range: {lower_bound:.2f} to {upper_bound:.2f} GeV_{event_counts[i]}"
+        title = f"{x1} range: {lower_bound:.2f} to {upper_bound:.2f} GeV_{event_counts[i]}"
         histInfo = (f"{title}", f"{y} vs {x} plot", 60, 0, 3.3, 102, -1.02, 1.02)
         hist = PlotQuantiles(x, y, histInfo, file_path=file_path, df=df, title = title, Normalize = 1)
         histos.append(hist)
@@ -267,9 +263,9 @@ if __name__ == "__main__":
     y = "CosLep"
     
     # This is not working!
-    # histInfo = (f"Full q3 Spectrum_{total_events}", f"{y} vs {x} 2P2H plot", 60, 0, 3.3, 102, -1.02, 1.02)
+    histInfo = (f"Full q3 Spectrum_{total_events}", f"{y} vs {x} 2P2H plot", 60, 0, 3.3, 102, -1.02, 1.02)
 
-    # Generate the 2P2H histogram
+    # # Generate the 2P2H histogram
     hist_Full2P2H, _ = pp.Plot2P2H(x, y, histInfo, file_path=file_path)
     scale = 1/(hist_Full2P2H.Integral())
     hist_Full2P2H.Scale(scale)
