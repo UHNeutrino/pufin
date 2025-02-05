@@ -190,6 +190,8 @@ def MultiPlot(histos, slice, file_path):
         # Retrieve histogram title
         hist_title = histos[i].GetName()
         Plot_Title_Parts = hist_title.split('_')
+        selected_events = int(Plot_Title_Parts[1])
+        percent = round((selected_events / 1e7*100), 2)
         print(f"{Plot_Title_Parts}")
 
         # # # Add text box with histogram title
@@ -199,6 +201,7 @@ def MultiPlot(histos, slice, file_path):
         title_text.SetNDC()  # Use normalized device coordinates
         title_text.DrawLatex(0.6, 0.45, Plot_Title_Parts[0])  # Position near top-center
         title_text.DrawLatex(0.6, 0.35, f"{Plot_Title_Parts[1]} events")
+        title_text.DrawLatex(0.6, 0.25, f"{percent}% of total generated")
         #print(f"Histogram {i} title: {hist_title}")  # Debugging step
 
     
@@ -207,7 +210,7 @@ def MultiPlot(histos, slice, file_path):
     title = ROOT.TLatex()
     title.SetTextSize(0.04)
     title.SetTextAlign(22)  # Center alignment
-    title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} 2P2H #nu_{{#mu}} events cut from {NameParts[3]} generated events")  # (x, y) in normalized device coordinates
+    title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} 2P2H #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in {slice})")  # (x, y) in normalized device coordinates
 
     # Add X-axis label (centered at the bottom)
     xlabel = ROOT.TLatex()
@@ -232,11 +235,11 @@ if __name__ == "__main__":
     NameParts = s.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     # Make q0 vs q3 histogram to find quantiles with equal events
-    x1 = 'q3'
-    y1 = 'q0'
+    x1 = 'q0'
+    y1 = 'q3'
     
     # Now define slice after x1 and y1 exist
-    slice = x1  # For slices by q3; Change to y1 to name slices by q0
+    slice = x1  
     
     x_bins, total_events = constant_binning(x1, y1, file_path=file_path)
     
