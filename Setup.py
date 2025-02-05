@@ -13,12 +13,10 @@ def formatName(dir_location):
     # HOME = os.getenv("HOME", "/home/lboe")
     HOME = "/data"
     fileName = f"{HOME}/{dir_location}"
-    treeName = "FlatTree_VARS"
     parts = fileName.split('/')
     NameRoot = parts[4]
     NameParts = NameRoot.split('_')
     NameParts[3] = NameParts[3].split('.root')[0]
-    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     return NameParts
 
 def formatHist(NameParts, hist, xvar, xunit, yvar, yunit, max = -1):

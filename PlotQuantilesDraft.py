@@ -127,8 +127,7 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
 def MultiPlot(histos, slice, file_path):
     dir_location = file_path
     
-    NameParts = s.formatName(dir_location)
-    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+    NameParts = pp.formatName(dir_location)
     # Create a canvas
     cFull = ROOT.TCanvas("cFull", "Canvas with Subdivisions", 1200, 800)  
 
