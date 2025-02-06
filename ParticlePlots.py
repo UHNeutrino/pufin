@@ -1,17 +1,11 @@
 import ROOT
 import os
+import Setup
 
 
-ROOT.gStyle.SetStatX(0.85)  # Closer to the left edge
-ROOT.gStyle.SetStatY(0.9)  # Slightly below the top edge
-
-# Apply a modern color palette
-ROOT.gStyle.SetPalette(ROOT.kRainBow)  # Choose a visually pleasing palette
-ROOT.gStyle.SetNumberContours(50)     # Increase the number of colors in the gradient
+Setup.setupRoot()
 
 
-# lets me use other people's home directories
-HOME = os.getenv("HOME", "/home/lboe")
 
 # enables multiprocessing **currently has no multiprocessing***
 # ROOT.EnableImplicitMT()
@@ -19,43 +13,10 @@ HOME = os.getenv("HOME", "/home/lboe")
 # Allows python to manage the memeory rather than ROOT ***might be causing seg faults***
 # ROOT.TH1.AddDirectory(False)
 
-
 # use Rdataframes to plot the q0 v q3 2DHisto and Q^2 vs W 2DHisto for 2P2H interacions, which have mode 2
 # Plan is to get the q0, q3, Q^2 and W for all events where Mode = 2
+HOME = os.getenv("HOME", "/home/lboe")
 
-
-def formatName(dir_location):
-    fileName = f"{HOME}/{dir_location}"
-    treeName = "FlatTree_VARS"
-    parts = fileName.split('/')
-    NameRoot = parts[5]
-    NameParts = NameRoot.split('_')
-    NameParts[3] = NameParts[3].split('.root')[0]
-    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
-    return NameParts
-
-def formatHist(NameParts, hist, xvar, xunit, yvar, yunit, max = -1):
-    hist.SetStats(0) #1 for a legend 0 for no legend
-    hist.GetXaxis().SetTitle(f"{xvar} {xunit}")
-    hist.GetYaxis().SetTitle(f"{yvar} {yunit}")
-    if max != -1:
-        hist.SetMaximum(max)
-    hist.SetTitle(f"{yvar} vs. {xvar} ({NameParts[1]}: {NameParts[3]} #nu_{{#mu}} events at {NameParts[2]})")
-    hist.GetXaxis().SetLabelSize(0.05)
-    hist.GetXaxis().SetTitleSize(0.05)
-    hist.GetYaxis().SetLabelSize(0.05)
-    hist.GetYaxis().SetTitleSize(0.05)
-    hist.GetZaxis().SetLabelSize(0.05)
-    return hist.Clone()
-
-def formatTcanvas(hist, c):
-    # Adjust margins; Default is 0.1; increase as needed
-    c.SetLeftMargin(0.15)  # Adjust the left margin to avoid cutting off the y-axis label
-    c.SetRightMargin(0.15) #Adjust the right margin to make space for the legend
-    c.SetBottomMargin(0.15) #Adjust the bottom margin to avoid cutting off the x-axis label
-    hist.Draw("COLZ")
-    # c.SetCanvasSize(600,500)
-    c.SetCanvasSize(c.GetWw()+200,c.GetWh())
 
 def Plot2P2H(x, y, histogramInfo, file_path = None):
     # First get the data into a dataframe
@@ -65,10 +26,12 @@ def Plot2P2H(x, y, histogramInfo, file_path = None):
         dir_location = file_path
     
     
-    fileName = f"{HOME}/{dir_location}"
+    fileName = f"/data/{dir_location}"
     treeName = "FlatTree_VARS"
+    print(fileName)
 
     df = ROOT.RDataFrame(treeName,fileName)
+    df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
                          
     # Mode 2 is the 2P2H interaction
     cut1 = 'Mode == 2'
@@ -83,7 +46,7 @@ def Plot1PI(x, y, histogramInfo, file_path = None):
     else:
         dir_location = file_path
 
-    fileName = f"{HOME}/{dir_location}"
+    fileName = f"/data/{dir_location}"
     treeName = "FlatTree_VARS"
 
     df = ROOT.RDataFrame(treeName,fileName)
@@ -96,7 +59,7 @@ def Plot1PI(x, y, histogramInfo, file_path = None):
 
 
 def SavePlot(hist, title, AxisInfo, dir_location, max = None, Normalize = 0):
-    NameParts = formatName(dir_location)
+    NameParts = Setup.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
 
     xvar = AxisInfo[0]
@@ -112,14 +75,14 @@ def SavePlot(hist, title, AxisInfo, dir_location, max = None, Normalize = 0):
     
 
     if max is None:
-        hist = formatHist(NameParts, hist ,xvar, xunit, yvar, yunit)
+        hist = Setup.formatHist(NameParts, hist ,xvar, xunit, yvar, yunit)
     else:
-        hist = formatHist(NameParts, hist ,xvar, xunit, yvar, yunit, max = max)
+        hist = Setup.formatHist(NameParts, hist ,xvar, xunit, yvar, yunit, max = max)
     
     
     c = ROOT.TCanvas()
 
-    formatTcanvas(hist,c)
+    Setup.formatTcanvas(hist,c)
     # saves hist to a specific directory 
     if max is not None:
         c.SaveAs(f"{HOME}/t2k-nova/plots_constant_z_axis/{title}_{Name}.png")
@@ -135,13 +98,13 @@ if __name__=="__main__":
     y = 'q0'
     AxisInfo = ['q_{3}', '(GeV)','q_{0}', '(GeV)']
     histInfo = ("name",f"{y} vs {x} plot",60,0,3,60,0,3)
-    hist, file_path = Plot2P2H(x,y,histInfo,"t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e6.root")
+    hist, file_path = Plot2P2H(x,y,histInfo,"t2k-nova/FlatTrees/FLAT_NEUT_1.0GeV_1e7.root")
     SavePlot(hist,"titlename1",AxisInfo, file_path)
     x = 'W'
     y = 'Q2'
     AxisInfo = ['W', '(GeV)','Q^{2}', '(GeV)^{2}']
     histInfo = ("name",f"{y} vs {x} plot",60,0,3,120,0,6)
-    hist, file_path = Plot1PI(x,y,histInfo,"t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e6.root")
+    hist, file_path = Plot1PI(x,y,histInfo,"t2k-nova/FlatTrees/FLAT_NEUT_1.0GeV_1e7.root")
     SavePlot(hist,"testname2",AxisInfo, file_path)
 
 

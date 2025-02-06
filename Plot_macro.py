@@ -1,5 +1,5 @@
 import ParticlePlots as pp
-import PlotQuantiles as pq
+import PlotQuantiles3 as pq
 import glob
 import os
 
@@ -7,7 +7,7 @@ import os
 HOME = os.getenv("HOME", "/home/lboe")
 
 
-userFolder = f"{HOME}/t2k-nova/FlatTrees"
+userFolder = f"/data/t2k-nova/FlatTrees"
 root_files = glob.glob(userFolder + '/*.root')
 
 # print(root_files)
@@ -21,27 +21,27 @@ for file in root_files:
     file_path = 't2k-nova' + file_path
   
 
-    # x = 'W'
-    # y = 'Q2'
-    # AxisInfo = ['q_{3}', '(GeV)','q_{0}', '(GeV)']
-    # histInfo1 = ("name",f"{x} vs {y} plot",60,0,3,124,-0.2,6)
-    # histInfo2 = ("name",f"{x} vs {y} plot",60,0,3,60,0,3)
-    # hist, path = pp.Plot1PI(x,y,histInfo1,file_path)
-    # pp.SavePlot(hist,"1PI_hist", AxisInfo, path)
-    # hist, path = pp.Plot1PI(x,y,histInfo1,file_path)
-    # pp.SavePlot(hist, "1PI_hist_max", AxisInfo, path, max = .035, Normalize=1)
-    # hist, path = pp.Plot1PI(x,y,histInfo1,file_path)
-    # pp.SavePlot(hist,"1PI_hist_Normalized", AxisInfo,path, Normalize = 1)
+    x = 'W'
+    y = 'Q2'
+    AxisInfo = ['q_{3}', '(GeV)','q_{0}', '(GeV)']
+    histInfo1 = ("name",f"{x} vs {y} plot",60,0,3,124,-0.2,6)
+    histInfo2 = ("name",f"{x} vs {y} plot",60,0,3,60,0,3)
+    hist, path = pp.Plot1PI(x,y,histInfo1,file_path)
+    pp.SavePlot(hist,"1PI_hist", AxisInfo, path)
+    hist, path = pp.Plot1PI(x,y,histInfo1,file_path)
+    pp.SavePlot(hist, "1PI_hist_max", AxisInfo, path, max = .035, Normalize=1)
+    hist, path = pp.Plot1PI(x,y,histInfo1,file_path)
+    pp.SavePlot(hist,"1PI_hist_Normalized", AxisInfo,path, Normalize = 1)
 
-    # x = 'q3'
-    # y = 'q0' 
-    # AxisInfo = ['W', '(GeV)','Q^{2}', '(GeV)^{2}']
-    # hist, path = pp.Plot2P2H(x,y,histInfo2,file_path)
-    # pp.SavePlot(hist,"2P2H_hist", AxisInfo, path)
-    # hist, path = pp.Plot2P2H(x,y,histInfo2,file_path)
-    # pp.SavePlot(hist,"2P2H_hist_max", AxisInfo, path, max = .016, Normalize = 1)
-    # hist, path = pp.Plot2P2H(x,y,histInfo2,file_path)
-    # pp.SavePlot(hist,"2P2H_hist_Normalized", AxisInfo, path, Normalize = 1)
+    x = 'q3'
+    y = 'q0' 
+    AxisInfo = ['W', '(GeV)','Q^{2}', '(GeV)^{2}']
+    hist, path = pp.Plot2P2H(x,y,histInfo2,file_path)
+    pp.SavePlot(hist,"2P2H_hist", AxisInfo, path)
+    hist, path = pp.Plot2P2H(x,y,histInfo2,file_path)
+    pp.SavePlot(hist,"2P2H_hist_max", AxisInfo, path, max = .016, Normalize = 1)
+    hist, path = pp.Plot2P2H(x,y,histInfo2,file_path)
+    pp.SavePlot(hist,"2P2H_hist_Normalized", AxisInfo, path, Normalize = 1)
 
 
     # Make q0 vs q3 histogram to find quantiles with equal events
