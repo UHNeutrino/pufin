@@ -12,7 +12,7 @@ s.setupRoot
 # lets me use other people's home directories
 HOME = os.getenv("HOME", "/home/lboe")
 
-file_path = "t2k-nova/FlatTrees/Flat_GenieNOvA_.7GeV_1e7.root"
+file_path = "t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root"
 
 def constant_binning(x, y, file_path):
     # First get the data into a dataframe
@@ -107,7 +107,7 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
        hist.Scale(scale)
        
     # **Set Z-axis max value**
-    hist.SetMaximum(0.04)  # Ensures max value displayed is 0.04
+    hist.SetMaximum(0.03)  # Ensures max value displayed is 0.04
     # Create a TLatex object to add text
     latex = ROOT.TLatex()
     latex.SetTextSize(0.05)  # Set the text size
@@ -127,7 +127,7 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
 def MultiPlot(histos, slice, file_path):
     dir_location = file_path
     
-    NameParts = pp.formatName(dir_location)
+    NameParts = s.formatName(dir_location)
     # Create a canvas
     cFull = ROOT.TCanvas("cFull", "Canvas with Subdivisions", 1200, 800)  
 
@@ -141,7 +141,7 @@ def MultiPlot(histos, slice, file_path):
     # --- Draw the dummy histogram to generate the color scale ---
     dummy_hist = ROOT.TH2F("dummy_hist", "", 10, 0, 1, 10, 0, 1)
     dummy_hist.SetMinimum(0)
-    dummy_hist.SetMaximum(0.4)
+    dummy_hist.SetMaximum(0.3)
 
     # Fill bins to create a gradient for the color scale
     for i in range(1, 11):
@@ -234,8 +234,8 @@ if __name__ == "__main__":
     NameParts = s.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     # Make q0 vs q3 histogram to find quantiles with equal events
-    x1 = 'q0'
-    y1 = 'q3'
+    x1 = 'q3'
+    y1 = 'q0'
     
     # Now define slice after x1 and y1 exist
     slice = x1  
@@ -278,7 +278,7 @@ if __name__ == "__main__":
     hist_Full2P2H, _ = pp.Plot2P2H(x, y, histInfo, file_path=file_path)
     scale = 1/(hist_Full2P2H.Integral())
     hist_Full2P2H.Scale(scale)
-    hist_Full2P2H.SetMaximum(0.04)  # Ensures max value displayed is 0.04
+    hist_Full2P2H.SetMaximum(0.03)  # Ensures max value displayed is 0.04
     
     cfull2P2H = ROOT.TCanvas()
     s.formatTcanvas(hist_Full2P2H,cfull2P2H)
