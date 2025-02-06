@@ -1,19 +1,18 @@
+# could use hist.Draw("text") to draw text before making 6 plots!
+
 import ROOT
 import os
+from array import array  # Use for ROOT-compatible arrays
+import numpy as np 
 import ParticlePlots as pp 
 import Setup as s
 
 s.setupRoot
 
-
 # lets me use other people's home directories
 HOME = os.getenv("HOME", "/home/lboe")
 
-
-file_path = "t2k-nova/FlatTrees/FLAT_NEUT_1.0GeV_1e7.root"
-# dir_location = file_path
-# fileName = f"{HOME}/{dir_location}"
-# treeName = "FlatTree_VARS"
+file_path = "t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root"
 
 def constant_binning(x, y, file_path):
     # First get the data into a dataframe
@@ -21,7 +20,6 @@ def constant_binning(x, y, file_path):
     fileName = f"/data/{dir_location}"
     treeName = "FlatTree_VARS"
     df = ROOT.RDataFrame(treeName, fileName)
-
 
     histogramInfo = ("name", f"{y} vs {x} plot", 1000000, 0, 3, 1, 0, 3) #just need 1 bin in y
 
@@ -109,7 +107,7 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
        hist.Scale(scale)
        
     # **Set Z-axis max value**
-    hist.SetMaximum(0.04)  # Ensures max value displayed is 0.04
+    hist.SetMaximum(0.03)  # Ensures max value displayed is 0.04
     # Create a TLatex object to add text
     latex = ROOT.TLatex()
     latex.SetTextSize(0.05)  # Set the text size
@@ -126,50 +124,73 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
         
     return hist 
 
-def MultiPlot(histos, file_path):
+def MultiPlot(histos, slice, file_path):
     dir_location = file_path
     
     NameParts = s.formatName(dir_location)
-    # Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     # Create a canvas
-    cFull = ROOT.TCanvas("cFull", "Canvas", 800, 600)
+    cFull = ROOT.TCanvas("cFull", "Canvas with Subdivisions", 1200, 800)  
+
 
     # Set margins
     cFull.SetBottomMargin(0.25)
-    cFull.SetLeftMargin(0.15)
+    cFull.SetLeftMargin(0.25)
     cFull.SetTopMargin(0.25)
     cFull.SetRightMargin(.15)
 
-    # Divide the canvas into a 4x1 grid
-    cFull.Divide(3, 2, 0, 0)
+    # --- Draw the dummy histogram to generate the color scale ---
+    dummy_hist = ROOT.TH2F("dummy_hist", "", 10, 0, 1, 10, 0, 1)
+    dummy_hist.SetMinimum(0)
+    dummy_hist.SetMaximum(0.3)
 
-    # Set a color-blind friendly palette
-    #ROOT.gStyle.SetPalette(112)  # kCividis (or use 111 for kViridis)
-    # ROOT.gStyle.SetPalette(ROOT.kRainBow)    
+    # Fill bins to create a gradient for the color scale
+    for i in range(1, 11):
+        for j in range(1, 11):
+            dummy_hist.SetBinContent(i, j, 0.4 * (i / 10.0))  # Smooth gradient
+
+    ROOT.gStyle.SetOptStat(0)
+    ROOT.gStyle.SetPalette(ROOT.kRainBow)
+
+    dummy_hist.Draw("COLZ")  # Draw the full dummy histogram with legend
+    dummy_hist.SetStats(0)
+    dummy_hist.GetZaxis().SetTitle("Frequency")
+    dummy_hist.GetZaxis().SetLabelSize(0.06)
+    dummy_hist.GetZaxis().SetTitleSize(0.06)
+    dummy_hist.GetZaxis().SetTitleOffset(1.2)
+
+    cFull.Update()  # Ensure the color legend is drawn
+
+    # --- Cover the dummy histogram with a white rectangle ---
+    cover = ROOT.TPaveText(0.0, 0.0, 0.88, 1.0, "NDC")  # Covers 85% of the canvas
+    cover.SetFillColor(ROOT.kWhite)  # White background to hide dummy histogram
+    cover.SetBorderSize(0)
+    cover.Draw()
+
+    cFull.Update()  # Refresh the canvas after covering
+    
+    hist_pad = ROOT.TPad("hist_pad", "Histograms", 0.04, 0.04, 0.88, .95)  # Left side for histograms
+    hist_pad.Divide(3, 2)
+    hist_pad.Draw()
+
+    hist_pad.cd()
 
     # Loop over list of histograms 
     for i in range(0, len(histos)):
         ROOT.gStyle.SetOptStat(0)  # Remove statistics box
-        cFull.cd(i+1)  # Move to the correct sub-pad because pad 1 for root = histo 0 for python
+        hist_pad.cd(i+1)  # Move to the correct sub-pad because pad 1 for root = histo 0 for python
         histos[i].SetStats(0)
         histos[i].SetTitle(";;")  # Remove titles
-        histos[i].Draw("colz")  # Draw histogram 
-        # If it's the first histogram, save the palette
-        # if i == 0:
-        #     palette = histos[i].GetListOfFunctions().FindObject("palette")
+        histos[i].Draw("col")  # Draw histogram 
+        
+        # if i in [1, 2, 3, 4, 5]:  # Using a list
 
-        #     # Remove the palette from the first histogram
-        #     histos[i].GetListOfFunctions().Remove(palette)
-        # else:
-        #     histos[i].GetListOfFunctions().Remove(histos[i].GetListOfFunctions().FindObject("palette"))
-        if i in [1, 2, 3, 4, 5]:  # Using a list
-
-            histos[i].GetListOfFunctions().Remove(histos[i].GetListOfFunctions().FindObject("palette"))
-                
+        #     histos[i].GetListOfFunctions().Remove(histos[i].GetListOfFunctions().FindObject("palette"))      
     
         # Retrieve histogram title
         hist_title = histos[i].GetName()
         Plot_Title_Parts = hist_title.split('_')
+        selected_events = int(Plot_Title_Parts[1])
+        percent = round((selected_events / 1e7*100), 2)
         print(f"{Plot_Title_Parts}")
 
         # # # Add text box with histogram title
@@ -179,48 +200,34 @@ def MultiPlot(histos, file_path):
         title_text.SetNDC()  # Use normalized device coordinates
         title_text.DrawLatex(0.6, 0.45, Plot_Title_Parts[0])  # Position near top-center
         title_text.DrawLatex(0.6, 0.35, f"{Plot_Title_Parts[1]} events")
+        title_text.DrawLatex(0.6, 0.25, f"{percent}% of total generated")
         #print(f"Histogram {i} title: {hist_title}")  # Debugging step
-    
-        # Go back to the main canvas to add a title and axis labels
-    cFull.cd()
 
+    
     # Add a global title
+    cFull.cd()  # Return to full canvas
     title = ROOT.TLatex()
     title.SetTextSize(0.04)
     title.SetTextAlign(22)  # Center alignment
-    title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} 2P2H #nu_{{#mu}} events cut from {NameParts[3]} generated events")  # (x, y) in normalized device coordinates
+    title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} 2P2H #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in {slice})")  # (x, y) in normalized device coordinates
 
     # Add X-axis label (centered at the bottom)
     xlabel = ROOT.TLatex()
     xlabel.SetTextSize(0.04)
-    xlabel.SetTextAlign(0)
-    xlabel.DrawLatexNDC(0.5, 0.85, "P_{#mu} (GeV)")  # Adjust as needed
+    xlabel.SetTextAlign(22)
+    xlabel.DrawLatexNDC(0.5, 0.02, "P_{#mu} (GeV)")  # Adjust as needed
 
     # Add Y-axis label (centered vertically on the left)
     ylabel = ROOT.TLatex()
     ylabel.SetTextSize(0.04)
     ylabel.SetTextAngle(90)  # Rotate text vertically
-    ylabel.SetTextAlign(0)
-    ylabel.DrawLatexNDC(0.03, 0.85, "COS #theta")  # Adjust as needed
+    ylabel.SetTextAlign(22)
+    ylabel.DrawLatexNDC(0.02, 0.5, "COS #theta")  # Adjust as needed
     
-    # Now, create a new pad for the palette, which will be placed outside the plotting region
-    # cFull.SetRightMargin(0.45)  # Increase the right margin of the full canvas
-    # cFull.Update()
-    # palettePad = ROOT.TPad("palettePad", "palette", 0.80, 0.15, .98, .95)  # Adjust width to be more visible
-    # palettePad.SetMargin(0, 0, 0, 0)  # Remove margins to fill the pad
-    # #palettePad.SetLeftMargin(0)  # Adjust margins for better spacing
-    # #palettePad.SetRightMargin(0)
-    # palettePad.Draw()  # Draw the new pad
-
-    # # Enter the palette pad to draw the palette
-    # palettePad.cd()
-
-    # # Draw the saved palette in the new pad
-    # palette.Draw()
     ROOT.gPad.Update()
-
+    cFull.Update()
     # Save the canvas
-    cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/allQuantiles.png")
+    cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{NameParts[2]}_2P2H_{slice}_Quantiles.png")
 
 if __name__ == "__main__":
     dir_location = file_path
@@ -230,6 +237,8 @@ if __name__ == "__main__":
     x1 = 'q0'
     y1 = 'q3'
     
+    # Now define slice after x1 and y1 exist
+    slice = x1  
     
     x_bins, total_events = constant_binning(x1, y1, file_path=file_path)
     
@@ -253,7 +262,7 @@ if __name__ == "__main__":
         # Define title to use as the name of the histogram for multiplot text
         lower_bound = x_bins[i]
         upper_bound = x_bins[i + 1]
-        title = f"{x1} range: {lower_bound:.2f} to {upper_bound:.2f} GeV_{event_counts[i]}"
+        title = f"{slice} range: {lower_bound:.2f} to {upper_bound:.2f} GeV_{event_counts[i]}"
         histInfo = (f"{title}", f"{y} vs {x} plot", 60, 0, 3.3, 102, -1.02, 1.02)
         hist = PlotQuantiles(x, y, histInfo, file_path=file_path, df=df, title = title, Normalize = 1)
         histos.append(hist)
@@ -265,11 +274,11 @@ if __name__ == "__main__":
     # This is not working!
     histInfo = (f"Full q3 Spectrum_{total_events}", f"{y} vs {x} 2P2H plot", 60, 0, 3.3, 102, -1.02, 1.02)
 
-    # # Generate the 2P2H histogram
+    # Generate the 2P2H histogram
     hist_Full2P2H, _ = pp.Plot2P2H(x, y, histInfo, file_path=file_path)
     scale = 1/(hist_Full2P2H.Integral())
     hist_Full2P2H.Scale(scale)
-    hist_Full2P2H.SetMaximum(0.04)  # Ensures max value displayed is 0.04
+    hist_Full2P2H.SetMaximum(0.03)  # Ensures max value displayed is 0.04
     
     cfull2P2H = ROOT.TCanvas()
     s.formatTcanvas(hist_Full2P2H,cfull2P2H)
@@ -279,7 +288,7 @@ if __name__ == "__main__":
     cfull2P2H.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{title}_{Name}.png")
     
     histos.append(hist_Full2P2H)
-    MultiPlot(histos, file_path=file_path)
+    MultiPlot(histos, slice, file_path=file_path)
     
 
 
