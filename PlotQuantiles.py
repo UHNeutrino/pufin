@@ -2,8 +2,6 @@
 
 import ROOT
 import os
-from array import array  # Use for ROOT-compatible arrays
-import numpy as np 
 import ParticlePlots as pp 
 import SetupFunctions as SF
 
@@ -12,7 +10,9 @@ SF.setupRoot
 # lets me use other people's home directories
 HOME = os.getenv("HOME", "/home/lboe")
 
-file_path = "t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root"
+
+file_name = input("Give Root File name: ")
+file_path = f"t2k-nova/FlatTrees/{file_name}"
 
 def constant_binning(x, y, file_path):
     # First get the data into a dataframe
@@ -92,6 +92,46 @@ def quantile_cutting(x, y, x_bins, file_path):
         print(f"Quantile {i+1}: Events between {lower_bound} and {upper_bound}")
     
     return quantile_dfs
+
+def grid_cutting(x, y, x_bins, y_bins, file_path):
+    """
+    Returns:
+    - A list of filtered RDataFrames, one for each grid.
+    """
+    dir_location = file_path
+    fileName = f"/data/{dir_location}"
+    treeName = "FlatTree_VARS"  
+    # Get each quantile into a separate dataframe
+    df = ROOT.RDataFrame(treeName, fileName)
+    df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+
+
+    # Mode 2 is the 2P2H interaction
+    cut1 = 'Mode == 2'
+    df_filtered = df.Filter(cut1)
+
+    # Create a list to hold filtered DataFrames for each quantile
+    quantile_dfs = []
+
+    # Loop through each quantile defined by x_bins
+    for i in range(len(x_bins) - 1):
+        x_lower_bound = x_bins[i]
+        x_upper_bound = x_bins[i + 1]
+
+
+        for i in range(len(y_bins) - 1 ):
+            # Define a filter string for the current quantile
+            cut_quantile = f"{x_lower_bound} <= {x} && {x} < {x_upper_bound}"
+            
+            # Apply the filter
+            quantile_df = df_filtered.Filter(cut_quantile)
+            quantile_dfs.append(quantile_df)
+
+            print(f"Quantile {i+1}: Events between {lower_bound} and {upper_bound}")
+    
+    return quantile_dfs
+
+
 
 def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
     
