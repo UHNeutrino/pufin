@@ -1,5 +1,5 @@
 import ParticlePlots as pp
-import PlotQuantiles3 as pq
+import PlotQuantiles as pq
 import glob
 import os
 
