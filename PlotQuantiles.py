@@ -138,7 +138,7 @@ def grid_cutting(x, y, x_bins, y_bins, file_path):
 
 
 
-def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
+def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0, max = None):
     
     dir_location = file_path
     hist1 = df.Histo2D(histogramInfo,x,y)
@@ -152,7 +152,8 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
        hist.Scale(scale)
        
     # **Set Z-axis max value**
-    hist.SetMaximum(0.03)  # Ensures max value displayed is 0.04
+    if max is not None:
+        hist.SetMaximum(max)  # Ensures max value displayed is 0.04
     # Create a TLatex object to add text
     latex = ROOT.TLatex()
     latex.SetTextSize(0.05)  # Set the text size
@@ -310,7 +311,7 @@ def PlotSegments(file_path):
         upper_bound = x_bins[i + 1]
         title = f"{slice} range: {lower_bound:.2f} to {upper_bound:.2f} GeV_{event_counts[i]}"
         histInfo = (f"{title}", f"{y} vs {x} plot", 60, 0, 3.3, 102, -1.02, 1.02)
-        hist = PlotQuantiles(x, y, histInfo, file_path=file_path, df=df, title = title, Normalize = 1)
+        hist = PlotQuantiles(x, y, histInfo, file_path=file_path, df=df, title = title, Normalize = 1, max=.03)
         histos.append(hist)
     
     # Plot full q3 spectrum
