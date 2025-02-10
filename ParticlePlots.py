@@ -71,9 +71,6 @@ def SavePlot(hist, title, AxisInfo, dir_location, max = None, Normalize = 0):
        scale = 1/(hist.Integral())
     #    print(scale)
        hist.Scale(scale)
-
-    
-
     if max is None:
         hist = SF.formatHist(NameParts, hist ,xvar, xunit, yvar, yunit)
     else:

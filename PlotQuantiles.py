@@ -11,8 +11,6 @@ SF.setupRoot
 HOME = os.getenv("HOME", "/home/lboe")
 
 
-file_name = input("Give Root File name: ")
-file_path = f"t2k-nova/FlatTrees/{file_name}"
 
 def constant_binning(x, y, file_path):
     # First get the data into a dataframe
@@ -111,7 +109,7 @@ def grid_cutting(x, y, x_bins, y_bins, file_path):
     df_filtered = df.Filter(cut1)
 
     # Create a list to hold filtered DataFrames for each quantile
-    quantile_dfs = []
+    grid_dfs = []
 
     # Loop through each quantile defined by x_bins
     for i in range(len(x_bins) - 1):
@@ -119,21 +117,27 @@ def grid_cutting(x, y, x_bins, y_bins, file_path):
         x_upper_bound = x_bins[i + 1]
 
 
-        for i in range(len(y_bins) - 1 ):
+        for j in range(len(y_bins) - 1 ):
+            y_lower_bound = y_bins[j]
+            y_upper_bound = y_bins[j+1]
+
+            print()
             # Define a filter string for the current quantile
-            cut_quantile = f"{x_lower_bound} <= {x} && {x} < {x_upper_bound}"
+            cut_x = f"{x_lower_bound} <= {x} && {x} < {x_upper_bound}"
+            cut_y = f"{y_lower_bound} <= {y} && {y} < {y_upper_bound}"
             
             # Apply the filter
-            quantile_df = df_filtered.Filter(cut_quantile)
-            quantile_dfs.append(quantile_df)
-
-            print(f"Quantile {i+1}: Events between {lower_bound} and {upper_bound}")
+            grid_df_x = df_filtered.Filter(cut_x)
+            grid_df = grid_df_x.Filter(cut_y)
+            grid_dfs.append(grid_df)
+            # print(f"Events after x cut: {grid_df_x.Count().GetValue()} after both cuts: {grid_df.Count().GetValue()}")
+            # print(f"Grid {i+1}, {j+1}: {grid_df.Count().GetValue()} Events within {x}: {x_lower_bound}-{x_upper_bound} and {y}: {y_lower_bound}-{y_upper_bound}")
     
-    return quantile_dfs
+    return grid_dfs
 
 
 
-def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
+def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0, max = None):
     
     dir_location = file_path
     hist1 = df.Histo2D(histogramInfo,x,y)
@@ -147,7 +151,8 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
        hist.Scale(scale)
        
     # **Set Z-axis max value**
-    hist.SetMaximum(0.03)  # Ensures max value displayed is 0.04
+    if max is not None:
+        hist.SetMaximum(max)  # Ensures max value displayed is 0.04
     # Create a TLatex object to add text
     latex = ROOT.TLatex()
     latex.SetTextSize(0.05)  # Set the text size
@@ -269,10 +274,11 @@ def MultiPlot(histos, slice, file_path):
     # Save the canvas
     cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{NameParts[2]}_2P2H_{slice}_Quantiles.png")
 
-if __name__ == "__main__":
+def PlotSegments(file_path):
     dir_location = file_path
     NameParts = SF.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+    
     # Make q0 vs q3 histogram to find quantiles with equal events
     x1 = 'q0'
     y1 = 'q3'
@@ -304,7 +310,7 @@ if __name__ == "__main__":
         upper_bound = x_bins[i + 1]
         title = f"{slice} range: {lower_bound:.2f} to {upper_bound:.2f} GeV_{event_counts[i]}"
         histInfo = (f"{title}", f"{y} vs {x} plot", 60, 0, 3.3, 102, -1.02, 1.02)
-        hist = PlotQuantiles(x, y, histInfo, file_path=file_path, df=df, title = title, Normalize = 1)
+        hist = PlotQuantiles(x, y, histInfo, file_path=file_path, df=df, title = title, Normalize = 1, max=.03)
         histos.append(hist)
     
     # Plot full q3 spectrum
@@ -329,6 +335,65 @@ if __name__ == "__main__":
     
     histos.append(hist_Full2P2H)
     MultiPlot(histos, slice, file_path=file_path)
+
+def PlotGrid(file_path):
+    # dir_location = file_path
+    # NameParts = SF.formatName(dir_location)
+    # Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+    # Make q0 vs q3 histogram to find quantiles with equal events
+    x1 = 'q0'
+    y1 = 'q3'
+    
+    x_bins, total_events = constant_binning(x1, y1, file_path=file_path)
+    y_bins, total_events = constant_binning(y1,x1, file_path=file_path)
+    
+    # Apply quantile_cutting to make a new dataframe for each quantile 
+    quantile_dfs = grid_cutting(x1, y1, x_bins, y_bins, file_path=file_path)
+        
+    event_counts = {}  # Dictionary to store event counts
+    # Check: Print the number of events in each quantile
+    for i in range(len(x_bins)-1):
+        for j in range(len(y_bins)-1):
+            count = quantile_dfs[i+j].Count().GetValue()
+            print(f"Grid {i+1}, {j+1}: {count} events")
+            event_counts[i] = count  # Store in dictionary
+        
+    # Make plots for each dataframe
+    y = 'CosLep'
+    x = 'PLep'
+     
+    histos = []  # Store histograms here in order to plot on divided canvas
+    # Create and save a plot for each quantile
+    for i in range(len(x_bins) -1 ):
+        # Define title to use as the name of the histogram for multiplot text
+        x_lower_bound = x_bins[i]
+        x_upper_bound = x_bins[i + 1]
+
+        for j in range(len(y_bins)-1):
+            y_lower_bound = y_bins[j]
+            y_upper_bound = y_bins[j + 1]
+
+
+            title = f"Grid{i+1}_{j+1}_{x1}_{x_lower_bound:.2f}-{x_upper_bound:.2f}_{y1}_{y_lower_bound}-{y_upper_bound}_GeV_{event_counts[i]}"
+            histInfo = (f"{title}", f"{y} vs {x} plot", 60, 0, 3.3, 102, -1.02, 1.02)
+            hist = PlotQuantiles(x, y, histInfo, file_path=file_path, df=quantile_dfs[i+j], title = title, Normalize = 1)
+            histos.append(hist)
+
+
+if __name__ == "__main__":
+    file_name = input("Give Root File name: ")
+    file_path = f"t2k-nova/FlatTrees/{file_name}"
+
+
+
+
+    PlotSegments(file_path=file_path)
+    # PlotGrid(file_path=file_path)
+
+
+
+
+    
     
 
 
