@@ -11,8 +11,7 @@ SF.setupRoot
 HOME = os.getenv("HOME", "/home/lboe")
 
 
-file_name = input("Give Root File name: ")
-file_path = f"t2k-nova/FlatTrees/{file_name}"
+
 
 def constant_binning(x, y, file_path):
     # First get the data into a dataframe
@@ -269,10 +268,11 @@ def MultiPlot(histos, slice, file_path):
     # Save the canvas
     cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{NameParts[2]}_2P2H_{slice}_Quantiles.png")
 
-if __name__ == "__main__":
+def PlotAll(file_path):
     dir_location = file_path
     NameParts = SF.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+    
     # Make q0 vs q3 histogram to find quantiles with equal events
     x1 = 'q0'
     y1 = 'q3'
@@ -329,6 +329,22 @@ if __name__ == "__main__":
     
     histos.append(hist_Full2P2H)
     MultiPlot(histos, slice, file_path=file_path)
+
+
+
+if __name__ == "__main__":
+    file_name = input("Give Root File name: ")
+    file_path = f"t2k-nova/FlatTrees/{file_name}"
+
+
+
+
+    PlotAll(file_path=file_path)
+
+
+
+
+    
     
 
 
