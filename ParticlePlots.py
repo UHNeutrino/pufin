@@ -1,9 +1,9 @@
 import ROOT
 import os
-import Setup
+import SetupFunctions as SF
 
 
-Setup.setupRoot()
+SF.setupRoot()
 
 
 
@@ -75,14 +75,14 @@ def SavePlot(hist, title, AxisInfo, dir_location, max = None, Normalize = 0):
     
 
     if max is None:
-        hist = Setup.formatHist(NameParts, hist ,xvar, xunit, yvar, yunit)
+        hist = SF.formatHist(NameParts, hist ,xvar, xunit, yvar, yunit)
     else:
-        hist = Setup.formatHist(NameParts, hist ,xvar, xunit, yvar, yunit, max = max)
+        hist = SF.formatHist(NameParts, hist ,xvar, xunit, yvar, yunit, max = max)
     
     
     c = ROOT.TCanvas()
 
-    Setup.formatTcanvas(hist,c)
+    SF.formatTcanvas(hist,c)
     # saves hist to a specific directory 
     if max is not None:
         c.SaveAs(f"{HOME}/t2k-nova/plots_constant_z_axis/{title}_{Name}.png")

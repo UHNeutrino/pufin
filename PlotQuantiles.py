@@ -5,9 +5,9 @@ import os
 from array import array  # Use for ROOT-compatible arrays
 import numpy as np 
 import ParticlePlots as pp 
-import Setup as s
+import SetupFunctions as SF
 
-s.setupRoot
+SF.setupRoot
 
 # lets me use other people's home directories
 HOME = os.getenv("HOME", "/home/lboe")
@@ -98,10 +98,10 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
     dir_location = file_path
     hist1 = df.Histo2D(histogramInfo,x,y)
     
-    NameParts = s.formatName(dir_location)
+    NameParts = SF.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     
-    hist = s.formatHist(NameParts, hist1 ,'Lepton Momentum', '(GeV)', 'cos #theta', '')
+    hist = SF.formatHist(NameParts, hist1 ,'Lepton Momentum', '(GeV)', 'cos #theta', '')
     if Normalize == 1:
        scale = 1/(hist.Integral())
        hist.Scale(scale)
@@ -118,7 +118,7 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
    
     c = ROOT.TCanvas()
 
-    s.formatTcanvas(hist,c)
+    SF.formatTcanvas(hist,c)
     ROOT.gStyle.SetOptStat(0)  # Remove statistics box
     c.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{title}_{Name}.png")
         
@@ -127,7 +127,7 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0):
 def MultiPlot(histos, slice, file_path):
     dir_location = file_path
     
-    NameParts = s.formatName(dir_location)
+    NameParts = SF.formatName(dir_location)
     # Create a canvas
     cFull = ROOT.TCanvas("cFull", "Canvas with Subdivisions", 1200, 800)  
 
@@ -231,7 +231,7 @@ def MultiPlot(histos, slice, file_path):
 
 if __name__ == "__main__":
     dir_location = file_path
-    NameParts = s.formatName(dir_location)
+    NameParts = SF.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     # Make q0 vs q3 histogram to find quantiles with equal events
     x1 = 'q0'
@@ -281,7 +281,7 @@ if __name__ == "__main__":
     hist_Full2P2H.SetMaximum(0.03)  # Ensures max value displayed is 0.04
     
     cfull2P2H = ROOT.TCanvas()
-    s.formatTcanvas(hist_Full2P2H,cfull2P2H)
+    SF.formatTcanvas(hist_Full2P2H,cfull2P2H)
     
     title = hist_Full2P2H.GetName()
     print(f"{title}")
