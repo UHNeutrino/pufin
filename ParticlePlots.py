@@ -59,7 +59,7 @@ def Plot1PI(x, y, histogramInfo, file_path = None):
 
 
 def SavePlot(hist, title, AxisInfo, dir_location, max = None, Normalize = 0):
-    NameParts = Setup.formatName(dir_location)
+    NameParts = SF.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
 
     xvar = AxisInfo[0]
@@ -81,6 +81,7 @@ def SavePlot(hist, title, AxisInfo, dir_location, max = None, Normalize = 0):
     
     
     c = ROOT.TCanvas()
+
 
     SF.formatTcanvas(hist,c)
     # saves hist to a specific directory 
