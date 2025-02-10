@@ -388,8 +388,8 @@ if __name__ == "__main__":
 
 
 
-    # PlotSegments(file_path=file_path)
-    PlotGrid(file_path=file_path)
+    PlotSegments(file_path=file_path)
+    # PlotGrid(file_path=file_path)
 
 
 
