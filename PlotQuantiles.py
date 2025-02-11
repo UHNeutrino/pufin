@@ -11,9 +11,29 @@ SF.setupRoot
 HOME = os.getenv("HOME", "/home/lboe")
 
 
+def visualize_segements(hist, x_bins, file_path, y_bins = None):
+    title = "Sliced_q0vq3"
+    NameParts = SF.formatName(file_path)
+    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+
+    hist = SF.formatHist(NameParts, hist, 'q_{0}', '(GeV)','q_{3}', '(GeV)'  )
+    c = ROOT.TCanvas()
+    SF.formatTcanvas(hist,c)
+    line_list = ROOT.TList()
+    for i in range(1,len(x_bins)-1):
+        print(f"saving line {i} at {x_bins[i]}")
+        myline = ROOT.TLine(x_bins[i],0,x_bins[i],3)
+        line_list.Add(myline)
+    for i in range(len(line_list)):
+        print(f"Drawing line {i} at {x_bins[i]}")
+        line = line_list[i]
+        line.Draw()
+    c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
 
 
-def constant_binning(x, y, file_path):
+
+
+def constant_event_binning(x, y, file_path):
     # First get the data into a dataframe
     dir_location = file_path
     fileName = f"/data/{dir_location}"
@@ -29,7 +49,7 @@ def constant_binning(x, y, file_path):
 
     # Get the total number of events
     total_events = int(df_filtered.Integral())
-    print(f"Total events: {total_events}")
+    # print(f"Total events: {total_events}")
 
     # Define cumulative events array
     cumulative_events = [0]
@@ -56,7 +76,7 @@ def constant_binning(x, y, file_path):
 
     return x_bins, total_events
 
-def quantile_cutting(x, y, x_bins, file_path):
+def quantile_cutting(x, x_bins, file_path):
     """
     Returns:
     - A list of filtered RDataFrames, one for each quantile.
@@ -287,10 +307,10 @@ def PlotSegments(file_path):
     # Now define slice after x1 and y1 exist
     slice = x1  
     
-    x_bins, total_events = constant_binning(x1, y1, file_path=file_path)
+    x_bins, total_events = constant_event_binning(x1, y1, file_path=file_path)
     
     # Apply quantile_cutting to make a new dataframe for each quantile 
-    quantile_dfs = quantile_cutting(x1, y1, x_bins, file_path=file_path)
+    quantile_dfs = quantile_cutting(x1, x_bins, file_path=file_path)
         
     event_counts = {}  # Dictionary to store event counts
     # Check: Print the number of events in each quantile
@@ -345,8 +365,8 @@ def PlotGrid(file_path):
     x1 = 'q0'
     y1 = 'q3'
     
-    x_bins, total_events = constant_binning(x1, y1, file_path=file_path)
-    y_bins, total_events = constant_binning(y1,x1, file_path=file_path)
+    x_bins, total_events = constant_event_binning(x1, y1, file_path=file_path)
+    y_bins, total_events = constant_event_binning(y1,x1, file_path=file_path)
     
     # Apply quantile_cutting to make a new dataframe for each quantile 
     quantile_dfs = grid_cutting(x1, y1, x_bins, y_bins, file_path=file_path)
