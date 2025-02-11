@@ -21,7 +21,7 @@ HOME = os.getenv("HOME", "/home/lboe")
 def Plot2P2H(x, y, histogramInfo, file_path = None):
     # First get the data into a dataframe
     if file_path is None:
-        dir_location = input("Give Flat Tree Directory Location (not including home): ")
+        dir_location = input("Give Flat Tree Directory Location (not including /data): ")
     else:
         dir_location = file_path
     
