@@ -11,24 +11,48 @@ SF.setupRoot
 HOME = os.getenv("HOME", "/home/lboe")
 
 
-def visualize_segements(hist, x_bins, file_path, y_bins = None):
+def visualize_segements(hist, file_path, x_bins = None,  y_bins = None):
     title = "Sliced_q0vq3"
     NameParts = SF.formatName(file_path)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+
+
 
     hist = SF.formatHist(NameParts, hist, 'q_{0}', '(GeV)','q_{3}', '(GeV)'  )
     c = ROOT.TCanvas()
     SF.formatTcanvas(hist,c)
     line_list = ROOT.TList()
-    for i in range(1,len(x_bins)-1):
-        print(f"saving line {i} at {x_bins[i]}")
-        myline = ROOT.TLine(x_bins[i],0,x_bins[i],3)
-        line_list.Add(myline)
-    for i in range(len(line_list)):
-        print(f"Drawing line {i} at {x_bins[i]}")
-        line = line_list[i]
-        line.Draw()
-    c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
+    line_list2 = ROOT.TList()
+
+    if x_bins is not None and y_bins is None:
+        for i in range(1,len(x_bins)-1):
+            print(f"saving line {i} at {x_bins[i]}")
+            myline = ROOT.TLine(x_bins[i],0,x_bins[i],3)
+            line_list.Add(myline)
+            line_list[-1].Draw()
+        c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_q0_{Name}.png")
+    elif y_bins is not None and x_bins is None:
+        for i in range(1,len(y_bins)-1):
+            print(f"saving line {i} at {y_bins[i]}")
+            myline = ROOT.TLine(0,y_bins[i],3,y_bins[i])
+            line_list.Add(myline)
+            line_list[-1].Draw()
+        c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_q3_{Name}.png")
+
+    else:
+        for i in range(1,len(x_bins)-1):
+            print(f"saving line {i} at {x_bins[i]}")
+            myline = ROOT.TLine(x_bins[i],0,x_bins[i],3)
+            line_list.Add(myline)
+            line_list[-1].Draw()
+        for i in range(1,len(y_bins)-1):
+            print(f"saving line {i} at {y_bins[i]}")
+            myline = ROOT.TLine(0,y_bins[i],3,y_bins[i])
+            line_list2.Add(myline)
+            line_list2[-1].Draw()  
+        c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_grid_{Name}.png")  
+        
+    
 
 
 
@@ -185,7 +209,7 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0, max 
     c = ROOT.TCanvas()
 
     SF.formatTcanvas(hist,c)
-    ROOT.gStyle.SetOptStat(0)  # Remove statistics box
+    # ROOT.gStyle.SetOptStat(0)  # Remove statistics box
     c.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{title}_{Name}.png")
         
     return hist 
@@ -373,11 +397,13 @@ def PlotGrid(file_path):
         
     event_counts = {}  # Dictionary to store event counts
     # Check: Print the number of events in each quantile
+    k=0
     for i in range(len(x_bins)-1):
         for j in range(len(y_bins)-1):
-            count = quantile_dfs[i+j].Count().GetValue()
+            count = quantile_dfs[k].Count().GetValue()
             print(f"Grid {i+1}, {j+1}: {count} events")
             event_counts[i] = count  # Store in dictionary
+            k+=1
         
     # Make plots for each dataframe
     y = 'CosLep'
@@ -385,6 +411,7 @@ def PlotGrid(file_path):
      
     histos = []  # Store histograms here in order to plot on divided canvas
     # Create and save a plot for each quantile
+    k=0
     for i in range(len(x_bins) -1 ):
         # Define title to use as the name of the histogram for multiplot text
         x_lower_bound = x_bins[i]
@@ -395,10 +422,11 @@ def PlotGrid(file_path):
             y_upper_bound = y_bins[j + 1]
 
 
-            title = f"Grid{i+1}_{j+1}_{x1}_{x_lower_bound:.2f}-{x_upper_bound:.2f}_{y1}_{y_lower_bound}-{y_upper_bound}_GeV_{event_counts[i]}"
+            title = f"Grid{i+1}_{j+1}_{x1}_{x_lower_bound:.2f}-{x_upper_bound:.2f}_{y1}_{y_lower_bound}-{y_upper_bound}"
             histInfo = (f"{title}", f"{y} vs {x} plot", 60, 0, 3.3, 102, -1.02, 1.02)
-            hist = PlotQuantiles(x, y, histInfo, file_path=file_path, df=quantile_dfs[i+j], title = title, Normalize = 1)
+            hist = PlotQuantiles(x, y, histInfo, file_path=file_path, df=quantile_dfs[k], title = title)
             histos.append(hist)
+            k+=1
 
 
 if __name__ == "__main__":
