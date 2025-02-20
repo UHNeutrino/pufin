@@ -18,7 +18,7 @@ SF.setupRoot()
 HOME = os.getenv("HOME", "/home/lboe")
 
 
-def Plot2P2H(x, y, histogramInfo, file_path = None):
+def Plot2P2H(x, y, histogramInfo, file_path = None, Mode = None):
     # First get the data into a dataframe
     if file_path is None:
         dir_location = input("Give Flat Tree Directory Location (not including /data): ")
@@ -34,8 +34,12 @@ def Plot2P2H(x, y, histogramInfo, file_path = None):
     df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
                          
     # Mode 2 is the 2P2H interaction
-    cut1 = 'Mode == 2'
-    hist = df.Filter(cut1).Histo2D(histogramInfo,x,y)
+    if Mode is not None:
+        cut1 = f'Mode == {Mode}'
+
+    else:
+        cut1 = 'Mode == 2'
+    df = df.Filter(cut1).Histo2D(histogramInfo,x,y)
     
     return hist, file_path
 
@@ -58,7 +62,7 @@ def Plot1PI(x, y, histogramInfo, file_path = None):
     return hist, file_path
 
 
-def SavePlot(hist, title, AxisInfo, dir_location, max = None, Normalize = 0):
+def SavePlot(hist, title, AxisInfo, dir_location, max = None, Normalize = 0, PlotTitle  = None):
     NameParts = SF.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
 
@@ -72,10 +76,11 @@ def SavePlot(hist, title, AxisInfo, dir_location, max = None, Normalize = 0):
     #    print(scale)
        hist.Scale(scale)
     if max is None:
-        hist = SF.formatHist(NameParts, hist ,xvar, xunit, yvar, yunit)
-    else:
-        hist = SF.formatHist(NameParts, hist ,xvar, xunit, yvar, yunit, max = max)
-    
+        max = -1
+    if PlotTitle is None:
+        PlotTitle = ""
+  
+    hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle, NameParts = NameParts)
     
     c = ROOT.TCanvas()
 
@@ -89,6 +94,43 @@ def SavePlot(hist, title, AxisInfo, dir_location, max = None, Normalize = 0):
     else:
         c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
 
+
+def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
+    if file_path is None:
+        dir_location = input("Give Flat Tree Directory Location (not including /data): ")
+    else:
+        dir_location = file_path
+    
+    
+    fileName = f"/data/{dir_location}"
+    treeName = "FlatTree_VARS"
+    print(fileName)
+
+    df = ROOT.RDataFrame(treeName,fileName)
+    df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+
+    df = df.Filter(cut)
+    return df
+
+def Create2DHistogram(df,x,y,histInfo):
+    hist = df.Histo2D(histInfo,x,y)
+    return hist
+
+
+def Savehist(hist,AxisInfo,save_location,filename, max = None):
+    xvar = AxisInfo[0]
+    xunit = AxisInfo[1]
+    yvar = AxisInfo[2]
+    yunit = AxisInfo[3]
+    PlotTitle = AxisInfo[4]
+    if max is not None:
+        hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle)
+    hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
+    c = ROOT.TCanvas()
+    SF.formatTcanvas(hist,c)
+    c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
+
+
 if __name__=="__main__":
     # Test functions in this area
     # print("What are you testing?")
@@ -96,14 +138,16 @@ if __name__=="__main__":
     y = 'q0'
     AxisInfo = ['q_{3}', '(GeV)','q_{0}', '(GeV)']
     histInfo = ("name",f"{y} vs {x} plot",60,0,3,60,0,3)
-    hist, file_path = Plot2P2H(x,y,histInfo,"t2k-nova/FlatTrees/FLAT_NEUT_1.0GeV_1e7.root")
+    hist, file_path = Plot2P2H(x,y,histInfo,"t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root")
+    df2p2h = CreateDataFrame(file_path, "Mode == 2")
+    hist  = Create2DHistogram(df2p2h,'q3','q0',histInfo)
     SavePlot(hist,"titlename1",AxisInfo, file_path)
     x = 'W'
     y = 'Q2'
-    AxisInfo = ['W', '(GeV)','Q^{2}', '(GeV)^{2}']
-    histInfo = ("name",f"{y} vs {x} plot",60,0,3,120,0,6)
-    hist, file_path = Plot1PI(x,y,histInfo,"t2k-nova/FlatTrees/FLAT_NEUT_1.0GeV_1e7.root")
-    SavePlot(hist,"testname2",AxisInfo, file_path)
+    # AxisInfo = ['W', '(GeV)','Q^{2}', '(GeV)^{2}']
+    # histInfo = ("name",f"{y} vs {x} plot",60,0,3,120,0,6)
+    # hist, file_path = Plot1PI(x,y,histInfo,"t2k-nova/FlatTrees/FLAT_NEUT_0.7GeV_1e7.root")
+    # SavePlot(hist,"testname2",AxisInfo, file_path)
 
 
 

@@ -16,9 +16,7 @@ def visualize_segements(hist, file_path, x_bins = None,  y_bins = None):
     NameParts = SF.formatName(file_path)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
 
-
-
-    hist = SF.formatHist(NameParts, hist, 'q_{0}', '(GeV)','q_{3}', '(GeV)'  )
+    hist = SF.formatHist( hist, 'q_{0}', '(GeV)','q_{3}', '(GeV)',NameParts=NameParts)
     c = ROOT.TCanvas()
     SF.formatTcanvas(hist,c)
     line_list = ROOT.TList()
@@ -30,7 +28,7 @@ def visualize_segements(hist, file_path, x_bins = None,  y_bins = None):
             myline = ROOT.TLine(x_bins[i],0,x_bins[i],3)
             line_list.Add(myline)
             line_list[-1].Draw()
-        c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_q0_{Name}.png")
+        c.SaveAs(f"{HOME}/t2k-nova/plots/2p2h{title}_q0_{Name}.png")
     elif y_bins is not None and x_bins is None:
         for i in range(1,len(y_bins)-1):
             print(f"saving line {i} at {y_bins[i]}")
@@ -51,13 +49,8 @@ def visualize_segements(hist, file_path, x_bins = None,  y_bins = None):
             line_list2.Add(myline)
             line_list2[-1].Draw()  
         c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_grid_{Name}.png")  
-        
-    
 
-
-
-
-def constant_event_binning(x, y, file_path):
+def constant_event_binning(x, y, file_path, Mode = None):
     # First get the data into a dataframe
     dir_location = file_path
     fileName = f"/data/{dir_location}"
@@ -68,7 +61,10 @@ def constant_event_binning(x, y, file_path):
 
 
     # Mode 2 is the 2P2H interaction
-    cut1 = 'Mode == 2'
+    if Mode is not None:
+        cut1 = f'Mode == {Mode}'
+    else:   
+        cut1 = 'Mode == 1'
     df_filtered = df.Filter(cut1).Histo2D(histogramInfo, x, y)
 
     # Get the total number of events
@@ -190,7 +186,7 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0, max 
     NameParts = SF.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     
-    hist = SF.formatHist(NameParts, hist1 ,'Lepton Momentum', '(GeV)', 'cos #theta', '')
+    hist = SF.formatHist(hist1 ,'Lepton Momentum', '(GeV)', 'cos #theta', '',NameParts = NameParts)
     if Normalize == 1:
        scale = 1/(hist.Integral())
        hist.Scale(scale)
@@ -432,10 +428,16 @@ def PlotGrid(file_path):
 if __name__ == "__main__":
     file_name = input("Give Root File name: ")
     file_path = f"t2k-nova/FlatTrees/{file_name}"
+    # file_path = 't2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root'
 
 
-
-
+    # x = 'q3'
+    # y = 'q0' 
+    # x_bins, total_events = constant_event_binning(x, y, file_path, Mode = 1)
+    # histInfo2 = ("name",f"1P1H {x} vs {y} plot",60,0,3,60,0,3)
+    # AxisInfo = ['q_{0}', '(GeV)','q_{3}', '(GeV)']
+    # hist, path = pp.Plot2P2H(x,y,histInfo2,file_path, Mode = 2)
+    # visualize_segements(hist, file_path, x_bins=x_bins)
     PlotSegments(file_path=file_path)
     # PlotGrid(file_path=file_path)
 

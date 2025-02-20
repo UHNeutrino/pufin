@@ -25,5 +25,5 @@ if lines:
     # pq.visualize_segements(hist, file_path, y_bins=y_bins)
     # pq.visualize_segements(hist, file_path, x_bins=x_bins, y_bins=y_bins)
 
-# pq.PlotSegments(file_path=file_path)
+pq.PlotSegments(file_path=file_path)
 pq.PlotGrid(file_path=file_path)
