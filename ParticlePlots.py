@@ -117,12 +117,18 @@ def Create2DHistogram(df,x,y,histInfo):
     return hist
 
 
-def Savehist(hist,AxisInfo,save_location,filename, max = None):
+def Savehist(hist,AxisInfo,save_location,filename, max = None, Normalize = 0):
     xvar = AxisInfo[0]
     xunit = AxisInfo[1]
     yvar = AxisInfo[2]
     yunit = AxisInfo[3]
     PlotTitle = AxisInfo[4]
+
+    if Normalize == 1:
+       scale = 1/(hist.Integral())
+    #    print(scale)
+       hist.Scale(scale)
+
     if max is not None:
         hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle)
     hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
@@ -130,6 +136,19 @@ def Savehist(hist,AxisInfo,save_location,filename, max = None):
     SF.formatTcanvas(hist,c)
     c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
 
+def DrawXLines(hist, x_bins, y_max):
+    c = ROOT.TCanvas()
+    SF.formatTcanvas(hist,c)
+    line_list = ROOT.TList()
+       
+    for i in range(0,len(x_bins)):
+        print(f"saving line {i} at {x_bins[i]}")
+        myline = ROOT.TLine(x_bins[i],0,x_bins[i],y_max)
+        line_list.Add(myline)
+        line_list[-1].Draw()
+
+    return c 
+        
 
 if __name__=="__main__":
     # Test functions in this area
