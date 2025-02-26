@@ -117,7 +117,7 @@ def Create2DHistogram(df,x,y,histInfo):
     return hist
 
 
-def Savehist(hist,AxisInfo,save_location,filename, max = None, Normalize = 0):
+def Savehist(hist,AxisInfo, save_location, filename, max = None, Normalize = 0):
     xvar = AxisInfo[0]
     xunit = AxisInfo[1]
     yvar = AxisInfo[2]
@@ -126,7 +126,6 @@ def Savehist(hist,AxisInfo,save_location,filename, max = None, Normalize = 0):
 
     if Normalize == 1:
        scale = 1/(hist.Integral())
-    #    print(scale)
        hist.Scale(scale)
 
     if max is not None:
