@@ -39,7 +39,7 @@ def Plot2P2H(x, y, histogramInfo, file_path = None, Mode = None):
 
     else:
         cut1 = 'Mode == 2'
-    df = df.Filter(cut1).Histo2D(histogramInfo,x,y)
+    hist = df.Filter(cut1).Histo2D(histogramInfo,x,y)
     
     return hist, file_path
 
@@ -117,7 +117,7 @@ def Create2DHistogram(df,x,y,histInfo):
     return hist
 
 
-def Savehist(hist,AxisInfo, save_location, filename, max = None, Normalize = 0):
+def Savehist(hist, AxisInfo, save_location, filename, max = None, Normalize = 0):
     xvar = AxisInfo[0]
     xunit = AxisInfo[1]
     yvar = AxisInfo[2]

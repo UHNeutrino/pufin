@@ -9,44 +9,47 @@ import SetupFunctions as sf
 
 
 
-file_path = 't2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root'
+file_path = 't2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e6v2.root'
 
 file_name = file_path.split('/')[2]
 generator = file_name.split('_')[1]
 flux = file_name.split('_')[2]
 
 
-# x_bins, total_events = pq.constant_event_binning(x, y, file_path, Mode = 2)
+# x_bins, total_events = pq.constant_event_binning(x, y, file_path, Mode = 
+
+
+
+
+
+
+# 1pi
+plottitle = "(Narrrow Flux) W vs Q^{2} for 1Pi events at #nu_{E} =" + flux
 histInfo = ("name",f"plop1",40,1.1,1.8,42,-0.1,2)
-
-
-
-plottitle = "W vs Q^{2} for 1Pi events at #nu_{E} =" + flux
-
-
 AxisInfo1 = ['Q^{2}', '(GeV)^{2}','W', '(GeV)', plottitle]
 df1Pi= pp.CreateDataFrame(file_path, "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 ")
-# hist2p_q = pp.Create2DHistogram(df1Pi,'W','Q2',histInfo)
-# pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots","1PiWvQ2")
+hist2p_q = pp.Create2DHistogram(df1Pi,'W','Q2',histInfo)
+pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots","1PiWvQ2V2")
 
 
 
 
 
-# Evis vs Etrue (REC)
 
-plottitle = "E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
+
+# Evis vs Etrue 
+plottitle = "(Narrow Flux) E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
 histInfo2 = ("name",f"plop1",100,0,1,100,0,1)
 AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{av}', '(GeV)', plottitle]
 hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Eav',histInfo2)
-pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots","1PiEvE")
+pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots","1PiEvEV2")
 
 # E_kinQE vs E true (REC) 
-plottitle = "E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
-histInfo2 = ("name",f"plop1",40,0.5,.9,40,0,0.85)
-AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{av}', '(GeV)', plottitle]
-hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Eav',histInfo2)
-pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots","1PiEvE")
+# plottitle = "E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
+# histInfo2 = ("name",f"plop1",40,0.5,.9,40,0,0.85)
+# AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{av}', '(GeV)', plottitle]
+# hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Eav',histInfo2)
+# pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots","1PiEvE")
 
 
 # enu_QE vs enu_TRUE
