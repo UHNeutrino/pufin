@@ -38,12 +38,11 @@ for file_path in root_files:
 
     # Minoo sections
 
-    Wevo = {"1st Resonance Reigon": [1.1,1.4], "2nd Resonance Reigon": [1.4,1.6], "3rd Resonance Reigon": [1.6,2.0],"DIS": [2.0,2.4]}
-    Q2evo = {"non-preterbative reigon": [0,1.0], "2nd Resonance Reigon": [1.4,1.6]}
+    Wevo = {"1st Resonance Region": [1.1,1.4], "2nd Resonance Region": [1.4,1.6], "3rd Resonance Region": [1.6,2.0],"DIS": [2.0,2.4]}
+    Q2evo = {"non-preterbative region": [0,1.0], "Transition Region": [1.4,1.6]}
     
     for reigon in Wevo:
-        plottitle = "W vs Q^{2} for 1Pi events at #nu_{E} = " + flux
-        plottitle = reigon + " " + plottitle
+        plottitle = reigon + " " + "W vs Q^{2} for 1Pi events at #nu_{E} = " + flux
         AxisInfo1 = ['W', '(GeV)','Q^{2}', '(GeV)^{2}', plottitle]
         print(Wevo[reigon][0])
         print(Wevo[reigon][1])
