@@ -21,12 +21,12 @@ HOME = os.getenv("HOME", "/home/lboe")
 def Plot2P2H(x, y, histogramInfo, file_path = None, Mode = None):
     # First get the data into a dataframe
     if file_path is None:
-        dir_location = input("Give Flat Tree Directory Location (not including /data): ")
+        dir_location = input("Give Full Flat Tree Directory Location: ")
     else:
         dir_location = file_path
     
     
-    fileName = f"/data/{dir_location}"
+    fileName = f"{dir_location}"
     treeName = "FlatTree_VARS"
     print(fileName)
 
@@ -46,11 +46,11 @@ def Plot2P2H(x, y, histogramInfo, file_path = None, Mode = None):
 
 def Plot1PI(x, y, histogramInfo, file_path = None):
     if file_path is None:
-        dir_location = input("Give Flat Tree Directory Location (not including home): ")
+        dir_location = input("Give Full Flat Tree Directory Location: ")
     else:
         dir_location = file_path
 
-    fileName = f"/data/{dir_location}"
+    fileName = f"{dir_location}"
     treeName = "FlatTree_VARS"
 
     df = ROOT.RDataFrame(treeName,fileName)
@@ -97,12 +97,12 @@ def SavePlot(hist, title, AxisInfo, dir_location, max = None, Normalize = 0, Plo
 
 def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
     if file_path is None:
-        dir_location = input("Give Flat Tree Directory Location (not including /data): ")
+        dir_location = input("Give Full Flat Tree Directory Location: ")
     else:
         dir_location = file_path
     
     
-    fileName = f"/data/{dir_location}"
+    fileName = f"{dir_location}"
     treeName = "FlatTree_VARS"
     print(fileName)
 
@@ -156,7 +156,7 @@ if __name__=="__main__":
     y = 'q0'
     AxisInfo = ['q_{3}', '(GeV)','q_{0}', '(GeV)']
     histInfo = ("name",f"{y} vs {x} plot",60,0,3,60,0,3)
-    hist, file_path = Plot2P2H(x,y,histInfo,"t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root")
+    hist, file_path = Plot2P2H(x,y,histInfo,"/data/t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root")
     df2p2h = CreateDataFrame(file_path, "Mode == 2")
     hist  = Create2DHistogram(df2p2h,'q3','q0',histInfo)
     SavePlot(hist,"titlename1",AxisInfo, file_path)
@@ -164,7 +164,7 @@ if __name__=="__main__":
     y = 'Q2'
     # AxisInfo = ['W', '(GeV)','Q^{2}', '(GeV)^{2}']
     # histInfo = ("name",f"{y} vs {x} plot",60,0,3,120,0,6)
-    # hist, file_path = Plot1PI(x,y,histInfo,"t2k-nova/FlatTrees/FLAT_NEUT_0.7GeV_1e7.root")
+    # hist, file_path = Plot1PI(x,y,histInfo,"/data/t2k-nova/FlatTrees/FLAT_NEUT_0.7GeV_1e7.root")
     # SavePlot(hist,"testname2",AxisInfo, file_path)
 
 

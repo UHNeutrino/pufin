@@ -11,8 +11,7 @@ def setupRoot():
 
 def formatName(dir_location):
     # HOME = os.getenv("HOME", "/home/lboe")
-    HOME = "/data"
-    fileName = f"{HOME}/{dir_location}"
+    fileName = dir_location
     parts = fileName.split('/')
     NameRoot = parts[4]
     NameParts = NameRoot.split('_')
