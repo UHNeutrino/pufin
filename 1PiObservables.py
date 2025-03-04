@@ -51,7 +51,15 @@ for file_path in root_files:
         Wdf = df1Pi.Filter(f"W >= {Wevo[reigon][0]} && W < {Wevo[reigon][1]}")
         Wevo[reigon] = Wdf
         hist2p_q = pp.Create2DHistogram(Wdf,'W','Q2',histInfo)
-        pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots",f"{reigon}1PiWvQ2V2{flux}")
+        pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots",f"{flux}1PiWvQ2V2{reigon}")
+        Pimodes = [11,12,13,15,16]
+        colors = [ROOT.kRed ,ROOT.kViolet, ROOT.kYellow, ROOT.kBlue, ROOT.kGreen, ROOT.kOrange]
+        
+        histinfo1D = ("name",f"plop1",40,0.5,1.8)
+        stack, histlist, Legend = pp.PlotStackedEventModes(Wdf, histinfo1D, Pimodes, colors)
+        AxisInfo = ["W (GeV)", "Events", reigon + "Stacked events vs W for #nu_{E} = " + flux]
+        pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,f"/home/lboe/t2k-nova/1PiPlots/{flux}stacked_events{reigon}.png")
+
     
 
 

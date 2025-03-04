@@ -1,4 +1,5 @@
 import ROOT
+import matplotlib.pyplot as plt
 import os
 
 def setupRoot():
@@ -44,3 +45,16 @@ def formatTcanvas(hist, c):
     hist.Draw("COLZ")
     # c.SetCanvasSize(600,500)
     c.SetCanvasSize(c.GetWw()+200,c.GetWh())
+
+def modeDic():
+    CCmodes={1 : "NEU,N --> LEPTON-,P",
+             2 : "NEU,N+X --> LEPTON-,P+X  (X=(N or P))" ,
+             11 : "NEU,P --> LEPTON-,P,PI+",
+             12 : "NEU,N --> LEPTON-,P,PI0",
+             13 : "NEU,N --> LEPTON-,N,PI+",
+             15 : "NEU,P --> LEPTON-,P,PI+  ( diffractive )",
+             16 : "NEU,O(16) --> LEPTON-,O(16),PI+",
+             17 : "NEU,N --> LEPTON-,P,GAMMA",
+             26 : "NEU,(N OR P) --> LEPTON-,(N OR P),MESONS"}
+
+    return CCmodes

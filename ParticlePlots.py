@@ -136,6 +136,39 @@ def Savehist(hist, AxisInfo, save_location, filename, max = None, Normalize = 0)
     SF.formatTcanvas(hist,c)
     c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
 
+def PlotStackedEventModes(df, histInfo, modes, colors):
+    modeDic = SF.modeDic()
+    stack = ROOT.THStack("stack","")
+    histlist = []
+    Legend = []
+    for i in range(len(modes)):
+        modedf = df.Filter(f"Mode == {modes[i]}")
+        hist = modedf.Histo1D(histInfo,"W")
+        print(colors[i])
+        hist.SetFillColor(colors[i])
+        th1d = hist.GetPtr()
+        stack.Add(th1d)
+        histlist.append(th1d)
+        Legend.append(modeDic.get(modes[i]))
+        print(f"Plotting mode {modes[i]}")
+    return stack, histlist, Legend
+
+def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path):
+    canvas = ROOT.TCanvas("canvas", "Canvas for Stacked Histograms", 1000, 600)
+
+    stack.Draw("HIST")  # "HIST" option tells ROOT to draw the histograms
+    stack.GetXaxis().SetTitle(AxisInfo[0])
+    stack.GetYaxis().SetTitle(AxisInfo[1])
+    stack.SetTitle(AxisInfo[2])
+
+    # Add legend
+    legend = ROOT.TLegend(0.7, 0.7, 0.9, 0.9)  # Define legend position
+    for i in range(len(Legend)):
+        legend.AddEntry(histlist[i], f"{Legend[i]}", "f")
+    legend.Draw()
+
+    canvas.SaveAs(save_path)
+
 def DrawXLines(hist, x_bins, y_max):
     c = ROOT.TCanvas()
     SF.formatTcanvas(hist,c)
