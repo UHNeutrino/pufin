@@ -6,12 +6,12 @@ import glob
 
 
 
-
-
-
 # file_path = '/data/t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e6v2.root'
 userFolder = f"/data/t2k-nova/FlatTrees"
-root_files = glob.glob(userFolder + '/*NEUT*7.root')
+montecarlo = input("Enter the name of your montecarlo: NEUT, NOvA, or ICARUS. If you want to generate plots for all Flat Trees in the directory hit 'enter' ")
+
+#root_files = glob.glob(userFolder + '/*NOvA*.root')
+root_files = glob.glob(userFolder + f'/*{montecarlo}*.root')
 print(f"Root Files: {root_files}")
 
 for file_path in root_files:
@@ -72,12 +72,12 @@ for file_path in root_files:
     # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots","1PiEvE")
 
 
-    # enu_QE vs enu_TRUE
-    # plottitle = "E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
-    # histInfo2 = ("name",f"plop1",100,0,1,100,0,1)
-    # AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{av}', '(GeV)', plottitle]
-    # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Eav',histInfo2)
-    # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots","1PiEvE")
+    # enu_QE vs enu_TRUE - this is working, needs formatting to move the stats box to the left edge
+    plottitle = "Enu_QE vs E_{#nu true} for 1Pi events at #nu_{E} =" + flux
+    histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
+    AxisInfo2 = ['E_{#nu true}', '(GeV)','Enu_QE', '(GeV)', plottitle]
+    hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Enu_QE',histInfo2)
+    pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"@1PiE(QE)vE_{flux}_{generator}")
 
     # TKI variables (look at talks or something)
     # plottitle = "E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
