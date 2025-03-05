@@ -77,7 +77,7 @@ for file_path in root_files:
     histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
     AxisInfo2 = ['E_{#nu true}', '(GeV)','Enu_QE', '(GeV)', plottitle]
     hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Enu_QE',histInfo2)
-    pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"@1PiE(QE)vE_{flux}_{generator}")
+    pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(QE)vE_{flux}_{generator}")
 
     # TKI variables (look at talks or something)
     # plottitle = "E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
