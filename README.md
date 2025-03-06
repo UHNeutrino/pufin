@@ -2,6 +2,9 @@
 
 This repo is for all code related to the T2K-NOvA joint analysis done by Lars Bøe and Kristen Dobbs.
 
+## Setup Functions
+
+
 
 ## ParticlePlots
 
@@ -10,3 +13,12 @@ This script takes flat tree data from particle generators and plots different va
 `Flat_<ParticleGenerator>_<EnergyLevel>_<numberofevents>.root`
 
 Currently it can create a 2D Histogram of 2P2H events and 1Pi resonance events.
+
+
+
+## PlotQuantiles
+
+
+
+
+
