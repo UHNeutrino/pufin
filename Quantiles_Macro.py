@@ -4,7 +4,7 @@ import SetupFunctions as SF
 
 
 
-file_path = 'data/t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root'
+file_path = '/data/t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root'
 # file_path = ''
 if file_path == '':
     file_name = input("Input Root file name: ")

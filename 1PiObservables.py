@@ -30,7 +30,7 @@ for file_path in root_files:
     # x_bins, total_events = pq.constant_event_binning(x, y, file_path, Mode = 
     # 1pi
     plottitle = "W vs Q^{2} for 1Pi events at #nu_{E} =" + flux
-    histInfo = ("name",f"plop1",40,1.1,1.8,42,-0.1,2)
+    histInfo = ("name",f"plop1",60,1.1,2.4,105,-0.1,5)
     AxisInfo1 = ['W', '(GeV)','Q^{2}', '(GeV)^{2}', plottitle]
     df1Pi= pp.CreateDataFrame(file_path, "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 ")
     hist2p_q = pp.Create2DHistogram(df1Pi,'W','Q2',histInfo)
@@ -61,14 +61,14 @@ for file_path in root_files:
         Wdf = df1Pi.Filter(f"W >= {Wevo[reigon][0]} && W < {Wevo[reigon][1]}")
         Wevo[reigon] = Wdf
         hist2p_q = pp.Create2DHistogram(Wdf,'W','Q2',histInfo)
-        pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots",f"{flux}1PiWvQ2V2{reigon}")
+        regionnum += 1
+        pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots",f"{flux}1PiWvQ2V2Reigon{regionnum}")
         Pimodes = [11,12,13,15,16]
         colors = [ROOT.kRed ,ROOT.kViolet, ROOT.kYellow, ROOT.kBlue, ROOT.kGreen, ROOT.kOrange]
         
-        histinfo1D = ("name",f"plop1",40,0.5,1.8)
+        histinfo1D = ("name",f"plop1",40,0.5,2.5)
         stack, histlist, Legend = pp.PlotStackedEventModes(Wdf, histinfo1D, Pimodes, colors)
         AxisInfo = ["W (GeV)", "Events", reigon + " Stacked events vs W for #nu_{E} = " + flux]
-        regionnum += 1
         pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,f"/home/lboe/t2k-nova/1PiPlots/{flux}stacked_eventsReigon{regionnum}.png")
         
 
