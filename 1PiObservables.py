@@ -10,10 +10,19 @@ import glob
 
 
 # file_path = '/data/t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e6v2.root'
-userFolder = f"/data/t2k-nova/FlatTrees"
-root_files = glob.glob(userFolder + '/*NEUT*7.root')
-print(f"Root Files: {root_files}")
+generatortrue = True
+while generatortrue:
+    generator = input("Input Generator Name: ")
+    userFolder = f"/data/t2k-nova/FlatTrees"
+    root_files = glob.glob(userFolder + f'/*{generator}*7.root')
+    print(f"Root Files: {root_files}")
+    if root_files == []:
+        print("Try again")
+    else:
+        generatortrue = False
 
+
+print("Making File Plots: ")
 for file_path in root_files:
     file_name = file_path.split('/')[-1]
     generator = file_name.split('_')[1]
@@ -25,14 +34,14 @@ for file_path in root_files:
     AxisInfo1 = ['W', '(GeV)','Q^{2}', '(GeV)^{2}', plottitle]
     df1Pi= pp.CreateDataFrame(file_path, "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 ")
     hist2p_q = pp.Create2DHistogram(df1Pi,'W','Q2',histInfo)
-    pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots","1PiWvQ2V2")
+    pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots",f"{flux}1PiWvQ2V2")
 
-    # Evis vs Etrue 
-    plottitle = "E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
-    histInfo2 = ("name",f"plop1",100,0,1,100,0,1)
-    AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{av}', '(GeV)', plottitle]
+    # Evis vs Etrue
+    # plottitle = "E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
+    # histInfo2 = ("name",f"plop1",100,0,1,100,0,1)
+    # AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{av}', '(GeV)', plottitle]
     # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Eav',histInfo2)
-    # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots","1PiEvEV2")
+    # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots","{flux}1PiEvEV2")
 
 
 
@@ -40,7 +49,8 @@ for file_path in root_files:
 
     Wevo = {"1st Resonance Region": [1.1,1.4], "2nd Resonance Region": [1.4,1.6], "3rd Resonance Region": [1.6,2.0],"DIS": [2.0,2.4]}
     Q2evo = {"non-preterbative region": [0,1.0], "Transition Region": [1.4,1.6]}
-    
+    regionnum = 0
+
     for reigon in Wevo:
         plottitle = reigon + " " + "W vs Q^{2} for 1Pi events at #nu_{E} = " + flux
         AxisInfo1 = ['W', '(GeV)','Q^{2}', '(GeV)^{2}', plottitle]
@@ -57,8 +67,10 @@ for file_path in root_files:
         
         histinfo1D = ("name",f"plop1",40,0.5,1.8)
         stack, histlist, Legend = pp.PlotStackedEventModes(Wdf, histinfo1D, Pimodes, colors)
-        AxisInfo = ["W (GeV)", "Events", reigon + "Stacked events vs W for #nu_{E} = " + flux]
-        pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,f"/home/lboe/t2k-nova/1PiPlots/{flux}stacked_events{reigon}.png")
+        AxisInfo = ["W (GeV)", "Events", reigon + " Stacked events vs W for #nu_{E} = " + flux]
+        regionnum += 1
+        pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,f"/home/lboe/t2k-nova/1PiPlots/{flux}stacked_eventsReigon{regionnum}.png")
+        
 
     
 
