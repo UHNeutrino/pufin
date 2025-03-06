@@ -53,7 +53,7 @@ def visualize_segements(hist, file_path, x_bins = None,  y_bins = None):
 def constant_event_binning(x, y, file_path, Mode = None):
     # First get the data into a dataframe
     dir_location = file_path
-    fileName = f"/data/{dir_location}"
+    fileName = f"{dir_location}"
     treeName = "FlatTree_VARS"
     df = ROOT.RDataFrame(treeName, fileName)
 
@@ -102,7 +102,7 @@ def quantile_cutting(x, x_bins, file_path):
     - A list of filtered RDataFrames, one for each quantile.
     """
     dir_location = file_path
-    fileName = f"/data/{dir_location}"
+    fileName = f"{dir_location}"
     treeName = "FlatTree_VARS"  
     # Get each quantile into a separate dataframe
     df = ROOT.RDataFrame(treeName, fileName)
@@ -138,7 +138,7 @@ def grid_cutting(x, y, x_bins, y_bins, file_path):
     - A list of filtered RDataFrames, one for each grid.
     """
     dir_location = file_path
-    fileName = f"/data/{dir_location}"
+    fileName = f"{dir_location}"
     treeName = "FlatTree_VARS"  
     # Get each quantile into a separate dataframe
     df = ROOT.RDataFrame(treeName, fileName)
