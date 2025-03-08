@@ -29,12 +29,21 @@ for file_path in root_files:
     hist2p_q = pp.Create2DHistogram(df1Pi,'W','Q2',histInfo)
     pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots",f"{flux}1PiWvQ2V2")
 
-    # Evis vs Etrue
-    # plottitle = "E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
-    # histInfo2 = ("name",f"plop1",100,0,1,100,0,1)
-    # AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{av}', '(GeV)', plottitle]
-    # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Eav',histInfo2)
-    # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots","{flux}1PiEvEV2")
+    # Evis vs Etrue - Work in Progress
+    
+    # Version 1: Evis = EvAlt (q0 - KE neutrons - mass pions) + ELep - working - add minimum threshold?
+    # plottitle = f"{generator}: E_{{vis}} vs E_{{#nu true}} for 1Pi events at #nu_{{E}} =" + flux
+    # histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
+    # AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{vis} = q0 - KE_{neutrons} - Mass_{pions} + E_{#mu}', '(GeV)', plottitle]
+    # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Evis_1',histInfo2)
+    # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(V1)vE_{flux}_{generator}")
+
+    # Version 2: Evis = working on this
+    # plottitle = f"{generator}: E_{{vis}} vs E_{{#nu true}} for 1Pi events at #nu_{{E}} =" + flux
+    # histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
+    # AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{vis} = KE_{protons; charged pions} + TE_{pi0; electrons; positrons; photons} + E_{#mu}', '(GeV)', plottitle]
+    # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Evis_2',histInfo2)
+    # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(V2)vE_{flux}_{generator}")
 
 
 
@@ -78,18 +87,27 @@ for file_path in root_files:
 
 
     # enu_QE vs enu_TRUE - this is working, needs formatting to move the stats box to the left edge
-    plottitle = "Enu_QE vs E_{#nu true} for 1Pi events at #nu_{E} =" + flux
-    histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
-    AxisInfo2 = ['E_{#nu true}', '(GeV)','Enu_QE', '(GeV)', plottitle]
-    hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Enu_QE',histInfo2)
-    pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(QE)vE_{flux}_{generator}")
+    # plottitle = f"{generator}: Enu_QE vs E_{{#nu true}} for 1Pi events at #nu_{{E}} =" + flux
+    # histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
+    # AxisInfo2 = ['E_{#nu true}', '(GeV)','Enu_QE', '(GeV)', plottitle]
+    # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Enu_QE',histInfo2)
+    # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(QE)vE_{flux}_{generator}")
 
-    # TKI variables (look at talks or something)
-    # plottitle = "E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
-    # histInfo2 = ("name",f"plop1",100,0,1,100,0,1)
-    # AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{av}', '(GeV)', plottitle]
-    # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Eav',histInfo2)
-    # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots","1PiEvE")
+    # TKI variables - working
+    
+    # TKI (Including Neutrons)
+    # plottitle = f"{generator}: TKI vs P_{{#mu}} for 1Pi events at #nu_{{E}} =" + flux
+    # histInfo2 = ("name",f"plop1",100,0,3,100,-1.5,1.5)
+    # AxisInfo2 = ['P_{#mu}', '(GeV/c)','TKI (Including Neutrons)', '(GeV/c)', plottitle]
+    # hist2p_q = pp.Create2DHistogram(df1Pi,'PLep','TKI_IN',histInfo2)
+    # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiTKI_INvp_{flux}_{generator}")
+    
+    # # TKI (Omitting Neutrons)
+    # plottitle = f"{generator}: TKI vs P_{{#mu}} for 1Pi events at #nu_{{E}} =" + flux
+    # histInfo2 = ("name",f"plop1",100,0,3,100,-1.5,1.5)
+    # AxisInfo2 = ['P_{#mu}', '(GeV/c)','TKI (Omitting Neutrons)', '(GeV/c)', plottitle]
+    # hist2p_q = pp.Create2DHistogram(df1Pi,'PLep','TKI_ON',histInfo2)
+    # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiTKI_ONvp_{flux}_{generator}")
 
     # Proton kinematics
     # plottitle = "E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
