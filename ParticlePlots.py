@@ -54,7 +54,9 @@ def Plot1PI(x, y, histogramInfo, file_path = None):
     treeName = "FlatTree_VARS"
 
     df = ROOT.RDataFrame(treeName,fileName)
-
+    df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+    
+    
     # Modes for single Pi are 11-16
     cut1 = 'Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 '
     hist = df.Filter(cut1).Histo2D(histogramInfo,x,y)
@@ -108,6 +110,59 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
 
     df = ROOT.RDataFrame(treeName,fileName)
     df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+    
+    # Define Evis_1 where EavAlt = q0 - KE(neutrons) - mass(pions)
+    df = df.Define("Evis_1", "EavAlt + ELep")
+    
+    # Define Evis_2 (based on Erecoil from nuisance) - working on this
+    #df = df.Define("Evis_2", "EavAlt + ELep")
+    
+    # Define PTHad_IN: Transverse Momentum of Hadronic System (Including Neutrons)
+    df = df.Define("PTHad_IN", """
+        double total_px_had = 0;
+        double total_py_had = 0;
+        for (size_t i = 0; i < pdg.size(); ++i) {
+            int pdg_val = pdg[i];
+            if (pdg_val == 2212 || pdg_val == 211 || pdg_val == -211 || pdg_val == 111 || pdg_val == 2112) {
+                total_px_had += px[i];
+                total_py_had += py[i];
+            }
+        }
+        return std::sqrt(total_px_had * total_px_had + total_py_had * total_py_had);
+    """)
+
+    # Define PTHad_ON: Transverse Momentum of Hadronic System (Omitting Neutrons) - should we omit pi0 as well?
+    df = df.Define("PTHad_ON", """
+        double total_px_had_on = 0;
+        double total_py_had_on = 0;
+        for (size_t i = 0; i < pdg.size(); ++i) {
+            int pdg_val = pdg[i];
+            if (pdg_val == 2212 || pdg_val == 211 || pdg_val == -211 || pdg_val == 111) {
+                total_px_had_on += px[i];
+                total_py_had_on += py[i];
+            }
+        }
+        return std::sqrt(total_px_had_on * total_px_had_on + total_py_had_on * total_py_had_on);
+    """)
+
+    # Define PTLep: Transverse Momemtum of Lepton
+    df = df.Define("PTLep", """
+        double total_px_lep = 0;
+        double total_py_lep = 0;
+        for (size_t i = 0; i < pdg.size(); ++i) {
+            if (pdg[i] == 13) {
+                total_px_lep += px[i];
+                total_py_lep += py[i];
+            }
+        }
+        return std::sqrt(total_px_lep * total_px_lep + total_py_lep * total_py_lep);
+    """)
+
+    # Define TKI_IN: Transverse Kinematic Imbalance (Including Neutrons)
+    df = df.Define("TKI_IN", "PTLep - PTHad_IN")
+    
+    # Define TKI_ON: Transverse Kinematic Imbalance (Omitting Neutrons)
+    df = df.Define("TKI_ON", "PTLep - PTHad_ON")
 
     df = df.Filter(cut)
     return df
