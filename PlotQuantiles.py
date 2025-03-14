@@ -128,7 +128,7 @@ def quantile_cutting(x, x_bins, file_path):
         quantile_df = df_filtered.Filter(cut_quantile)
         quantile_dfs.append(quantile_df)
 
-        print(f"Quantile {i+1}: Events between {lower_bound} and {upper_bound}")
+        print(f"Quantile {i+1}: Events between {lower_bound} and {upper_bound}: {quantile_df.Count().GetValue()}")
     
     return quantile_dfs
 
@@ -327,7 +327,7 @@ def PlotSegments(file_path):
     # Now define slice after x1 and y1 exist
     slice = x1  
     
-    x_bins, total_events = constant_event_binning(x1, y1, file_path=file_path)
+    x_bins, total_events = constant_event_binning(x1, y1, file_path=file_path, Mode=2)
     
     # Apply quantile_cutting to make a new dataframe for each quantile 
     quantile_dfs = quantile_cutting(x1, x_bins, file_path=file_path)
@@ -427,7 +427,7 @@ def PlotGrid(file_path):
 
 if __name__ == "__main__":
     file_name = input("Give Root File name: ")
-    file_path = f"t2k-nova/FlatTrees/{file_name}"
+    file_path = f"/data/t2k-nova/FlatTrees/{file_name}"
     # file_path = 't2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root'
 
 
