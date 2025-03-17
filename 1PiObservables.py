@@ -59,11 +59,11 @@ for file_path in root_files:
     # since anhillation is mostly the interaction mode
     # + if no neutrons or leptons (mostly kaons) just add all the energy
     
-    plottitle = f"{generator}: E_{{vis3}} vs E_{{#nu true}} for 1Pi events at #nu_{{E}} =" + flux
-    histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
-    AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{vis 3}', '(GeV)', plottitle]
-    hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Evis_3',histInfo2)
-    pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(V3)vE_{flux}_{generator}")
+    # plottitle = f"{generator}: E_{{vis3}} vs E_{{#nu true}} for 1Pi events at #nu_{{E}} =" + flux
+    # histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
+    # AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{vis 3}', '(GeV)', plottitle]
+    # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Evis_3',histInfo2)
+    # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(V3)vE_{flux}_{generator}")
 
 
 
@@ -72,8 +72,8 @@ for file_path in root_files:
     with open(f"{HOME}/t2k-nova/minooValues.txt", "a") as f:
                 f.write(f"For {generator} at Enu = {flux} \n")
                 f.write(f"Total Events: {totalE} \n \n")
-    Wevo = {"1st Resonance Region": [1.1,1.4], "2nd Resonance Region": [1.4,1.6], "3rd Resonance Region": [1.6,2.0],"DIS": [2.0,2.4]}
-    Q2evo = {"non-preterbative region": [0,1.0], "Transition Region": [1.4,1.6]}
+    Wevo = {"1st Resonance Region": [0,1.4], "2nd Resonance Region": [1.4,1.6], "3rd Resonance Region": [1.6,2.0],"DIS": [2.0,2.4]}
+    Q2evo = {"non-preterbative region": [0,1.0], "Transition Region": [1.0,5]}
     regionnum = 0
 
     for reigon in Wevo:
@@ -84,6 +84,8 @@ for file_path in root_files:
         
         histInfo = ("name",f"plop1",60,1.1,2.4,105,-0.1,5)
         Wdf = df1Pi.Filter(f"W >= {Wevo[reigon][0]} && W < {Wevo[reigon][1]}")
+        # Qdf1 = Wdf.Filter("Q2 <= 1.0")
+        # Qdf2 = Wdf.Filter("Q2 > 1")
         if  Wdf.Count().GetValue() == 0:
             print("No events in reigon, break")
             with open(f"{HOME}/t2k-nova/minooValues.txt", "a") as f:
@@ -96,29 +98,42 @@ for file_path in root_files:
 
         # Printing event numbers for each reigon (Make diagram in google slides)
         Pimodes = [11,12,13,15,16]
-                
+        totalN = Wdf.Count().GetValue()                
         for mode in Pimodes:
             modedf = Wdf.Filter(f"Mode == {mode}")
-            totalN = Wdf.Count().GetValue()
             filteredN = modedf.Count().GetValue()
 
             
             percent = filteredN/totalN
 
             printstring = str(modeDic.get(mode)) + " Events in " + str(reigon) + ": "+ str(filteredN) + " out of " + str(totalN) +  f" ({percent} %)"
-            print()
-            print(printstring)
-            print()
             #File Writing
             with open(f"{HOME}/t2k-nova/minooValues.txt", "a") as f:
                 f.write(f"{printstring}\n")
+        #adding specific values that Dan wants:
+        sum1df = Wdf.Filter("Mode == 11 || Mode == 13")
+        printstring2 = f"Sum of mode 11 and 13: {sum1df.Count().GetValue()}\n"
+
+        sum2df = sum1df.Filter("Q2<=1.0")
+        printstring2 += f"Sum less than Q2 = 1: {sum2df.Count().GetValue()}\n"
+
+        sum3df = sum1df.Filter("Q2>1.0")
+        printstring2 += f"Sum greater than Q2 = 1: {sum3df.Count().GetValue()}\n"
+
+        percTotal = totalN/df1Pi.Count().GetValue()
+        printstring2 += f"Percent of total 1pi events: {percTotal}\n"
+
+
         # Stacked Event Plotting
         # colors = [ROOT.kRed ,ROOT.kViolet, ROOT.kYellow, ROOT.kBlue, ROOT.kGreen, ROOT.kOrange]
         # histinfo1D = ("name",f"plop1",40,0.5,2.5)
         # stack, histlist, Legend = pp.PlotStackedEventModes(Wdf, histinfo1D, Pimodes, colors)
         # AxisInfo = ["W (GeV)", "Events", reigon + " Stacked events vs W for #nu_{E} = " + flux]
         # pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,f"/home/lboe/t2k-nova/1PiPlots/{flux}stacked_eventsReigon{regionnum}.png")
+
+
         with open(f"{HOME}/t2k-nova/minooValues.txt", "a") as f:
+                f.write(printstring2)
                 f.write("\n \n")
         
 
