@@ -32,6 +32,19 @@ def Plot2P2H(x, y, histogramInfo, file_path = None, Mode = None):
 
     df = ROOT.RDataFrame(treeName,fileName)
     df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+    
+    df = df.Define("PProton1", """
+    double max_proton_p = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 2212) { // Proton
+            double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
+            if (p_magnitude > max_proton_p) {
+                max_proton_p = p_magnitude;
+            }
+        }
+    }
+    return max_proton_p;
+    """)
                          
     # Mode 2 is the 2P2H interaction
     if Mode is not None:
