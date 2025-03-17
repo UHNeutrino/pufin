@@ -1,5 +1,8 @@
 # could use hist.Draw("text") to draw text before making 6 plots!
 
+# to change x variable:
+# change xlabel around line 324 and variable around line 364 & 380
+
 import ROOT
 import os
 import ParticlePlots as pp 
@@ -97,6 +100,8 @@ def constant_event_binning(x, y, file_path, Mode = None):
     return x_bins, total_events
 
 def quantile_cutting(x, x_bins, file_path):
+    
+    
     """
     Returns:
     - A list of filtered RDataFrames, one for each quantile.
@@ -107,6 +112,19 @@ def quantile_cutting(x, x_bins, file_path):
     # Get each quantile into a separate dataframe
     df = ROOT.RDataFrame(treeName, fileName)
     df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+    
+    df = df.Define("PProton1", """
+    double max_proton_p = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 2212) { // Proton
+            double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
+            if (p_magnitude > max_proton_p) {
+                max_proton_p = p_magnitude;
+            }
+        }
+    }
+    return max_proton_p;
+    """)
 
 
     # Mode 2 is the 2P2H interaction
@@ -198,19 +216,16 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0, max 
     latex = ROOT.TLatex()
     latex.SetTextSize(0.05)  # Set the text size
     latex.SetTextAlign(22)   # Set text alignment to center (x=0.5, y=0.5)
-
-    # Draw the text "hi" in the center of the canvas (normalized coordinates)
-    latex.DrawLatexNDC(0.5, 0.5, "hi")
    
     c = ROOT.TCanvas()
 
     SF.formatTcanvas(hist,c)
     # ROOT.gStyle.SetOptStat(0)  # Remove statistics box
-    c.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{title}_{Name}.png")
+    #c.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{title}_{Name}.png")
         
     return hist 
 
-def MultiPlot(histos, slice, file_path):
+def MultiPlot(histos, slice, x, file_path):
     dir_location = file_path
     
     NameParts = SF.formatName(dir_location)
@@ -275,6 +290,7 @@ def MultiPlot(histos, slice, file_path):
         # Retrieve histogram title
         hist_title = histos[i].GetName()
         Plot_Title_Parts = hist_title.split('_')
+        Plot_Title_0_Parts = Plot_Title_Parts[0].split(':')
         selected_events = int(Plot_Title_Parts[1])
         percent = round((selected_events / 1e7*100), 2)
         print(f"{Plot_Title_Parts}")
@@ -284,9 +300,12 @@ def MultiPlot(histos, slice, file_path):
         title_text.SetTextSize(0.05)  # Adjust text size
         title_text.SetTextAlign(22)  # Center alignment
         title_text.SetNDC()  # Use normalized device coordinates
-        title_text.DrawLatex(0.6, 0.45, Plot_Title_Parts[0])  # Position near top-center
+        title_text.DrawLatex(0.6, 0.55, f"{Plot_Title_0_Parts[0]}:")  # Position near top-center
+        if len(Plot_Title_0_Parts) > 1:
+            title_text.DrawLatex(0.6, 0.45, f"{Plot_Title_0_Parts[1]}")
         title_text.DrawLatex(0.6, 0.35, f"{Plot_Title_Parts[1]} events")
-        title_text.DrawLatex(0.6, 0.25, f"{percent}% of total generated")
+        title_text.DrawLatex(0.6, 0.25, f"{percent}%")
+        title_text.DrawLatex(0.6, 0.15, "of total generated")
         #print(f"Histogram {i} title: {hist_title}")  # Debugging step
 
     
@@ -297,11 +316,12 @@ def MultiPlot(histos, slice, file_path):
     title.SetTextAlign(22)  # Center alignment
     title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} 2P2H #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in {slice})")  # (x, y) in normalized device coordinates
 
-    # Add X-axis label (centered at the bottom)
+    # Add X-axis label (centered at the bottom) - CHANGE X-LABEL WHEN NEEDED!!!!
     xlabel = ROOT.TLatex()
     xlabel.SetTextSize(0.04)
     xlabel.SetTextAlign(22)
-    xlabel.DrawLatexNDC(0.5, 0.02, "P_{#mu} (GeV)")  # Adjust as needed
+    #xlabel.DrawLatexNDC(0.5, 0.02, "P_{#mu} (GeV/c)")  # Adjust as needed
+    xlabel.DrawLatexNDC(0.5, 0.02, "P_{Leading Proton} (GeV/c)")  # Adjust as needed
 
     # Add Y-axis label (centered vertically on the left)
     ylabel = ROOT.TLatex()
@@ -313,7 +333,7 @@ def MultiPlot(histos, slice, file_path):
     ROOT.gPad.Update()
     cFull.Update()
     # Save the canvas
-    cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{NameParts[2]}_2P2H_{slice}_Quantiles.png")
+    cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{NameParts[2]}_2P2H_{slice}_Quantiles_{x}.png")
 
 def PlotSegments(file_path):
     dir_location = file_path
@@ -341,7 +361,8 @@ def PlotSegments(file_path):
         
     # Make plots for each dataframe
     y = 'CosLep'
-    x = 'PLep'
+    #x = 'PLep'
+    x = 'PProton1'
      
     histos = []  # Store histograms here in order to plot on divided canvas
     # Create and save a plot for each quantile
@@ -355,11 +376,11 @@ def PlotSegments(file_path):
         histos.append(hist)
     
     # Plot full q3 spectrum
-    x = "PLep"
+    #x = "PLep"
+    x = "PProton1"
     y = "CosLep"
     
-    # This is not working!
-    histInfo = (f"Full q3 Spectrum_{total_events}", f"{y} vs {x} 2P2H plot", 60, 0, 3.3, 102, -1.02, 1.02)
+    histInfo = (f"Full {slice} Spectrum_{total_events}", f"{y} vs {x} 2P2H plot", 60, 0, 3.3, 102, -1.02, 1.02)
 
     # Generate the 2P2H histogram
     hist_Full2P2H, _ = pp.Plot2P2H(x, y, histInfo, file_path=file_path)
@@ -372,10 +393,10 @@ def PlotSegments(file_path):
     
     title = hist_Full2P2H.GetName()
     print(f"{title}")
-    cfull2P2H.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{title}_{Name}.png")
+    #cfull2P2H.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{title}_{Name}.png")
     
     histos.append(hist_Full2P2H)
-    MultiPlot(histos, slice, file_path=file_path)
+    MultiPlot(histos, slice, x, file_path=file_path)
 
 def PlotGrid(file_path):
     # dir_location = file_path
