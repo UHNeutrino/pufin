@@ -67,7 +67,7 @@ def constant_event_binning(x, y, file_path, Mode = None):
     if Mode is not None:
         cut1 = f'Mode == {Mode}'
     else:   
-        cut1 = 'Mode == 1'
+        cut1 = 'Mode == 2'
     df_filtered = df.Filter(cut1).Histo2D(histogramInfo, x, y)
 
     # Get the total number of events

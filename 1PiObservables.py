@@ -10,7 +10,7 @@ import glob
 # file_path = '/data/t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e6v2.root'
 HOME = os.getenv("HOME", "/home/lboe")
 userFolder = f"/data/t2k-nova/FlatTrees"
-montecarlo = input("Enter the name of your montecarlo: NEUT, NOvA, or ICARUS. If you want to generate plots for all Flat Trees in the directory hit 'enter' ")
+montecarlo = input("Enter the name of your montecarlo: NEUT, NOvA, or AR23. If you want to generate plots for all Flat Trees in the directory hit 'enter' ")
 
 #root_files = glob.glob(userFolder + '/*NOvA*.root')
 root_files = glob.glob(userFolder + f'/*{montecarlo}*.root')
@@ -112,13 +112,13 @@ for file_path in root_files:
                 f.write(f"{printstring}\n")
         #adding specific values that Dan wants:
         sum1df = Wdf.Filter("Mode == 11 || Mode == 13")
-        printstring2 = f"Sum of mode 11 and 13: {sum1df.Count().GetValue()}\n"
+        printstring2 = f"Sum of mode 11 and 13: {sum1df.Count().GetValue()}\n "
 
         sum2df = sum1df.Filter("Q2<=1.0")
-        printstring2 += f"Sum less than Q2 = 1: {sum2df.Count().GetValue()}\n"
+        printstring2 += f"Sum less than Q2 = 1: {sum2df.Count().GetValue()} ({sum2df.Count().GetValue()/sum1df.Count().GetValue()} % of 11 and 13) \n"
 
         sum3df = sum1df.Filter("Q2>1.0")
-        printstring2 += f"Sum greater than Q2 = 1: {sum3df.Count().GetValue()}\n"
+        printstring2 += f"Sum greater than Q2 = 1: {sum3df.Count().GetValue()} ({sum3df.Count().GetValue()/sum1df.Count().GetValue()} % of 11 and 13) \n"
 
         percTotal = totalN/df1Pi.Count().GetValue()
         printstring2 += f"Percent of total 1pi events: {percTotal}\n"
