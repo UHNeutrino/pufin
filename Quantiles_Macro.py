@@ -4,12 +4,13 @@ import SetupFunctions as SF
 
 
 
-file_path = 'data/t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root'
-# file_path = ''
+#file_path = 'data/t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root'
+file_path = ''
 if file_path == '':
     file_name = input("Input Root file name: ")
     file_path = f"/data/t2k-nova/FlatTrees/{file_name}"
 
+print(file_path)
 lines = 0
 if lines:
     print("no")
