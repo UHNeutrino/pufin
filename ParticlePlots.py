@@ -18,7 +18,7 @@ SF.setupRoot()
 HOME = os.getenv("HOME", "/home/lboe")
 
 
-def Plot2P2H(x, y, histogramInfo, file_path = None, Mode = None):
+def Plot2P2H(x, y, histogramInfo, file_path = None, Mode = None, Normalize = 0):
     # First get the data into a dataframe
     if file_path is None:
         dir_location = input("Give Full Flat Tree Directory Location: ")
@@ -53,6 +53,10 @@ def Plot2P2H(x, y, histogramInfo, file_path = None, Mode = None):
     else:
         cut1 = 'Mode == 2'
     hist = df.Filter(cut1).Histo2D(histogramInfo,x,y)
+
+    if Normalize==1:
+        scale = 1/(hist.Integral())
+        hist.Scale(scale)
     
     return hist, file_path
 
@@ -128,7 +132,65 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
     df = df.Define("Evis_1", "EavAlt + ELep")
     
     # Define Evis_2 (based on Erecoil from nuisance) - working on this
-    #df = df.Define("Evis_2", "EavAlt + ELep")
+    df = df.Define("E_had", """
+        double e_had = 0;
+        for (size_t i = 0; i < pdg.size(); ++i) {
+            int pdg_val = pdg[i];
+            double energy = E[i]; // E is a value in ttree
+
+            if (pdg_val == 2212) { // Proton
+                e_had += energy - 0.938; // KE of proton
+            } else if (pdg_val == 211 || pdg_val == -211) { // Charged pion
+                e_had += energy - 0.1396; // KE of charged pion
+            } else if (pdg_val == 111 || pdg_val == 11 || pdg_val == -11 || pdg_val == 22) { // pi0, electron, positron, photon
+                e_had += energy; // Total energy
+            }
+        }
+        return e_had;
+    """)
+
+    df = df.Define("Evis_2", "E_had + ELep")
+    
+    df = df.Define("E_had3", """
+        double e_had3 = 0;
+        for (size_t i = 0; i < pdg.size(); ++i) {
+            int pdg_val = pdg[i];
+            double energy = E[i];
+            double px_val = px[i];
+            double py_val = py[i];
+            double pz_val = pz[i];
+
+            if (pdg_val == 2212 || abs(pdg_val) == 211) { // Proton or charged pion
+                double mass_squared = energy * energy - px_val * px_val - py_val * py_val - pz_val * pz_val;
+                if (mass_squared > 0) {
+                    double mass = std::sqrt(mass_squared);
+                    double gamma = energy / mass;
+                    e_had3 += (gamma - 1) / gamma * energy;
+                }
+            } else if (pdg_val == 111 || pdg_val == 11 || pdg_val == -11 || pdg_val == 22) { // pi0, electron, positron, photon
+                e_had3 += energy;
+            }  else if (pdg_val >= 2000000000)
+	        {
+	        //skip the bindinos
+	        }  else if (pdg_val >= 1000000000)
+            {
+	        //do nothing for nucleons
+	        }  else if (pdg_val >= 2000 && pdg_val != 2212 && pdg_val !=2112){
+	            e_had3 += energy - 0.9382;
+	            //Primarily strange baryons add total energy minus proton mass since decays will mostly contain protons
+	        }  else if (pdg_val <= -2000){
+                e_had3 += energy + 0.9382;
+	            //Primarily anti-protons add total energy plus proton mass since anhillation is mostly the interaction mode
+	        }  else if (pdg_val != 2112 && (abs(pdg_val) < 11 || abs(pdg_val) > 16)){ // no neutrons or leptons
+	            e_had3 += energy; //mostly kaons add all the energy
+	        }
+
+        }
+        return e_had3;
+    """)
+
+
+    df = df.Define("Evis_3", "E_had3 + ELep")
     
     # Define PTHad_IN: Transverse Momentum of Hadronic System (Including Neutrons)
     df = df.Define("PTHad_IN", """
@@ -193,14 +255,23 @@ def Savehist(hist, AxisInfo, save_location, filename, max = None, Normalize = 0)
     yunit = AxisInfo[3]
     PlotTitle = AxisInfo[4]
 
+    # if max is not None:
+    # hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle)
+    hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
+    c = ROOT.TCanvas()
+
     if Normalize == 1:
        scale = 1/(hist.Integral())
        hist.Scale(scale)
 
-    if max is not None:
-        hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle)
-    hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
-    c = ROOT.TCanvas()
+    if Normalize == 2:
+        hist.SetMinimum(1)
+        hist.SetMaximum(10000)
+        c.SetLogz()
+
+
+
+  
     SF.formatTcanvas(hist,c)
     c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
 
