@@ -18,7 +18,7 @@ SF.setupRoot()
 HOME = os.getenv("HOME", "/home/lboe")
 
 
-def Plot2P2H(x, y, histogramInfo, file_path = None, Mode = None, Normalize = 0):
+def Plot2P2H(x, y, histogramInfo, file_path = None, Mode = None, Normalize = 0, max = None):
     # First get the data into a dataframe
     if file_path is None:
         dir_location = input("Give Full Flat Tree Directory Location: ")
@@ -45,7 +45,24 @@ def Plot2P2H(x, y, histogramInfo, file_path = None, Mode = None, Normalize = 0):
     }
     return max_proton_p;
     """)
-                         
+
+    df = df.Define("CosProton", """
+    double cos_proton = -5.0; // Default value if no proton found
+    double max_proton_p = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 2212) { // Proton
+        double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
+        if (p_magnitude > max_proton_p) {
+            max_proton_p = p_magnitude;
+        }
+        }
+        if (max_proton_p > 0) {
+            cos_proton = pz[i] / max_proton_p; // Dot product with (0, 0, 1)
+        }
+    }
+    return cos_proton;
+    """)                    
+
     # Mode 2 is the 2P2H interaction
     if Mode is not None:
         cut1 = f'Mode == {Mode}'
@@ -57,6 +74,10 @@ def Plot2P2H(x, y, histogramInfo, file_path = None, Mode = None, Normalize = 0):
     if Normalize==1:
         scale = 1/(hist.Integral())
         hist.Scale(scale)
+    
+    # **Set Z-axis max value**
+    if max is not None:
+        hist.SetMaximum(max)  # Ensures max value displayed is consistent
     
     return hist, file_path
 
@@ -247,6 +268,10 @@ def Create2DHistogram(df,x,y,histInfo):
     hist = df.Histo2D(histInfo,x,y)
     return hist
 
+def Create1DHistogram(df,x,histInfo):
+    hist = df.Histo1D(histInfo,x)
+    return hist
+
 
 def Savehist(hist, AxisInfo, save_location, filename, max = None, Normalize = 0):
     xvar = AxisInfo[0]
@@ -255,24 +280,75 @@ def Savehist(hist, AxisInfo, save_location, filename, max = None, Normalize = 0)
     yunit = AxisInfo[3]
     PlotTitle = AxisInfo[4]
 
-    # if max is not None:
-    # hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle)
-    hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
+    if max is not None:
+        hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle)
+    else:
+        hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
     c = ROOT.TCanvas()
 
     if Normalize == 1:
        scale = 1/(hist.Integral())
        hist.Scale(scale)
 
-    if Normalize == 2:
-        hist.SetMinimum(1)
-        hist.SetMaximum(10000)
+    elif Normalize == 2:
+        #hist.SetMinimum(1)
+        hist.SetMaximum(3000)
         c.SetLogz()
 
-
-
-  
     SF.formatTcanvas(hist,c)
+    c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
+    
+def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, max=None, Normalize=0):
+    """Saves multiple 1D histograms on the same canvas."""
+
+    xvar = AxisInfo[0]
+    xunit = AxisInfo[1]
+    yvar = AxisInfo[2]
+    yunit = AxisInfo[3]
+    PlotTitle = AxisInfo[4]
+
+    c = ROOT.TCanvas()
+    legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79)  # Adjust legend position as needed
+
+    hist1 = SF.formatHist(hist1, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
+    hist2 = SF.formatHist(hist2, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
+    hist3 = SF.formatHist(hist3, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
+    
+    # for i, hist in enumerate(hist_list): #iterate through the rresultptr objects
+    #     if max is not None:
+    #         hist = SF.formatHist(hist, xvar, xunit, yvar, yunit, max=max, PlotTitle=PlotTitle)
+    #     else:
+    #         hist = SF.formatHist(hist, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
+
+        # if Normalize == 1:
+        #     scale = 1 / (hist.Integral())
+        #     hist.Scale(scale)
+
+        # elif Normalize == 2:
+        #     hist.SetMaximum(3000)
+        #     c.SetLogz()
+
+    # Manual color and style settings:
+    hist1.SetLineColor(ROOT.kBlue)
+    hist1.SetLineWidth(2)
+
+    hist2.SetLineColor(ROOT.kBlack)
+    hist2.SetLineWidth(2)
+
+    hist3.SetLineColor(ROOT.kOrange+2)
+    hist3.SetLineStyle(2)  # Dotted line
+    hist3.SetLineWidth(2)
+
+    hist2.Draw("HIST")
+    hist3.Draw("HIST SAME")
+    hist1.Draw("HIST SAME")
+
+    legend.AddEntry(hist1, "Evis 1", "l")
+    legend.AddEntry(hist2, "Evis 2", "l")
+    legend.AddEntry(hist3, "Evis 3", "l")
+
+    SF.formatTcanvasSame(c)  # Format the canvas based on the first histogram
+    legend.Draw("SAME") #draw legend.
     c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
 
 def PlotStackedEventModes(df, histInfo, modes, colors):
