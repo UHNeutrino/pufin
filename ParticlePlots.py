@@ -76,8 +76,8 @@ def Plot2P2H(x, y, histogramInfo, file_path = None, Mode = None, Normalize = 0, 
         hist.Scale(scale)
     
     # **Set Z-axis max value**
-    if max is not None:
-        hist.SetMaximum(max)  # Ensures max value displayed is consistent
+    # if max is not None:
+    #     hist.SetMaximum(max)  # Ensures max value displayed is consistent
     
     return hist, file_path
 
@@ -298,6 +298,59 @@ def Savehist(hist, AxisInfo, save_location, filename, max = None, Normalize = 0)
     SF.formatTcanvas(hist,c)
     c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
     
+def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, max=None, Normalize=0):
+    """Saves multiple 1D histograms on the same canvas."""
+
+    xvar = AxisInfo[0]
+    xunit = AxisInfo[1]
+    yvar = AxisInfo[2]
+    yunit = AxisInfo[3]
+    PlotTitle = AxisInfo[4]
+
+    c = ROOT.TCanvas()
+    legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79)  # Adjust legend position as needed
+
+    hist1 = SF.formatHist(hist1, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
+    hist2 = SF.formatHist(hist2, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
+    hist3 = SF.formatHist(hist3, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
+    
+    # for i, hist in enumerate(hist_list): #iterate through the rresultptr objects
+    #     if max is not None:
+    #         hist = SF.formatHist(hist, xvar, xunit, yvar, yunit, max=max, PlotTitle=PlotTitle)
+    #     else:
+    #         hist = SF.formatHist(hist, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
+
+        # if Normalize == 1:
+        #     scale = 1 / (hist.Integral())
+        #     hist.Scale(scale)
+
+        # elif Normalize == 2:
+        #     hist.SetMaximum(3000)
+        #     c.SetLogz()
+
+    # Manual color and style settings:
+    hist1.SetLineColor(ROOT.kBlue)
+    hist1.SetLineWidth(2)
+
+    hist2.SetLineColor(ROOT.kBlack)
+    hist2.SetLineWidth(2)
+
+    hist3.SetLineColor(ROOT.kOrange+2)
+    hist3.SetLineStyle(2)  # Dotted line
+    hist3.SetLineWidth(2)
+
+    hist2.Draw("HIST")
+    hist3.Draw("HIST SAME")
+    hist1.Draw("HIST SAME")
+
+    legend.AddEntry(hist1, "Evis 1", "l")
+    legend.AddEntry(hist2, "Evis 2", "l")
+    legend.AddEntry(hist3, "Evis 3", "l")
+
+    SF.formatTcanvasSame(c)  # Format the canvas based on the first histogram
+    legend.Draw("SAME") #draw legend.
+    c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
+
 def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, max=None, Normalize=0):
     """Saves multiple 1D histograms on the same canvas."""
 
