@@ -43,23 +43,27 @@ for file_path in root_files:
     hist2p_q = pp.Create2DHistogram(df1Pi,'W','Q2',histInfo)
     # pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots",f"{flux}1PiWvQ2V2")
 
-    # Evis vs Etrue - add minium thresholds for all of these?
+    ##################################################################
+    ##### Evis vs Etrue - add minium thresholds for all of these? ####
+    ##################################################################
     
-    # Version 1: Evis = EvAlt (q0 - KE neutrons - mass pions) + ELep  
+    ### Version 1: Evis = EvAlt (q0 - KE neutrons - mass pions) + ELep ###
+
     # plottitle = f"{generator}: E_{{vis1}} vs E_{{#nu true}} for 1Pi events at #nu_{{E}} =" + flux
     # histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
     # AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{vis} = q0 - KE_{neutrons} - Mass_{pions} + E_{#mu}', '(GeV)', plottitle]
     # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Evis_1',histInfo2)
     # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(V1)vE_{flux}_{generator}")
 
-    # Version 2 (from Erecoil in Nuiance github): Evis2 = KE (protons & charged pions) + E (pi0, e+/-, photons, muon) 
+    ### Version 2 (from Erecoil in Nuiance github): Evis2 = KE (protons & charged pions) + E (pi0, e+/-, photons, muon) 
+
     # plottitle = f"{generator}: E_{{vis2}} vs E_{{#nu true}} for 1Pi events at #nu_{{E}} =" + flux
     # histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
     # AxisInfo2 = ['E_{#nu true}', '(GeV)','           E_{vis} = KE_{pr; pi+/-} + E_{pi0; e-/+; photons} + E_{#mu}', '(GeV)', plottitle]
     # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Evis_2',histInfo2)
     # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(V2)vE_{flux}_{generator}")
     
-    # Version 3 (Eavail from NOvA): Evis = Evis2 + skip bindinos & nucleons 
+    ### Version 3 (Eavail from NOvA): Evis = Evis2 + skip bindinos & nucleons 
     # + total energy minus proton mass of (Primarily) strange baryons
     # since decays will mostly contain protons 
     # + total energy plus proton mass of (primarily) anti-protons 
@@ -72,7 +76,10 @@ for file_path in root_files:
     # hist2p_q = pp.Create2DHistogram(df1Pi,'W','Evis_1',histInfo2)
     # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(V1)vW_{flux}_{generator}")
 
-    # Evis 1D (all 3 versions together)
+    #########################################
+    ### Evis 1D (all 3 versions together) ###
+    #########################################
+
     # plottitle = f"{generator}: E_{{vis}} for 1Pi events at #nu_{{E}} =" + flux
     # histInfo2 = ("name",f"plop1",100,0,3.5)
     # AxisInfo2 = ['E_{vis}', '(GeV)', 'Frequency', '(# of Events)', plottitle]
@@ -86,9 +93,11 @@ for file_path in root_files:
     # hist_list = [hist1, hist2, hist3]
 
     # pp.SaveHistSame(hist1, hist2, hist3,AxisInfo2,"t2k-nova/1PiPlots",f"1PiEvis_{flux}_{generator}")
-    #pp.SaveHistSame(hist1, hist2, hist3,AxisInfo2,"t2k-nova",f"1PiEvis_{flux}_{generator}")
+    # pp.SaveHistSame(hist1, hist2, hist3,AxisInfo2,"t2k-nova",f"1PiEvis_{flux}_{generator}")
 
-    # Ratio of Evis Variations - modify for different versions
+    ################################################################
+    ### Ratio of Evis Variations - modify for different versions ###
+    #################################################################
     # plottitle = f"{generator}: Ratio of E_{{vis1}} / E_{{vis2}} for 1Pi events at #nu_{{E}} =" + flux
     # histInfo2 = ("name",f"plop1",100,0,3.5)
     # AxisInfo2 = ['E_{vis}', '', 'Ratio', '', plottitle]
@@ -107,7 +116,10 @@ for file_path in root_files:
     # pp.Savehist(ratio_hist,AxisInfo2,"t2k-nova/1PiPlots",f"1PiEvisRatio_1v2_{flux}_{generator}")
     #pp.Savehist(ratio_hist,AxisInfo2,"t2k-nova",f"1PiRatioE2vE3_{flux}_{generator}")
 
-    # Evis vs W (Sub in Evis, Evis2 or Evis3)
+    ###############################################
+    ### Evis vs W (Sub in Evis, Evis2 or Evis3) ###
+    ###############################################
+
     #max = .12 # for 0.7 GeV
     # max = .05 # for 2.0 GeV
     # plottitle = f"{generator}: E_{{vis3}} vs W for 1Pi events at #nu_{{E}} = " + flux
@@ -118,7 +130,9 @@ for file_path in root_files:
     # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(V3)vW_{flux}_{generator}", max = None, Normalize=0)
     # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova",f"1PiE(V1)vE_{flux}_{generator}")
 
-    # Minoo sections
+    ######################
+    ### Minoo sections ###
+    #######################
     totalE = df1Pi.Count().GetValue()
     with open(f"{HOME}/t2k-nova/minooValues.txt", "a") as f:
                 f.write(f"For {generator} at Enu = {flux} \n")
@@ -173,7 +187,7 @@ for file_path in root_files:
                 f.write("\n \n")
         
 
-    # E_kinQE vs E true (REC) - haven't checked
+    ### E_kinQE vs E true (REC) - haven't checked
     # plottitle = "E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
     # histInfo2 = ("name",f"plop1",40,0.5,.9,40,0,0.85)
     # AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{av}', '(GeV)', plottitle]
@@ -181,14 +195,16 @@ for file_path in root_files:
     # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots","1PiEvE")
 
 
-    # enu_QE vs enu_TRUE - this is working, needs formatting to move the stats box to the left edge
+    ### enu_QE vs enu_TRUE - this is working, needs formatting to move the stats box to the left edge
     # plottitle = f"{generator}: Enu_QE vs E_{{#nu true}} for 1Pi events at #nu_{{E}} =" + flux
     # histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
     # AxisInfo2 = ['E_{#nu true}', '(GeV)','Enu_QE', '(GeV)', plottitle]
     # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Enu_QE',histInfo2)
     # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(QE)vE_{flux}_{generator}")
 
-    # TKI variables: need to recalculate!!
+    ############################################
+    ### TKI variables: need to recalculate!! ###
+    ############################################
     
     # TKI (Including Neutrons)
     # plottitle = f"{generator}: TKI vs P_{{#mu}} for 1Pi events at #nu_{{E}} =" + flux
