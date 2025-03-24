@@ -6,6 +6,7 @@ import SetupFunctions as sf
 import glob
 
 #file_path = '/data/t2k-nova/FlatTrees/Flat_GenieNOvA_3.0GeV_1e7_v2.root'
+#file_path = '/data/t2k-nova/FlatTrees/Flat_GenieNOvA_3.0GeV_1e7_v2.root'
 HOME = os.getenv("HOME", "/home/lboe")
 userFolder = f"/data/t2k-nova/FlatTrees"
 
