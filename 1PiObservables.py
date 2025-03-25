@@ -61,8 +61,8 @@ for file_path in root_files:
     
     # plottitle = f"{generator}: E_{{vis3}} vs E_{{#nu true}} for 1Pi events at #nu_{{E}} =" + flux
     # histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
-    # AxisInfo2 = ['W', '(GeV)','E_{vis 3}', '(GeV)', plottitle]
-    # hist2p_q = pp.Create2DHistogram(df1Pi,'W','Evis_3',histInfo2)
+    # AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{vis 3}', '(GeV)', plottitle]
+    # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Evis_3',histInfo2)
     # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(V3)vE_{flux}_{generator}")
 
 
