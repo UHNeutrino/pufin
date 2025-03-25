@@ -128,7 +128,7 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
     df = df.Define("Evis_1", "EavAlt + ELep")
     
     # Define Evis_2 (based on Erecoil from nuisance) - working on this
-    #df = df.Define("Evis_2", "EavAlt + ELep")
+    df = df.Define("Evis_2", "EavAlt + ELep")
     
     # Define PTHad_IN: Transverse Momentum of Hadronic System (Including Neutrons)
     df = df.Define("PTHad_IN", """
@@ -199,7 +199,8 @@ def Savehist(hist, AxisInfo, save_location, filename, max = None, Normalize = 0)
 
     if max is not None:
         hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle)
-    hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
+    else:
+        hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
     c = ROOT.TCanvas()
     SF.formatTcanvas(hist,c)
     c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
