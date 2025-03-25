@@ -40,12 +40,12 @@ for file_path in root_files:
     flux = file_name.split('_')[2]
     # x_bins, total_events = pq.constant_event_binning(x, y, file_path, Mode = 
     # 1pi
-    plottitle = "W vs Q^{2} for 1Pi events at #nu_{E} =" + flux
-    histInfo = ("name",f"plop1",60,1.1,2.4,105,-0.1,5)
-    AxisInfo1 = ['W', '(GeV)','Q^{2}', '(GeV)^{2}', plottitle]
+    # plottitle = "W vs Q^{2} for 1Pi events at #nu_{E} =" + flux
+    # histInfo = ("name",f"plop1",60,1.1,2.4,105,-0.1,5)
+    # AxisInfo1 = ['W', '(GeV)','Q^{2}', '(GeV)^{2}', plottitle]
     df1Pi= pp.CreateDataFrame(file_path, "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 ")
-    hist2p_q = pp.Create2DHistogram(df1Pi,'W','Q2',histInfo)
-    pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots",f"{flux}1PiWvQ2V2")
+    #hist2p_q = pp.Create2DHistogram(df1Pi,'W','Q2',histInfo)
+    # pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots",f"{flux}1PiWvQ2V2")
 
     ##################################################################
     ##### Evis vs Etrue - add minium thresholds for all of these? ####
@@ -90,20 +90,20 @@ for file_path in root_files:
     ### Evis 1D (all 3 versions together) ###
     #########################################
 
-    # plottitle = f"{generator}: E_{{vis}} for 1Pi events at #nu_{{E}} =" + flux
-    # histInfo2 = ("name",f"plop1",100,0,3.5)
-    # AxisInfo2 = ['E_{vis}', '(GeV)', 'Frequency', '(# of Events)', plottitle]
-    # hist1_result = pp.Create1DHistogram(df1Pi, 'Evis_1', histInfo2)
-    # hist2_result = pp.Create1DHistogram(df1Pi, 'Evis_2', histInfo2)
-    # hist3_result = pp.Create1DHistogram(df1Pi, 'Evis_3', histInfo2)
+    plottitle = f"{generator}: E_{{vis}} for 1Pi events at #nu_{{E}} =" + flux
+    histInfo2 = ("name",f"plop1",100,0,3.5)
+    AxisInfo2 = ['E_{vis}', '(GeV)', 'Frequency', '(# of Events)', plottitle]
+    hist1_result = pp.Create1DHistogram(df1Pi, 'Evis_1', histInfo2)
+    hist2_result = pp.Create1DHistogram(df1Pi, 'Evis_2', histInfo2)
+    hist3_result = pp.Create1DHistogram(df1Pi, 'Evis_3', histInfo2)
 
-    # hist1 = hist1_result.GetValue()
-    # hist2 = hist2_result.GetValue()
-    # hist3 = hist3_result.GetValue()
-    # hist_list = [hist1, hist2, hist3]
+    hist1 = hist1_result.GetValue()
+    hist2 = hist2_result.GetValue()
+    hist3 = hist3_result.GetValue()
+    hist_list = [hist1, hist2, hist3]
 
     # pp.SaveHistSame(hist1, hist2, hist3,AxisInfo2,"t2k-nova/1PiPlots",f"1PiEvis_{flux}_{generator}")
-    # pp.SaveHistSame(hist1, hist2, hist3,AxisInfo2,"t2k-nova",f"1PiEvis_{flux}_{generator}")
+    pp.SaveHistSame(hist1, hist2, hist3,AxisInfo2,"t2k-nova",f"1PiEvis_{flux}_{generator}")
 
     ################################################################
     ### Ratio of Evis Variations - modify for different versions ###
