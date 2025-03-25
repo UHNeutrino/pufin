@@ -152,7 +152,7 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
     # Define Evis_1 where EavAlt = q0 - KE(neutrons) - mass(pions)
     df = df.Define("Evis_1", "EavAlt + ELep")
     
-    # Define Evis_2 (based on Erecoil from nuisance) - working on this
+    # E_had = KE (protons & charged pions) + E (pi0, e+/-, photons)
     df = df.Define("E_had", """
         double e_had = 0;
         for (size_t i = 0; i < pdg.size(); ++i) {
@@ -170,8 +170,14 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
         return e_had;
     """)
 
+    # Add Evis_2 to dataframe (based on Erecoild from nuisance)
     df = df.Define("Evis_2", "E_had + ELep")
     
+    # E_had3 = skip bindinos & nucleons + total energy minus proton mass of (Primarily) strange baryons
+    # since decays will mostly contain protons 
+    # + total energy plus proton mass of (primarily) anti-protons 
+    # since anhillation is mostly the interaction mode
+    # + if no neutrons or leptons (mostly kaons) just add all the energy
     df = df.Define("E_had3", """
         double e_had3 = 0;
         for (size_t i = 0; i < pdg.size(); ++i) {
@@ -210,7 +216,7 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
         return e_had3;
     """)
 
-
+    # Add Evis_3 to data frame (based on code from NOvA)
     df = df.Define("Evis_3", "E_had3 + ELep")
     
     # Define PTHad_IN: Transverse Momentum of Hadronic System (Including Neutrons)
