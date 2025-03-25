@@ -7,7 +7,9 @@ def setupRoot():
     ROOT.gStyle.SetStatY(0.9)  # Slightly below the top edge
     ROOT.gStyle.SetOptStat(10)  # Only show the number of entries (N)
     # Apply a modern color palette
-    ROOT.gStyle.SetPalette(ROOT.kRainBow)  # Choose a visually pleasing palette
+    #ROOT.gStyle.SetPalette(ROOT.kRainBow)  # Choose a visually pleasing palette
+    #ROOT.gStyle.SetPalette(ROOT.kViridis)
+    ROOT.gStyle.SetPalette(ROOT.kBird)
     ROOT.gStyle.SetNumberContours(50)     # Increase the number of colors in the gradient
 
 def formatName(dir_location):
@@ -45,6 +47,16 @@ def formatTcanvas(hist, c):
     hist.Draw("COLZ")
     # c.SetCanvasSize(600,500)
     c.SetCanvasSize(c.GetWw()+200,c.GetWh())
+    
+def formatTcanvasSame(c):
+"""Formats a TCanvas for a 1D histogram."""
+
+# Adjust margins for 1D histograms
+c.SetLeftMargin(0.12)  # Adjust as needed
+c.SetRightMargin(0.05) # Adjust as needed
+c.SetBottomMargin(0.12) # Adjust as needed
+#hist.Draw("HIST")  # Draw the histogram as a standard histogram
+c.SetCanvasSize(c.GetWw(), c.GetWh())
 
 def modeDic():
     CCmodes={1 : "NEU,N --> LEPTON-,P",
