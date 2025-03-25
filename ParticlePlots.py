@@ -205,14 +205,14 @@ def Savehist(hist, AxisInfo, save_location, filename, max = None, Normalize = 0)
     SF.formatTcanvas(hist,c)
     c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
 
-def PlotStackedEventModes(df, histInfo, modes, colors):
+def PlotStackedEventModes(df, x, histInfo, modes, colors):
     modeDic = SF.modeDic()
     stack = ROOT.THStack("stack","")
     histlist = []
     Legend = []
     for i in range(len(modes)):
         modedf = df.Filter(f"Mode == {modes[i]}")
-        hist = modedf.Histo1D(histInfo,"W")
+        hist = modedf.Histo1D(histInfo,x)
         print(colors[i])
         hist.SetFillColor(colors[i])
         th1d = hist.GetPtr()

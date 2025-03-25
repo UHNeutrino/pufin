@@ -17,6 +17,9 @@ root_files = glob.glob(userFolder + f'/*{montecarlo}*.root')
 print(f"Root Files: {root_files}")
 
 modeDic = sf.modeDic()
+Wevo = {"1st Resonance Region": [0,1.4], "2nd Resonance Region": [1.4,1.6], "3rd Resonance Region": [1.6,2.0],"DIS": [2.0,2.4]}
+Q2evo = {"non-preterbative region": [0,1.0], "Transition Region": [1.0,5]}
+Pimodes = [11,12,13,15,16]
 
 print("Making File Plots: ")
 
@@ -39,18 +42,18 @@ for file_path in root_files:
     # Evis vs Etrue - add minium thresholds for all of these?
     
     # Version 1: Evis = EvAlt (q0 - KE neutrons - mass pions) + ELep  
-    plottitle = f"{generator}: E_{{vis1}} vs W for 1Pi events at #nu_{{E}} =" + flux
-    histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
-    AxisInfo2 = ['W', '(GeV)','E_{vis} = q0 - KE_{neutrons} - Mass_{pions} + E_{#mu}', '(GeV)', plottitle]
-    hist2p_q = pp.Create2DHistogram(df1Pi,'W','Evis_1',histInfo2)
-    pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(V1)vE_{flux}_{generator}")
+    # plottitle = f"{generator}: E_{{vis1}} vs W for 1Pi events at #nu_{{E}} =" + flux
+    # histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
+    # AxisInfo2 = ['W', '(GeV)','E_{vis} = q0 - KE_{neutrons} - Mass_{pions} + E_{#mu}', '(GeV)', plottitle]
+    # hist2p_q = pp.Create2DHistogram(df1Pi,'W','Evis_1',histInfo2)
+    # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(V1)vE_{flux}_{generator}")
 
     # Version 2 (from Erecoil in Nuiance github): Evis2 = KE (protons & charged pions) + E (pi0, e+/-, photons, muon) 
-    plottitle = f"{generator}: E_{{vis2}} vs E_{{#nu true}} for 1Pi events at #nu_{{E}} =" + flux
-    histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
-    AxisInfo2 = ['W', '(GeV)','           E_{vis} = KE_{pr; pi+/-} + E_{pi0; e-/+; photons} + E_{#mu}', '(GeV)', plottitle]
-    hist2p_q = pp.Create2DHistogram(df1Pi,'W','Evis_2',histInfo2)
-    pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(V2)vE_{flux}_{generator}")
+    # plottitle = f"{generator}: E_{{vis2}} vs E_{{#nu true}} for 1Pi events at #nu_{{E}} =" + flux
+    # histInfo2 = ("name",f"plop1",100,0,3.5,100,0,3.5)
+    # AxisInfo2 = ['W', '(GeV)','           E_{vis} = KE_{pr; pi+/-} + E_{pi0; e-/+; photons} + E_{#mu}', '(GeV)', plottitle]
+    # hist2p_q = pp.Create2DHistogram(df1Pi,'W','Evis_2',histInfo2)
+    # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(V2)vE_{flux}_{generator}")
     
     # Version 3 (Eavail from NOvA): Evis = Evis2 + skip bindinos & nucleons 
     # + total energy minus proton mass of (Primarily) strange baryons
@@ -64,16 +67,13 @@ for file_path in root_files:
     # AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{vis 3}', '(GeV)', plottitle]
     # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Evis_3',histInfo2)
     # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(V3)vE_{flux}_{generator}")
-
-
-
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------
     # Minoo sections
     # totalE = df1Pi.Count().GetValue()
     # with open(f"{HOME}/t2k-nova/minooValues.txt", "a") as f:
     #             f.write(f"For {generator} at Enu = {flux} \n")
     #             f.write(f"Total Events: {totalE} \n \n")
-    # Wevo = {"1st Resonance Region": [0,1.4], "2nd Resonance Region": [1.4,1.6], "3rd Resonance Region": [1.6,2.0],"DIS": [2.0,2.4]}
-    # Q2evo = {"non-preterbative region": [0,1.0], "Transition Region": [1.0,5]}
+
     # regionnum = 0
 
     # for reigon in Wevo:
@@ -97,7 +97,6 @@ for file_path in root_files:
     #     # pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots",f"{flux}1PiWvQ2V2Reigon{regionnum}")
 
     #     # Printing event numbers for each reigon (Make diagram in google slides)
-    #     Pimodes = [11,12,13,15,16]
     #     totalN = Wdf.Count().GetValue()                
     #     for mode in Pimodes:
     #         modedf = Wdf.Filter(f"Mode == {mode}")
@@ -127,7 +126,7 @@ for file_path in root_files:
     #     # Stacked Event Plotting
     #     # colors = [ROOT.kRed ,ROOT.kViolet, ROOT.kYellow, ROOT.kBlue, ROOT.kGreen, ROOT.kOrange]
     #     # histinfo1D = ("name",f"plop1",40,0.5,2.5)
-    #     # stack, histlist, Legend = pp.PlotStackedEventModes(Wdf, histinfo1D, Pimodes, colors)
+    #     # stack, histlist, Legend = pp.PlotStackedEventModes(Wdf,"W", histinfo1D, Pimodes, colors)
     #     # AxisInfo = ["W (GeV)", "Events", reigon + " Stacked events vs W for #nu_{E} = " + flux]
     #     # pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,f"/home/lboe/t2k-nova/1PiPlots/{flux}stacked_eventsReigon{regionnum}.png")
 
@@ -135,7 +134,7 @@ for file_path in root_files:
     #     with open(f"{HOME}/t2k-nova/minooValues.txt", "a") as f:
     #             f.write(printstring2)
     #             f.write("\n \n")
-        
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------        
 
     # E_kinQE vs E true (REC) - haven't checked
     # plottitle = "E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
@@ -174,3 +173,15 @@ for file_path in root_files:
     # AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{av}', '(GeV)', plottitle]
     # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Eav',histInfo2)
     # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots","1PiEvE")
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    #Evis breakdown:
+    # modes
+    colors = [ROOT.kRed ,ROOT.kViolet, ROOT.kYellow, ROOT.kBlue, ROOT.kGreen, ROOT.kOrange]
+    histinfo1D = ("name",f"plop1",40,0.5,2.5)
+    stack, histlist, Legend = pp.PlotStackedEventModes( df1Pi ,"E_vis1", histinfo1D, Pimodes, colors)
+    AxisInfo = ["E_{vis1} (GeV)", "Events", " Stacked events vs E_{vis1} for #nu_{E} = " + flux]
+    pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,f"/home/lboe/t2k-nova/1PiPlots/{flux}stacked_eventsReigon.png")
+    
+
+
+
