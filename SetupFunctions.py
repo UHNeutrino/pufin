@@ -49,14 +49,14 @@ def formatTcanvas(hist, c):
     c.SetCanvasSize(c.GetWw()+200,c.GetWh())
     
 def formatTcanvasSame(c):
-"""Formats a TCanvas for a 1D histogram."""
+# """Formats a TCanvas for a 1D histogram."""
 
-# Adjust margins for 1D histograms
-c.SetLeftMargin(0.12)  # Adjust as needed
-c.SetRightMargin(0.05) # Adjust as needed
-c.SetBottomMargin(0.12) # Adjust as needed
-#hist.Draw("HIST")  # Draw the histogram as a standard histogram
-c.SetCanvasSize(c.GetWw(), c.GetWh())
+    # Adjust margins for 1D histograms
+    c.SetLeftMargin(0.12)  # Adjust as needed
+    c.SetRightMargin(0.05) # Adjust as needed
+    c.SetBottomMargin(0.12) # Adjust as needed
+    #hist.Draw("HIST")  # Draw the histogram as a standard histogram
+    c.SetCanvasSize(c.GetWw(), c.GetWh())
 
 def modeDic():
     CCmodes={1 : "NEU,N --> LEPTON-,P",
