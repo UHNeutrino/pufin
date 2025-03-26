@@ -208,6 +208,7 @@ def grid_cutting(x, y, x_bins, y_bins, file_path):
 def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0, max = None):
     
     dir_location = file_path
+    
     hist1 = df.Histo2D(histogramInfo,x,y)
     
     NameParts = SF.formatName(dir_location)
@@ -237,6 +238,9 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0, max 
 
 def MultiPlot(histos, slice, x, file_path):
     dir_location = file_path
+    file_name = file_path.split('/')[-1]
+    generator = file_name.split('_')[1]
+    flux = file_name.split('_')[2]
     
     NameParts = SF.formatName(dir_location)
     # Create a canvas
@@ -347,14 +351,12 @@ def MultiPlot(histos, slice, x, file_path):
     cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{generator}_{NameParts[2]}_2P2H_{slice}_Quantiles_{x}.png")
     #cFull.SaveAs(f"{HOME}/t2k-nova/test.png")
 
-def PlotSegments(file_path):
+def PlotSegments(file_path, x1, y1):
     dir_location = file_path
     NameParts = SF.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     
     # Make q0 vs q3 histogram to find quantiles with equal events
-    x1 = 'q3'
-    y1 = 'q0'
     
     # Now define slice after x1 and y1 exist
     slice = x1  
@@ -466,8 +468,8 @@ def PlotGrid(file_path):
 
 
     if __name__ == "__main__":
-        #file_name = input("Give Root File name: ")
-        #file_path = f"/data/t2k-nova/FlatTrees/{file_name}"
+        file_name = input("Give Root File name: ")
+        file_path1 = f"/data/t2k-nova/FlatTrees/{file_name}"
         # file_path = 't2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root'
 
 
@@ -478,7 +480,9 @@ def PlotGrid(file_path):
         # AxisInfo = ['q_{0}', '(GeV)','q_{3}', '(GeV)']
         # hist, path = pp.Plot2P2H(x,y,histInfo2,file_path, Mode = 2)
         # visualize_segements(hist, file_path, x_bins=x_bins)
-        PlotSegments(file_path=file_path)
+        x1 = 'q3'
+        y1 = 'q0'
+        PlotSegments(file_path1, x1, y1)
         # PlotGrid(file_path=file_path)
 
 
