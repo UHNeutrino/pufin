@@ -218,6 +218,12 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
 
     # Add Evis_3 to data frame (based on code from NOvA)
     df = df.Define("Evis_3", "E_had3 + ELep")
+
+    # nabbed formula from https://indico.fnal.gov/event/53004/contributions/244614/attachments/158383/207801/interactionModelTalk.pdf
+
+    df = df.Define("Evis_QE", "")
+
+
     
     # Define PTHad_IN: Transverse Momentum of Hadronic System (Including Neutrons)
     # df = df.Define("PTHad_IN", """
@@ -304,58 +310,6 @@ def Savehist(hist, AxisInfo, save_location, filename, max = None, Normalize = 0)
     SF.formatTcanvas(hist,c)
     c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
     
-def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, max=None, Normalize=0):
-    """Saves multiple 1D histograms on the same canvas."""
-
-    xvar = AxisInfo[0]
-    xunit = AxisInfo[1]
-    yvar = AxisInfo[2]
-    yunit = AxisInfo[3]
-    PlotTitle = AxisInfo[4]
-
-    c = ROOT.TCanvas()
-    legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79)  # Adjust legend position as needed
-
-    hist1 = SF.formatHist(hist1, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
-    hist2 = SF.formatHist(hist2, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
-    hist3 = SF.formatHist(hist3, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
-    
-    # for i, hist in enumerate(hist_list): #iterate through the rresultptr objects
-    #     if max is not None:
-    #         hist = SF.formatHist(hist, xvar, xunit, yvar, yunit, max=max, PlotTitle=PlotTitle)
-    #     else:
-    #         hist = SF.formatHist(hist, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
-
-        # if Normalize == 1:
-        #     scale = 1 / (hist.Integral())
-        #     hist.Scale(scale)
-
-        # elif Normalize == 2:
-        #     hist.SetMaximum(3000)
-        #     c.SetLogz()
-
-    # Manual color and style settings:
-    hist1.SetLineColor(ROOT.kBlue)
-    hist1.SetLineWidth(2)
-
-    hist2.SetLineColor(ROOT.kBlack)
-    hist2.SetLineWidth(2)
-
-    hist3.SetLineColor(ROOT.kOrange+2)
-    hist3.SetLineStyle(2)  # Dotted line
-    hist3.SetLineWidth(2)
-
-    hist2.Draw("HIST")
-    hist3.Draw("HIST SAME")
-    hist1.Draw("HIST SAME")
-
-    legend.AddEntry(hist1, "Evis 1", "l")
-    legend.AddEntry(hist2, "Evis 2", "l")
-    legend.AddEntry(hist3, "Evis 3", "l")
-
-    SF.formatTcanvasSame(c)  # Format the canvas based on the first histogram
-    legend.Draw("SAME") #draw legend.
-    c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
 
 def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, max=None, Normalize=0):
     """Saves multiple 1D histograms on the same canvas."""
@@ -425,9 +379,10 @@ def PlotStackedEventModes(df, x, histInfo, modes, colors):
         histlist.append(th1d)
         Legend.append(modeDic.get(modes[i]))
         print(f"Plotting mode {modes[i]}")
+
     return stack, histlist, Legend
 
-def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path):
+def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path, Normalize = 0):
     canvas = ROOT.TCanvas("canvas", "Canvas for Stacked Histograms", 1000, 600)
 
     stack.Draw("HIST")  # "HIST" option tells ROOT to draw the histograms
@@ -438,6 +393,11 @@ def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path):
     # Add legend
     legend = ROOT.TLegend(0.7, 0.7, 0.9, 0.9)  # Define legend position
     for i in range(len(Legend)):
+        if Normalize==1:
+            # scale = 1/(histlist[i].Integral())
+            # print(scale)
+            # histlist[i].Scale(scale)
+            print("Normalize doesn't work")
         legend.AddEntry(histlist[i], f"{Legend[i]}", "f")
     legend.Draw()
 
