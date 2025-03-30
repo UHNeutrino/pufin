@@ -220,8 +220,10 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
     df = df.Define("Evis_3", "E_had3 + ELep")
 
     # nabbed formula from https://indico.fnal.gov/event/53004/contributions/244614/attachments/158383/207801/interactionModelTalk.pdf
+    # Assuming we're using Carbon 12, might be wrong on that!
 
-    df = df.Define("Evis_QE", "")
+
+    df = df.Define("Evis_kin", "(TMath::Power(.938272,2)-TMath::Power(.93956-0.09215,2)-TMath::Power(.105608,2)+2*(.93956-0.09215)*ELep)/(2*(0.93956-0.09215-ELep+PLep*CosLep))")
 
 
     

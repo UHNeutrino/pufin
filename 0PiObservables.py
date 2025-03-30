@@ -54,7 +54,11 @@ for file_path in root_files:
     AxisInfo = ["E_{vis2} (GeV)", "Events", generator +  " Stacked events vs E_{vis2} for #nu_{E} = " + flux]
     pp.SaveStackedHist(stack, histlist, AxisInfo, Legend1,f"/home/lboe/t2k-nova/0PiPlots/{generator}{flux}ModeStacked_Evis2.png")
 
+    stack, histlist, Legend = pp.PlotStackedEventModes(df0Pi ,"Evis_kin", histinfo1D, ZPimodes, colors)
+    AxisInfo = ["E_{visKin} (GeV)", "Events", generator + " Stacked events vs E_{visKin} for #nu_{E} = " + flux]
+    pp.SaveStackedHist(stack, histlist, AxisInfo, Legend1,f"/home/lboe/t2k-nova/0PiPlots/{generator}{flux}ModeStacked_EvisKin.png")
+
     # stack, histlist, Legend = pp.PlotStackedEventModes(df1Pi ,"Evis_3", histinfo1D, Pimodes, colors)
     # AxisInfo = ["E_{vis3} (GeV)", "Events", generator + " Stacked events vs E_{vis3} for #nu_{E} = " + flux]
-    # pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,f"/home/lboe/t2k-nova/1PiPlots/{generator}{flux}Modestacked_Evis3.png")
+    # pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,f"/home/lboe/t2k-nova/0PiPlots/{generator}{flux}Modestacked_Evis3.png")
 
