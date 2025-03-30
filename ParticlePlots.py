@@ -410,7 +410,7 @@ def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, max=Non
     legend.Draw("SAME") #draw legend.
     c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
 
-def PlotStackedEventModes(df, histInfo, modes, colors):
+def PlotStackedEventModes(df, x, histInfo, modes, colors):
     modeDic = SF.modeDic()
     stack = ROOT.THStack("stack","")
     histlist = []
