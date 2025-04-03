@@ -225,54 +225,100 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
 
     df = df.Define("Evis_kin", "(TMath::Power(.938272,2)-TMath::Power(.93956-0.09215,2)-TMath::Power(.105608,2)+2*(.93956-0.09215)*ELep)/(2*(0.93956-0.09215-ELep+PLep*CosLep))")
 
-
     
-    # Define PTHad_IN: Transverse Momentum of Hadronic System (Including Neutrons)
-    # df = df.Define("PTHad_IN", """
-    #     double total_px_had = 0;
-    #     double total_py_had = 0;
-    #     for (size_t i = 0; i < pdg.size(); ++i) {
-    #         int pdg_val = pdg[i];
-    #         if (pdg_val == 2212 || pdg_val == 211 || pdg_val == -211 || pdg_val == 111 || pdg_val == 2112) {
-    #             total_px_had += px[i];
-    #             total_py_had += py[i];
-    #         }
-    #     }
-    #     return std::sqrt(total_px_had * total_px_had + total_py_had * total_py_had);
-    # """)
+    # Define Neutrino Momentum as a Vector
+    df = df.Define("PNu", """ 
+        double px_nu = 0;
+        double py_nu = 0;
+        double pz_nu = 0;
+        TVector3 pnu(px_nu, py_nu, pz_nu);
+        
+        for (size_t i = 0; i < pdg_init.size(); ++i) {
+            if (pdg_init[i] == 14) { //neutrino 
+                px_nu += px_init[i];
+                py_nu += py_init[i];
+                pz_nu += pz_init[i]; 
+            }
+        }
+        pnu.SetXYZ(px_nu, py_nu, pz_nu);
+        
+        return pnu;
 
-    # Define PTHad_ON: Transverse Momentum of Hadronic System (Omitting Neutrons) - should we omit pi0 as well?
-    # df = df.Define("PTHad_ON", """
-    #     double total_px_had_on = 0;
-    #     double total_py_had_on = 0;
-    #     for (size_t i = 0; i < pdg.size(); ++i) {
-    #         int pdg_val = pdg[i];
-    #         if (pdg_val == 2212 || pdg_val == 211 || pdg_val == -211 || pdg_val == 111) {
-    #             total_px_had_on += px[i];
-    #             total_py_had_on += py[i];
-    #         }
-    #     }
-    #     return std::sqrt(total_px_had_on * total_px_had_on + total_py_had_on * total_py_had_on);
-    # """)
-
-    # Define PTLep: Transverse Momemtum of Lepton
-    # df = df.Define("PTLep", """
-    #     double total_px_lep = 0;
-    #     double total_py_lep = 0;
-    #     for (size_t i = 0; i < pdg.size(); ++i) {
-    #         if (pdg[i] == 13) {
-    #             total_px_lep += px[i];
-    #             total_py_lep += py[i];
-    #         }
-    #     }
-    #     return std::sqrt(total_px_lep * total_px_lep + total_py_lep * total_py_lep);
-    # """)
-
-    # Define TKI_IN: Transverse Kinematic Imbalance (Including Neutrons)
-    # df = df.Define("TKI_IN", "PTLep - PTHad_IN")
+    """)
     
-    # Define TKI_ON: Transverse Kinematic Imbalance (Omitting Neutrons)
-    # df = df.Define("TKI_ON", "PTLep - PTHad_ON")
+    # Define PTLep: Transverse Momemtum of Lepton (Cross Product with Neutrino Momentum)
+    df = df.Define("PTLep", """
+        double px_lep = 0;
+        double py_lep = 0;
+        double pz_lep = 0;
+        TVector3 plep(0, 0, 0);
+        for (size_t i = 0; i < pdg.size(); ++i) {
+            if (pdg[i] == 13) {
+                px_lep += px[i];
+                py_lep += py[i];
+                pz_lep += pz[i];
+                
+            }
+        }
+        plep.SetXYZ(px_lep, py_lep, pz_lep);
+        return PNu.Cross(plep);
+    """)
+    
+    # Transverse Momentum of Hadrons (Including Neutrons): Protons, +/-/0 Pions, Neutrons
+    df = df.Define("PTHad_IN", """
+        double px_had_in = 0;
+        double py_had_in = 0;
+        double pz_had_in = 0;
+        TVector3 phad_in(0, 0, 0);
+        for (size_t i = 0; i < pdg.size(); ++i) {
+            int pdg_val = pdg[i];
+            if (pdg_val == 2212 || pdg_val == 211 || pdg_val == -211 || pdg_val == 111 || pdg_val == 2112) {
+                px_had_in += px[i];
+                py_had_in += py[i];
+                pz_had_in += pz[i];
+                
+            }
+        }
+        phad_in.SetXYZ(px_had_in, py_had_in, pz_had_in);
+        return PNu.Cross(phad_in);
+    """)
+    
+    # Transverse Momentum of Hadrons (Omitting Neutrons): Protons, +/-/0 Pions
+    df = df.Define("PTHad_ON", """
+    double px_had_on = 0;
+    double py_had_on = 0;
+    double pz_had_on = 0;
+    TVector3 phad_on(0, 0, 0);
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        int pdg_val = pdg[i];
+        if (pdg_val == 2212 || pdg_val == 211 || pdg_val == -211 || pdg_val == 111) {
+            px_had_on += px[i];
+            py_had_on += py[i];
+            pz_had_on += pz[i];
+            
+        }
+    }
+    phad_on.SetXYZ(px_had_on, py_had_on, pz_had_on);
+    return PNu.Cross(phad_on);
+    """)
+    
+    # Transverse Kinematic Imbalance (Including Neutrons)
+    df = df.Define("TKI_IN", """
+    TVector3 delta_p_T(PTLep.X(), PTLep.Y(), PTLep.Z());
+    delta_p_T += PTHad_IN;
+        
+    return delta_p_T.Mag();
+    """)
+    
+    # Transverse Kinematic Imbalance (Omitting Neutrons)
+    df = df.Define("TKI_ON", """
+    TVector3 delta_p_T(PTLep.X(), PTLep.Y(), PTLep.Z());
+    delta_p_T += PTHad_ON;
+        
+    return delta_p_T.Mag();
+    """)
+    
+
 
     df = df.Filter(cut)
     return df
