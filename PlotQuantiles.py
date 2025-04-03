@@ -467,23 +467,23 @@ def PlotGrid(file_path):
             k+=1
 
 
-    if __name__ == "__main__":
-        file_name = input("Give Root File name: ")
-        file_path1 = f"/data/t2k-nova/FlatTrees/{file_name}"
-        # file_path = 't2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root'
+if __name__=="__main__":
+    file_name = input("Give Root File name: ")
+    file_path1 = f"/data/t2k-nova/FlatTrees/{file_name}"
+    # file_path = 't2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root'
 
 
-        # x = 'q3'
-        # y = 'q0' 
-        # x_bins, total_events = constant_event_binning(x, y, file_path, Mode = 1)
-        # histInfo2 = ("name",f"1P1H {x} vs {y} plot",60,0,3,60,0,3)
-        # AxisInfo = ['q_{0}', '(GeV)','q_{3}', '(GeV)']
-        # hist, path = pp.Plot2P2H(x,y,histInfo2,file_path, Mode = 2)
-        # visualize_segements(hist, file_path, x_bins=x_bins)
-        x1 = 'q3'
-        y1 = 'q0'
-        PlotSegments(file_path1, x1, y1)
-        # PlotGrid(file_path=file_path)
+    # x = 'q3'
+    # y = 'q0' 
+    # x_bins, total_events = constant_event_binning(x, y, file_path, Mode = 1)
+    # histInfo2 = ("name",f"1P1H {x} vs {y} plot",60,0,3,60,0,3)
+    # AxisInfo = ['q_{0}', '(GeV)','q_{3}', '(GeV)']
+    # hist, path = pp.Plot2P2H(x,y,histInfo2,file_path, Mode = 2)
+    # visualize_segements(hist, file_path, x_bins=x_bins)
+    x1 = 'q3'
+    y1 = 'q0'
+    PlotSegments(file_path1, x1, y1)
+    # PlotGrid(file_path=file_path)
 
 
 
