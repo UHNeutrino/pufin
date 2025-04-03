@@ -226,25 +226,42 @@ for file_path in root_files:
     # hist2p_q = pp.Create2DHistogram(df1Pi,'Enu_true','Enu_QE',histInfo2)
     # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiE(QE)vE_{flux}_{generator}")
 
-    ############################################
-    ### TKI variables: need to recalculate!! ###
-    ############################################
+    #####################
+    ### TKI variables ###
+    #####################
     
-    # TKI (Including Neutrons)
-    # plottitle = f"{generator}: TKI vs P_{{#mu}} for 1Pi events at #nu_{{E}} =" + flux
-    # histInfo2 = ("name",f"plop1",100,0,3,100,-1.5,1.5)
-    # AxisInfo2 = ['P_{#mu}', '(GeV/c)','TKI (Including Neutrons)', '(GeV/c)', plottitle]
+    # TKI 2D (Including Neutrons)
+    # plottitle = f"{generator}: #delta_pT vs P_{{#mu}} for 1Pi events at #nu_{{E}} =" + flux
+    # histInfo2 = ("name",f"plop1",100,0,3,100,0,2.5)
+    # AxisInfo2 = ['P_{#mu}', '(GeV/c)','#delta_pt (Including Neutrons)', '(GeV/c)', plottitle]
     # hist2p_q = pp.Create2DHistogram(df1Pi,'PLep','TKI_IN',histInfo2)
     # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiTKI_INvp_{flux}_{generator}", Normalize=2)
+
     
-    # # TKI (Omitting Neutrons)
-    # plottitle = f"{generator}: TKI vs P_{{#mu}} for 1Pi events at #nu_{{E}} =" + flux
-    # histInfo2 = ("name",f"plop1",100,0,3,100,-1.5,1.5)
-    # AxisInfo2 = ['P_{#mu}', '(GeV/c)','TKI (Omitting Neutrons)', '(GeV/c)', plottitle]
+    # TKI 1D (Including Neutrons)
+    # plottitle = f"{generator}: #delta P_{{T}} for 1Pi events at #nu_{{E}} =" + flux
+    # histInfo2 = ("name",f"plop1",100,0,2.5)
+    # AxisInfo2 = ['#delta P_{T}', '(GeV/c)', '# of Events', '', plottitle]
+    # hist1_result = pp.Create1DHistogram(df1Pi, 'TKI_IN', histInfo2)
+    # hist1 = hist1_result.GetValue()
+    # pp.Savehist(hist1,AxisInfo2,"t2k-nova/1PiPlots",f"1Pi1DTKI_IN_{flux}_{generator}")
+    
+    # # TKI 2D (Omitting Neutrons)
+    # plottitle = f"{generator}: #delta_pT vs P_{{#mu}} for 1Pi events at #nu_{{E}} =" + flux
+    # histInfo2 = ("name",f"plop1",100,0,3,100,0,2.5)
+    # AxisInfo2 = ['P_{#mu}', '(GeV/c)','#delta_pt (Omitting Neutrons)', '(GeV/c)', plottitle]
     # hist2p_q = pp.Create2DHistogram(df1Pi,'PLep','TKI_ON',histInfo2)
     # pp.Savehist(hist2p_q,AxisInfo2,"t2k-nova/1PiPlots",f"1PiTKI_ONvp_{flux}_{generator}", Normalize=2)
+    
+    # TKI 1D (Omitting Neutrons)
+    # plottitle = f"{generator}: #delta P_{{T}} for 1Pi events at #nu_{{E}} =" + flux
+    # histInfo2 = ("name",f"plop1",100,0,2.5)
+    # AxisInfo2 = ['#delta P_{T}', '(GeV/c)', '# of Events', '', plottitle]
+    # hist1_result = pp.Create1DHistogram(df1Pi, 'TKI_ON', histInfo2)
+    # hist1 = hist1_result.GetValue()
+    # pp.Savehist(hist1,AxisInfo2,"t2k-nova/1PiPlots",f"1Pi1DTKI_ON_{flux}_{generator}")
 
-    # Proton kinematics - haven't checked
+    # Proton kinematics - haven't checked - Do we need this here? We do this in PlotQuantiles I think
     # plottitle = "E_{#nu true} vs E_{av} for 1Pi events at #nu_{E} =" + flux
     # histInfo2 = ("name",f"plop1",100,0,1,100,0,1)
     # AxisInfo2 = ['E_{#nu true}', '(GeV)','E_{av}', '(GeV)', plottitle]
