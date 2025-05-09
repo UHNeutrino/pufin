@@ -50,7 +50,6 @@ def formatTcanvas(hist, c):
     
 def formatTcanvasSame(c):
 # """Formats a TCanvas for a 1D histogram."""
-
     # Adjust margins for 1D histograms
     c.SetLeftMargin(0.12)  # Adjust as needed
     c.SetRightMargin(0.05) # Adjust as needed

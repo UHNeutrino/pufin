@@ -109,8 +109,6 @@ def constant_event_binning(x, y, file_path, Mode = None):
     return x_bins, total_events
 
 def quantile_cutting(x, x_bins, file_path):
-    
-    
     """
     Returns:
     - A list of filtered RDataFrames, one for each quantile.
