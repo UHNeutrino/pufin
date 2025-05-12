@@ -4,6 +4,8 @@ import ParticlePlots as pp
 import SetupFunctions as sf
 import glob
 
+ROOT.EnableImplicitMT()
+
 #file_path = '/data/t2k-nova/FlatTrees/Flat_GenieNOvA_3.0GeV_1e7_v2.root'
 #file_path = '/data/t2k-nova/FlatTrees/Flat_GenieNOvA_3.0GeV_1e7_v2.root'
 HOME = os.getenv("HOME", "/home/lboe")
@@ -39,12 +41,14 @@ for file_path in root_files:
     flux = file_name.split('_')[2]
     # x_bins, total_events = pq.constant_event_binning(x, y, file_path, Mode = 
     # 1pi
-    # plottitle = "W vs Q^{2} for 1Pi events at #nu_{E} =" + flux
-    # histInfo = ("name",f"plop1",60,1.1,2.4,105,-0.1,5)
-    # AxisInfo1 = ['W', '(GeV)','Q^{2}', '(GeV)^{2}', plottitle]
+    plottitle = "W vs Q^{2} for 1Pi events at #nu_{E} =" + flux
+    histInfo = ("name",f"plop1",60,1.1,2.4,105,-0.1,5)
+    AxisInfo1 = ['W', '(GeV)','Q^{2}', '(GeV)^{2}', plottitle]
     df1Pi= pp.CreateDataFrame(file_path, "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 ")
-    #hist2p_q = pp.Create2DHistogram(df1Pi,'W','Q2',histInfo)
-    # pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots",f"{flux}1PiWvQ2V2")
+    # hist2p_q = df1Pi.Histo2D(histInfo,'W','Q2')
+    df1Pi.Snapshot("main", "/home/lboe/t2k-nova/1Pi.root", ("W","Q2"))
+    # pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots",f"{generator}{flux}1PiWvQ2","pdf")
+    
 
     ##################################################################
     ##### Evis vs Etrue - add minimum thresholds for all of these? ####
@@ -277,7 +281,7 @@ for file_path in root_files:
 
 
     # colors = [ROOT.kRed ,ROOT.kViolet, ROOT.kBlue, ROOT.kBlack, ROOT.kGreen, ROOT.kOrange, ]
-    histinfo1D = ("name",f"plop1",60,0,3)
+    # histinfo1D = ("name",f"plop1",60,0,3)
 
     # stack, histlist, Legend = pp.PlotStackedEventModes(df1Pi ,"Evis_1", histinfo1D, Pimodes, colors)
     # AxisInfo = ["E_{vis1} (GeV)", "Events", generator + " Stacked events vs E_{vis1} for #nu_{E} = " + flux]
@@ -293,49 +297,49 @@ for file_path in root_files:
 
 
     # Minoo reigon breakdown
-    print("starting Evis Minoo regions")
-    colors2 = [ROOT.kBlue, ROOT.kBlue +1,ROOT.kGreen, ROOT.kGreen +1,ROOT.kYellow +1, ROOT.kYellow +2, ROOT.kRed, ROOT.kRed +1 ]
-    Q2k = list(Q2evo.keys())
-    Wk = list(Wevo.keys())
-    minoodf = df1Pi.Filter("Mode == 11 || Mode == 13")
-    stack1 = ROOT.THStack("stack1","")
-    stack2 = ROOT.THStack("stack2","")
-    stack3 = ROOT.THStack("stack3","")
-    histlist1 = []
-    histlist2 = []
-    histlist3 = []
-    LegendM = ["1st Res Non-P", "1st Res Trans","2nd Res Non-P", "2nd Res Trans","3rd Res Non-P", "3rd Res Trans","DIS Non-P", "DIS Trans" ]
-    k = 0
-    for i in range(len(Wevo)):
-        for j in range(len(Q2evo)):
-            tempdf = minoodf.Filter(f" W > {Wevo[Wk[i]][0]}    &&  W <= {Wevo[Wk[i]][1]} ")
-            regiondf = tempdf.Filter(f" Q2 > {Q2evo[Q2k[j]][0]}  &&  Q2 <= {Q2evo[Q2k[j]][1]}")
-            hist1 = regiondf.Histo1D(histinfo1D,"Evis_1")
-            hist2 = regiondf.Histo1D(histinfo1D,"Evis_2")
-            hist3 = regiondf.Histo1D(histinfo1D,"Evis_3")
-            # print(colors2[i])
-            hist1.SetFillColor(colors2[k])
-            th1d = hist1.GetPtr()
-            stack1.Add(th1d)
-            histlist1.append(th1d)
+    # print("starting Evis Minoo regions")
+    # colors2 = [ROOT.kBlue, ROOT.kBlue +1,ROOT.kGreen, ROOT.kGreen +1,ROOT.kYellow +1, ROOT.kYellow +2, ROOT.kRed, ROOT.kRed +1 ]
+    # Q2k = list(Q2evo.keys())
+    # Wk = list(Wevo.keys())
+    # minoodf = df1Pi.Filter("Mode == 11 || Mode == 13")
+    # stack1 = ROOT.THStack("stack1","")
+    # stack2 = ROOT.THStack("stack2","")
+    # stack3 = ROOT.THStack("stack3","")
+    # histlist1 = []
+    # histlist2 = []
+    # histlist3 = []
+    # LegendM = ["1st Res Non-P", "1st Res Trans","2nd Res Non-P", "2nd Res Trans","3rd Res Non-P", "3rd Res Trans","DIS Non-P", "DIS Trans" ]
+    # k = 0
+    # for i in range(len(Wevo)):
+    #     for j in range(len(Q2evo)):
+    #         tempdf = minoodf.Filter(f" W > {Wevo[Wk[i]][0]}    &&  W <= {Wevo[Wk[i]][1]} ")
+    #         regiondf = tempdf.Filter(f" Q2 > {Q2evo[Q2k[j]][0]}  &&  Q2 <= {Q2evo[Q2k[j]][1]}")
+    #         hist1 = regiondf.Histo1D(histinfo1D,"Evis_1")
+    #         hist2 = regiondf.Histo1D(histinfo1D,"Evis_2")
+    #         hist3 = regiondf.Histo1D(histinfo1D,"Evis_3")
+    #         # print(colors2[i])
+    #         hist1.SetFillColor(colors2[k])
+    #         th1d = hist1.GetPtr()
+    #         stack1.Add(th1d)
+    #         histlist1.append(th1d)
 
-            hist2.SetFillColor(colors2[k])
-            th1d2 = hist2.GetPtr()
-            stack2.Add(th1d2)
-            histlist2.append(th1d2)
+    #         hist2.SetFillColor(colors2[k])
+    #         th1d2 = hist2.GetPtr()
+    #         stack2.Add(th1d2)
+    #         histlist2.append(th1d2)
 
-            hist3.SetFillColor(colors2[k])
-            th1d3 = hist3.GetPtr()
-            stack3.Add(th1d3)
-            histlist3.append(th1d3)
+    #         hist3.SetFillColor(colors2[k])
+    #         th1d3 = hist3.GetPtr()
+    #         stack3.Add(th1d3)
+    #         histlist3.append(th1d3)
 
-            k+=1
-            # LegendM.append((Wk[i]) + " and " + Q2k[j])
-            print(f"{LegendM[k]}")
+    #         k+=1
+    #         # LegendM.append((Wk[i]) + " and " + Q2k[j])
+    #         print(f"{LegendM[k]}")
 
-    AxisInfoMinoo = ["E_{vis1} (GeV)", "Events", " Stacked events vs E_{vis1} for #nu_{E} = " + flux]
-    pp.SaveStackedHist(stack1, histlist1, AxisInfoMinoo, LegendM,f"/home/lboe/t2k-nova/1PiPlots/{generator}{flux}stacked_MReigonsEvis1.png")
-    AxisInfoMinoo = ["E_{vis2} (GeV)", "Events", " Stacked events vs E_{vis2} for #nu_{E} = " + flux]
-    pp.SaveStackedHist(stack2, histlist2, AxisInfoMinoo, LegendM,f"/home/lboe/t2k-nova/1PiPlots/{generator}{flux}stacked_MReigonsEvis2.png")
-    AxisInfoMinoo = ["E_{vis3} (GeV)", "Events", " Stacked events vs E_{vis3} for #nu_{E} = " + flux]
-    pp.SaveStackedHist(stack3, histlist3, AxisInfoMinoo, LegendM,f"/home/lboe/t2k-nova/1PiPlots/{generator}{flux}stacked_MReigonsEvis3.png")
+    # AxisInfoMinoo = ["E_{vis1} (GeV)", "Events", " Stacked events vs E_{vis1} for #nu_{E} = " + flux]
+    # pp.SaveStackedHist(stack1, histlist1, AxisInfoMinoo, LegendM,f"/home/lboe/t2k-nova/1PiPlots/{generator}{flux}stacked_MReigonsEvis1.png")
+    # AxisInfoMinoo = ["E_{vis2} (GeV)", "Events", " Stacked events vs E_{vis2} for #nu_{E} = " + flux]
+    # pp.SaveStackedHist(stack2, histlist2, AxisInfoMinoo, LegendM,f"/home/lboe/t2k-nova/1PiPlots/{generator}{flux}stacked_MReigonsEvis2.png")
+    # AxisInfoMinoo = ["E_{vis3} (GeV)", "Events", " Stacked events vs E_{vis3} for #nu_{E} = " + flux]
+    # pp.SaveStackedHist(stack3, histlist3, AxisInfoMinoo, LegendM,f"/home/lboe/t2k-nova/1PiPlots/{generator}{flux}stacked_MReigonsEvis3.png")

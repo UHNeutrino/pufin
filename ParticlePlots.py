@@ -242,7 +242,7 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
     return df
 
 
-def Savehist(hist, AxisInfo, save_location, filename, max = None, Normalize = 0):
+def Savehist(hist, AxisInfo, save_location, filename, ext, max = None, Normalize = 0):
     xvar = AxisInfo[0]
     xunit = AxisInfo[1]
     yvar = AxisInfo[2]
@@ -265,7 +265,9 @@ def Savehist(hist, AxisInfo, save_location, filename, max = None, Normalize = 0)
         c.SetLogz()
 
     SF.formatTcanvas(hist,c)
-    c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
+    c.SaveAs(f"{HOME}/{save_location}/{filename}.{ext}")
+
+
     
 
 def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, max=None, Normalize=0):
