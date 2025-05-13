@@ -26,6 +26,7 @@ for file_path in root_files:
     flux = file_name.split('_')[2]
     # 0pi data frame
     df0Pi= pp.CreateDataFrame(file_path, "Mode == 1 || Mode == 2")
+    df0Pi = pp.DefineEvis(df0Pi)
 
     # momentum/energy tranfer plot
     # plottitle = "0Pi  q0 vs q3 at E_{#nu} = " + flux
