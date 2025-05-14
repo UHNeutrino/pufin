@@ -1,27 +1,25 @@
-# could use hist.Draw("text") to draw text before making 6 plots!
-
-# to change x variable (ex: muon momentum, proton momentum):
-# change xlabel around line 349 and variable around line 269, 391, & 397
-
-# Set log scale in PlotQuantiles (line 245) and MultiPlot (line 265)
-
-# change binning between q0 and q3 by switching x1 and y1 (line 370) - choose x1 to be the variable you want to cut quantiles
-
+import json5 as json
 import ROOT
 import os
 import ParticlePlots as pp 
 import SetupFunctions as SF
 import glob
 
+############## Set Up Plot Variables with config_PlotQuantiles.json First!!!! ######################
+#################################################################################################
+
 SF.setupRoot
-#max1 = 3000
+
+# Load configuration
+with open("config_PlotQuantiles.json") as f:
+    config = json.load(f)
+
+# Make config variables globally accessible
+globals().update(config)
 
 # lets me use other people's home directories
 HOME = os.getenv("HOME", "/home/lboe")
-
 userFolder = f"/data/t2k-nova/FlatTrees"
-
-
 
 def visualize_segements(hist, file_path, x_bins = None,  y_bins = None):
     title = "Sliced_q0vq3"
@@ -72,11 +70,12 @@ def constant_event_binning(x, y, file_path, Mode = None):
     histogramInfo = ("name", f"{y} vs {x} plot", 1000000, 0, 3, 1, 0, 3) #just need 1 bin in y
 
 
-    # Mode 2 is the 2P2H interaction
+    # Select Mode
     if Mode is not None:
         cut1 = f'Mode == {Mode}'
     else:   
-        cut1 = 'Mode == 1'
+        cut1 = cut
+        
     df_filtered = df.Filter(cut1).Histo2D(histogramInfo, x, y)
 
     # Get the total number of events
@@ -109,6 +108,7 @@ def constant_event_binning(x, y, file_path, Mode = None):
     return x_bins, total_events
 
 def quantile_cutting(x, x_bins, file_path):
+    
     """
     Returns:
     - A list of filtered RDataFrames, one for each quantile.
@@ -132,11 +132,24 @@ def quantile_cutting(x, x_bins, file_path):
     }
     return max_proton_p;
     """)
+    df = df.Define("CosProton", """
+    double cos_proton = -5.0; // Default value if no proton found
+    double max_proton_p = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 2212) { // Proton
+        double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
+        if (p_magnitude > max_proton_p) {
+            max_proton_p = p_magnitude;
+        }
+        }
+        if (max_proton_p > 0) {
+            cos_proton = pz[i] / max_proton_p; // Dot product with (0, 0, 1)
+        }
+    }
+    return cos_proton;
+    """) 
 
-
-    # Mode 2 is the 2P2H interaction
-    cut1 = 'Mode == 2'
-    df_filtered = df.Filter(cut1)
+    df_filtered = df.Filter(cut)
 
     # Create a list to hold filtered DataFrames for each quantile
     quantile_dfs = []
@@ -169,10 +182,37 @@ def grid_cutting(x, y, x_bins, y_bins, file_path):
     df = ROOT.RDataFrame(treeName, fileName)
     df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
 
-
-    # Mode 2 is the 2P2H interaction
-    cut1 = 'Mode == 2'
-    df_filtered = df.Filter(cut1)
+    df = df.Define("PProton1", """
+    double max_proton_p = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 2212) { // Proton
+            double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
+            if (p_magnitude > max_proton_p) {
+                max_proton_p = p_magnitude;
+            }
+        }
+    }
+    return max_proton_p;
+    """)
+    
+    df = df.Define("CosProton", """
+    double cos_proton = -5.0; // Default value if no proton found
+    double max_proton_p = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 2212) { // Proton
+        double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
+        if (p_magnitude > max_proton_p) {
+            max_proton_p = p_magnitude;
+        }
+        }
+        if (max_proton_p > 0) {
+            cos_proton = pz[i] / max_proton_p; // Dot product with (0, 0, 1)
+        }
+    }
+    return cos_proton;
+    """) 
+        
+    df_filtered = df.Filter(cut)
 
     # Create a list to hold filtered DataFrames for each quantile
     grid_dfs = []
@@ -203,23 +243,16 @@ def grid_cutting(x, y, x_bins, y_bins, file_path):
 
 
 
-def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0, max = None):
+def PlotQuantiles(x, y, histogramInfo, file_path, df, title):
     
-    dir_location = file_path
+    dir_location = file_path  
     
     hist1 = df.Histo2D(histogramInfo,x,y)
     
     NameParts = SF.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     
-    hist = SF.formatHist(hist1 ,'Lepton Momentum', '(GeV)', 'cos #theta', '',NameParts = NameParts)
-    if Normalize == 1:
-        scale = 1/(hist.Integral())
-        hist.Scale(scale)
-    
-    # **Set Z-axis max value**
-    #if max is not None:
-        #hist.SetMaximum(max)  # Ensures max value displayed is 0.04
+    hist = SF.formatHist(hist1 ,f'{x2Label}', '(GeV)', f'{mode_title} Grid: {y2Label}', '',NameParts = NameParts) 
 
     # Create a TLatex object to add text
     latex = ROOT.TLatex()
@@ -227,20 +260,21 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, Normalize = 0, max 
     latex.SetTextAlign(22)   # Set text alignment to center (x=0.5, y=0.5)
 
     c = ROOT.TCanvas()
-    #c.SetLogz()
+    
     SF.formatTcanvas(hist,c)
-    #ROOT.gStyle.SetOptStat(0)  # Remove statistics box
     #c.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{title}_{Name}.png")
     #c.SaveAs(f"{HOME}/t2k-nova/{title}_{Name}.png")
     return hist 
 
-def MultiPlot(histos, slice, x, file_path):
+def MultiPlot(histos, slice, x, file_path, scale, frequency, Normalize, max):
     dir_location = file_path
     file_name = file_path.split('/')[-1]
     generator = file_name.split('_')[1]
     flux = file_name.split('_')[2]
     
     NameParts = SF.formatName(dir_location)
+    
+
     # Create a canvas
     cFull = ROOT.TCanvas("cFull", "Canvas with Subdivisions", 1200, 800)  
 
@@ -249,41 +283,13 @@ def MultiPlot(histos, slice, x, file_path):
     cFull.SetBottomMargin(0.25)
     cFull.SetLeftMargin(0.25)
     cFull.SetTopMargin(0.25)
-    cFull.SetRightMargin(.15)
-    #cFull.SetLogz()
-
-    # --- Draw the dummy histogram to generate the color scale ---
-    x = "PLep"
-    #x = "PProton1"
-    y = "CosLep"
-    histInfo = ("dummy_hist", "", 60, 0, 3.3, 102, -1.02, 1.02)
-
-    # Generate the full 2P2H histogram as the dummy histogram
-    dummy_hist, _ = pp.Plot2P2H(x, y, histInfo, file_path=file_path, Normalize = 1)
-    #dummy_hist.SetMaximum(.35)
+    cFull.SetRightMargin(.25)
 
     ROOT.gStyle.SetOptStat(0)
     #ROOT.gStyle.SetPalette(ROOT.kRainBow)
     ROOT.gStyle.SetPalette(ROOT.kBird)
-
-    dummy_hist.Draw("COLZ")  # Draw the full dummy histogram with legend
-    dummy_hist.SetStats(0)
-    dummy_hist.GetZaxis().SetTitle("")
-    dummy_hist.GetZaxis().SetLabelSize(0.06)
-    dummy_hist.GetZaxis().SetTitleSize(0.06)
-    dummy_hist.GetZaxis().SetTitleOffset(1.2)
-
-    cFull.Update()  # Ensure the color legend is drawn
-
-    # --- Cover the dummy histogram with a white rectangle ---
-    cover = ROOT.TPaveText(0.0, 0.0, 0.1, 1.0, "NDC")  # Covers 85% of the canvas
-    cover.SetFillColor(ROOT.kWhite)  # White background to hide dummy histogram
-    cover.SetBorderSize(0)
-    cover.Draw()
-
-    cFull.Update()  # Refresh the canvas after covering
     
-    hist_pad = ROOT.TPad("hist_pad", "Histograms", 0.04, 0.04, 0.88, .95)  # Left side for histograms
+    hist_pad = ROOT.TPad("hist_pad", "Histograms", 0.04, 0.04, .95, .95)  # Left side for histograms
     hist_pad.Divide(3, 2)
     hist_pad.Draw()
 
@@ -293,13 +299,28 @@ def MultiPlot(histos, slice, x, file_path):
     for i in range(0, len(histos)):
         #ROOT.gStyle.SetOptStat(0)  # Remove statistics box
         hist_pad.cd(i+1)  # Move to the correct sub-pad because pad 1 for root = histo 0 for python
+        
+        # **Adjust the margins of the current sub-pad**
+        ROOT.gPad.SetLeftMargin(0.15)   # Increase left margin
+        ROOT.gPad.SetRightMargin(0.15)  # Increase right margin
+        ROOT.gPad.SetTopMargin(0.05)    # Increase top margin
+        ROOT.gPad.SetBottomMargin(0.05) # Increase bottom margin
+        
         histos[i].SetStats(0)
         histos[i].SetTitle(";;")  # Remove titles
-        if i==0:
-            histos[i].Draw("colz")  # Draw full histogram with scale - take off "z" to get rid of scale
+        if scale:
+            ROOT.gPad.SetLogz()
+        if frequency:
+            histos[i].Draw("colz")
         else:
-                histos[i].Draw("colz")   # Draw sub-histograms with scale - take off "z" to get rid of scale
-    
+            histos[i].Draw("col")
+        if Normalize:
+            normal = 1/(histos[i].Integral())
+            histos[i].Scale(normal)
+        if max is not None and max != "None":
+            histos[i].SetMaximum(max) 
+        elif max == "None":
+            histos[i].SetMaximum()
         # Retrieve histogram title
         hist_title = histos[i].GetName()
         Plot_Title_Parts = hist_title.split('_')
@@ -325,16 +346,16 @@ def MultiPlot(histos, slice, x, file_path):
     # Add a global title
     cFull.cd()  # Return to full canvas
     title = ROOT.TLatex()
-    title.SetTextSize(0.04)
+    title.SetTextSize(0.035)
     title.SetTextAlign(22)  # Center alignment
-    title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} 2P2H #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in {slice})")  # (x, y) in normalized device coordinates
+    title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in {slice})")  # (x, y) in normalized device coordinates
 
-    # Add X-axis label (centered at the bottom) - CHANGE X-LABEL WHEN NEEDED!!!!
+    # Add X-axis label (centered at the bottom) 
     xlabel = ROOT.TLatex()
     xlabel.SetTextSize(0.04)
     xlabel.SetTextAlign(22)
-    xlabel.DrawLatexNDC(0.5, 0.02, "P_{#mu} (GeV/c)")  # Adjust as needed
-    #xlabel.DrawLatexNDC(0.5, 0.02, "P_{Leading Proton} (GeV/c)")  # Adjust as needed
+    #xlabel.DrawLatexNDC(0.5, 0.02, "P_{#mu} (GeV/c)")  # Adjust as needed
+    xlabel.DrawLatexNDC(0.5, 0.02, f"P_{{{x2Label}}} (GeV/c)")
 
     # Add Y-axis label (centered vertically on the left)
     ylabel = ROOT.TLatex()
@@ -346,7 +367,7 @@ def MultiPlot(histos, slice, x, file_path):
     ROOT.gPad.Update()
     cFull.Update()
     # Save the canvas
-    cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{generator}_{NameParts[2]}_2P2H_{slice}_Quantiles_{x}.png")
+    cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{generator}_{NameParts[2]}_{mode_label}_{slice}_Quantiles_{x}.png")
     #cFull.SaveAs(f"{HOME}/t2k-nova/test.png")
 
 def PlotSegments(file_path, x1, y1):
@@ -354,12 +375,54 @@ def PlotSegments(file_path, x1, y1):
     NameParts = SF.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     
-    # Make q0 vs q3 histogram to find quantiles with equal events
+    histos = []  # Store histograms here in order to plot on divided canvas
     
-    # Now define slice after x1 and y1 exist
-    slice = x1  
+    # Make q0 vs q3 histogram to find quantiles with equal events 
+    slice = x1 
+    x_bins, total_events = constant_event_binning(x1, y1, file_path=file_path, Mode=None)
     
-    x_bins, total_events = constant_event_binning(x1, y1, file_path=file_path, Mode=2)
+    # Plot full q3/q0 spectrum in x2 and y2 variables
+    # Generate the full events histogram
+    df1=pp.CreateDataFrame(file_path, cut=cut)
+    df1 = df1.Define("PProton1", """
+    double max_proton_p = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 2212) { // Proton
+            double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
+            if (p_magnitude > max_proton_p) {
+                max_proton_p = p_magnitude;
+            }
+        }
+    }
+    return max_proton_p;
+    """)
+    df1 = df1.Define("CosProton", """
+    double cos_proton = -5.0; // Default value if no proton found
+    double max_proton_p = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 2212) { // Proton
+        double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
+        if (p_magnitude > max_proton_p) {
+            max_proton_p = p_magnitude;
+        }
+        }
+        if (max_proton_p > 0) {
+            cos_proton = pz[i] / max_proton_p; // Dot product with (0, 0, 1)
+        }
+    }
+    return cos_proton;
+    """) 
+    
+    histInfo = (f"Full {slice} Spectrum_{total_events}", f"{y2} vs {x2} {cut} plot", 60, 0, 3.3, 102, -1.02, 1.02)
+    hist_AllEvents = df1.Histo2D(histInfo,x2,y2)
+    cAllEvents = ROOT.TCanvas()
+    
+    SF.formatTcanvas(hist_AllEvents,cAllEvents)
+    
+    title = hist_AllEvents.GetName()
+    print(f"{title}")
+    #cAllEvents.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{title}_{Name}.png")
+    histos.append(hist_AllEvents)
     
     # Apply quantile_cutting to make a new dataframe for each quantile 
     quantile_dfs = quantile_cutting(x1, x_bins, file_path=file_path)
@@ -370,35 +433,6 @@ def PlotSegments(file_path, x1, y1):
         count = df.Count().GetValue()
         print(f"Quantile {i+1}: {count} events")
         event_counts[i] = count  # Store in dictionary
-        
-    # Make plots for each dataframe
-    y = 'CosLep'
-    x = 'PLep'
-    #x = 'PProton1'
-    
-    histos = []  # Store histograms here in order to plot on divided canvas
-    
-    # Plot full q3/q0 spectrum
-    x = "PLep"
-    #x = "PProton1"
-    y = "CosLep"
-    histInfo = (f"Full {slice} Spectrum_{total_events}", f"{y} vs {x} 2P2H plot", 60, 0, 3.3, 102, -1.02, 1.02)
-
-    # Generate the full 2P2H histogram
-    hist_Full2P2H, _ = pp.Plot2P2H(x, y, histInfo, file_path=file_path, Normalize = 1)
-
-    # max = hist_Full2P2H.GetMaximum()
-    #hist_Full2P2H.SetMaximum(max) 
-    
-
-    cfull2P2H = ROOT.TCanvas()
-    #cfull2P2H.SetLogz() I don't think we need this here for log scale
-    SF.formatTcanvas(hist_Full2P2H,cfull2P2H)
-    
-    title = hist_Full2P2H.GetName()
-    print(f"{title}")
-    #cfull2P2H.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{title}_{Name}.png")
-    histos.append(hist_Full2P2H)
     
     # Create and save a plot for each quantile
     for i, df in enumerate(quantile_dfs):
@@ -406,27 +440,24 @@ def PlotSegments(file_path, x1, y1):
         lower_bound = x_bins[i]
         upper_bound = x_bins[i + 1]
         title = f"{slice} range: {lower_bound:.2f} to {upper_bound:.2f} GeV_{event_counts[i]}"
-        histInfo = (f"{title}", f"{y} vs {x} plot", 60, 0, 3.3, 102, -1.02, 1.02)
-        #hist = PlotQuantiles(x, y, histInfo, file_path=file_path, df=df, title = title, Normalize = 1, max=.03)
-        hist = PlotQuantiles(x, y, histInfo, file_path=file_path, df=df, title = title, Normalize = 1)
-    
-        #hist.SetMaximum(max1)
-        #hist.SetMaximum(max)
+        histInfo = (f"{title}", f"{y2} vs {x2} plot", 60, 0, 3.3, 102, -1.02, 1.02)
+        hist = PlotQuantiles(x2, y2, histInfo, file_path=file_path, df=df, title = title)
         histos.append(hist)
     
 
-    MultiPlot(histos, slice, x, file_path=file_path)
+    MultiPlot(histos, slice, x2, file_path=file_path, scale = logz, frequency = zaxis, Normalize = Norm, max = max)
 
-def PlotGrid(file_path):
-    # dir_location = file_path
-    # NameParts = SF.formatName(dir_location)
-    # Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
-    # Make q0 vs q3 histogram to find quantiles with equal events
-    x1 = 'q0'
-    y1 = 'q3'
+
+# make same changes to these variables!
+def PlotGrid(file_path, x1, y1):
+    dir_location = file_path
+    NameParts = SF.formatName(dir_location)
+    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     
-    x_bins, total_events = constant_event_binning(x1, y1, file_path=file_path)
-    y_bins, total_events = constant_event_binning(y1,x1, file_path=file_path)
+    # Make q0 vs q3 histogram to find quantiles with equal events
+    slice = x1
+    x_bins, total_events = constant_event_binning(x1, y1, file_path=file_path, Mode=None)
+    y_bins, total_events = constant_event_binning(y1,x1, file_path=file_path, Mode=None)
     
     # Apply quantile_cutting to make a new dataframe for each quantile 
     quantile_dfs = grid_cutting(x1, y1, x_bins, y_bins, file_path=file_path)
@@ -440,10 +471,6 @@ def PlotGrid(file_path):
             print(f"Grid {i+1}, {j+1}: {count} events")
             event_counts[i] = count  # Store in dictionary
             k+=1
-        
-    # Make plots for each dataframe
-    y = 'CosLep'
-    x = 'PLep'
     
     histos = []  # Store histograms here in order to plot on divided canvas
     # Create and save a plot for each quantile
@@ -459,38 +486,29 @@ def PlotGrid(file_path):
 
 
             title = f"Grid{i+1}_{j+1}_{x1}_{x_lower_bound:.2f}-{x_upper_bound:.2f}_{y1}_{y_lower_bound}-{y_upper_bound}"
-            histInfo = (f"{title}", f"{y} vs {x} plot", 60, 0, 3.3, 102, -1.02, 1.02)
-            hist = PlotQuantiles(x, y, histInfo, file_path=file_path, df=quantile_dfs[k], title = title)
+            histInfo = (f"Full {slice} Spectrum_{total_events}", f"{y2} vs {x2} {cut} plot", 60, 0, 3.3, 102, -1.02, 1.02)
+            hist = PlotQuantiles(x2, y2, histInfo, file_path=file_path, df=quantile_dfs[k], title = title)
             histos.append(hist)
+            c = ROOT.TCanvas()
+            hist.Draw("COLZ") # Or whatever draw option you prefer
+            c.SaveAs(f"{HOME}/t2k-nova/{mode_label}-{x2}:grid{k}.png")
             k+=1
-
-
-if __name__=="__main__":
+    
+if __name__ == "__main__":
+    # Load config from JSON
+    with open("config_PlotQuantiles.json") as f:
+        config = json.load(f)
+        
     file_name = input("Give Root File name: ")
     file_path1 = f"/data/t2k-nova/FlatTrees/{file_name}"
-    # file_path = 't2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root'
-
-
-    # x = 'q3'
-    # y = 'q0' 
-    # x_bins, total_events = constant_event_binning(x, y, file_path, Mode = 1)
-    # histInfo2 = ("name",f"1P1H {x} vs {y} plot",60,0,3,60,0,3)
-    # AxisInfo = ['q_{0}', '(GeV)','q_{3}', '(GeV)']
-    # hist, path = pp.Plot2P2H(x,y,histInfo2,file_path, Mode = 2)
-    # visualize_segements(hist, file_path, x_bins=x_bins)
-    x1 = 'q3'
-    y1 = 'q0'
-    PlotSegments(file_path1, x1, y1)
-    # PlotGrid(file_path=file_path)
-
-
-
-
     
+    # Assign config variables
+    globals().update(config)  # Makes all config keys accessible as variables
     
-
-
-
-
-
-
+    # Run selected plot
+    if config.get("plot_type") == "segments":
+        PlotSegments(file_path1, x1, y1)
+    elif config.get("plot_type") == "grid":
+        PlotGrid(file_path1, x1, y1)
+    else:
+        print("Invalid plot_type in config_PlotQuantiles.json. Use 'segments' or 'grid'.")
