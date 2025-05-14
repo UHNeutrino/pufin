@@ -381,9 +381,9 @@ if __name__=="__main__":
     # print("What are you testing?")
     x = 'q3'
     y = 'q0'
+    file_path = input("Full File Path: ")
     AxisInfo = ['q_{3}', '(GeV)','q_{0}', '(GeV)']
     histInfo = ("name",f"{y} vs {x} plot",60,0,3,60,0,3)
-    hist, file_path = Plot2P2H(x,y,histInfo,"/data/t2k-nova/FlatTrees/Flat_NEUT_0.7GeV_1e7.root")
     df2p2h = CreateDataFrame(file_path, "Mode == 2")
     hist  = df2p2h.Histo2D(histInfo,'q3','q0')
     SavePlot(hist,"titlename1",AxisInfo, file_path)
