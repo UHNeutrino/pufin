@@ -42,7 +42,7 @@ for file_path in root_files:
     # x_bins, total_events = pq.constant_event_binning(x, y, file_path, Mode = 
     # 1pi
     plottitle = "W vs Q^{2} for 1Pi events at #nu_{E} =" + flux
-    histInfo = ("name",f"plop1",60,1.1,2.4,105,-0.1,5)
+    histInfo = ("name",f"plop1",60,1.1,2.4,105,-0.1,5) ('Test Title', 'Test Title', 60.0, 1.1, 2.4, 105.0, -0.1, 5.0)
     AxisInfo1 = ['W', '(GeV)','Q^{2}', '(GeV)^{2}', plottitle]
     df1Pi= pp.CreateDataFrame(file_path, "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 ")
     # hist2p_q = df1Pi.Histo2D(histInfo,'W','Q2')
