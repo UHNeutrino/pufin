@@ -13,25 +13,20 @@ data = json.load(f)
 
 quantiles = data.get("quantiles")
 plots = data.get("plots")
-
-
-
-
-
-
-
+stacks = data.get("stacks")
 
 if (plots["Bool"]):
-    globterms = ""
     root_files = glob.glob(userFolder + f'/*{plots["Gen"]}*{plots["Flux"]}*.root')
 
     for file_path in root_files:
+        file_name = file_path.split('/')[-1]
+        generator = file_name.split('_')[1]
+        flux = file_name.split('_')[2]
         BinL = []
         AxisInfo = []
         df = pp.CreateDataFrame(file_path, plots["Cut"])
         if(plots["EvisB"]):
             df = pp.DefineEvis(df)
-        
         i=0
         for num in plots["Bins"].split(','):
             if (i%3 == 0):
@@ -48,7 +43,6 @@ if (plots["Bool"]):
             hist = df.Histo1D(histInfo,plots["Var1"])
         if plots["Type"] == "2D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
-            print(histInfo)
             hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"])
         
         if plots["Ext"] == "root":
@@ -60,10 +54,42 @@ if (plots["Bool"]):
         else:
             nx = datetime.datetime.now()
             x = str(nx)
-            fileN = plots["Gen"]+plots["Flux"]+AxisInfo[-1]+x
+            fileN = generator+flux+plots["Name"]+x
             fileN = fileN.replace(" ", "-")
-            # pp.Savehist(hist,AxisInfo,plots["Save"],f"skibidi",plots["Ext"])
             pp.Savehist(hist,AxisInfo,plots["Save"],fileN,plots["Ext"])
-            
+
+if (stacks["Bool"]):
+    root_files = glob.glob(userFolder + f'/*{stacks["Gen"]}*{stacks["Flux"]}*.root')
+    for file_path in root_files:
+        file_name = file_path.split('/')[-1]
+        generator = file_name.split('_')[1]
+        flux = file_name.split('_')[2]
+        df = pp.CreateDataFrame(file_path, stacks["Cut"])
+        BinL = []
+        AxisInfo = []
+        cuts = []
+        Legend = []
+        colors = []
+        if(plots["EvisB"]):
+            df = pp.DefineEvis(df)
+        i=0
+        for num in plots["Bins"].split(','):
+                if (i%3 == 0):
+                    BinL.append(int(num))
+                else:
+                    BinL.append(float(num))
+                i+=1
+        for word in plots["AxisInfo"].split(','):
+                AxisInfo.append(word)
+        for cut,name in stacks["StackCuts"].items():
+            cuts.append(cut)
+            Legend.append(name)
+        histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
+        for num in stacks["Colors"].split(","):
+            colors.append(int(num))
+        
+        stack, histlist = pp.PlotStackedEventCuts(df, stacks["Var1"], histInfo, cuts, colors)
+        save_L = stacks["Save"] + generator + '-' + flux + stacks["Name"] + "." +stacks["Ext"]
+        pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L)
 
 

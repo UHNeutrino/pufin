@@ -341,6 +341,21 @@ def PlotStackedEventModes(df, x, histInfo, modes, colors):
 
     return stack, histlist, Legend
 
+def PlotStackedEventCuts(df, x, histInfo, cuts, colors):
+    stack = ROOT.THStack("stack","")
+    histlist = []
+    for i in range(len(cuts)):
+        modedf = df.Filter(f"{cuts[i]}")
+        hist = modedf.Histo1D(histInfo,x)
+        # print(colors[i])
+        hist.SetFillColor(colors[i])
+        th1d = hist.GetPtr()
+        stack.Add(th1d)
+        histlist.append(th1d)
+        print(f"Plotting mode {cuts[i]}")
+
+    return stack, histlist
+
 def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path, Normalize = 0):
     canvas = ROOT.TCanvas("canvas", "Canvas for Stacked Histograms", 1000, 600)
 
@@ -360,7 +375,7 @@ def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path, Normalize = 0)
         legend.AddEntry(histlist[i], f"{Legend[i]}", "f")
     legend.Draw()
 
-    canvas.SaveAs(save_path)
+    canvas.SaveAs(f"{HOME}/{save_path}")
 
 def DrawXLines(hist, x_bins, y_max):
     c = ROOT.TCanvas()
