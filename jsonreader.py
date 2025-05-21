@@ -1,4 +1,4 @@
-import json
+import json5
 import ROOT
 import os
 import datetime
@@ -8,8 +8,8 @@ import glob
 
 
 userFolder = f"/data/t2k-nova/FlatTrees"
-f = open('/home/lboe/t2k-nova/main.json')
-data = json.load(f)
+f = open('/home/lboe/t2k-nova/main.json5')
+data = json5.load(f)
 
 quantiles = data.get("quantiles")
 plots = data.get("plots")
@@ -22,19 +22,11 @@ if (plots["Bool"]):
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
-        BinL = []
+        BinL = plots["Bins"]
         AxisInfo = []
         df = pp.CreateDataFrame(file_path, plots["Cut"])
         if(plots["EvisB"]):
-            df = pp.DefineEvis(df)
-        i=0
-        for num in plots["Bins"].split(','):
-            if (i%3 == 0):
-                BinL.append(int(num))
-            else:
-                BinL.append(float(num))
-            i+=1
-        
+            df = pp.DefineEvis(df)  
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
 
@@ -65,21 +57,14 @@ if (stacks["Bool"]):
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
         df = pp.CreateDataFrame(file_path, stacks["Cut"])
-        BinL = []
+        BinL = stacks["Bins"]
         AxisInfo = []
         cuts = []
         Legend = []
         colors = []
-        if(plots["EvisB"]):
+        if(stacks["EvisB"]):
             df = pp.DefineEvis(df)
-        i=0
-        for num in plots["Bins"].split(','):
-                if (i%3 == 0):
-                    BinL.append(int(num))
-                else:
-                    BinL.append(float(num))
-                i+=1
-        for word in plots["AxisInfo"].split(','):
+        for word in stacks["AxisInfo"].split(','):
                 AxisInfo.append(word)
         for cut,name in stacks["StackCuts"].items():
             cuts.append(cut)
