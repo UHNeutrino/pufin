@@ -1,0 +1,63 @@
+{
+    "quantiles":
+        {
+            "Bool":false,
+            "x1": "q3", 
+            "y1": "q0", 
+            "x2": "PProton1",
+            "y2": "CosProton",
+            "x2Label": "Leading Proton",
+            "y2Label": "Cos #theta",
+
+
+            "zaxis": true,
+            "Norm": false,
+            "max": 1000, 
+            "logz": true,
+
+            "cut": "flagCC0pi == 1 && Mode ==2",
+            "mode_label": "CC0Pi&2P2H",
+            "mode_title": "CC0Pi + 2P2H",
+        
+            "plot_type": "segments"
+            },
+    "plots":
+        {
+            "Bool": true,
+            "EvisB": false,
+            "Gen":"NEUT",
+            "Flux":"flatf",
+            "Type":"1D",
+            "Cut": "None",
+            "Var1": "Enu_true",
+            "Var2": "q0",
+            "AxisInfo":"E_{\nu} true, GeV,counts, , enu true",
+            "Bins":[200,0,8,150,0,3],
+            "Save": "t2k-nova/0PiPlots",
+            "Name": "enutrue",
+            "Ext": "png",
+            "Norm": false,
+            "max": 0, 
+            "logz": false
+        },
+    "stacks":
+        {
+            "Bool":false,
+            "EvisB": false,
+            "Gen":"NEUT",
+            "Flux":"0.7",
+            "Type":"2D",
+            "Cut": "Mode == 1 || Mode == 2",
+            "Var1": "q0",
+            "StackCuts":{"Mode == 1": "QE", "Mode == 2":"2p2h"},
+            "Colors":"632, 416, 600",
+            "AxisInfo":"Momentum Transfer, GeV,Energy Transfer, GeV,Test Title",
+            "Bins":[100,0,2,100,0,1],
+            "Save": "t2k-nova/0PiPlots/",
+            "Name": "testplot",
+            "Ext": "png",
+            "Norm": false,
+            "max": 0, 
+            "logz": false
+        }
+}

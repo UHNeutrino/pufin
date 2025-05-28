@@ -238,31 +238,34 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
     df = ROOT.RDataFrame(treeName,fileName)
     df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
 
-    df = df.Filter(cut)
-    return df
+    if cut == "None":
+        return df
+    else:
+        df = df.Filter(cut)
+        return df
 
 
-def Savehist(hist, AxisInfo, save_location, filename, ext, max = None, Normalize = 0):
+def Savehist(hist, AxisInfo, save_location, filename, ext, max = 0, Normalize = False):
     xvar = AxisInfo[0]
     xunit = AxisInfo[1]
     yvar = AxisInfo[2]
     yunit = AxisInfo[3]
     PlotTitle = AxisInfo[4]
 
-    if max is not None:
+    if max != 0:
         hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle)
     else:
         hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
     c = ROOT.TCanvas()
 
-    if Normalize == 1:
+    if Normalize:
        scale = 1/(hist.Integral())
        hist.Scale(scale)
 
-    elif Normalize == 2:
-        #hist.SetMinimum(1)
-        hist.SetMaximum(3000)
-        c.SetLogz()
+    # elif Normalize == 2:
+    #     #hist.SetMinimum(1)
+    #     hist.SetMaximum(max)
+    #     c.SetLogz()
 
     SF.formatTcanvas(hist,c)
     c.SaveAs(f"{HOME}/{save_location}/{filename}.{ext}")

@@ -7,9 +7,9 @@ def setupRoot():
     ROOT.gStyle.SetStatY(0.9)  # Slightly below the top edge
     ROOT.gStyle.SetOptStat(10)  # Only show the number of entries (N)
     # Apply a modern color palette
-    #ROOT.gStyle.SetPalette(ROOT.kRainBow)  # Choose a visually pleasing palette
+    ROOT.gStyle.SetPalette(ROOT.kRainBow)  # Choose a visually pleasing palette
     #ROOT.gStyle.SetPalette(ROOT.kViridis)
-    ROOT.gStyle.SetPalette(ROOT.kBird)
+    # ROOT.gStyle.SetPalette(ROOT.kBird)
     ROOT.gStyle.SetNumberContours(50)     # Increase the number of colors in the gradient
 
 def formatName(dir_location):
