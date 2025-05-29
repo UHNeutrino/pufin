@@ -418,7 +418,7 @@ def defineWeights(df, rwRootFile, histName):
         return weight;
     }}
     """)
-    df = df.Define("flux_weight", "getFluxWeight(Enu_true)")
+    df = df.Define("weights", "getFluxWeight(Enu_true)")
 
     return df
 
@@ -428,12 +428,12 @@ if __name__=="__main__":
     x = 'Enu_true'
     y = 'q0'
     file_path = "/data/t2k-nova/FlatTrees/Flat_NEUT5.9_flatf_1e7.root"
-    AxisInfo = ['E#nu_{true}', '(GeV)','counts', '',"3 GeV mono flux test"]
+    AxisInfo = ['E#nu_{true}', '(GeV)','counts', '',"test"]
     histInfo = ("name",f"{y} vs {x} plot",250,0,5)
     df = CreateDataFrame(file_path, "None")
     df = defineWeights(df, "/data/t2k-nova/fluxes/mono_energetic_flux_3.0GeV_v2.root","h1")
-    hist  = df.Histo1D(histInfo,x,"flux_weight")
-    Savehist(hist,AxisInfo,"t2k-nova","monoReWeightTest","png")
+    hist  = df.Histo1D(histInfo,x,"weights")
+    Savehist(hist,AxisInfo,"t2k-nova","Test2","png")
     # x = 'W'
     # y = 'Q2'
     # AxisInfo = ['W', '(GeV)','Q^{2}', '(GeV)^{2}']

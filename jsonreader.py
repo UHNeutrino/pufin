@@ -30,14 +30,21 @@ if (plots["Bool"]):
             df = pp.DefineEvis(df)  
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
+        if(plots["reWeight"][0]):
+            df = pp.defineWeights(df,plots["reWeight"][1],plots["reWeight"][2])
 
         if plots["Type"] == "1D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
-            hist = df.Histo1D(histInfo,plots["Var1"])
+            if(plots["reWeight"][0]):
+                hist = df.Histo1D(histInfo,plots["Var1"],"weights")
+            else:
+                hist = df.Histo1D(histInfo,plots["Var1"])
         if plots["Type"] == "2D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
-            hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"])
-        
+            if(plots["reWeight"][0]):
+                hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"],"weights")
+            else:
+                hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"])
         if plots["Ext"] == "root":
             rootTitle = plots["Cut"]
             rootTitle = rootTitle.replace(" ","")
@@ -49,7 +56,7 @@ if (plots["Bool"]):
             x = str(nx)
             fileN = generator+flux+plots["Name"]+x
             fileN = fileN.replace(" ", "-")
-            pp.Savehist(hist,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["max"])
+            pp.Savehist(hist,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"])
 
 if (stacks["Bool"]):
     root_files = glob.glob(userFolder + f'/*{stacks["Gen"]}*{stacks["Flux"]}*.root')
@@ -76,6 +83,6 @@ if (stacks["Bool"]):
         
         stack, histlist = pp.PlotStackedEventCuts(df, stacks["Var1"], histInfo, cuts, colors)
         save_L = stacks["Save"] + generator + '-' + flux + stacks["Name"] + "." +stacks["Ext"]
-        pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L,max = stacks["max"], Normalize=stacks["max"])
+        pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L,max = stacks["max"], Normalize=stacks["Norm"])
 
 
