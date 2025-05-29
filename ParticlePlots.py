@@ -394,19 +394,48 @@ def DrawXLines(hist, x_bins, y_max):
     return c 
         
 
+def defineWeights(df, rwRootFile, histName):
+    flux_file = ROOT.TFile.Open(rwRootFile)
+    hist = flux_file.Get(histName)  
+    hist.SetDirectory(0)  
+    flux_file.Close()
+
+    # scale = 1/(hist.Integral())
+    # hist.Scale(scale)
+
+    # print(type(hist))
+
+    # stupid hack to get the correct varible type TH1D or TH1F 
+    a = str(type(hist)).split("TH1")[1][0]
+    # print(a)
+    ROOT.gROOT.ProcessLine(f"TH1{a}* fluxHist;")  # Declare a global variable in C++
+    ROOT.fluxHist = hist  # Assign your Python-side TH1D to the C++ global
+
+    ROOT.gInterpreter.Declare(f"""
+    double getFluxWeight(double energy) {{
+        int bin = fluxHist->GetXaxis()->FindBin(energy);
+        double weight = fluxHist->GetBinContent(bin);
+        return weight;
+    }}
+    """)
+    df = df.Define("flux_weight", "getFluxWeight(Enu_true)")
+
+    return df
+
 if __name__=="__main__":
     # Test functions in this area
     # print("What are you testing?")
-    x = 'q3'
+    x = 'Enu_true'
     y = 'q0'
-    file_path = input("Full File Path: ")
-    AxisInfo = ['q_{3}', '(GeV)','q_{0}', '(GeV)']
-    histInfo = ("name",f"{y} vs {x} plot",60,0,3,60,0,3)
-    df2p2h = CreateDataFrame(file_path, "Mode == 2")
-    hist  = df2p2h.Histo2D(histInfo,'q3','q0')
-    SavePlot(hist,"titlename1",AxisInfo, file_path)
-    x = 'W'
-    y = 'Q2'
+    file_path = "/data/t2k-nova/FlatTrees/Flat_NEUT5.9_flatf_1e7.root"
+    AxisInfo = ['E#nu_{true}', '(GeV)','counts', '',"3 GeV mono flux test"]
+    histInfo = ("name",f"{y} vs {x} plot",250,0,5)
+    df = CreateDataFrame(file_path, "None")
+    df = defineWeights(df, "/data/t2k-nova/fluxes/mono_energetic_flux_3.0GeV_v2.root","h1")
+    hist  = df.Histo1D(histInfo,x,"flux_weight")
+    Savehist(hist,AxisInfo,"t2k-nova","monoReWeightTest","png")
+    # x = 'W'
+    # y = 'Q2'
     # AxisInfo = ['W', '(GeV)','Q^{2}', '(GeV)^{2}']
     # histInfo = ("name",f"{y} vs {x} plot",60,0,3,120,0,6)
     # hist, file_path = Plot1PI(x,y,histInfo,"/data/t2k-nova/FlatTrees/FLAT_NEUT_0.7GeV_1e7.root")
