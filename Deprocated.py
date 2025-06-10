@@ -5,6 +5,40 @@ import ROOT
 ####################
 # Particle Plots####
 ####################
+
+def SavePlot(hist, title, AxisInfo, dir_location, max = None, Normalize = 0, PlotTitle  = None):
+    NameParts = SF.formatName(dir_location)
+    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+
+    xvar = AxisInfo[0]
+    xunit = AxisInfo[1]
+    yvar = AxisInfo[2]
+    yunit = AxisInfo[3]
+
+    if Normalize == 1:
+       scale = 1/(hist.Integral())
+    #    print(scale)
+       hist.Scale(scale)
+    if max is None:
+        max = -1
+    if PlotTitle is None:
+        PlotTitle = ""
+  
+    hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle, NameParts = NameParts)
+    
+    c = ROOT.TCanvas()
+
+
+    SF.formatTcanvas(hist,c)
+    # saves hist to a specific directory 
+    if max is not None:
+        c.SaveAs(f"{HOME}/t2k-nova/plots_constant_z_axis/{title}_{Name}.png")
+    elif Normalize == 1:
+        c.SaveAs(f"{HOME}/t2k-nova/plots_normalized/{title}_{Name}.png")
+    else:
+        c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
+
+
 def Plot2P2H(x, y, histogramInfo, file_path = None, Mode = None, Normalize = 0, max = None):
     # First get the data into a dataframe
     if file_path is None:

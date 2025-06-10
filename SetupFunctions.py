@@ -44,7 +44,7 @@ def formatTcanvas(hist, c):
     c.SetLeftMargin(0.15)  # Adjust the left margin to avoid cutting off the y-axis label
     c.SetRightMargin(0.15) #Adjust the right margin to make space for the legend
     c.SetBottomMargin(0.15) #Adjust the bottom margin to avoid cutting off the x-axis label
-    hist.Draw("COLZ")
+    hist.Draw("COLZ") 
     # c.SetCanvasSize(600,500)
     c.SetCanvasSize(c.GetWw()+200,c.GetWh())
     

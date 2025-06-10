@@ -18,39 +18,6 @@ SF.setupRoot()
 HOME = os.getenv("HOME", "/home/lboe")
 
 
-def SavePlot(hist, title, AxisInfo, dir_location, max = None, Normalize = 0, PlotTitle  = None):
-    NameParts = SF.formatName(dir_location)
-    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
-
-    xvar = AxisInfo[0]
-    xunit = AxisInfo[1]
-    yvar = AxisInfo[2]
-    yunit = AxisInfo[3]
-
-    if Normalize == 1:
-       scale = 1/(hist.Integral())
-    #    print(scale)
-       hist.Scale(scale)
-    if max is None:
-        max = -1
-    if PlotTitle is None:
-        PlotTitle = ""
-  
-    hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle, NameParts = NameParts)
-    
-    c = ROOT.TCanvas()
-
-
-    SF.formatTcanvas(hist,c)
-    # saves hist to a specific directory 
-    if max is not None:
-        c.SaveAs(f"{HOME}/t2k-nova/plots_constant_z_axis/{title}_{Name}.png")
-    elif Normalize == 1:
-        c.SaveAs(f"{HOME}/t2k-nova/plots_normalized/{title}_{Name}.png")
-    else:
-        c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_{Name}.png")
-
-
 def DefineEvis(df):
     # Define Evis_1 where EavAlt = q0 - KE(neutrons) - mass(pions)
     df = df.Define("Evis_1", "EavAlt + ELep")
@@ -400,9 +367,6 @@ def defineWeights(df, rwRootFile, histName):
     hist.SetDirectory(0)  
     flux_file.Close()
 
-    # scale = 1/(hist.Integral())
-    # hist.Scale(scale)
-
     # print(type(hist))
 
     # stupid hack to get the correct varible type TH1D or TH1F 
@@ -411,16 +375,69 @@ def defineWeights(df, rwRootFile, histName):
     ROOT.gROOT.ProcessLine(f"TH1{a}* fluxHist;")  # Declare a global variable in C++
     ROOT.fluxHist = hist  # Assign your Python-side TH1D to the C++ global
 
-    ROOT.gInterpreter.Declare(f"""
-    double getFluxWeight(double energy) {{
+    ROOT.gInterpreter.Declare("""
+    double getFluxWeight(double energy) {
         int bin = fluxHist->GetXaxis()->FindBin(energy);
         double weight = fluxHist->GetBinContent(bin);
         return weight;
-    }}
+    }
     """)
     df = df.Define("weights", "getFluxWeight(Enu_true)")
 
     return df
+
+def overlapPlots(df, x, histInfo, cuts, colors):
+    histlist = []
+    for i in range(len(cuts)):
+        print(f"Plotting mode {cuts[i]}")
+        modedf = df.Filter(f"{cuts[i]}")
+        hist = modedf.Histo1D(histInfo,x)
+        # print(colors[i])
+        hist.SetLineColor(colors[i])
+        hist.SetFillColor(0)
+        # th1d = hist.GetPtr()
+        histlist.append(hist)
+    return histlist
+
+def SaveOverlapPlot(histlist, AxisInfo, Legend, save_path, hist_max=None, Normalize = 0):
+    xvar = AxisInfo[0]
+    xunit = AxisInfo[1]
+    yvar = AxisInfo[2]
+    yunit = AxisInfo[3]
+    PlotTitle = AxisInfo[4]
+    if hist_max is None:
+        hist_max = 0
+
+
+    for i in range(len(histlist)):
+        if Normalize == 1:
+            scale = 1/(histlist[i].Integral())
+        #    print(scale)
+            histlist[i].Scale(scale)
+        if Normalize == 2:
+            for j in range(1, histlist[i].GetNbinsX()+1):
+                histlist[i].SetBinContent(j,histlist[i].GetBinContent(j)/histlist[i].GetBinCenter(j))
+        hist_max = max(hist_max, histlist[i].GetMaximum())
+  
+    histlist[0] = SF.formatHist(histlist[0],xvar, xunit, yvar, yunit, max = hist_max*1.1, PlotTitle=PlotTitle)
+
+    
+    c = ROOT.TCanvas()
+    c.SetLeftMargin(0.15)  # Adjust the left margin to avoid cutting off the y-axis label
+    c.SetRightMargin(0.15) #Adjust the right margin to make space for the legend
+    c.SetBottomMargin(0.15) #Adjust the bottom margin to avoid cutting off the x-axis label
+    legend = ROOT.TLegend(0.85, 0.7, 1.0, 0.9)  # Define legend position
+    for i in range(len(histlist)):
+        if i == 0:
+            histlist[i].Draw("HIST")
+            legend.AddEntry(histlist[i], f"{Legend[i]}", "f")
+        else:
+            histlist[i].Draw("HIST SAME")
+            legend.AddEntry(histlist[i].GetPtr(), f"{Legend[i]}", "f")
+    legend.Draw()
+
+    # saves hist to a specific directory 
+    c.SaveAs(f"{HOME}/{save_path}")
 
 if __name__=="__main__":
     # Test functions in this area

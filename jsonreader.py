@@ -15,6 +15,7 @@ data = json5.load(f)
 quantiles = data.get("quantiles")
 plots = data.get("plots")
 stacks = data.get("stacks")
+overlap = data.get("overlap")
 
 if (plots["Bool"]):
     root_files = glob.glob(userFolder + f'/*{plots["Gen"]}*{plots["Flux"]}*.root')
@@ -83,6 +84,32 @@ if (stacks["Bool"]):
         
         stack, histlist = pp.PlotStackedEventCuts(df, stacks["Var1"], histInfo, cuts, colors)
         save_L = stacks["Save"] + generator + '-' + flux + stacks["Name"] + "." +stacks["Ext"]
-        pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L,max = stacks["max"], Normalize=stacks["Norm"])
+        pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L, Normalize=stacks["Norm"])
 
 
+if (overlap["Bool"]):
+    root_files = glob.glob(userFolder + f'/*{overlap["Gen"]}*{overlap["Flux"]}*.root')
+    for file_path in root_files:
+        file_name = file_path.split('/')[-1]
+        generator = file_name.split('_')[1]
+        flux = file_name.split('_')[2]
+        df = pp.CreateDataFrame(file_path, overlap["Cut"])
+        BinL = overlap["Bins"]
+        AxisInfo = []
+        cuts = []
+        Legend = []
+        colors = []
+        if(overlap["EvisB"]):
+            df = pp.DefineEvis(df)
+        for word in overlap["AxisInfo"].split(','):
+                AxisInfo.append(word)
+        for cut,name in overlap["StackCuts"].items():
+            cuts.append(cut)
+            Legend.append(name)
+        histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
+        for num in overlap["Colors"].split(","):
+            colors.append(int(num))
+        
+        histlist = pp.overlapPlots(df, overlap["Var1"], histInfo, cuts, colors)
+        save_L = overlap["Save"] + generator + '-' + flux + overlap["Name"] + "." +overlap["Ext"]
+        pp.SaveOverlapPlot(histlist, AxisInfo, Legend,save_L, Normalize=overlap["Norm"])
