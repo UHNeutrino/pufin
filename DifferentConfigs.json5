@@ -1,0 +1,46 @@
+{
+    "plots":
+        {
+            "Bool": true,
+            "EvisB": false,
+            // "reWeight":[false, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],
+            "reWeight":[true, "/data/t2k-nova/fluxes/mono_energetic_flux_1.0GeV_v2.root","h1"],
+            "Gen":"NEUT5.9",
+            "Flux":"T2KFine",
+            "Type":"1D",
+            // Specify the cut for the dataframe. For no cuts, type "None"
+            "Cut": "None",
+            //"Cut":(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16),
+            "Var1": "Enu_true",
+            "Var2": "Q2",
+            "AxisInfo":"E_{#nu}, GeV, Events, , T2K Fine Generated Energy",
+            "Bins":[200,0,4,300,0,5],
+            "Save": "t2k-nova/6-10-25",
+            "Name": "T2KWeight",
+            "Ext": "png",
+            "Norm": false,
+            "max": 0, 
+            "logz": false
+        },
+    // 2p2h phase space
+    "plots":
+        {
+            "Bool": true,
+            "EvisB": false,
+            "reWeight":[false, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],            "Gen":"NEUT5.9",
+            "Flux":"flatf_",
+            "Type":"2D",
+            // Specify the cut for the dataframe. For no cuts, type "None"
+            "Cut": "Mode == 2",
+            "Var1": "q3",
+            "Var2": "q0",
+            "AxisInfo":"Momentum Transfer, GeV, Energy Transfer, GeV, Flat Flux Reweight 2p2h Validation 1.0 Gev",
+            "Bins":[150,0,3,150,0,3],
+            "Save": "t2k-nova/6-17-25",
+            "Name": "2p2hFlatVal",
+            "Ext": "png",
+            "Norm": false,
+            "max": 0, 
+            "logz": false
+        },
+}

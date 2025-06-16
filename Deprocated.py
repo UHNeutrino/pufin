@@ -1,4 +1,5 @@
 import ROOT
+import SetupFunctions as SF
 # This holds all deprocated functions:
 
 
@@ -131,6 +132,105 @@ def Create1DHistogram(df,x,histInfo):
     return hist
 
 
+def defineWeightsOld(df, rwRootFile, histName):
+    flux_file = ROOT.TFile.Open(rwRootFile)
+    hist = flux_file.Get(histName)  
+    hist.SetDirectory(0)  
+    flux_file.Close()
+
+    # print(type(hist))
+
+    # stupid hack to get the correct varible type TH1D or TH1F 
+    a = str(type(hist)).split("TH1")[1][0]
+    # print(a)
+    ROOT.gROOT.ProcessLine(f"TH1{a}* fluxHist;")  # Declare a global variable in C++
+    ROOT.fluxHist = hist  # Assign your Python-side TH1D to the C++ global
+
+    ROOT.gInterpreter.Declare("""
+    double getFluxWeight(double energy) {
+        int bin = fluxHist->GetXaxis()->FindBin(energy);
+        double weight = fluxHist->GetBinContent(bin);
+        return weight;
+    }
+    """)
+    df = df.Define("weights", "getFluxWeight(Enu_true)")
+
+    return df
+
+
+
+def defineWeightsOLD2(df, rwRootFile, histName):
+    flux_file = ROOT.TFile.Open(rwRootFile)
+    hist = flux_file.Get(histName)  
+    hist.SetDirectory(0)  
+    flux_file.Close()
+
+    # print(type(hist))
+
+    # stupid hack to get the correct varible type TH1D or TH1F 
+    a = str(type(hist)).split("TH1")[1][0]
+    # print(a)
+    ROOT.gROOT.ProcessLine(f"TH1{a}* fluxHist;")  # Declare a global variable in C++
+    ROOT.fluxHist = hist  # Assign your Python-side TH1D to the C++ global
+
+    ROOT.gInterpreter.Declare("""
+    double getFluxWeight(double energy) {
+        int n = fluxHist->GetNbinsX();
+        double x[n]{};
+        double y[n]{};
+
+        for (int i = 1; i <= n; i++) {
+            x[i-1] = fluxHist->GetBinCenter(i);
+            y[i-1] = fluxHist->GetBinContent(i);
+        }
+
+        TGraph* graph = new TGraph(n,x,y);                  
+        TSPline* spline = new TSPline(*graph);
+    
+        double weight = spline->Eval(energy);
+        delete spline;
+        delete graph;                      
+        return weight;
+    }
+    """)
+    df = df.Define("weights", "getFluxWeight(Enu_true)")
+
+    return df
+
+
+def defineWeightsNewBROKEN(df, rwRootFile, histName):
+    flux_file = ROOT.TFile.Open(rwRootFile)
+    hist = flux_file.Get(histName)  
+    hist.SetDirectory(0)  
+    flux_file.Close()
+
+    # print(type(hist))
+
+    # stupid hack to get the correct varible type TH1D or TH1F 
+    a = str(type(hist)).split("TH1")[1][0]
+    # print(a)
+    ROOT.gROOT.ProcessLine(f"TH1{a}* fluxHist;")  # Declare a global variable in C++
+    ROOT.fluxHist = hist  # Assign your Python-side TH1D to the C++ global
+
+    # Create TSpline3 from histogram
+    spline_name = f"spline_{histName}"
+    spline = ROOT.TSpline3(spline_name, hist)
+
+    # Register spline in C++ so it can be used inside the RDataFrame
+    ROOT.gInterpreter.ProcessLine(f"TSpline3* fluxSpline = (TSpline3*){ROOT.AddressOf(spline)};")
+
+    # Define function to evaluate spline and use it in DataFrame
+    ROOT.gInterpreter.Declare("""
+        extern TSpline3* fluxSpline;
+        double get_flux_weight(double E) {
+            return fluxSpline->Eval(E);
+        }
+    """)
+
+    # Define new column in DataFrame
+    df = df.Define("weights", f"get_flux_weight(Enu_true)")
+
+    return df
 
 #######################
 # Particles Macro #####

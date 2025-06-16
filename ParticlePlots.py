@@ -359,7 +359,6 @@ def DrawXLines(hist, x_bins, y_max):
         line_list[-1].Draw()
 
     return c 
-        
 
 def defineWeights(df, rwRootFile, histName):
     flux_file = ROOT.TFile.Open(rwRootFile)
@@ -383,6 +382,41 @@ def defineWeights(df, rwRootFile, histName):
     }
     """)
     df = df.Define("weights", "getFluxWeight(Enu_true)")
+
+    return df        
+
+def defineWeightsSpline(df, rwRootFile, histName):
+    flux_file = ROOT.TFile.Open(rwRootFile)
+    hist = flux_file.Get(histName)  
+    hist.SetDirectory(0)  
+    flux_file.Close()
+
+    n_points = hist.GetNbinsX()
+    graph = ROOT.TGraph(n_points)
+
+    for i in range(1, n_points + 1):
+        x = hist.GetBinCenter(i)
+        y = hist.GetBinContent(i)
+        graph.SetPoint(i - 1, x, y)
+
+   # Create TSpline3 from the graph
+    spline = ROOT.TSpline3("flux_spline", graph)
+
+    # Bind spline as a global C++ object
+    ROOT.gROOT.ProcessLine("TSpline3* g_fluxSpline = nullptr;")
+    ROOT.gROOT.ProcessLine("g_fluxSpline = new TSpline3();")  # placeholder
+    ROOT.g_fluxSpline = spline
+
+    # Declare external spline access and eval function
+    ROOT.gInterpreter.Declare("""
+        double get_flux_weight(double E) {
+            return g_fluxSpline->Eval(E);
+        }
+    """)
+
+
+    # Define new column in DataFrame
+    df = df.Define("weights", f"get_flux_weight(Enu_true)")
 
     return df
 

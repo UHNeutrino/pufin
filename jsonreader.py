@@ -32,8 +32,10 @@ if (plots["Bool"]):
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
         if(plots["reWeight"][0]):
-            df = pp.defineWeights(df,plots["reWeight"][1],plots["reWeight"][2])
-
+            if(plots["Spline"]):
+                df = pp.defineWeightsSpline(df,plots["reWeight"][1],plots["reWeight"][2])
+            else:
+                df = pp.defineWeights(df,plots["reWeight"][1],plots["reWeight"][2])
         if plots["Type"] == "1D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
             if(plots["reWeight"][0]):

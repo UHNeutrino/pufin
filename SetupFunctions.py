@@ -1,5 +1,4 @@
 import ROOT
-import matplotlib.pyplot as plt
 import os
 
 def setupRoot():
