@@ -23,21 +23,21 @@
             },
     "plots":
         {
-            "Bool": true,
+            "Bool": false,
             "EvisB": false,
-            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],
+            "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
             "Spline":true,
-            "Gen":"NEUT5.9",
-            "Flux":"flatf_",
+            "Gen":"GenieN24",
+            "Flux":"flatf1M",
             "Type":"1D",
             // Specify the cut for the dataframe. For no cuts, type "None"
-            "Cut": "None",
+            "Cut": "flagCC0pi == 1 && Mode ==1", // "flagCC0pi == 1 && Mode ==2" "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16"
             "Var1": "Enu_true",
-            "Var2": "Q2",
-            "AxisInfo":"E_{#nu}, GeV, Events, , T2K Fine Generated Energy",
-            "Bins":[200,0,4,300,0,5],
-            "Save": "t2k-nova/6-17-25",
-            "Name": "T2KWeight",
+            "Var2": "",
+            "AxisInfo":"Enu, GeV, # of Events, , Enu QE Flat Flux NOvA Weight",
+            "Bins":[800,0,8],
+            "Save": "t2k-nova/test",
+            "Name": "EnuQE",
             "Ext": "png",
             "Norm": false,
             "max": 0, 
@@ -57,7 +57,7 @@
             "Colors":"632, 416, 880, 800",
             "AxisInfo":"E#nu True, GeV,counts, ,Flat Flux Mode Breakdown",
             "Bins":[500,0,10,100,0,1],
-            "Save": "t2k-nova/0PiPlots/",
+            "Save": "t2k-nova/test",
             "Name": "ModeBreakdown",
             "Ext": "png",
             // THE FOLLOWING IS NOT WORKING
@@ -67,11 +67,11 @@
         },
      "overlap":
         {
-            "Bool":false,
+            "Bool": false,
             "EvisB": false,
             "reWeight":[false, "/data/t2k-nova/fluxes/mono_energetic_flux_3.0GeV_v2.root","h1"],
-            "Gen":"NEUT",
-            "Flux":"flatf_",
+            "Gen":"GenieN24",
+            "Flux":"flatf",
             "Type":"1D",
             "Cut": "None",
             "Var1": "Enu_true",
@@ -85,5 +85,38 @@
             "Norm": 2,
             "max": 0, 
             "logz": false
+        },
+    "1DSame":
+        {
+            "Bool": true,
+            "EvisB": true,
+            "Gen": "GenieN24",
+            "Fluxes": ["flatf1M", "NOvAflux"],
+            "Cut": "Mode == 1",
+            "Var": "W",
+            "AxisInfo": "W, (GeV), Probability, ,W for QE events", //#delta P_{T}
+            "Bins": [150, 0, 3],
+            "Save": "t2k-nova/plots_validation/QE", 
+            "Name": "W_N24",
+            "Ext": "png",
+            "Norm": true,
+            "logz": false,
+            "max": -1,
+            "Plots": [
+            {
+            "Key": "GenieN24_flatf1M",
+            "Label": "GenieN24 flat flux: NOvA weight",
+            "Color": "kBlue",
+            "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
+            "Spline":true
+            },
+            {
+            "Key": "GenieN24_NOvAflux",
+            "Label": "GenieN24 NOvA flux",
+            "Color": "kOrange+2",
+            "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
+            "Spline":true
+            }
+            ]
         }
 }
