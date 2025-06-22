@@ -17,6 +17,47 @@ SF.setupRoot()
 # Plan is to get the q0, q3, Q^2 and W for all events where Mode = 2
 HOME = os.getenv("HOME", "/home/lboe")
 
+def DefineKinematics(df):
+    #df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+    
+    df = df.Define("PProton1", """
+    double max_proton_p = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 2212) { // Proton
+            double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
+            if (p_magnitude > max_proton_p) {
+                max_proton_p = p_magnitude;
+            }
+        }
+    }
+    return max_proton_p;
+    """)
+    
+    df = df.Define("CosProton", """
+    double cos_proton = -5.0;
+    double max_proton_p = -1.0;
+    int max_index = -1;
+
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 2212) {
+            double p = std::sqrt(px[i]*px[i] + py[i]*py[i] + pz[i]*pz[i]);
+            if (p > max_proton_p) {
+                max_proton_p = p;
+                max_index = i;
+            }
+        }
+    }
+
+    if (max_index >= 0 && max_proton_p > 0) {
+        cos_proton = pz[max_index] / max_proton_p;
+    }
+
+    return cos_proton;
+    """)
+
+
+    
+    return df
 
 def DefineEvis(df):
     # Define Evis_1 where EavAlt = q0 - KE(neutrons) - mass(pions)
@@ -472,6 +513,15 @@ def SaveOverlapPlot(histlist, AxisInfo, Legend, save_path, hist_max=None, Normal
 
     # saves hist to a specific directory 
     c.SaveAs(f"{HOME}/{save_path}")
+    
+def HistoErrorBars(hist):
+    """
+    Ensures proper treatment of errors for a histogram.
+    For weighted histograms, this will store sum of weights squared.
+    """
+    hist.Sumw2()  # Tells ROOT to store sum of weights^2 per bin
+    return hist
+
 
 if __name__=="__main__":
     # Test functions in this area

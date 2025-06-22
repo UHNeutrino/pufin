@@ -89,18 +89,20 @@
     "1DSame":
         {
             "Bool": true,
-            "EvisB": true,
+            "EvisB": false,
+            "KinematicsB": false,
             "Gen": "GenieN24",
             "Fluxes": ["flatf1M", "NOvAflux"],
             "Cut": "Mode == 1",
-            "Var": "W",
-            "AxisInfo": "W, (GeV), Probability, ,W for QE events", //#delta P_{T}
-            "Bins": [150, 0, 3],
+            "Var": "CosLep",
+            "AxisInfo": "Cos #theta_{#mu}, , Probability, ,Cos #theta_{#mu} for QE events", //#delta P_{T}
+            "Bins": [48, -1.2, 1.2],
             "Save": "t2k-nova/plots_validation/QE", 
-            "Name": "W_N24",
+            "Name": "CosLep_N24_EB",
             "Ext": "png",
             "Norm": true,
             "logz": false,
+            "ErrorBars": true,
             "max": -1,
             "Plots": [
             {

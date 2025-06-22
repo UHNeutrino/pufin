@@ -121,17 +121,22 @@ if same1D["Bool"]:
     plots_list = same1D["Plots"]
     hist_dict = {}
     hist_rdfs = []  # Keep these alive to avoid ROOT segfaults
-
+        
     AxisInfo = same1D["AxisInfo"].split(",")
     BinL = same1D["Bins"]
     xvar, xunit, yvar, yunit, PlotTitle = AxisInfo
 
     c = ROOT.TCanvas()
+    c.SetLeftMargin(0.18)
+    c.SetBottomMargin(0.12)
     ROOT.gStyle.SetOptStat(0)
-    legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79)
+    #legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79) ## most plots
+    legend = ROOT.TLegend(0.3, 0.6, 0.59, 0.79) ## better for cos theta plots
     
     norm = same1D.get("Norm")
     logz = same1D.get("logz")
+    kin = same1D.get("KinematicsB", False)
+    Evis = same1D.get("EvisB", False)
 
     for plot in plots_list:
         key = plot["Key"]
@@ -150,9 +155,10 @@ if same1D["Bool"]:
         print(f"Processing {file_path}")
 
         df = pp.CreateDataFrame(file_path, same1D["Cut"])
-        if same1D["EvisB"]:
+        if Evis:
             df = pp.DefineEvis(df)
-
+        if kin:
+            df = pp.DefineKinematics(df)
         if reweight_flag:
             if spline:
                 df = pp.defineWeightsSpline(df, rw_file, rw_flux)
@@ -170,25 +176,22 @@ if same1D["Bool"]:
 
         hist_rdfs.append(rdf_hist)  # Keep RDF object alive
         hist = rdf_hist.GetValue()
+        pp.HistoErrorBars(hist)
         if norm and hist.Integral() != 0:
             hist.Scale(1.0 / hist.Integral())
-
-
-        #hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
-        #fileN = f"{key}_{same1D['Name']}"
-        #fileN = fileN.replace(" ", "-")
         hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
         
         color = getattr(ROOT, color_str.split("+")[0]) + int(color_str.split("+")[1]) if "+" in color_str else getattr(ROOT, color_str)
         hist.SetLineColor(color)
         hist.SetLineWidth(1)
 
-        draw_opt = "HIST" if len(hist_dict) == 0 else "HIST SAME"
+        if same1D["ErrorBars"]:
+            draw_opt = "HIST E1" if len(hist_dict) == 0 else "HIST E1 SAME"
+        else:
+            draw_opt = "HIST" if len(hist_dict) == 0 else "HIST SAME"
         hist.Draw(draw_opt)
         legend.AddEntry(hist, label, "l")
         hist_dict[key] = hist
-
-    sf.formatTcanvasSame(c)
     if logz:
         c.SetLogz()
     legend.Draw("SAME")
