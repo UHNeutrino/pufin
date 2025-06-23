@@ -228,12 +228,6 @@ def Savehist(hist, AxisInfo, save_location, filename, ext, max = 0, Normalize = 
     if Normalize:
        scale = 1/(hist.Integral())
        hist.Scale(scale)
-
-    # elif Normalize == 2:
-    #     #hist.SetMinimum(1)
-    #     hist.SetMaximum(max)
-    #     c.SetLogz()
-
     SF.formatTcanvas(hist,c)
     c.SaveAs(f"{HOME}/{save_location}/{filename}.{ext}")
 

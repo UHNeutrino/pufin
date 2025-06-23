@@ -27,7 +27,8 @@
         {
             "Bool": true,
             "EvisB": false,
-            "reWeight":[false, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],            "Gen":"NEUT5.9",
+            "reWeight":[false, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],
+            "Gen":"NEUT5.9",
             "Flux":"flatf_",
             "Type":"2D",
             // Specify the cut for the dataframe. For no cuts, type "None"

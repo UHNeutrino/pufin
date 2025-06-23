@@ -19,6 +19,8 @@ overlap = data.get("overlap")
 
 if (plots["Bool"]):
     root_files = glob.glob(userFolder + f'/*{plots["Gen"]}*{plots["Flux"]}*.root')
+    if root_files == []:
+        print("NO such root files")
 
     for file_path in root_files:
         file_name = file_path.split('/')[-1]
@@ -63,6 +65,9 @@ if (plots["Bool"]):
 
 if (stacks["Bool"]):
     root_files = glob.glob(userFolder + f'/*{stacks["Gen"]}*{stacks["Flux"]}*.root')
+    if root_files == []:
+        print("NO such root files")
+
     for file_path in root_files:
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
@@ -91,6 +96,9 @@ if (stacks["Bool"]):
 
 if (overlap["Bool"]):
     root_files = glob.glob(userFolder + f'/*{overlap["Gen"]}*{overlap["Flux"]}*.root')
+    if root_files == []:
+        print("NO such root files")
+        
     for file_path in root_files:
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
