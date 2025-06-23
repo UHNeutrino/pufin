@@ -6,16 +6,17 @@ import ParticlePlots as pp
 import SetupFunctions as sf
 import glob
 
-
+HOME = os.getenv("HOME", "/home/lboe")
 sf.setupRoot
 userFolder = f"/data/t2k-nova/FlatTrees"
-f = open('/home/lboe/t2k-nova/main.json5')
+f = open(f'{HOME}/t2k-nova/main.json5')
 data = json5.load(f)
 
 quantiles = data.get("quantiles")
 plots = data.get("plots")
 stacks = data.get("stacks")
 overlap = data.get("overlap")
+same1D = data.get("1DSame")
 
 if (plots["Bool"]):
     root_files = glob.glob(userFolder + f'/*{plots["Gen"]}*{plots["Flux"]}*.root')
@@ -123,3 +124,85 @@ if (overlap["Bool"]):
         histlist = pp.overlapPlots(df, overlap["Var1"], histInfo, cuts, colors)
         save_L = overlap["Save"] + generator + '-' + flux + overlap["Name"] + "." +overlap["Ext"]
         pp.SaveOverlapPlot(histlist, AxisInfo, Legend,save_L, Normalize=overlap["Norm"])
+        
+if same1D["Bool"]:
+    plots_list = same1D["Plots"]
+    hist_dict = {}
+    hist_rdfs = []  # Keep these alive to avoid ROOT segfaults
+        
+    AxisInfo = same1D["AxisInfo"].split(",")
+    BinL = same1D["Bins"]
+    xvar, xunit, yvar, yunit, PlotTitle = AxisInfo
+
+    c = ROOT.TCanvas()
+    c.SetLeftMargin(0.18)
+    c.SetBottomMargin(0.12)
+    ROOT.gStyle.SetOptStat(0)
+    #legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79) ## most plots
+    legend = ROOT.TLegend(0.3, 0.6, 0.59, 0.79) ## better for cos theta plots
+    
+    norm = same1D.get("Norm")
+    logz = same1D.get("logz")
+    kin = same1D.get("KinematicsB", False)
+    Evis = same1D.get("EvisB", False)
+
+    for plot in plots_list:
+        key = plot["Key"]
+        color_str = plot["Color"]
+        label = plot["Label"]
+        reweight_flag, rw_file, rw_flux = plot["reWeight"]
+        spline = plot["Spline"]
+
+        # Find matching file
+        matches = glob.glob(f"{userFolder}/*{key}*.root")
+        if not matches:
+            print(f"No file found for key: {key}")
+            continue
+
+        file_path = matches[0]
+        print(f"Processing {file_path}")
+
+        df = pp.CreateDataFrame(file_path, same1D["Cut"])
+        if Evis:
+            df = pp.DefineEvis(df)
+        if kin:
+            df = pp.DefineKinematics(df)
+        if reweight_flag:
+            if spline:
+                df = pp.defineWeightsSpline(df, rw_file, rw_flux)
+            else:
+                df = pp.defineWeights(df, rw_file, rw_flux)
+            weight_col = "weights"
+        else:
+            weight_col = ""
+
+        histInfo = ("name", f"hist_{key}", BinL[0], BinL[1], BinL[2])
+        if weight_col:
+            rdf_hist = df.Histo1D(histInfo, same1D["Var"], weight_col)
+        else:
+            rdf_hist = df.Histo1D(histInfo, same1D["Var"])
+
+        hist_rdfs.append(rdf_hist)  # Keep RDF object alive
+        hist = rdf_hist.GetValue()
+        pp.HistoErrorBars(hist)
+        if norm and hist.Integral() != 0:
+            hist.Scale(1.0 / hist.Integral())
+        hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
+        
+        color = getattr(ROOT, color_str.split("+")[0]) + int(color_str.split("+")[1]) if "+" in color_str else getattr(ROOT, color_str)
+        hist.SetLineColor(color)
+        hist.SetLineWidth(1)
+
+        if same1D["ErrorBars"]:
+            draw_opt = "HIST E1" if len(hist_dict) == 0 else "HIST E1 SAME"
+        else:
+            draw_opt = "HIST" if len(hist_dict) == 0 else "HIST SAME"
+        hist.Draw(draw_opt)
+        legend.AddEntry(hist, label, "l")
+        hist_dict[key] = hist
+    if logz:
+        c.SetLogz()
+    legend.Draw("SAME")
+
+    outname = f"{HOME}/{same1D['Save']}/{same1D['Name']}.{same1D['Ext']}"
+    c.SaveAs(outname)
