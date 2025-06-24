@@ -90,15 +90,15 @@
         {
             "Bool": true,
             "EvisB": false,
-            "KinematicsB": false,
-            "Gen": "GenieN24",
-            "Fluxes": ["flatf1M", "NOvAflux"],
+            "KinematicsB":false,
+            "Gen": "NEUT5.9",
+            "Fluxes": ["flatf_", "T2KF"],
             "Cut": "Mode == 1",
-            "Var": "CosLep",
-            "AxisInfo": "Cos #theta_{#mu}, , Probability, ,Cos #theta_{#mu} for QE events", //#delta P_{T}
-            "Bins": [48, -1.2, 1.2],
-            "Save": "t2k-nova/plots_validation/QE", 
-            "Name": "CosLep_N24_EB",
+            "Var": "PLep",
+            "AxisInfo": "P_{#mu}, , Probability, ,P_{#mu} for QE events", //#delta P_{T}
+            "Bins": [100, 0, 5],
+            "Save": "t2k-nova/6-23-25", 
+            "Name": "PLep_T2K",
             "Ext": "png",
             "Norm": true,
             "logz": false,
@@ -106,15 +106,15 @@
             "max": -1,
             "Plots": [
             {
-            "Key": "GenieN24_flatf1M",
-            "Label": "GenieN24 flat flux: NOvA weight",
+            "Key": "NEUT5.9_flatf_",
+            "Label": "NEUT5.9 flat flux: T2K weight",
             "Color": "kBlue",
-            "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
+            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu"],
             "Spline":true
             },
             {
-            "Key": "GenieN24_NOvAflux",
-            "Label": "GenieN24 NOvA flux",
+            "Key": "NEUT5.9_T2KF",
+            "Label": "NEUT5.9 T2K flux",
             "Color": "kOrange+2",
             "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
             "Spline":true

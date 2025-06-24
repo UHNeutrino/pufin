@@ -271,8 +271,6 @@ def Savehist(hist, AxisInfo, save_location, filename, ext, max = 0, Normalize = 
        hist.Scale(scale)
     SF.formatTcanvas(hist,c)
     c.SaveAs(f"{HOME}/{save_location}/{filename}.{ext}")
-
-
     
 
 def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, max=None, Normalize=0):
@@ -455,6 +453,49 @@ def defineWeightsSpline(df, rwRootFile, histName):
 
     return df
 
+def defineSplineTest(df, rwRootFile, histName):
+    flux_file = ROOT.TFile.Open(rwRootFile)
+    hist = flux_file.Get(histName)  
+    hist.SetDirectory(0)  
+    flux_file.Close()
+
+    n_points = hist.GetNbinsX()
+    graph = ROOT.TGraph(n_points)
+
+    for i in range(1, n_points + 1):
+        x = hist.GetBinCenter(i)
+        y = hist.GetBinContent(i)
+        graph.SetPoint(i - 1, x, y)
+
+   # Create TSpline3 from the graph
+    spline = ROOT.TSpline3("flux_spline", graph)
+
+    # Bind spline as a global C++ object
+    # ROOT.gROOT.ProcessLine("TSpline3* g_fluxSpline = nullptr;")
+    # ROOT.gROOT.ProcessLine("g_fluxSpline = new TSpline3();")  # placeholder
+    # ROOT.g_fluxSpline = spline
+
+    c1 = ROOT.TCanvas("c1", "Flux Histogram and Spline", 800, 600)
+
+    hist.GetXaxis().SetRangeUser(0.0, 5.0)  # Set your desired range here
+
+    # Draw the histogram first
+    hist.SetLineColor(ROOT.kRed)
+    hist.SetMarkerStyle(20)
+    hist.Draw("HIST")  # E1 = error bars with markers
+
+    # Draw the spline on top
+    spline.SetLineColor(ROOT.kBlue)
+    spline.SetLineWidth(2)
+    spline.Draw("L SAME")  # L = line, SAME = overlay
+    hist.GetXaxis().SetTitle("Neutrino Energy (GeV)")
+    hist.GetYaxis().SetTitle("Flux Weight")
+
+    c1.BuildLegend()
+    hist.SetTitle("T2K Flux Spline vs Points")
+    c1.Update()
+    c1.SaveAs("/home/lboe/t2k-nova/6-23-25/flux_spline_comparison2.png")
+
 def overlapPlots(df, x, histInfo, cuts, colors):
     histlist = []
     for i in range(len(cuts)):
@@ -526,9 +567,9 @@ if __name__=="__main__":
     AxisInfo = ['E#nu_{true}', '(GeV)','counts', '',"test"]
     histInfo = ("name",f"{y} vs {x} plot",250,0,5)
     df = CreateDataFrame(file_path, "None")
-    df = defineWeights(df, "/data/t2k-nova/fluxes/mono_energetic_flux_3.0GeV_v2.root","h1")
-    hist  = df.Histo1D(histInfo,x,"weights")
-    Savehist(hist,AxisInfo,"t2k-nova","Test2","png")
+    defineSplineTest(df, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu")
+    # hist  = df.Histo1D(histInfo,x,"weights")
+    # Savehist(hist,AxisInfo,"t2k-nova","Test2","png")
     # x = 'W'
     # y = 'Q2'
     # AxisInfo = ['W', '(GeV)','Q^{2}', '(GeV)^{2}']

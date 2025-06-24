@@ -125,7 +125,7 @@ if (overlap["Bool"]):
         save_L = overlap["Save"] + generator + '-' + flux + overlap["Name"] + "." +overlap["Ext"]
         pp.SaveOverlapPlot(histlist, AxisInfo, Legend,save_L, Normalize=overlap["Norm"])
         
-if same1D["Bool"]:
+if (same1D["Bool"]):
     plots_list = same1D["Plots"]
     hist_dict = {}
     hist_rdfs = []  # Keep these alive to avoid ROOT segfaults
