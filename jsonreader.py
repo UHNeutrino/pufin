@@ -5,6 +5,7 @@ import datetime
 import ParticlePlots as pp 
 import SetupFunctions as sf
 import glob
+import array
 
 HOME = os.getenv("HOME", "/home/lboe")
 sf.setupRoot
@@ -138,15 +139,16 @@ if (same1D["Bool"]):
     c.SetLeftMargin(0.18)
     c.SetBottomMargin(0.12)
     ROOT.gStyle.SetOptStat(0)
-    #legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79) ## most plots
-    legend = ROOT.TLegend(0.3, 0.6, 0.59, 0.79) ## better for cos theta plots
+    legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79) ## most plots
+    # legend = ROOT.TLegend(0.3, 0.6, 0.59, 0.79) ## better for cos theta plots
     
     norm = same1D.get("Norm")
     logz = same1D.get("logz")
     kin = same1D.get("KinematicsB", False)
     Evis = same1D.get("EvisB", False)
-
+    histCounter = 0
     for plot in plots_list:
+        
         key = plot["Key"]
         color_str = plot["Color"]
         label = plot["Label"]
@@ -176,7 +178,17 @@ if (same1D["Bool"]):
         else:
             weight_col = ""
 
+        bins = array.array('d',same1D["VBins"][1])
+
         histInfo = ("name", f"hist_{key}", BinL[0], BinL[1], BinL[2])
+        # print("bins")
+        # print(bins)
+        # print("nbins")
+        # print(len(bins) - 1)
+        varBinInfo = ROOT.RDF.TH1DModel("h_varbins", f"hist_{key}", len(bins) - 1, bins)
+
+        if same1D["VBins"][0]:
+            histInfo = varBinInfo
         if weight_col:
             rdf_hist = df.Histo1D(histInfo, same1D["Var"], weight_col)
         else:
@@ -192,6 +204,9 @@ if (same1D["Bool"]):
         color = getattr(ROOT, color_str.split("+")[0]) + int(color_str.split("+")[1]) if "+" in color_str else getattr(ROOT, color_str)
         hist.SetLineColor(color)
         hist.SetLineWidth(1)
+        if (histCounter == 0):
+            hist.SetLineWidth(2)
+        # ^This could be better
 
         if same1D["ErrorBars"]:
             draw_opt = "HIST E1" if len(hist_dict) == 0 else "HIST E1 SAME"
@@ -200,6 +215,7 @@ if (same1D["Bool"]):
         hist.Draw(draw_opt)
         legend.AddEntry(hist, label, "l")
         hist_dict[key] = hist
+        histCounter += 1
     if logz:
         c.SetLogz()
     legend.Draw("SAME")
