@@ -44,4 +44,56 @@
             "max": 0, 
             "logz": false
         },
+        "1DSame":
+        {
+            "Bool": true,
+            "EvisB": false,
+            "KinematicsB":false,
+            "Cut": "Mode == 1",
+            "Var": "q0",
+            // "AxisInfo": "Q^{2}, (GeV), Probability, ,Q^{2} for QE events", //Q2
+            "AxisInfo": "Energy Deposition (q0), GeV, Probability, , Momentum deposition for QE events", //PLep
+            "Bins": [40, 0, 2],
+            //If VBins is true, treats the second element as bin edges
+            "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
+            "Save": "t2k-nova/7-1-25", 
+            "Name": "q0_NEUT_models",
+            "Ext": "png",
+            "Norm": true,
+            "logz": false,
+            "ErrorBars": true,
+            "max": -1,
+            "Plots": [
+            {
+            "Key": "flat_NEUT5.9_Flat1p1hLS_5e6",
+            "Label": "NEUT5.9 Flat Flux Lewellyn Smith",
+            "Color": "kBlue",
+            "reWeight":[false, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu"],
+            "Spline":true
+            },
+            // {
+            // "Key": "Flat_GenieN24_flatf1M_1e6",
+            // "Label": "GeineG18 Flat Flux Lewellyn Smith",
+            // "Color": "kOrange",
+            // "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
+            // "Spline":true
+            // }
+            // ,
+            // {
+            // "Key": "flat_NEUT5.9_Flat1p1hNSM_5e6",
+            // "Label": "NEUT5.9 Flat Flux Nieves",
+            // "Color": "kOrange+2",
+            // "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
+            // "Spline":true
+            // }
+            // ,
+            // {
+            // "Key": "Flat_GenieG18_Full-Spectrum_1e6",
+            // "Label": "GeineG18 Flat Flux Nieves",
+            // "Color": "kOrange+2",
+            // "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
+            // "Spline":true
+            // }
+            ]
+        }
 }

@@ -165,6 +165,13 @@ if (same1D["Bool"]):
         print(f"Processing {file_path}")
 
         df = pp.CreateDataFrame(file_path, same1D["Cut"])
+        unfiltered = df.Count().GetValue()
+        df = df.Filter("Enu_true < 8.0 ")
+        frakLost = 1.0 - df.Count().GetValue()/unfiltered
+        print(f"Fraction lost from E Nu cut: {frakLost}")
+        print(f"Events lost from E Nu cut: {unfiltered - df.Count().GetValue()}")
+        print(f'Total Events {df.Count().GetValue()}')
+
         if Evis:
             df = pp.DefineEvis(df)
         if kin:
