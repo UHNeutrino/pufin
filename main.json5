@@ -1,26 +1,31 @@
 {
     "quantiles":
         {
-            "Bool":false,
-            "x1": "q3", 
-            "y1": "q0", 
-            "x2": "PProton1",
-            "y2": "CosProton",
-            "x2Label": "Leading Proton",
-            "y2Label": "Cos #theta",
+            "Bool": true,
+            "x1": "q0", 
+            "y1": "q3", 
 
+            "y2": "CosLep",
+            "x2": "PLep",
+            "xLabel": "#mu",
+            "yLabel": "Cos #theta",
+
+            "cut": "flagCC0pi == 0 && (Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)",
+            "mode_label": "CC1Pi",
+            "mode_title": "CC1Pi",
 
             "zaxis": true,
             "Norm": false,
-            "max": 1000, 
+            "max": 10000, // Choose max value integer (w/out quotation marks) or "None" (use quotation marks)
             "logz": true,
-
-            "cut": "flagCC0pi == 1 && Mode ==2",
-            "mode_label": "CC0Pi&2P2H",
-            "mode_title": "CC0Pi + 2P2H",
-        
-            "plot_type": "segments"
-            },
+            "plot_type": "segments",  // "grid" or "segments"
+            "Save": "t2k-nova",
+            "AutoNameB": true,
+            "Name": "test2",
+            "AutoTitleB": true,
+            "Title": "Lalala",
+            "Ext": "png"
+        },
     "plots":
         {
             "Bool": false,
@@ -88,20 +93,19 @@
         },
     "1DSame":
         {
-            "Bool": true,
+            "Bool": false,
             "EvisB": false,
-            "KinematicsB":false,
-            "Gen": "NEUT5.9",
-            "Fluxes": ["flatf_", "T2KF"],
-            "Cut": "Mode == 1 && CosLep > 0.95",
+            "KinematicsB": false,
+            "Gen": "GenieN24",
+            "Fluxes": ["flatf1M", "NOvAflux"],
+            "Cut": "Mode == 1",
             "Var": "PLep",
-            // "AxisInfo": "Q^{2}, (GeV), Probability, ,Q^{2} for QE events", //Q2
-            "AxisInfo": "P_{#mu}, (GeV), Probability, ,P_{#mu} for QE events with Cos#theta_{#mu} > 0.95", //PLep
-            "Bins": [40, 0, 2],
+            "AxisInfo": "P_{#mu},(GeV/c) , Probability, ,P_{#mu} for QE events", //#delta P_{T}
+            "Bins": [50, 0, 5],
             //If VBins is true, treats the second element as bin edges
             "VBins": [true,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,9,10]],
-            "Save": "t2k-nova/6-23-25", 
-            "Name": "PLep_T2K_Comp_HighCos",
+            "Save": "t2k-nova", //"t2k-nova/plots_validation/QE"
+            "Name": "test_N24_EB",
             "Ext": "png",
             "Norm": true,
             "logz": false,
