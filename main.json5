@@ -13,6 +13,7 @@
             "cut": "flagCC0pi == 0 && (Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)",
             "mode_label": "CC1Pi",
             "mode_title": "CC1Pi",
+            "max_energy": 8,
 
             "zaxis": true,
             "Norm": false,
@@ -21,7 +22,7 @@
             "plot_type": "segments",  // "grid" or "segments"
             "Save": "t2k-nova",
             "AutoNameB": true,
-            "Name": "test2",
+            "Name": "test",
             "AutoTitleB": true,
             "Title": "Lalala",
             "Ext": "png"

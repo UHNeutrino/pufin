@@ -60,7 +60,7 @@ def constant_event_binning(x, y, file_path, Mode = None):
     treeName = "FlatTree_VARS"
     df = ROOT.RDataFrame(treeName, fileName)
 
-    histogramInfo = ("name", f"{y} vs {x} plot", 1000000, 0, 3, 1, 0, 3) #just need 1 bin in y
+    histogramInfo = ("name", f"{y} vs {x} plot", 1000000, 0, max_energy, 1, 0, max_energy) #just need 1 bin in y
 
 
     # Select Mode
@@ -433,7 +433,7 @@ def PlotSegments(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mod
     return cos_proton;
     """)
     
-    histInfo = (f"Full {slice} Spectrum_{total_events}", f"{y2} vs {x2} {cut} plot", 60, 0, 3.3, 102, -1.02, 1.02)
+    histInfo = (f"Full {slice} Spectrum_{total_events}", f"{y2} vs {x2} {cut} plot", 60, 0, max_energy, 102, -1.02, 1.02)
     hist_AllEvents = df1.Histo2D(histInfo,x2,y2)
     cAllEvents = ROOT.TCanvas()
     
@@ -460,7 +460,7 @@ def PlotSegments(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mod
         lower_bound = x_bins[i]
         upper_bound = x_bins[i + 1]
         title = f"{slice} range: {lower_bound:.2f} to {upper_bound:.2f} GeV_{event_counts[i]}"
-        histInfo = (f"{title}", f"{y2} vs {x2} plot", 60, 0, 3.3, 102, -1.02, 1.02)
+        histInfo = (f"{title}", f"{y2} vs {x2} plot", 60, 0, max_energy, 102, -1.02, 1.02)
         hist = PlotQuantiles(x2, y2, histInfo, file_path=file_path, df=df, title = title, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label)
         histos.append(hist)
     
@@ -509,7 +509,7 @@ def PlotGrid(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_la
 
 
             title = f"Grid{i+1}_{j+1}_{x1}_{x_lower_bound:.2f}-{x_upper_bound:.2f}_{y1}_{y_lower_bound}-{y_upper_bound}"
-            histInfo = (f"Full {slice} Spectrum_{total_events}", f"{y2} vs {x2} {cut} plot", 60, 0, 3.3, 102, -1.02, 1.02)
+            histInfo = (f"Full {slice} Spectrum_{total_events}", f"{y2} vs {x2} {cut} plot", 60, 0, max_energy, 102, -1.02, 1.02)
             hist = PlotQuantiles(x2, y2, histInfo, file_path=file_path, df=quantile_dfs[k], title = title, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label)
             c = ROOT.TCanvas()
             ## add functions to grab scale, frequency, Normalize
