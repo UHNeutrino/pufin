@@ -1,26 +1,32 @@
 {
     "quantiles":
         {
-            "Bool":false,
-            "x1": "q3", 
-            "y1": "q0", 
-            "x2": "PProton1",
-            "y2": "CosProton",
-            "x2Label": "Leading Proton",
-            "y2Label": "Cos #theta",
+            "Bool": true,
+            "x1": "q0", 
+            "y1": "q3", 
 
+            "y2": "CosLep",
+            "x2": "PLep",
+            "xLabel": "#mu",
+            "yLabel": "Cos #theta",
+
+            "cut": "flagCC0pi == 0 && (Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)",
+            "mode_label": "CC1Pi",
+            "mode_title": "CC1Pi",
+            "max_energy": 8,
 
             "zaxis": true,
             "Norm": false,
-            "max": 1000, 
+            "max": 10000, // Choose max value integer (w/out quotation marks) or "None" (use quotation marks)
             "logz": true,
-
-            "cut": "flagCC0pi == 1 && Mode ==2",
-            "mode_label": "CC0Pi&2P2H",
-            "mode_title": "CC0Pi + 2P2H",
-        
-            "plot_type": "segments"
-            },
+            "plot_type": "segments",  // "grid" or "segments"
+            "Save": "t2k-nova",
+            "AutoNameB": true,
+            "Name": "test",
+            "AutoTitleB": true,
+            "Title": "Lalala",
+            "Ext": "png"
+        },
     "plots":
         {
             "Bool": false,
@@ -88,7 +94,7 @@
         },
     "1DSame":
         {
-            "Bool": true,
+            "Bool": false,
             "EvisB": false,
             "KinematicsB":false,
             "Cut": "Mode == 1",

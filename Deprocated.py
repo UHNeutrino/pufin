@@ -264,7 +264,8 @@ for file in root_files:
     AxisInfo = ['q_{3}', '(GeV)','q_{0}', '(GeV)']
     histInfo1 = ("name",f"{x} vs {y} plot",60,0,3,124,-0.2,6)
     histInfo2 = ("name",f"{x} vs {y} plot",60,0,3,60,0,3)
-    hist, path = pp.Plot1PI(x,y,histInfo1,file_path)
+    #hist, path = pp.Plot1PI(x,y,histInfo1,file_path)
+    hist, path = Plot1PI(x,y,histInfo1,file_path)
     pp.SavePlot(hist,"1PI_W_vs_Q2", AxisInfo, path)
     # hist, path = pp.Plot1PI(x,y,histInfo1,file_path)
     # pp.SavePlot(hist, "1PI_hist_max", AxisInfo, path, max = .035, Normalize=1)

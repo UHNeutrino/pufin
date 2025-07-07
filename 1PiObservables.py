@@ -11,14 +11,14 @@ ROOT.EnableImplicitMT()
 HOME = os.getenv("HOME", "/home/lboe")
 userFolder = f"/data/t2k-nova/FlatTrees"
 
-# Use this option to run 1 file (change file name):
-# root_files = glob.glob(userFolder + '/*NEUT_2.0GeV*.root')
+## Use this option to run 1 file (change file name):
+root_files = glob.glob(userFolder + '/*NOvAflux_1e6.root')
 
-# Use this option to run all files, or all files for a specific generator:
-montecarlo = input("Specify flux or generator: ")
-root_files = glob.glob(userFolder + f'/*{montecarlo}*.root')
+## Use this option to run all files, or all files for a specific generator:
+# montecarlo = input("Specify flux or generator: ")
+# root_files = glob.glob(userFolder + f'/*{montecarlo}*.root')
 
-# Use this option to run all files for a specific flux:
+## Use this option to run all files for a specific flux:
 # flux = input("Enter the flux of the root files you want to select: 0.5, 0.6, 0.7, 1.0, 1.5, 2.0, 3.0: ")
 # root_files = glob.glob(userFolder + f'/*{flux}*.root')
 
@@ -41,12 +41,12 @@ for file_path in root_files:
     flux = file_name.split('_')[2]
     # x_bins, total_events = pq.constant_event_binning(x, y, file_path, Mode = 
     # 1pi
-    plottitle = "W vs Q^{2} for 1Pi events at #nu_{E} =" + flux
-    histInfo = ("name",f"plop1",60,1.1,2.4,105,-0.1,5) ('Test Title', 'Test Title', 60.0, 1.1, 2.4, 105.0, -0.1, 5.0)
-    AxisInfo1 = ['W', '(GeV)','Q^{2}', '(GeV)^{2}', plottitle]
-    df1Pi= pp.CreateDataFrame(file_path, "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 ")
-    # hist2p_q = df1Pi.Histo2D(histInfo,'W','Q2')
-    df1Pi.Snapshot("main", "/home/lboe/t2k-nova/1Pi.root", ("W","Q2"))
+    # plottitle = "W vs Q^{2} for 1Pi events at #nu_{E} =" + flux
+    # histInfo = ("name",f"plop1",60,1.1,2.4,105,-0.1,5) ('Test Title', 'Test Title', 60.0, 1.1, 2.4, 105.0, -0.1, 5.0)
+    # AxisInfo1 = ['W', '(GeV)','Q^{2}', '(GeV)^{2}', plottitle]
+    # df1Pi= pp.CreateDataFrame(file_path, "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16 ")
+    # # hist2p_q = df1Pi.Histo2D(histInfo,'W','Q2')
+    # df1Pi.Snapshot("main", "/home/lboe/t2k-nova/1Pi.root", ("W","Q2"))
     # pp.Savehist(hist2p_q,AxisInfo1,"t2k-nova/1PiPlots",f"{generator}{flux}1PiWvQ2","pdf")
     
 
@@ -243,12 +243,12 @@ for file_path in root_files:
 
     
     # TKI 1D (Including Neutrons)
-    # plottitle = f"{generator}: #delta P_{{T}} for 1Pi events at #nu_{{E}} =" + flux
-    # histInfo2 = ("name",f"plop1",100,0,2.5)
-    # AxisInfo2 = ['#delta P_{T}', '(GeV/c)', '# of Events', '', plottitle]
-    # hist1_result = pp.Create1DHistogram(df1Pi, 'TKI_IN', histInfo2)
-    # hist1 = hist1_result.GetValue()
-    # pp.Savehist(hist1,AxisInfo2,"t2k-nova/1PiPlots",f"1Pi1DTKI_IN_{flux}_{generator}")
+    plottitle = f"{generator}: #delta P_{{T}} for 1Pi events at #nu_{{E}} =" + flux
+    histInfo2 = ("name",f"plop1",100,0,2.5)
+    AxisInfo2 = ['#delta P_{T}', '(GeV/c)', '# of Events', '', plottitle]
+    hist1_result = pp.Create1DHistogram(df1Pi, 'TKI_IN', histInfo2)
+    hist1 = hist1_result.GetValue()
+    pp.Savehist(hist1,AxisInfo2,"t2k-nova/1PiPlots",f"1Pi1DTKI_IN_{flux}_{generator}")
     
     # # TKI 2D (Omitting Neutrons)
     # plottitle = f"{generator}: #delta_pT vs P_{{#mu}} for 1Pi events at #nu_{{E}} =" + flux

@@ -140,7 +140,7 @@ if (same1D["Bool"]):
     c.SetBottomMargin(0.12)
     ROOT.gStyle.SetOptStat(0)
     legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79) ## most plots
-    # legend = ROOT.TLegend(0.3, 0.6, 0.59, 0.79) ## better for cos theta plots
+    #legend = ROOT.TLegend(0.3, 0.6, 0.59, 0.79) ## better for cos theta plots
     
     norm = same1D.get("Norm")
     logz = same1D.get("logz")
@@ -229,3 +229,8 @@ if (same1D["Bool"]):
 
     outname = f"{HOME}/{same1D['Save']}/{same1D['Name']}.{same1D['Ext']}"
     c.SaveAs(outname)
+    
+if (quantiles["Bool"]):
+    import PlotQuantiles as pq
+    pq.config = quantiles
+    exec(open("PlotQuantiles.py").read())
