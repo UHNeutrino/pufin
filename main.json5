@@ -1,7 +1,7 @@
 {
     "quantiles":
         {
-            "Bool": true,
+            "Bool": false,
             "x1": "q0", 
             "y1": "q3", 
 
@@ -29,25 +29,25 @@
         },
     "plots":
         {
-            "Bool": false,
+            "Bool": true,
             "EvisB": false,
-            "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
+            "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
             "Spline":true,
             "Gen":"GenieN24",
             "Flux":"flatf1M",
-            "Type":"1D",
+            "Type":"2D",
             // Specify the cut for the dataframe. For no cuts, type "None"
             "Cut": "flagCC0pi == 1 && Mode ==1", // "flagCC0pi == 1 && Mode ==2" "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16"
-            "Var1": "Enu_true",
-            "Var2": "",
-            "AxisInfo":"Enu, GeV, # of Events, , Enu QE Flat Flux NOvA Weight",
-            "Bins":[800,0,8],
+            "Var1": "q0",
+            "Var2": "q3",
+            "AxisInfo":"q3, GeV, q0, , test yes log z",
+            "Bins":[100,0,5,100,0,5],
             "Save": "t2k-nova/test",
-            "Name": "EnuQE",
+            "Name": "test",
             "Ext": "png",
             "Norm": false,
             "max": 0, 
-            "logz": false
+            "logz": true
         },
     "stacks":
         {
@@ -56,7 +56,7 @@
             "reWeight":[false, "/data/t2k-nova/fluxes/mono_energetic_flux_3.0GeV_v2.root","h1"],
             "Gen":"NEUT",
             "Flux":"flatf_",
-            "Type":"1D",
+            "Type":"1D", //Only 1D works
             "Cut": "None",
             "Var1": "Enu_true",
             "StackCuts":{"Mode == 1": "QE", "Mode == 2":"2p2h", "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16":"1Pi", "Mode == 26":"DIS"},
@@ -127,5 +127,27 @@
             "Spline":true
             }
             ]
+        },
+    "Contour":
+        {
+            "Bool":false,
+            "EvisB": false,
+            "reWeight":[false, "/data/t2k-nova/fluxes/mono_energetic_flux_3.0GeV_v2.root","h1"],
+            "Gen":"NEUT",
+            "Flux":"flatf_",
+            // "Type":"2D", Only 2D possible
+            "Cut": "None",
+            "Var1": "Enu_true",
+            "StackCuts":{"Mode == 1": "QE", "Mode == 2":"2p2h", "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16":"1Pi", "Mode == 26":"DIS"},
+            "Colors":"632, 416, 880, 800",
+            "AxisInfo":"E#nu True, GeV,counts, ,Flat Flux Mode Breakdown",
+            "Bins":[500,0,10,100,0,1],
+            "Save": "t2k-nova/test",
+            "Name": "ModeBreakdown",
+            "Ext": "png",
+            // THE FOLLOWING IS NOT WORKING
+            "Norm": false,
+            "max": 0, 
+            "logz": false
         }
 }

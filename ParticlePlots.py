@@ -253,7 +253,7 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
         return df
 
 
-def Savehist(hist, AxisInfo, save_location, filename, ext, max = 0, Normalize = False):
+def Savehist(hist, AxisInfo, save_location, filename, ext, max = 0, Normalize = False, logz = False):
     xvar = AxisInfo[0]
     xunit = AxisInfo[1]
     yvar = AxisInfo[2]
@@ -270,6 +270,9 @@ def Savehist(hist, AxisInfo, save_location, filename, ext, max = 0, Normalize = 
        scale = 1/(hist.Integral())
        hist.Scale(scale)
     SF.formatTcanvas(hist,c)
+    if logz:
+        c.SetLogz()
+
     c.SaveAs(f"{HOME}/{save_location}/{filename}.{ext}")
     
 

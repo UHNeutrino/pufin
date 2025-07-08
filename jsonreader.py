@@ -63,7 +63,7 @@ if (plots["Bool"]):
             x = str(nx)
             fileN = generator+flux+plots["Name"]+x
             fileN = fileN.replace(" ", "-")
-            pp.Savehist(hist,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"])
+            pp.Savehist(hist,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"])
 
 if (stacks["Bool"]):
     root_files = glob.glob(userFolder + f'/*{stacks["Gen"]}*{stacks["Flux"]}*.root')
