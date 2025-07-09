@@ -383,6 +383,64 @@ def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path, Normalize = 0)
 
     canvas.SaveAs(f"{HOME}/{save_path}")
 
+def PlotContEventCuts(df, x, y, histInfo, cuts):
+    histlist = []
+    if (df.HasColumn("weights")):
+        hist = df.Histo2D(histInfo,x,y,"weights")
+    else:
+        hist = df.Histo2D(histInfo,x,y)
+    th2d = hist.GetPtr()
+    histlist.append(th2d)
+
+    for i in range(len(cuts)):
+        modedf = df.Filter(f"{cuts[i]}")
+        if (df.HasColumn("weights")):
+            hist = modedf.Histo2D(histInfo,x,y,"weights")
+        else:
+            hist = modedf.Histo2D(histInfo,x,y)
+        th2d = hist.GetPtr()
+        # stack.Add(th2d)
+        histlist.append(th2d)
+        print(f"Plotting mode {cuts[i]}")
+
+    for hist in histlist[1:]:
+        hmax = hist.GetMaximum()
+        print(hmax)
+        for y in range(1,hist.GetNbinsY()+1):
+            for x in range(1,hist.GetNbinsX()+1):
+                if (hist.GetBinContent(x,y) > hmax *0.1):
+                    hist.SetBinContent(x,y,1)
+                else:
+                    hist.SetBinContent(x,y,0)
+
+    return histlist
+
+def SaveContHist(histlist, AxisInfo, Legend, colors, save_path):
+    ROOT.gStyle.SetOptStat(0)
+    ROOT.gStyle.SetPalette(52)
+    ROOT.TColor.InvertPalette()
+    canvas = ROOT.TCanvas("canvas", "Canvas for Contour Histograms", 1000, 600)
+    # Add legend
+    legend = ROOT.TLegend(0.7, 0.1, 0.9, 0.3)  # Define legend position
+    histlist[0].GetXaxis().SetTitle(AxisInfo[0]+ AxisInfo[1])
+    histlist[0].GetYaxis().SetTitle(AxisInfo[2]+ AxisInfo[3])
+    histlist[0].SetTitle(AxisInfo[4])
+    histlist[0].Draw("COLZ")  # "HIST" option tells ROOT to draw the histograms
+    canvas.SetLogz()
+
+    # legend.AddEntry(histlist[0], f"{Legend[0]}", "f")
+    for i in range(0, len(Legend)):
+        histlist[i+1].SetLineColor(colors[i])
+        histlist[i+1].SetFillStyle(0)
+        histlist[i+1].Draw("CONT3 SAME")  # "HIST" option tells ROOT to draw the histograms
+        legend.AddEntry(histlist[i+1], f"{Legend[i]}", "l")
+    
+    legend.Draw()
+
+    canvas.SaveAs(f"{HOME}/{save_path}")
+
+
+
 def DrawXLines(hist, x_bins, y_max):
     c = ROOT.TCanvas()
     SF.formatTcanvas(hist,c)

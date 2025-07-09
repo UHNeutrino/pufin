@@ -18,6 +18,7 @@ plots = data.get("plots")
 stacks = data.get("stacks")
 overlap = data.get("overlap")
 same1D = data.get("1DSame")
+Contour = data.get("Contour")
 
 if (plots["Bool"]):
     root_files = glob.glob(userFolder + f'/*{plots["Gen"]}*{plots["Flux"]}*.root')
@@ -234,3 +235,36 @@ if (quantiles["Bool"]):
     import PlotQuantiles as pq
     pq.config = quantiles
     exec(open("PlotQuantiles.py").read())
+
+if (Contour["Bool"]):
+    root_files = glob.glob(userFolder + f'/*{Contour["Gen"]}*{Contour["Flux"]}*.root')
+    if root_files == []:
+        print("NO such root files")
+
+    for file_path in root_files:
+        if(Contour["reWeight"][0]):
+            df = pp.defineWeightsSpline(df,Contour["reWeight"][1],Contour["reWeight"][2])
+        file_name = file_path.split('/')[-1]
+        generator = file_name.split('_')[1]
+        flux = file_name.split('_')[2]
+        df = pp.CreateDataFrame(file_path, Contour["Cut"])
+        BinL = Contour["Bins"]
+        AxisInfo = []
+        cuts = []
+        Legend = []
+        colors = []
+        if(Contour["EvisB"]):
+            df = pp.DefineEvis(df)
+        for word in Contour["AxisInfo"].split(','):
+                AxisInfo.append(word)
+        for cut,name in Contour["ConCuts"].items():
+            cuts.append(cut)
+            Legend.append(name)
+        for num in Contour["Colors"].split(","):
+            colors.append(int(num))
+        print(colors)
+        histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
+        print(AxisInfo)
+        histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts)
+        save_L = Contour["Save"] + generator + '-' + flux + Contour["Name"] + "." +Contour["Ext"]
+        pp.SaveContHist(histlist, AxisInfo, Legend, colors, save_L)
