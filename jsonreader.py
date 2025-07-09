@@ -257,9 +257,49 @@ if (Contour["Bool"]):
             df = pp.DefineEvis(df)
         for word in Contour["AxisInfo"].split(','):
                 AxisInfo.append(word)
-        for cut,name in Contour["ConCuts"].items():
-            cuts.append(cut)
-            Legend.append(name)
+
+        if Contour["AutoQuant"][0]:
+            x = Contour["AutoQuant"][1]
+            y = Contour["AutoQuant"][2]
+            # Get the total number of events
+            histogramInfo = ("name", f"{y} vs {x} plot", 1000000, 0, 8, 1, 0, 8) #just need 1 bin in y
+            cuthist = df.Histo2D(histogramInfo, x,y)
+            total_events = int(cuthist.Integral())
+            # print(f"Total events: {total_events}")
+            # Define cumulative events array
+            cumulative_events = [0]
+            for i in range(1, cuthist.GetNbinsX() + 1):
+                bin_total = sum(cuthist.GetBinContent(i, j) for j in range(1, cuthist.GetNbinsY() + 1))
+                cumulative_events.append(cumulative_events[-1] + bin_total)
+
+            # Now that we have cumulative events, let's split them into 5 sections
+            x_bins = [0]  # Start at 0
+            target_events_per_section = total_events / 5
+
+            for i in range(1, 5):  # Divide into 5 sections
+                target = i * target_events_per_section
+                # Find the first bin index where the cumulative event count exceeds the target
+                bin_idx = min(range(len(cumulative_events)), key=lambda idx: abs(cumulative_events[idx] - target))
+                x_bin_edge = cuthist.GetXaxis().GetBinLowEdge(bin_idx)
+                x_bins.append(x_bin_edge)
+            # Add the final bin edge to ensure full coverage
+            x_bins.append(cuthist.GetXaxis().GetXmax())
+            for i in range(len(x_bins) - 1):
+                lower_bound = x_bins[i]
+                upper_bound = x_bins[i + 1]
+
+                # Define a filter string for the current quantile
+                cuts.append(f"{lower_bound} <= {x} && {x} < {upper_bound}")
+                Legend.append(f" {lower_bound} <= {x} < {upper_bound}")
+            print(cuts)
+            print(Legend)
+
+        else:
+            for cut,name in Contour["ConCuts"].items():
+                cuts.append(cut)
+                Legend.append(name)
+            
+        
         for num in Contour["Colors"].split(","):
             colors.append(int(num))
         print(colors)
