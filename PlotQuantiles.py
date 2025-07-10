@@ -53,12 +53,7 @@ def visualize_segements(hist, file_path, x_bins = None,  y_bins = None):
             line_list2[-1].Draw()  
         c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_grid_{Name}.png")  
 
-def constant_event_binning(x, y, file_path, Mode = None):
-    # First get the data into a dataframe
-    dir_location = file_path
-    fileName = f"{dir_location}"
-    treeName = "FlatTree_VARS"
-    df = ROOT.RDataFrame(treeName, fileName)
+def constant_event_binning(x, y, df, Mode = None):
 
     histogramInfo = ("name", f"{y} vs {x} plot", 1000000, 0, max_energy, 1, 0, max_energy) #just need 1 bin in y
 
@@ -100,52 +95,12 @@ def constant_event_binning(x, y, file_path, Mode = None):
 
     return x_bins, total_events
 
-def quantile_cutting(x, x_bins, file_path, cut):
+def quantile_cutting(x, x_bins, df, cut):
     
     """
     Returns:
     - A list of filtered RDataFrames, one for each quantile.
     """
-    dir_location = file_path
-    fileName = f"{dir_location}"
-    treeName = "FlatTree_VARS"  
-    # Get each quantile into a separate dataframe
-    df = ROOT.RDataFrame(treeName, fileName)
-    df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
-    
-    df = df.Define("PProton1", """
-    double max_proton_p = -1.0; // Initialize to a negative value
-    for (size_t i = 0; i < pdg.size(); ++i) {
-        if (pdg[i] == 2212) { // Proton
-            double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
-            if (p_magnitude > max_proton_p) {
-                max_proton_p = p_magnitude;
-            }
-        }
-    }
-    return max_proton_p;
-    """)
-    df = df.Define("CosProton", """
-    double cos_proton = -5.0;
-    double max_proton_p = -1.0;
-    int max_index = -1;
-
-    for (size_t i = 0; i < pdg.size(); ++i) {
-        if (pdg[i] == 2212) {
-            double p = std::sqrt(px[i]*px[i] + py[i]*py[i] + pz[i]*pz[i]);
-            if (p > max_proton_p) {
-                max_proton_p = p;
-                max_index = i;
-            }
-        }
-    }
-
-    if (max_index >= 0 && max_proton_p > 0) {
-        cos_proton = pz[max_index] / max_proton_p;
-    }
-
-    return cos_proton;
-    """)
 
     df_filtered = df.Filter(cut)
 
@@ -168,52 +123,11 @@ def quantile_cutting(x, x_bins, file_path, cut):
     
     return quantile_dfs
 
-def grid_cutting(x, y, x_bins, y_bins, file_path, cut):
+def grid_cutting(x, y, x_bins, y_bins, df, cut):
     """
     Returns:
     - A list of filtered RDataFrames, one for each grid.
     """
-    dir_location = file_path
-    fileName = f"{dir_location}"
-    treeName = "FlatTree_VARS"  
-    # Get each quantile into a separate dataframe
-    df = ROOT.RDataFrame(treeName, fileName)
-    df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
-
-    df = df.Define("PProton1", """
-    double max_proton_p = -1.0; // Initialize to a negative value
-    for (size_t i = 0; i < pdg.size(); ++i) {
-        if (pdg[i] == 2212) { // Proton
-            double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
-            if (p_magnitude > max_proton_p) {
-                max_proton_p = p_magnitude;
-            }
-        }
-    }
-    return max_proton_p;
-    """)
-    
-    df = df.Define("CosProton", """
-    double cos_proton = -5.0;
-    double max_proton_p = -1.0;
-    int max_index = -1;
-
-    for (size_t i = 0; i < pdg.size(); ++i) {
-        if (pdg[i] == 2212) {
-            double p = std::sqrt(px[i]*px[i] + py[i]*py[i] + pz[i]*pz[i]);
-            if (p > max_proton_p) {
-                max_proton_p = p;
-                max_index = i;
-            }
-        }
-    }
-
-    if (max_index >= 0 && max_proton_p > 0) {
-        cos_proton = pz[max_index] / max_proton_p;
-    }
-
-    return cos_proton;
-    """)
         
     df_filtered = df.Filter(cut)
 
@@ -382,7 +296,7 @@ def MultiPlot(histos, slice, x, file_path, scale, frequency, Normalize, max, xLa
     else:
         cFull.SaveAs(f"{HOME}/{Save}/{Name}.{Ext}")
 
-def PlotSegments(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, scale, frequency, Normalize): 
+def PlotSegments(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, df, scale, frequency, Normalize): 
     # x1 and y1 binning variables; x2 and y2 plotting variables
     # mode_title plotting title; mode_label saving title
     # scale (boolean: true = logz); frequency (boolean: true = show z color axis); Normalize (boolean: true = normalize); max (int or "None")
@@ -394,44 +308,12 @@ def PlotSegments(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mod
     
     # Make q0 vs q3 histogram to find quantiles with equal events 
     slice = x1 
-    x_bins, total_events = constant_event_binning(x1, y1, file_path=file_path, Mode=None)
+    x_bins, total_events = constant_event_binning(x1, y1, df=df, Mode=None)
     
     # Plot full q3/q0 spectrum in x2 and y2 variables
     # Generate the full events histogram
     df1=pp.CreateDataFrame(file_path, cut=cut)
-    df1 = df1.Define("PProton1", """
-    double max_proton_p = -1.0; // Initialize to a negative value
-    for (size_t i = 0; i < pdg.size(); ++i) {
-        if (pdg[i] == 2212) { // Proton
-            double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
-            if (p_magnitude > max_proton_p) {
-                max_proton_p = p_magnitude;
-            }
-        }
-    }
-    return max_proton_p;
-    """)
-    df1 = df1.Define("CosProton", """
-    double cos_proton = -5.0;
-    double max_proton_p = -1.0;
-    int max_index = -1;
-
-    for (size_t i = 0; i < pdg.size(); ++i) {
-        if (pdg[i] == 2212) {
-            double p = std::sqrt(px[i]*px[i] + py[i]*py[i] + pz[i]*pz[i]);
-            if (p > max_proton_p) {
-                max_proton_p = p;
-                max_index = i;
-            }
-        }
-    }
-
-    if (max_index >= 0 && max_proton_p > 0) {
-        cos_proton = pz[max_index] / max_proton_p;
-    }
-
-    return cos_proton;
-    """)
+    df1=pp.DefineKinematics(df1)
     
     histInfo = (f"Full {slice} Spectrum_{total_events}", f"{y2} vs {x2} {cut} plot", 60, 0, max_energy, 102, -1.02, 1.02)
     hist_AllEvents = df1.Histo2D(histInfo,x2,y2)
@@ -445,7 +327,7 @@ def PlotSegments(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mod
     histos.append(hist_AllEvents)
     
     # Apply quantile_cutting to make a new dataframe for each quantile 
-    quantile_dfs = quantile_cutting(x1, x_bins, file_path=file_path, cut=cut)
+    quantile_dfs = quantile_cutting(x1, x_bins, df=df, cut=cut)   
         
     event_counts = {}  # Dictionary to store event counts
     # Check: Print the number of events in each quantile
@@ -469,7 +351,7 @@ def PlotSegments(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mod
 
 
 # Need to add scale, frequency, Normalize and max to this function!!!
-def PlotGrid(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, scale, frequency, Normalize):
+def PlotGrid(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, df, scale, frequency, Normalize):
     # x1 and y1 binning variables; x2 and y2 plotting variables
     # mode_title plotting title; mode_label saving title
     # scale (boolean: true = logz); frequency (boolean: true = show z color axis); Normalize (boolean: true = normalize); max (int or "None")
@@ -479,11 +361,11 @@ def PlotGrid(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_la
     
     # Make q0 vs q3 histogram to find quantiles with equal events
     slice = x1
-    x_bins, total_events = constant_event_binning(x1, y1, file_path=file_path, Mode=None)
-    y_bins, total_events = constant_event_binning(y1,x1, file_path=file_path, Mode=None)
+    x_bins, total_events = constant_event_binning(x1, y1, df=df, Mode=None)
+    y_bins, total_events = constant_event_binning(y1, x1, df=df, Mode=None)
     
     # Apply quantile_cutting to make a new dataframe for each quantile 
-    quantile_dfs = grid_cutting(x1, y1, x_bins, y_bins, file_path=file_path, cut=cut)
+    quantile_dfs = grid_cutting(x1, y1, x_bins, y_bins, df=df, cut=cut)
         
     event_counts = {}  # Dictionary to store event counts
     # Check: Print the number of events in each quantile
@@ -543,14 +425,19 @@ if __name__ == "__main__":
         
     file_name = input("Give Root File name: ")
     file_path1 = f"/data/t2k-nova/FlatTrees/{file_name}"
+    treeName = "FlatTree_VARS"
     
     # Assign config variables
     globals().update(config)  # Makes all config keys accessible as variables
     
+    df = ROOT.RDataFrame(treeName,file_path1)
+    df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+    df = pp.DefineKinematics(df=df)
+    
     # Run selected plot
     if config.get("plot_type") == "segments":
-        PlotSegments(file_path1, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, scale=logz, frequency = zaxis, Normalize=Norm)
+        PlotSegments(file_path1, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, df=df, scale=logz, frequency = zaxis, Normalize=Norm)
     elif config.get("plot_type") == "grid":
-        PlotGrid(file_path1, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, scale=logz, frequency=zaxis, Normalize=Norm)
+        PlotGrid(file_path1, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, df=df, scale=logz, frequency=zaxis, Normalize=Norm)
     else:
         print("Invalid plot_type in config_PlotQuantiles.json5. Use 'segments' or 'grid'.")
