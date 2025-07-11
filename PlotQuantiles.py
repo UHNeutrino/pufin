@@ -53,7 +53,7 @@ def visualize_segements(hist, file_path, x_bins = None,  y_bins = None):
             line_list2[-1].Draw()  
         c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_grid_{Name}.png")  
 
-def constant_event_binning(x, y, df, Mode = None):
+def constant_event_binning(x, y, df, Weight, Mode = None):
 
     histogramInfo = ("name", f"{y} vs {x} plot", 1000000, 0, max_energy, 1, 0, max_energy) #just need 1 bin in y
 
@@ -63,12 +63,15 @@ def constant_event_binning(x, y, df, Mode = None):
         cut1 = f'Mode == {Mode}'
     else:   
         cut1 = cut
-        
-    df_filtered = df.Filter(cut1).Histo2D(histogramInfo, x, y)
+       
+    if  Weight:
+        df_filtered = df.Filter(cut1).Histo2D(histogramInfo, x, y, "weights")
+    else:
+        df_filtered = df.Filter(cut1).Histo2D(histogramInfo, x, y)
 
     # Get the total number of events
     total_events = int(df_filtered.Integral())
-    # print(f"Total events: {total_events}")
+    print(f"Total events: {total_events}")
 
     # Define cumulative events array
     cumulative_events = [0]
@@ -79,9 +82,11 @@ def constant_event_binning(x, y, df, Mode = None):
     # Now that we have cumulative events, let's split them into 5 sections
     x_bins = [0]  # Start at 0
     target_events_per_section = total_events / 5
+    print(target_events_per_section)
 
     for i in range(1, 5):  # Divide into 5 sections
         target = i * target_events_per_section
+        print(target)
 
         # Find the first bin index where the cumulative event count exceeds the target
         bin_idx = min(range(len(cumulative_events)), key=lambda idx: abs(cumulative_events[idx] - target))
@@ -118,8 +123,10 @@ def quantile_cutting(x, x_bins, df, cut):
         # Apply the filter
         quantile_df = df_filtered.Filter(cut_quantile)
         quantile_dfs.append(quantile_df)
-
-        print(f"Quantile {i+1}: Events between {lower_bound} and {upper_bound}: {quantile_df.Count().GetValue()}")
+        if Weight:
+            print(f"Quantile {i+1}: Events between {lower_bound} and {upper_bound}: {quantile_df.Sum('weights').GetValue()}")
+        else:
+            print(f"Quantile {i+1}: Events between {lower_bound} and {upper_bound}: {quantile_df.Count().GetValue()}")
     
     return quantile_dfs
 
@@ -160,10 +167,14 @@ def grid_cutting(x, y, x_bins, y_bins, df, cut):
 
 
 
-def PlotQuantiles(x, y, histogramInfo, file_path, df, title, xLabel, yLabel, mode_title, mode_label):
+def PlotQuantiles(x, y, histogramInfo, file_path, df, title, xLabel, yLabel, mode_title, mode_label, Weight):
     ## mode_title for plot; mode_label for saving
     dir_location = file_path  
-    hist1 = df.Histo2D(histogramInfo,x,y)
+    if Weight:
+        hist1 = df.Histo2D(histogramInfo,x,y,"weights")
+    else:
+        hist1 = df.Histo2D(histogramInfo,x,y)
+        
     NameParts = SF.formatName(dir_location)
     Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     
@@ -238,15 +249,16 @@ def MultiPlot(histos, slice, x, file_path, scale, frequency, Normalize, max, xLa
             normal = 1/(histos[i].Integral())
             histos[i].Scale(normal)
         if max is not None and max != "None":
-            histos[i].SetMaximum(max) 
+            histos[i].SetMaximum(float(max)) 
         elif max == "None":
             histos[i].SetMaximum()
         # Retrieve histogram title
         hist_title = histos[i].GetName()
         Plot_Title_Parts = hist_title.split('_')
         Plot_Title_0_Parts = Plot_Title_Parts[0].split(':')
-        selected_events = int(Plot_Title_Parts[1])
-        percent = round((selected_events / 1e7*100), 2)
+        selected_events = int(float(Plot_Title_Parts[1]))
+        #percent = round((selected_events / 1e7*100), 2)
+        percent = round((selected_events / float(NameParts[3])*100), 2)
         print(f"{Plot_Title_Parts}")
 
         # # # Add text box with histogram title
@@ -296,7 +308,7 @@ def MultiPlot(histos, slice, x, file_path, scale, frequency, Normalize, max, xLa
     else:
         cFull.SaveAs(f"{HOME}/{Save}/{Name}.{Ext}")
 
-def PlotSegments(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, df, scale, frequency, Normalize): 
+def PlotSegments(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, df, Weight, scale, frequency, Normalize): 
     # x1 and y1 binning variables; x2 and y2 plotting variables
     # mode_title plotting title; mode_label saving title
     # scale (boolean: true = logz); frequency (boolean: true = show z color axis); Normalize (boolean: true = normalize); max (int or "None")
@@ -308,15 +320,20 @@ def PlotSegments(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mod
     
     # Make q0 vs q3 histogram to find quantiles with equal events 
     slice = x1 
-    x_bins, total_events = constant_event_binning(x1, y1, df=df, Mode=None)
+    x_bins, total_events = constant_event_binning(x1, y1, df=df, Weight=Weight, Mode=None)
     
     # Plot full q3/q0 spectrum in x2 and y2 variables
     # Generate the full events histogram
-    df1=pp.CreateDataFrame(file_path, cut=cut)
-    df1=pp.DefineKinematics(df1)
+    # df1=pp.CreateDataFrame(file_path, cut=cut)
+    # df1=pp.DefineKinematics(df1)
+    # if reWeight[0] ==True:
+    #     df1 = pp.defineWeightsSpline(df1, reWeight[1], reWeight[2])
     
     histInfo = (f"Full {slice} Spectrum_{total_events}", f"{y2} vs {x2} {cut} plot", 60, 0, max_energy, 102, -1.02, 1.02)
-    hist_AllEvents = df1.Histo2D(histInfo,x2,y2)
+    if Weight:
+        hist_AllEvents = df.Histo2D(histInfo,x2,y2,"weights")
+    else:
+        hist_AllEvents = df.Histo2D(histInfo,x2,y2)
     cAllEvents = ROOT.TCanvas()
     
     SF.formatTcanvas(hist_AllEvents,cAllEvents)
@@ -332,7 +349,10 @@ def PlotSegments(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mod
     event_counts = {}  # Dictionary to store event counts
     # Check: Print the number of events in each quantile
     for i, df in enumerate(quantile_dfs):
-        count = df.Count().GetValue()
+        if Weight:
+            count = df.Sum("weights").GetValue()
+        else:
+            count = df.Count().GetValue()
         print(f"Quantile {i+1}: {count} events")
         event_counts[i] = count  # Store in dictionary
     
@@ -343,7 +363,7 @@ def PlotSegments(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mod
         upper_bound = x_bins[i + 1]
         title = f"{slice} range: {lower_bound:.2f} to {upper_bound:.2f} GeV_{event_counts[i]}"
         histInfo = (f"{title}", f"{y2} vs {x2} plot", 60, 0, max_energy, 102, -1.02, 1.02)
-        hist = PlotQuantiles(x2, y2, histInfo, file_path=file_path, df=df, title = title, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label)
+        hist = PlotQuantiles(x2, y2, histInfo, file_path=file_path, df=df, title = title, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label, Weight=Weight)
         histos.append(hist)
     
 
@@ -351,7 +371,7 @@ def PlotSegments(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mod
 
 
 # Need to add scale, frequency, Normalize and max to this function!!!
-def PlotGrid(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, df, scale, frequency, Normalize):
+def PlotGrid(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, df, Weight, scale, frequency, Normalize):
     # x1 and y1 binning variables; x2 and y2 plotting variables
     # mode_title plotting title; mode_label saving title
     # scale (boolean: true = logz); frequency (boolean: true = show z color axis); Normalize (boolean: true = normalize); max (int or "None")
@@ -361,8 +381,8 @@ def PlotGrid(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_la
     
     # Make q0 vs q3 histogram to find quantiles with equal events
     slice = x1
-    x_bins, total_events = constant_event_binning(x1, y1, df=df, Mode=None)
-    y_bins, total_events = constant_event_binning(y1, x1, df=df, Mode=None)
+    x_bins, total_events = constant_event_binning(x1, y1, df=df, Weight=Weight, Mode=None)
+    y_bins, total_events = constant_event_binning(y1, x1, df=df, Weight=Weight, Mode=None)
     
     # Apply quantile_cutting to make a new dataframe for each quantile 
     quantile_dfs = grid_cutting(x1, y1, x_bins, y_bins, df=df, cut=cut)
@@ -392,7 +412,7 @@ def PlotGrid(file_path, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_la
 
             title = f"Grid{i+1}_{j+1}_{x1}_{x_lower_bound:.2f}-{x_upper_bound:.2f}_{y1}_{y_lower_bound}-{y_upper_bound}"
             histInfo = (f"Full {slice} Spectrum_{total_events}", f"{y2} vs {x2} {cut} plot", 60, 0, max_energy, 102, -1.02, 1.02)
-            hist = PlotQuantiles(x2, y2, histInfo, file_path=file_path, df=quantile_dfs[k], title = title, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label)
+            hist = PlotQuantiles(x2, y2, histInfo, file_path=file_path, df=quantile_dfs[k], title = title, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label, Weight=Weight)
             c = ROOT.TCanvas()
             ## add functions to grab scale, frequency, Normalize
             if scale:
@@ -426,6 +446,7 @@ if __name__ == "__main__":
     file_name = input("Give Root File name: ")
     file_path1 = f"/data/t2k-nova/FlatTrees/{file_name}"
     treeName = "FlatTree_VARS"
+    #reWeight[0] = False
     
     # Assign config variables
     globals().update(config)  # Makes all config keys accessible as variables
@@ -433,10 +454,15 @@ if __name__ == "__main__":
     df = ROOT.RDataFrame(treeName,file_path1)
     df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
     df = pp.DefineKinematics(df=df)
+    Weight = False
+    
+    if reWeight[0] == True:
+        Weight = True
+        df = pp.defineWeightsSpline(df, reWeight[1], reWeight[2])
     
     # Run selected plot
     if config.get("plot_type") == "segments":
-        PlotSegments(file_path1, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, df=df, scale=logz, frequency = zaxis, Normalize=Norm)
+        PlotSegments(file_path1, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, df=df, Weight=Weight, scale=logz, frequency = zaxis, Normalize=Norm)
     elif config.get("plot_type") == "grid":
         PlotGrid(file_path1, x1, y1, cut, x2, y2, xLabel, yLabel, mode_title, mode_label, df=df, scale=logz, frequency=zaxis, Normalize=Norm)
     else:
