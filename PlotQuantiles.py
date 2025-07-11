@@ -281,7 +281,10 @@ def MultiPlot(histos, slice, x, file_path, scale, frequency, Normalize, max, xLa
     title.SetTextSize(0.035)
     title.SetTextAlign(22)  # Center alignment
     if AutoTitleB:
-        title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in {slice})")  # (x, y) in normalized device coordinates
+        if Weight:
+            title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} + Weight {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in {slice})")  # (x, y) in normalized device coordinates
+        else:
+            title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in {slice})")
     else:
         title.DrawLatexNDC(0.5, 0.97, f"{Title}")
     # Add X-axis label (centered at the bottom) 
@@ -304,7 +307,10 @@ def MultiPlot(histos, slice, x, file_path, scale, frequency, Normalize, max, xLa
     #cFull.SaveAs(f"{HOME}/t2k-nova/plots_quantiles/{generator}_{NameParts[2]}_{mode_label}_{slice}_Quantiles_{x}.png")
     #cFull.SaveAs(f"{HOME}/t2k-nova/test.png")
     if AutoNameB:
-        cFull.SaveAs(f"{HOME}/{Save}/{generator}_{NameParts[2]}_{mode_label}_{slice}_Quantiles_{x}.{Ext}")
+        if Weight:
+            cFull.SaveAs(f"{HOME}/{Save}/{generator}+Weight_{NameParts[2]}_{mode_label}_{slice}_Quantiles_{x}.{Ext}")
+        else:
+            cFull.SaveAs(f"{HOME}/{Save}/{generator}t_{NameParts[2]}_{mode_label}_{slice}_Quantiles_{x}.{Ext}")
     else:
         cFull.SaveAs(f"{HOME}/{Save}/{Name}.{Ext}")
 
