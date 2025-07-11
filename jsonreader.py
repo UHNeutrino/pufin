@@ -37,10 +37,7 @@ if (plots["Bool"]):
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
         if(plots["reWeight"][0]):
-            if(plots["Spline"]):
-                df = pp.defineWeightsSpline(df,plots["reWeight"][1],plots["reWeight"][2])
-            else:
-                df = pp.defineWeights(df,plots["reWeight"][1],plots["reWeight"][2])
+            df = pp.defineWeightsSpline(df,plots["reWeight"][1],plots["reWeight"][2])
         if plots["Type"] == "1D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
             if(plots["reWeight"][0]):
@@ -255,6 +252,10 @@ if (Contour["Bool"]):
         colors = []
         if(Contour["EvisB"]):
             df = pp.DefineEvis(df)
+        if (Contour["KinematicsB"]):
+            df = pp.DefineKinematics(df)
+        if(plots["reWeight"][0]):
+            df = pp.defineWeightsSpline(df,plots["reWeight"][1],plots["reWeight"][2])
         for word in Contour["AxisInfo"].split(','):
                 AxisInfo.append(word)
 
@@ -291,8 +292,8 @@ if (Contour["Bool"]):
                 # Define a filter string for the current quantile
                 cuts.append(f"{lower_bound} <= {x} && {x} < {upper_bound}")
                 Legend.append(f" {lower_bound} <= {x} < {upper_bound}")
-            print(cuts)
-            print(Legend)
+            # print(cuts)
+            # print(Legend)
 
         else:
             for cut,name in Contour["ConCuts"].items():
@@ -302,9 +303,8 @@ if (Contour["Bool"]):
         
         for num in Contour["Colors"].split(","):
             colors.append(int(num))
-        print(colors)
         histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
         print(AxisInfo)
-        histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts)
+        histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts, Contour["NinetyB"])
         save_L = Contour["Save"] + generator + '-' + flux + Contour["Name"] + "." +Contour["Ext"]
         pp.SaveContHist(histlist, AxisInfo, Legend, colors, save_L)
