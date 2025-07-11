@@ -383,14 +383,16 @@ def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path, Normalize = 0)
 
     canvas.SaveAs(f"{HOME}/{save_path}")
 
-def PlotContEventCuts(df, x, y, histInfo, cuts):
+def PlotContEventCuts(df, x, y, histInfo, cuts, NinteyB):
     histlist = []
+    return_list = []
     if (df.HasColumn("weights")):
         hist = df.Histo2D(histInfo,x,y,"weights")
     else:
         hist = df.Histo2D(histInfo,x,y)
     th2d = hist.GetPtr()
     histlist.append(th2d)
+    return_list.append(th2d)
 
     for i in range(len(cuts)):
         modedf = df.Filter(f"{cuts[i]}")
@@ -402,21 +404,49 @@ def PlotContEventCuts(df, x, y, histInfo, cuts):
         # stack.Add(th2d)
         histlist.append(th2d)
         print(f"Plotting mode {cuts[i]}")
-
-    for hist in histlist[1:]:
-        hmax = hist.GetMaximum()
-        print(hmax)
-        for y in range(1,hist.GetNbinsY()+1):
-            for x in range(1,hist.GetNbinsX()+1):
-                if (hist.GetBinContent(x,y) > hmax *0.1):
-                    hist.SetBinContent(x,y,1)
+    if (NinteyB):
+        for hist in histlist[1:]:
+            hmax = hist.GetMaximum()
+            POmax = .4 #percent of max
+            TEvents = hist.Integral()
+            CEvents = 0 
+            while(CEvents/TEvents < .95):
+                filtered_hist = hist.Clone()
+                histCopy = hist.Clone()
+                for y in range(1,filtered_hist.GetNbinsY()+1):
+                    for x in range(1,filtered_hist.GetNbinsX()+1):
+                        if (filtered_hist.GetBinContent(x,y) > hmax *POmax):
+                            filtered_hist.SetBinContent(x,y,1)
+                        else:
+                            filtered_hist.SetBinContent(x,y,0)
+                histCopy.Multiply(filtered_hist)
+                CEvents = histCopy.Integral()
+                if (CEvents/TEvents > .8):
+                    print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax}')
+                    POmax -= .005
                 else:
-                    hist.SetBinContent(x,y,0)
+                    POmax -= .05
+            return_list.append(filtered_hist.Clone())
+    else:
+        for hist in histlist[1:]:
+            hmax = hist.GetMaximum()
+            print(hmax)
+            for y in range(1,hist.GetNbinsY()+1):
+                for x in range(1,hist.GetNbinsX()+1):
+                    if (hist.GetBinContent(x,y) > hmax *0.1):
+                        hist.SetBinContent(x,y,1)
+                    else:
+                        hist.SetBinContent(x,y,0)        
+            return_list.append(hist.Clone())
 
-    return histlist
+    return return_list
 
 def SaveContHist(histlist, AxisInfo, Legend, colors, save_path):
-    ROOT.gStyle.SetOptStat(0)
+    ROOT.gStyle.SetOptStat('e')
+    ROOT.gStyle.SetStatX(.9)
+    ROOT.gStyle.SetStatY(.4)
+    ROOT.gStyle.SetStatH(.1)
+    ROOT.gStyle.SetStatW(.2)
     ROOT.gStyle.SetPalette(52)
     ROOT.TColor.InvertPalette()
     canvas = ROOT.TCanvas("canvas", "Canvas for Contour Histograms", 1000, 600)
@@ -484,6 +514,13 @@ def defineWeightsSpline(df, rwRootFile, histName):
     hist = flux_file.Get(histName)  
     hist.SetDirectory(0)  
     flux_file.Close()
+
+    integral = hist.Integral("width")  # Use "width" to integrate over bin widths (important for variable bins)
+    if integral > 0:
+        hist.Scale(1.0 / integral)
+    else:
+        raise ValueError("Histogram has zero integral; cannot normalize.")
+
 
     n_points = hist.GetNbinsX()
     graph = ROOT.TGraph(n_points)
