@@ -54,6 +54,23 @@ def DefineKinematics(df):
 
     return cos_proton;
     """)
+    df = df.Define("CosProtonOld", """
+    double cos_proton = -5.0; // Default value if no proton found
+    double max_proton_p = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 2212) { // Proton
+        double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
+        if (p_magnitude > max_proton_p) {
+            max_proton_p = p_magnitude;
+        }
+        }
+        if (max_proton_p > 0) {
+            cos_proton = pz[i] / max_proton_p; // Dot product with (0, 0, 1)
+        }
+    }
+    return cos_proton;
+    """) 
+    
 
 
     
@@ -409,6 +426,9 @@ def PlotContEventCuts(df, x, y, histInfo, cuts, NinteyB):
             hmax = hist.GetMaximum()
             POmax = .4 #percent of max
             TEvents = hist.Integral()
+            if TEvents == 0:
+                return_list.append(hist.Clone())
+                continue
             CEvents = 0 
             while(CEvents/TEvents < .95):
                 filtered_hist = hist.Clone()
@@ -422,10 +442,11 @@ def PlotContEventCuts(df, x, y, histInfo, cuts, NinteyB):
                 histCopy.Multiply(filtered_hist)
                 CEvents = histCopy.Integral()
                 if (CEvents/TEvents > .8):
-                    print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax}')
+                    # print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax}')
                     POmax -= .005
                 else:
                     POmax -= .05
+            print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax +.005}')
             return_list.append(filtered_hist.Clone())
     else:
         for hist in histlist[1:]:

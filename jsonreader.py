@@ -34,6 +34,8 @@ if (plots["Bool"]):
         df = pp.CreateDataFrame(file_path, plots["Cut"])
         if(plots["EvisB"]):
             df = pp.DefineEvis(df)  
+        if (plots["KinematicsB"]):
+            df = pp.DefineKinematics(df)
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
         if(plots["reWeight"][0]):
@@ -239,8 +241,6 @@ if (Contour["Bool"]):
         print("NO such root files")
 
     for file_path in root_files:
-        if(Contour["reWeight"][0]):
-            df = pp.defineWeightsSpline(df,Contour["reWeight"][1],Contour["reWeight"][2])
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
@@ -291,7 +291,7 @@ if (Contour["Bool"]):
 
                 # Define a filter string for the current quantile
                 cuts.append(f"{lower_bound} <= {x} && {x} < {upper_bound}")
-                Legend.append(f" {lower_bound} <= {x} < {upper_bound}")
+                Legend.append(f" {lower_bound:.2f} <= {x} < {upper_bound:.2f}")
             # print(cuts)
             # print(Legend)
 

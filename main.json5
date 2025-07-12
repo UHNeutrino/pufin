@@ -29,24 +29,25 @@
         },
     "plots":
         {
-            "Bool": false,
+            "Bool": true,
             "EvisB": false,
-            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],
-            "Gen":"NEUT5.9",
-            "Flux":"flatf",
-            "Type":"1D",
+            "KinematicsB":true,
+            "reWeight":[false, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],
+            "Gen":"NEUT5.5",
+            "Flux":"2.0",
+            "Type":"2D",
             // Specify the cut for the dataframe. For no cuts, type "None"
-            "Cut": "None",
-            "Var1": "Enu_true",
-            "Var2": "CosLep",
-            "AxisInfo":"E_{#nu}, GeV, counts, , Normed Reweight",
-            "Bins":[200,0,10,100,0,1],
-            "Save": "t2k-nova/7-8-25",
-            "Name": "CorrectReweight",
+            "Cut": "Mode == 2",
+            "Var1": "PProton1",
+            "Var2": "CosProton",
+            "AxisInfo":"PProton , GeV, CosProton,  , NEUT 5.5 2.0GeV Proton Kinematics",
+            "Bins":[60,0,3,42,-1.05,1.05],
+            "Save": "t2k-nova/T-N-Meeting1",
+            "Name": "2p2hCheck",
             "Ext": "png",
             "Norm": false,
             "max": 0, 
-            "logz": true
+            "logz": false
         },
     "stacks":
         {
@@ -97,14 +98,14 @@
             "EvisB": false,
             "KinematicsB":false,
             "Cut": "Mode == 1",
-            "Var": "q3",
+            "Var": "q0",
             // "AxisInfo": "Q^{2}, (GeV), Probability, ,Q^{2} for QE events", //Q2
-            "AxisInfo": "Momentum Transfer, GeV, Probability, , q3 for QE events with Lewellyn Smith", //PLep
-            "Bins": [40, 0, 2],
+            "AxisInfo": "Energy Transfer, GeV, Probability, , q0 for QE events with Lewellyn Smith", //PLep
+            "Bins": [100, 0, .1],
             //If VBins is true, treats the second element as bin edges
             "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
-            "Save": "t2k-nova/7-8-25", 
-            "Name": "Fixed_q3_GeVNe_LS",
+            "Save": "t2k-nova/7-11-25T2NO", 
+            "Name": "SMoking_GUN",
             "Ext": "png",
             "Norm": true,
             "logz": false,
@@ -129,25 +130,26 @@
         },
     "Contour":
         {
-            "Bool":true,
+            "Bool":false,
             "EvisB": false,
             "KinematicsB":false,
-            "reWeight":[false, "/data/t2k-nova/fluxes/mono_energetic_flux_3.0GeV_v2.root","h1"],
+            "reWeight":[false, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],
             "Gen":"NEUT5.9",
-            "Flux":"0.6",
+            "Flux":"flatf",
             // "Type":"2D", Only 2D possible
-            "Cut": "Mode == 2",
+            // "Cut": "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16) && flagCC0pi == true",
+            "Cut": "flagCC0pi == true",
             "Var1": "PLep",
             "Var2":"CosLep",
-            "ConCuts":{"q3 <=.72": "q3 <=.72", "q3 > .72 && q3 <= 1.00":".72 < q3 <= 1.00","q3 > 1 && q3 <= 1.3":"1 < q3 <= 1.3", "q3 > 1.3 && q3 <= 1.7":"1.3 < q3 <= 1.7", "q3 > 1.7 ":"1.7 < q3"},
-            "AutoQuant":[true, "q3", "q0"],
+            "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H"},
+            "AutoQuant":[false, "q3", "q0"],
             "NinetyB":true,
             // "ConCuts":{"q3 <=.72": "Less than .72 GeV"},
             "Colors":"632, 416, 880, 800, 600",
-            "AxisInfo":" Lepton Momentum, GeV, Cos#theta_{#mu}, ,2P2H Lepton Kinematics for 2 GeV Monoenergetic Flux",
-            "Bins":[100,0,2,42,-1.05,1.05],
-            "Save": "t2k-nova/7-11-25T2NO/",
-            "Name": "2P2HKin-q3BreakDownAuto90Percent",
+            "AxisInfo":" Lepton Momentum, GeV, Cos#theta_{#mu}, , NEUT 5.9 0Pi Lepton Kinematics for Flat T2K Weight Flux",
+            "Bins":[60,0,3,42,-1.05,1.05],
+            "Save": "t2k-nova/T-N-Meeting1/",
+            "Name": "0PiModeContT2KLep",
             "Ext": "png",
 
         }
