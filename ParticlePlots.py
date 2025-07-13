@@ -386,6 +386,7 @@ def PlotContEventCuts(df, x, y, histInfo, cuts, NinteyB):
     return_list = []
     if (df.HasColumn("weights")):
         hist = df.Histo2D(histInfo,x,y,"weights")
+        # print("weights activated2")
     else:
         hist = df.Histo2D(histInfo,x,y)
     th2d = hist.GetPtr()
@@ -396,6 +397,7 @@ def PlotContEventCuts(df, x, y, histInfo, cuts, NinteyB):
         modedf = df.Filter(f"{cuts[i]}")
         if (df.HasColumn("weights")):
             hist = modedf.Histo2D(histInfo,x,y,"weights")
+            # print("weights activated3")
         else:
             hist = modedf.Histo2D(histInfo,x,y)
         th2d = hist.GetPtr()
@@ -411,7 +413,8 @@ def PlotContEventCuts(df, x, y, histInfo, cuts, NinteyB):
                 return_list.append(hist.Clone())
                 continue
             CEvents = 0 
-            while(CEvents/TEvents < .95):
+            while(CEvents/TEvents < .9):
+                # print(f"percent of events{CEvents/TEvents}")
                 filtered_hist = hist.Clone()
                 histCopy = hist.Clone()
                 for y in range(1,filtered_hist.GetNbinsY()+1):
@@ -424,10 +427,10 @@ def PlotContEventCuts(df, x, y, histInfo, cuts, NinteyB):
                 CEvents = histCopy.Integral()
                 if (CEvents/TEvents > .8):
                     # print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax}')
-                    POmax -= .005
+                    POmax -= .001
                 else:
-                    POmax -= .05
-            print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax +.005}')
+                    POmax -= .01
+            print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax}')
             return_list.append(filtered_hist.Clone())
     else:
         for hist in histlist[1:]:
@@ -443,7 +446,7 @@ def PlotContEventCuts(df, x, y, histInfo, cuts, NinteyB):
 
     return return_list
 
-def SaveContHist(histlist, AxisInfo, Legend, colors, save_path):
+def SaveContHist(histlist, AxisInfo, Legend, colors, save_path, logz):
     ROOT.gStyle.SetOptStat('e')
     ROOT.gStyle.SetStatX(.9)
     ROOT.gStyle.SetStatY(.4)
@@ -458,8 +461,8 @@ def SaveContHist(histlist, AxisInfo, Legend, colors, save_path):
     histlist[0].GetYaxis().SetTitle(AxisInfo[2]+ AxisInfo[3])
     histlist[0].SetTitle(AxisInfo[4])
     histlist[0].Draw("COLZ")  # "HIST" option tells ROOT to draw the histograms
-    canvas.SetLogz()
-
+    if logz:
+        canvas.SetLogz()
     # legend.AddEntry(histlist[0], f"{Legend[0]}", "f")
     for i in range(0, len(Legend)):
         histlist[i+1].SetLineColor(colors[i])

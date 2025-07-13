@@ -254,8 +254,8 @@ if (Contour["Bool"]):
             df = pp.DefineEvis(df)
         if (Contour["KinematicsB"]):
             df = pp.DefineKinematics(df)
-        if(plots["reWeight"][0]):
-            df = pp.defineWeightsSpline(df,plots["reWeight"][1],plots["reWeight"][2])
+        if(Contour["reWeight"][0]):
+            df = pp.defineWeightsSpline(df,Contour["reWeight"][1],Contour["reWeight"][2])
         for word in Contour["AxisInfo"].split(','):
                 AxisInfo.append(word)
 
@@ -263,8 +263,12 @@ if (Contour["Bool"]):
             x = Contour["AutoQuant"][1]
             y = Contour["AutoQuant"][2]
             # Get the total number of events
-            histogramInfo = ("name", f"{y} vs {x} plot", 1000000, 0, 8, 1, 0, 8) #just need 1 bin in y
-            cuthist = df.Histo2D(histogramInfo, x,y)
+            histogramInfo = ("name", f"{y} vs {x} plot", 1000000, 0, df.Max(x).GetValue(), 1, 0, df.Max(y).GetValue()) #just need 1 bin in y
+            if (df.HasColumn("weights")):
+                cuthist = df.Histo2D(histogramInfo, x,y,"weights")
+                print("weights activated1")
+            else:
+                cuthist = df.Histo2D(histogramInfo, x,y)
             total_events = int(cuthist.Integral())
             # print(f"Total events: {total_events}")
             # Define cumulative events array
@@ -307,4 +311,4 @@ if (Contour["Bool"]):
         print(AxisInfo)
         histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts, Contour["NinetyB"])
         save_L = Contour["Save"] + generator + '-' + flux + Contour["Name"] + "." +Contour["Ext"]
-        pp.SaveContHist(histlist, AxisInfo, Legend, colors, save_L)
+        pp.SaveContHist(histlist, AxisInfo, Legend, colors, save_L,Contour["logz"])
