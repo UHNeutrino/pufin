@@ -298,7 +298,11 @@ if (Contour["Bool"]):
                 Legend.append(f" {lower_bound:.2f} <= {x} < {upper_bound:.2f}")
             # print(cuts)
             # print(Legend)
-
+            # save intermediary hist 
+            if Contour["AutoQuant"][3]:
+                save_L0 = Contour["Save"] + "/" + "INT" +Contour["Name"] + "." +Contour["Ext"]
+                # c.SaveAs(save_L0)
+                pp.SaveIntPlot(df,x,y,x_bins,save_L0)
         else:
             for cut,name in Contour["ConCuts"].items():
                 cuts.append(cut)
@@ -309,6 +313,6 @@ if (Contour["Bool"]):
             colors.append(int(num))
         histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
         print(AxisInfo)
-        histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts, Contour["NinetyB"])
-        save_L = Contour["Save"] + generator + '-' + flux + Contour["Name"] + "." +Contour["Ext"]
+        histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts)
+        save_L = Contour["Save"]+ "/" + generator + '-' + flux + Contour["Name"] + "." +Contour["Ext"]
         pp.SaveContHist(histlist, AxisInfo, Legend, colors, save_L,Contour["logz"])
