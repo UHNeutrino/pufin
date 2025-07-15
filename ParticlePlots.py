@@ -55,6 +55,21 @@ def DefineKinematics(df):
     return cos_proton;
     """)
     
+    df = df.Define("initNeucMag", """
+    std::vector<float> mags;
+    for (size_t i = 0; i < px_init.size(); ++i) {
+        int pdg = pdg_init[i];
+        if (pdg == 2212 || pdg == 2112){ 
+            float px = px_init[i];
+            float py = py_init[i];
+            float pz = pz_init[i];
+            mags.push_back(std::sqrt(px*px + py*py + pz*pz));
+        }
+    }
+    return mags;
+    """)
+
+
     return df
 
 def DefineEvis(df):
