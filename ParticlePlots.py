@@ -422,12 +422,14 @@ def PlotContEventCuts(df, x, y, histInfo, cuts):
     for hist in histlist[1:]:
         hmax = hist.GetMaximum()
         POmax = .4 #percent of max
+        POmaxStep = .1 #how much POmax decreases by
         TEvents = hist.Integral()
         if TEvents == 0:
             return_list.append(hist.Clone())
             continue
         CEvents = 0 
-        while(CEvents/TEvents < .9):
+        NinteyB = True
+        while(NinteyB):
             # print(f"percent of events{CEvents/TEvents}")
             filtered_hist = hist.Clone()
             histCopy = hist.Clone()
@@ -439,11 +441,14 @@ def PlotContEventCuts(df, x, y, histInfo, cuts):
                         filtered_hist.SetBinContent(x,y,0)
             histCopy.Multiply(filtered_hist)
             CEvents = histCopy.Integral()
-            if (CEvents/TEvents > .8):
-                # print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax}')
-                POmax -= .001
-            else:
-                POmax -= .01
+            POmax -= POmaxStep
+            # print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax}')
+            if (CEvents/TEvents < .91 and CEvents/TEvents > .90):
+                NinteyB = False
+                print("Done!")
+            elif (CEvents/TEvents > .91):
+                POmax += 2*POmaxStep
+                POmaxStep /= 10
         print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax}')
         return_list.append(filtered_hist.Clone())
 
