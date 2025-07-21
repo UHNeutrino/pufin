@@ -1,7 +1,7 @@
 {
     "quantiles":
         {
-            "Bool": true,
+            "Bool": false,
             "reWeight": [false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
             "Spline":true,
             "x1": "q3", 
@@ -133,14 +133,14 @@
         },
     "Contour":
         {
-            "Bool":false,
+            "Bool":true,
             "EvisB": true,
             "KinematicsB":false,
-            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],
+            "reWeight":[false, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],
             // "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
-            "Gen":"NEUT5.9",
+            "Gen":"NEUT5.5",
             // "Gen":"NEUT5.9",
-            "Flux":"flatf_",
+            "Flux":"1.0",
             // "Type":"2D", Only 2D possible
             // "Cut": "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16) && flagCC0pi == true ",
             "Cut": "flagCC0pi == true",
@@ -148,20 +148,20 @@
             "Var2":"CosLep",
             // "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H", "!((Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)||Mode == 1 || Mode == 2 )":"Other"},
             "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H"},
-            "AutoQuant":[true, "q3", "q0",true],
-            "NinetyB":true,
+            "AutoQuant":[true, "q3", "q0",false,3],
+            "TotalPercents":[25,50,90],
             // "ConCuts":{"q3 <=.72": "Less than .72 GeV"},
             "Colors":"632, 416, 880, 800, 600",
             // "AxisInfo":"Lepton Momentum, GeV, Cos#theta_{#mu}, , NEUT 5.9 0Pi Lepton Kinematics for Flat Flux with T2K weights",
             "AxisInfo":"E_{#nu} kin, GeV, E_{#nu} true, GeV , NEUT 5.9 0Pi E_{#nu} for Flat Flux with T2K weights",
 
-            // "Bins":[60,0,3,42,-1.05,1.05],
-            "Bins":[100,0,5,80,0,4],
+            "Bins":[60,0,3,42,-1.05,1.05],
+            // "Bins":[100,0,5,80,0,4],
             "logz":true,
-            "Save": "t2k-nova/T-N-Meeting1",
+            "Save": "t2k-nova/7-22-25",
             // "Name": "PionAbsContLepKin",
-            "Name": "GRIMBLE2",
-            "Ext": "png",
+            "Name": "ContNewTest2",
+            "Ext": "pdf",
 
         }
 }

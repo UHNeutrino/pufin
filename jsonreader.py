@@ -329,11 +329,11 @@ if (Contour["Bool"]):
                 bin_total = sum(cuthist.GetBinContent(i, j) for j in range(1, cuthist.GetNbinsY() + 1))
                 cumulative_events.append(cumulative_events[-1] + bin_total)
 
-            # Now that we have cumulative events, let's split them into 5 sections
+            # Now that we have cumulative events, let's split them into x sections
             x_bins = [0]  # Start at 0
-            target_events_per_section = total_events / 5
+            target_events_per_section = total_events / Contour["AutoQuant"][4]
 
-            for i in range(1, 5):  # Divide into 5 sections
+            for i in range(1, Contour["AutoQuant"][4]):  # Divide into 5 sections
                 target = i * target_events_per_section
                 # Find the first bin index where the cumulative event count exceeds the target
                 bin_idx = min(range(len(cumulative_events)), key=lambda idx: abs(cumulative_events[idx] - target))
@@ -359,12 +359,17 @@ if (Contour["Bool"]):
             for cut,name in Contour["ConCuts"].items():
                 cuts.append(cut)
                 Legend.append(name)
-            
-        
+
+        LegendTemp = []
+        for Name in Legend:
+            for percent in Contour["TotalPercents"]:
+                LegendTemp.append(Name+" "+str(percent)+" % of total")
+        Legend = LegendTemp
+
         for num in Contour["Colors"].split(","):
             colors.append(int(num))
         histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
         print(AxisInfo)
-        histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts)
+        histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts, Contour["TotalPercents"])
         save_L = Contour["Save"]+ "/" + generator + '-' + flux + Contour["Name"] + "." +Contour["Ext"]
-        pp.SaveContHist(histlist, AxisInfo, Legend, colors, save_L,Contour["logz"])
+        pp.SaveContHist(histlist, AxisInfo, Legend, colors, Contour["TotalPercents"], save_L,Contour["logz"])

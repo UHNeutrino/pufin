@@ -396,7 +396,7 @@ def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path, Normalize = 0)
 
     canvas.SaveAs(f"{HOME}/{save_path}")
 
-def PlotContEventCuts(df, x, y, histInfo, cuts):
+def PlotContEventCuts(df, x, y, histInfo, cuts, percents):
     histlist = []
     return_list = []
     if (df.HasColumn("weights")):
@@ -420,41 +420,49 @@ def PlotContEventCuts(df, x, y, histInfo, cuts):
         histlist.append(th2d)
         print(f"Plotting mode {cuts[i]}")
     for hist in histlist[1:]:
+        print("starting Hists")
         hmax = hist.GetMaximum()
-        POmax = .4 #percent of max
-        POmaxStep = .1 #how much POmax decreases by
-        TEvents = hist.Integral()
-        if TEvents == 0:
-            return_list.append(hist.Clone())
-            continue
-        CEvents = 0 
-        NinteyB = True
-        while(NinteyB):
-            # print(f"percent of events{CEvents/TEvents}")
-            filtered_hist = hist.Clone()
-            histCopy = hist.Clone()
-            for y in range(1,filtered_hist.GetNbinsY()+1):
-                for x in range(1,filtered_hist.GetNbinsX()+1):
-                    if (filtered_hist.GetBinContent(x,y) > hmax *POmax):
-                        filtered_hist.SetBinContent(x,y,1)
-                    else:
-                        filtered_hist.SetBinContent(x,y,0)
-            histCopy.Multiply(filtered_hist)
-            CEvents = histCopy.Integral()
-            POmax -= POmaxStep
-            # print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax}')
-            if (CEvents/TEvents < .91 and CEvents/TEvents > .90):
-                NinteyB = False
-                print("Done!")
-            elif (CEvents/TEvents > .91):
-                POmax += 2*POmaxStep
-                POmaxStep /= 10
-        print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax}')
-        return_list.append(filtered_hist.Clone())
+        for percent in percents:
+            POmax = .9 #percent of max
+            POmaxStep = .1 #how much POmax decreases by
+            TEvents = hist.Integral()
+            if TEvents == 0:
+                return_list.append(hist.Clone())
+                continue
+            CEvents = 0 
+            NinteyB = True
+            if percent > 1:
+                    percent /= 100
+            FallBack = 0
+            while(NinteyB):
+                filtered_hist = hist.Clone()
+                histCopy = hist.Clone()
+                for y in range(1,filtered_hist.GetNbinsY()+1):
+                    for x in range(1,filtered_hist.GetNbinsX()+1):
+                        if (filtered_hist.GetBinContent(x,y) > hmax *POmax):
+                            filtered_hist.SetBinContent(x,y,1)
+                        else:
+                            filtered_hist.SetBinContent(x,y,0)
+                histCopy.Multiply(filtered_hist)
+                CEvents = histCopy.Integral()
+                print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax} FallBack: {FallBack}')
+                if (CEvents/TEvents < (percent + .005) and CEvents/TEvents > (percent - .005)):
+                    NinteyB = False
+                    print("Done!")
+                elif (CEvents/TEvents >= (percent + .005)):
+                    POmax += 2*POmaxStep
+                    POmaxStep /= 10
+                elif (FallBack >= 100):
+                    NinteyB = False
+                    print("Problem, try using finer binning, or more events")
+                POmax -= POmaxStep
+                FallBack += 1
+            print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax}')
+            return_list.append(filtered_hist.Clone())
 
     return return_list
 
-def SaveContHist(histlist, AxisInfo, Legend, colors, save_path, logz):
+def SaveContHist(histlist, AxisInfo, Legend, colors, percents, save_path, logz):
     ROOT.gStyle.SetOptStat(0)
     # ROOT.gStyle.SetStatX(.9)
     # ROOT.gStyle.SetStatY(.4)
@@ -472,11 +480,23 @@ def SaveContHist(histlist, AxisInfo, Legend, colors, save_path, logz):
     if logz:
         canvas.SetLogz()
     # legend.AddEntry(histlist[0], f"{Legend[0]}", "f")
+    j = 0
+    styletemp = [1,2,3,4,5]
+    style = []
+    for z in range(0,len(percents)):
+        style.append(styletemp[len(percents) - z -1])
+
     for i in range(0, len(Legend)):
-        histlist[i+1].SetLineColor(colors[i])
+        histlist[i+1].SetLineColor(colors[j])
         histlist[i+1].SetFillStyle(0)
+        print(style[(i%len(percents))])
+        histlist[i+1].SetLineStyle(style[(i%len(percents))])
+        histlist[i+1].SetLineWidth(1)
         histlist[i+1].Draw("CONT3 SAME")  # "HIST" option tells ROOT to draw the histograms
+        
         legend.AddEntry(histlist[i+1], f"{Legend[i]}", "l")
+        if (i%len(percents) + 1 == len(percents)):
+            j += 1
     
     
     legend.Draw()
