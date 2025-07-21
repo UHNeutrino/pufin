@@ -4,6 +4,7 @@ import os
 import datetime
 import ParticlePlots as pp 
 import SetupFunctions as sf
+import PlotQuantiles as pq
 import glob
 import array
 
@@ -229,11 +230,62 @@ if (same1D["Bool"]):
 
     outname = f"{HOME}/{same1D['Save']}/{same1D['Name']}.{same1D['Ext']}"
     c.SaveAs(outname)
-    
+# if (quantiles["Bool"]):
+#     import PlotQuantiles as pq
+#     pq.config = quantiles
+#     exec(open("PlotQuantiles.py").read())
+# if (quantiles["Bool"]):
+#     import FourQuantiles as pq
+#     pq.config = quantiles
+#     exec(open("FourQuantiles.py").read())
+
 if (quantiles["Bool"]):
-    import PlotQuantiles as pq
-    pq.config = quantiles
-    exec(open("PlotQuantiles.py").read())
+    file_name = input("Give Root File name: ")
+    file_path1 = f"/data/t2k-nova/FlatTrees/{file_name}"
+    treeName = "FlatTree_VARS"
+    
+    df1 = ROOT.RDataFrame(treeName,file_path1)
+    df1 = df1.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+    df1 = pp.DefineKinematics(df1)
+
+    Weight = False
+    
+    if quantiles["reWeight"][0]:
+        Weight = True
+        df1 = pp.defineWeightsSpline(df1, quantiles["reWeight"][1], quantiles["reWeight"][2])
+        
+    df_filtered = df1.Filter(quantiles["cut"])
+    
+    # Run selected plot
+    if quantiles["plot_type"] == "segments":
+        pq.PlotSegments(
+            file_path1, 
+            quantiles["x1"], 
+            quantiles["y1"], 
+            quantiles["x2"], 
+            quantiles["y2"], 
+            quantiles["xLabel"], 
+            quantiles["yLabel"], 
+            quantiles["mode_title"], 
+            quantiles["mode_label"],
+            quantiles["max_energy"],
+            quantiles["AutoTitleB"],
+            quantiles["Title"],
+            quantiles["AutoNameB"],
+            quantiles["Name"],
+            quantiles["Save"],
+            quantiles["Ext"],
+            max = quantiles["zmax"], 
+            df=df_filtered, 
+            Weight=Weight, 
+            scale=quantiles["logz"], 
+            frequency=quantiles["zaxis"], 
+            Normalize=quantiles["Norm"])
+    #elif quantiles["plot_type"] == "grid":
+        #pq.PlotGrid(file_path1, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, df=df_filtered, scale=logz, frequency=zaxis, Normalize=Norm)
+    else:
+        print("Invalid plot_type in config_PlotQuantiles.json5. Use 'segments' or 'grid'.")
+    
 
 if (Contour["Bool"]):
     root_files = glob.glob(userFolder + f'/*{Contour["Gen"]}*{Contour["Flux"]}*.root')

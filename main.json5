@@ -1,7 +1,7 @@
 {
     "quantiles":
         {
-            "Bool": false,
+            "Bool": true,
             "reWeight": [false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
             "Spline":true,
             "x1": "q3", 
@@ -19,10 +19,10 @@
 
             "zaxis": true,
             "Norm": false,
-            "max": 10000, // Choose max value integer (w/out quotation marks) or "None" (use quotation marks)
+            "zmax": 10000, // Choose max value integer (w/out quotation marks) or "None" (use quotation marks)
             "logz": true,
             "plot_type": "segments",  // "grid" or "segments"
-            "Save": "t2k-nova/plots_quantiles/2P2H",
+            "Save": "t2k-nova",
             "AutoNameB": true,
             "Name": "test",
             "AutoTitleB": true,
@@ -96,7 +96,7 @@
         },
     "1DSame":
         {
-            "Bool": true,
+            "Bool": false,
             "EvisB": false,
             "KinematicsB":true,
             "Cut": "None",
@@ -114,6 +114,7 @@
             "ErrorBars": true,
             "max": -1,
             "Plots": [
+                
             {
             "Key": "Flat_NEUT5.9_Flat1p1hLS_5e5",
             "Label": "NEUT5.9 Flat Lewellyn Smith",

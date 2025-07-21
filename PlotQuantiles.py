@@ -53,7 +53,7 @@ def visualize_segements(hist, file_path, x_bins = None,  y_bins = None):
             line_list2[-1].Draw()  
         c.SaveAs(f"{HOME}/t2k-nova/plots/{title}_grid_{Name}.png")  
 
-def constant_event_binning(x, y, df, Weight):
+def constant_event_binning(x, y, max_energy, df, Weight):
 
     histogramInfo = ("name", f"{y} vs {x} plot", 1000000, 0, max_energy, 1, 0, max_energy) #just need 1 bin in y
 
@@ -72,6 +72,10 @@ def constant_event_binning(x, y, df, Weight):
     # Get the total number of events
     total_events = int(bin_histo.Integral())
     print(f"Total events: {total_events}")
+    
+    num_entries = df.Count().GetValue()
+    print(f"Number of entries: {num_entries}")
+
 
     # Define cumulative events array
     cumulative_events = [0]
@@ -100,7 +104,7 @@ def constant_event_binning(x, y, df, Weight):
 
     return x_bins, total_events
 
-def quantile_cutting(x, x_bins, df):
+def quantile_cutting(x, x_bins, Weight, df):
     
     """
     Returns:
@@ -190,7 +194,7 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, xLabel, yLabel, mod
     #c.SaveAs(f"{HOME}/t2k-nova/{title}_{Name}.png")
     return hist 
 
-def MultiPlot(histos, slice, x, file_path, scale, frequency, Normalize, max, xLabel, yLabel, mode_title, mode_label): 
+def MultiPlot(histos, slice, x, AutoTitleB, Title, AutoNameB, Name, Weight, Save, Ext, file_path, scale, frequency, Normalize, max, xLabel, yLabel, mode_title, mode_label): 
     ## histos = list of histograms to plot
     ## x is plotting variable x 
     ## scale (boolean: true = logz); frequency (boolean: true = show z color axis); Normalize (boolean: true = normalize); max (int or "None")
@@ -309,7 +313,7 @@ def MultiPlot(histos, slice, x, file_path, scale, frequency, Normalize, max, xLa
     else:
         cFull.SaveAs(f"{HOME}/{Save}/{Name}.{Ext}")
 
-def PlotSegments(file_path, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, df, Weight, scale, frequency, Normalize): 
+def PlotSegments(file_path, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, AutoTitleB, Title, AutoNameB, Name, Save, Ext, max, df, Weight, scale, frequency, Normalize): 
     # x1 and y1 binning variables; x2 and y2 plotting variables
     # mode_title plotting title; mode_label saving title
     # scale (boolean: true = logz); frequency (boolean: true = show z color axis); Normalize (boolean: true = normalize); max (int or "None")
@@ -321,7 +325,7 @@ def PlotSegments(file_path, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_lab
     
     # Make q0 vs q3 histogram to find quantiles with equal events 
     slice = x1 
-    x_bins, total_events = constant_event_binning(x1, y1, df=df, Weight=Weight)
+    x_bins, total_events = constant_event_binning(x1, y1, max_energy, df=df, Weight=Weight)
     
     # Plot full q3/q0 spectrum in x2 and y2 variables
     # Generate the full events histogram
@@ -346,7 +350,7 @@ def PlotSegments(file_path, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_lab
     histos.append(hist_AllEvents)
     
     # Apply quantile_cutting to make a new dataframe for each quantile 
-    quantile_dfs = quantile_cutting(x1, x_bins, df=df)   
+    quantile_dfs = quantile_cutting(x1, x_bins, Weight, df=df)   
         
     event_counts = {}  # Dictionary to store event counts
     # Check: Print the number of events in each quantile
@@ -369,11 +373,11 @@ def PlotSegments(file_path, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_lab
         histos.append(hist)
     
 
-    MultiPlot(histos, slice, x2, file_path=file_path, scale=scale, frequency=frequency, Normalize=Normalize, max = max, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label)
+    MultiPlot(histos, slice, x2, AutoTitleB, Title, AutoNameB, Name, Weight, Save, Ext, file_path=file_path, scale=scale, frequency=frequency, Normalize=Normalize, max = max, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label)
 
 
 # Need to add scale, frequency, Normalize and max to this function!!!
-def PlotGrid(file_path, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, df, Weight, scale, frequency, Normalize):
+def PlotGrid(file_path, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, df, Weight, scale, frequency, Normalize):
     # x1 and y1 binning variables; x2 and y2 plotting variables
     # mode_title plotting title; mode_label saving title
     # scale (boolean: true = logz); frequency (boolean: true = show z color axis); Normalize (boolean: true = normalize); max (int or "None")
@@ -383,8 +387,8 @@ def PlotGrid(file_path, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, 
     
     # Make q0 vs q3 histogram to find quantiles with equal events
     slice = x1
-    x_bins, total_events = constant_event_binning(x1, y1, df=df, Weight=Weight, Mode=None)
-    y_bins, total_events = constant_event_binning(y1, x1, df=df, Weight=Weight, Mode=None)
+    x_bins, total_events = constant_event_binning(x1, y1, max_energy, df=df, Weight=Weight, Mode=None)
+    y_bins, total_events = constant_event_binning(y1, x1, max_energy, df=df, Weight=Weight, Mode=None)
     
     # Apply quantile_cutting to make a new dataframe for each quantile 
     quantile_dfs = grid_cutting(x1, y1, x_bins, y_bins, df=df)
@@ -440,9 +444,9 @@ if __name__ == "__main__":
     # with open("config_PlotQuantiles.json5") as f:
     #     config = json.load(f)
         
-    with open("main.json5") as f:
-        all_config = json.load(f)
-    config = all_config.get("quantiles", {})
+    # with open("main.json5") as f:
+    #     all_config = json.load(f)
+    # config = all_config.get("quantiles", {})
 
         
     file_name = input("Give Root File name: ")
@@ -451,7 +455,7 @@ if __name__ == "__main__":
     #reWeight[0] = False
     
     # Assign config variables
-    globals().update(config)  # Makes all config keys accessible as variables
+    #globals().update(config)  # Makes all config keys accessible as variables
     
     df1 = ROOT.RDataFrame(treeName,file_path1)
     df1 = df1.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
@@ -467,8 +471,8 @@ if __name__ == "__main__":
     
     # Run selected plot
     if config.get("plot_type") == "segments":
-        PlotSegments(file_path1, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, df=df_filtered, Weight=Weight, scale=logz, frequency = zaxis, Normalize=Norm)
+        PlotSegments(file_path1, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, AutoTitleB, Title, AutoNameB, Name, Save, Ext, max=zmax, df=df_filtered, Weight=Weight, scale=logz, frequency = zaxis, Normalize=Norm)
     elif config.get("plot_type") == "grid":
-        PlotGrid(file_path1, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, df=df_filtered, scale=logz, frequency=zaxis, Normalize=Norm)
+        PlotGrid(file_path1, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, df=df_filtered, scale=logz, frequency=zaxis, Normalize=Norm)
     else:
         print("Invalid plot_type in config_PlotQuantiles.json5. Use 'segments' or 'grid'.")
