@@ -418,9 +418,9 @@ def PlotContEventCuts(df, x, y, histInfo, cuts, percents):
         th2d = hist.GetPtr()
         # stack.Add(th2d)
         histlist.append(th2d)
-        print(f"Plotting mode {cuts[i]}")
+        # print(f"Plotting mode {cuts[i]}")
     for hist in histlist[1:]:
-        print("starting Hists")
+        # print("starting Hists")
         hmax = hist.GetMaximum()
         for percent in percents:
             POmax = .9 #percent of max
@@ -445,24 +445,61 @@ def PlotContEventCuts(df, x, y, histInfo, cuts, percents):
                             filtered_hist.SetBinContent(x,y,0)
                 histCopy.Multiply(filtered_hist)
                 CEvents = histCopy.Integral()
-                print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax} FallBack: {FallBack}')
+                # print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax} FallBack: {FallBack}')
                 if (CEvents/TEvents < (percent + .005) and CEvents/TEvents > (percent - .005)):
                     NinteyB = False
-                    print("Done!")
+                    print("Done Correctly!")
                 elif (CEvents/TEvents >= (percent + .005)):
                     POmax += 2*POmaxStep
                     POmaxStep /= 10
                 elif (FallBack >= 100):
                     NinteyB = False
                     print("Problem, try using finer binning, or more events")
+                    print(f"Plotted with {CEvents/TEvents}% of events rather than {percent}%")
+
                 POmax -= POmaxStep
                 FallBack += 1
-            print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax}')
+            # print(f'Percent of events: {CEvents/TEvents} Tolerance Percent of Max bin: {POmax}')
             return_list.append(filtered_hist.Clone())
 
     return return_list
 
 def SaveContHist(histlist, AxisInfo, Legend, colors, percents, save_path, logz):
+    # stupid crap at the begining to get a proper legend
+    legend = ROOT.TLegend(0.7, 0.1, 0.9, 0.3)  # Define legend position
+    styletemp = [1,2,3,4,5]
+    style = []
+    for z in range(0,len(percents)):
+        style.append(styletemp[len(percents) - z -1])
+    if (len(percents) > 1):
+        legend.SetNColumns(2)
+        counter1 = 0
+        counter2 = 0
+        clonelist =[]
+        for hist in histlist:
+            clonelist.append(hist.Clone())
+        for i in range(0,len(Legend)+len(percents)):
+            if ((i+1)%2):
+                if (counter1 < len(percents)):
+                    clonelist[i].SetLineColor(ROOT.kBlack)
+                    clonelist[i].SetLineStyle(style[(counter1%len(percents))])
+                    legend.AddEntry(clonelist[i], f"{percents[counter1]}% of events", "l")
+                elif (counter1 < len(percents) and (len(Legend) == len(percents))):
+                    a = 1
+                else:
+                    legend.AddEntry(0, " ", "")
+                counter1 += 1
+            else:
+                if (counter2 < len(Legend)):
+                    clonelist[i].SetLineColor(colors[counter2])
+                    legend.AddEntry(clonelist[i], f"{Legend[counter2]}", "l")
+                elif (counter1 < len(percents) and (len(Legend) == len(percents))):
+                    a = 1
+                else:
+                    legend.AddEntry(0, " ", "")
+                counter2 += 1
+        
+
     ROOT.gStyle.SetOptStat(0)
     # ROOT.gStyle.SetStatX(.9)
     # ROOT.gStyle.SetStatY(.4)
@@ -472,7 +509,7 @@ def SaveContHist(histlist, AxisInfo, Legend, colors, percents, save_path, logz):
     ROOT.TColor.InvertPalette()
     canvas = ROOT.TCanvas("canvas", "Canvas for Contour Histograms", 1000, 600)
     # Add legend
-    legend = ROOT.TLegend(0.7, 0.1, 0.9, 0.3)  # Define legend position
+    # legend = ROOT.TLegend(0.7, 0.1, 0.9, 0.3)  # Define legend position
     histlist[0].GetXaxis().SetTitle(AxisInfo[0]+ AxisInfo[1])
     histlist[0].GetYaxis().SetTitle(AxisInfo[2]+ AxisInfo[3])
     histlist[0].SetTitle(AxisInfo[4])
@@ -481,23 +518,41 @@ def SaveContHist(histlist, AxisInfo, Legend, colors, percents, save_path, logz):
         canvas.SetLogz()
     # legend.AddEntry(histlist[0], f"{Legend[0]}", "f")
     j = 0
-    styletemp = [1,2,3,4,5]
-    style = []
-    for z in range(0,len(percents)):
-        style.append(styletemp[len(percents) - z -1])
 
-    for i in range(0, len(Legend)):
+
+    for i in range(0, len(histlist)-1):
         histlist[i+1].SetLineColor(colors[j])
         histlist[i+1].SetFillStyle(0)
-        print(style[(i%len(percents))])
+        # print(style[(i%len(percents))])
         histlist[i+1].SetLineStyle(style[(i%len(percents))])
         histlist[i+1].SetLineWidth(1)
         histlist[i+1].Draw("CONT3 SAME")  # "HIST" option tells ROOT to draw the histograms
-        
-        legend.AddEntry(histlist[i+1], f"{Legend[i]}", "l")
+        if (len(percents) == 1):
+           legend.AddEntry(histlist[i+1], f"{Legend[i]}", "l")
         if (i%len(percents) + 1 == len(percents)):
             j += 1
     
+    # if (len(percents) > 1):
+    #     legend.SetNColumns(2)
+    #     counter1 = 0
+    #     counter2 = 0
+    #     for i in range(0,len(histlist)):
+    #         if ((i+1)%2):
+    #             if (counter1 < len(percents)):
+    #                 histlist[1].SetLineColor(ROOT.kBlack)
+    #                 histlist[1].SetLineStyle(style[(counter1%len(percents))])
+    #                 legend.AddEntry(histlist[1], f"{percents[counter1]}% of events", "l")
+    #             else:
+    #                 legend.AddEntry(0, " ", "")
+    #             counter1 += 1
+    #         else:
+    #             if (counter2 < len(Legend)):
+    #                 histlist[1].SetLineColor(colors[counter2])
+    #                 legend.AddEntry(histlist[1], f"{Legend[counter2]}", "l")
+    #             else:
+    #                 legend.AddEntry(0, " ", "")
+    #             counter2 += 1
+           
     
     legend.Draw()
     pave = ROOT.TPaveText(0.7, 0.3, 0.9, 0.35, "NDC")  # (x1, y1, x2, y2)

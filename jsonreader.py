@@ -360,11 +360,17 @@ if (Contour["Bool"]):
                 cuts.append(cut)
                 Legend.append(name)
 
-        LegendTemp = []
-        for Name in Legend:
-            for percent in Contour["TotalPercents"]:
-                LegendTemp.append(Name+" "+str(percent)+" % of total")
-        Legend = LegendTemp
+        # if (len(Contour["TotalPercents"]) > 1):
+        #     LegendTemp = []
+        #     counter = 0
+        #     for Name in Legend:
+        #         for percent in Contour["TotalPercents"]:
+        #             if (counter%2):
+        #                 LegendTemp.append(Name)
+        #             else:
+        #                 LegendTemp.append(str(percent)+" % of total")
+        #             counter += 1
+        #     Legend = LegendTemp
 
         for num in Contour["Colors"].split(","):
             colors.append(int(num))
