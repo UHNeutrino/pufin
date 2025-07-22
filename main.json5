@@ -149,7 +149,7 @@
             "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H", "!((Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)||Mode == 1 || Mode == 2 )":"Other"},
             // "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H"},
             "AutoQuant":[false, "q3", "q0",false,3],
-            "TotalPercents":[20,50,90], //requires pdf save for line textures to show up
+            "TotalPercents":[10,50,90], //requires pdf save for line textures to show up
             // "ConCuts":{"q3 <=.72": "Less than .72 GeV"},
             "Colors":"632, 416, 880, 800, 600",
             // "AxisInfo":"Lepton Momentum, GeV, Cos#theta_{#mu}, , NEUT 5.9 0Pi Lepton Kinematics for Flat Flux with T2K weights",
@@ -160,7 +160,7 @@
             "logz":true,
             "Save": "t2k-nova/7-22-25",
             // "Name": "PionAbsContLepKin",
-            "Name": "T2KfluxEnergyOther",
+            "Name": "LegendTest",
             "Ext": "pdf",
 
         }

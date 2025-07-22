@@ -431,6 +431,7 @@ def PlotContEventCuts(df, x, y, histInfo, cuts, percents):
                 continue
             CEvents = 0 
             NinteyB = True
+            truePercent = percent
             if percent > 1:
                     percent /= 100
             FallBack = 0
@@ -454,8 +455,10 @@ def PlotContEventCuts(df, x, y, histInfo, cuts, percents):
                     POmaxStep /= 10
                 elif (FallBack >= 100):
                     NinteyB = False
-                    print("Problem, try using finer binning, or more events")
+                    print("Problem, try using finer binning, or higher percent")
                     print(f"Plotted with {CEvents/TEvents}% of events rather than {percent}%")
+                    percents[percents.index(truePercent)] = CEvents/TEvents
+                    print(percents)
 
                 POmax -= POmaxStep
                 FallBack += 1
@@ -488,7 +491,7 @@ def SaveContHist(histlist, AxisInfo, Legend, colors, percents, save_path, logz):
                 if (counter1 < len(percents)):
                     clonelist[i].SetLineColor(ROOT.kBlack)
                     clonelist[i].SetLineStyle(style[(counter1%len(percents))])
-                    legend.AddEntry(clonelist[i], f"{percents[counter1]}% of events", "l")
+                    legend.AddEntry(clonelist[i], f"{str(percents[counter1])[0:4]}% of events", "l")
                 else:
                     legend.AddEntry(0, " ", "")
                 counter1 += 1
