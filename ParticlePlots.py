@@ -478,14 +478,17 @@ def SaveContHist(histlist, AxisInfo, Legend, colors, percents, save_path, logz):
         clonelist =[]
         for hist in histlist:
             clonelist.append(hist.Clone())
-        for i in range(0,len(Legend)+len(percents)):
+        LegIter =0
+        if (len(Legend)==len(percents)):
+            LegIter = len(Legend)+len(percents)
+        else:
+            LegIter = len(Legend)+len(percents) + abs(len(Legend)-len(percents))
+        for i in range(0,LegIter):
             if ((i+1)%2):
                 if (counter1 < len(percents)):
                     clonelist[i].SetLineColor(ROOT.kBlack)
                     clonelist[i].SetLineStyle(style[(counter1%len(percents))])
                     legend.AddEntry(clonelist[i], f"{percents[counter1]}% of events", "l")
-                elif (counter1 < len(percents) and (len(Legend) == len(percents))):
-                    a = 1
                 else:
                     legend.AddEntry(0, " ", "")
                 counter1 += 1
@@ -493,8 +496,6 @@ def SaveContHist(histlist, AxisInfo, Legend, colors, percents, save_path, logz):
                 if (counter2 < len(Legend)):
                     clonelist[i].SetLineColor(colors[counter2])
                     legend.AddEntry(clonelist[i], f"{Legend[counter2]}", "l")
-                elif (counter1 < len(percents) and (len(Legend) == len(percents))):
-                    a = 1
                 else:
                     legend.AddEntry(0, " ", "")
                 counter2 += 1
