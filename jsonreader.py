@@ -260,6 +260,8 @@ if (quantiles["Bool"]):
     if quantiles["plot_type"] == "segments":
         pq.PlotSegments(
             file_path1, 
+            quantiles["custom_quantiles"],
+            quantiles["consistent_quantiles"],
             quantiles["x1"], 
             quantiles["y1"], 
             quantiles["x2"], 
