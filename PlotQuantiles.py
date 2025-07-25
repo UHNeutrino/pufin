@@ -194,7 +194,7 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, xLabel, yLabel, mod
     #c.SaveAs(f"{HOME}/t2k-nova/{title}_{Name}.png")
     return hist 
 
-def MultiPlot(histos, slice, x, AutoTitleB, Title, AutoNameB, Name, Weight, Save, Ext, file_path, scale, frequency, Normalize, max, xLabel, yLabel, mode_title, mode_label): 
+def MultiPlot(histos, slice, x, custom_quantiles, AutoTitleB, Title, AutoNameB, Name, Weight, Save, Ext, file_path, scale, frequency, Normalize, max, xLabel, yLabel, mode_title, mode_label): 
     ## histos = list of histograms to plot
     ## x is plotting variable x 
     ## scale (boolean: true = logz); frequency (boolean: true = show z color axis); Normalize (boolean: true = normalize); max (int or "None")
@@ -282,13 +282,22 @@ def MultiPlot(histos, slice, x, AutoTitleB, Title, AutoNameB, Name, Weight, Save
     title = ROOT.TLatex()
     title.SetTextSize(0.035)
     title.SetTextAlign(22)  # Center alignment
-    if AutoTitleB:
-        if Weight:
-            title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} + Weight {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in {slice})")  # (x, y) in normalized device coordinates
+    if custom_quantiles:
+        if AutoTitleB:
+            if Weight:
+                title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} + Weight {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in custom {slice})")  # (x, y) in normalized device coordinates
+            else:
+                title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in custom {slice})")
         else:
-            title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in {slice})")
+            title.DrawLatexNDC(0.5, 0.97, f"{Title}")
     else:
-        title.DrawLatexNDC(0.5, 0.97, f"{Title}")
+        if AutoTitleB:
+            if Weight:
+                title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} + Weight {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in equal {slice})")  # (x, y) in normalized device coordinates
+            else:
+                title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in equal {slice})")
+        else:
+            title.DrawLatexNDC(0.5, 0.97, f"{Title}")
     # Add X-axis label (centered at the bottom) 
     xlabel = ROOT.TLatex()
     xlabel.SetTextSize(0.04)
@@ -305,15 +314,24 @@ def MultiPlot(histos, slice, x, AutoTitleB, Title, AutoNameB, Name, Weight, Save
     ROOT.gPad.Update()
     cFull.Update()
     # Save the canvas
-    if AutoNameB:
-        if Weight:
-            cFull.SaveAs(f"{HOME}/{Save}/{generator}_{NameParts[2]}+Weight_{mode_label}_{slice}_Quantiles_{x}.{Ext}")
+    if custom_quantiles:
+        if AutoNameB:
+            if Weight:
+                cFull.SaveAs(f"{HOME}/{Save}/{generator}_{NameParts[2]}+Weight_{mode_label}_custom_{slice}_Quantiles_{x}.{Ext}")
+            else:
+                cFull.SaveAs(f"{HOME}/{Save}/{generator}_{NameParts[2]}_{mode_label}_custom_{slice}_Quantiles_{x}.{Ext}")
         else:
-            cFull.SaveAs(f"{HOME}/{Save}/{generator}_{NameParts[2]}_{mode_label}_{slice}_Quantiles_{x}.{Ext}")
+            cFull.SaveAs(f"{HOME}/{Save}/{Name}.{Ext}")
     else:
-        cFull.SaveAs(f"{HOME}/{Save}/{Name}.{Ext}")
+        if AutoNameB:
+            if Weight:
+                cFull.SaveAs(f"{HOME}/{Save}/{generator}_{NameParts[2]}+Weight_{mode_label}_{slice}_Quantiles_{x}.{Ext}")
+            else:
+                cFull.SaveAs(f"{HOME}/{Save}/{generator}_{NameParts[2]}_{mode_label}_{slice}_Quantiles_{x}.{Ext}")
+        else:
+            cFull.SaveAs(f"{HOME}/{Save}/{Name}.{Ext}")
 
-def PlotSegments(file_path, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, AutoTitleB, Title, AutoNameB, Name, Save, Ext, max, df, Weight, scale, frequency, Normalize): 
+def PlotSegments(file_path, custom_quantiles, consistent_quantiles, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, AutoTitleB, Title, AutoNameB, Name, Save, Ext, max, df, Weight, scale, frequency, Normalize): 
     # x1 and y1 binning variables; x2 and y2 plotting variables
     # mode_title plotting title; mode_label saving title
     # scale (boolean: true = logz); frequency (boolean: true = show z color axis); Normalize (boolean: true = normalize); max (int or "None")
@@ -325,7 +343,11 @@ def PlotSegments(file_path, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_lab
     
     # Make q0 vs q3 histogram to find quantiles with equal events 
     slice = x1 
-    x_bins, total_events = constant_event_binning(x1, y1, max_energy, df=df, Weight=Weight)
+    if custom_quantiles:
+        _, total_events = constant_event_binning(x1, y1, max_energy, df=df, Weight=Weight)
+        x_bins = consistent_quantiles
+    else:
+        x_bins, total_events = constant_event_binning(x1, y1, max_energy, df=df, Weight=Weight)
     
     # Plot full q3/q0 spectrum in x2 and y2 variables
     # Generate the full events histogram
@@ -373,11 +395,11 @@ def PlotSegments(file_path, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_lab
         histos.append(hist)
     
 
-    MultiPlot(histos, slice, x2, AutoTitleB, Title, AutoNameB, Name, Weight, Save, Ext, file_path=file_path, scale=scale, frequency=frequency, Normalize=Normalize, max = max, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label)
+    MultiPlot(histos, slice, x2, custom_quantiles, AutoTitleB, Title, AutoNameB, Name, Weight, Save, Ext, file_path=file_path, scale=scale, frequency=frequency, Normalize=Normalize, max = max, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label)
 
 
 # Need to add scale, frequency, Normalize and max to this function!!!
-def PlotGrid(file_path, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, df, Weight, scale, frequency, Normalize):
+def PlotGrid(file_path, custom_quantiles, consistent_quantiles, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, df, Weight, scale, frequency, Normalize):
     # x1 and y1 binning variables; x2 and y2 plotting variables
     # mode_title plotting title; mode_label saving title
     # scale (boolean: true = logz); frequency (boolean: true = show z color axis); Normalize (boolean: true = normalize); max (int or "None")
@@ -471,8 +493,8 @@ if __name__ == "__main__":
     
     # Run selected plot
     if config.get("plot_type") == "segments":
-        PlotSegments(file_path1, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, AutoTitleB, Title, AutoNameB, Name, Save, Ext, max=zmax, df=df_filtered, Weight=Weight, scale=logz, frequency = zaxis, Normalize=Norm)
+        PlotSegments(file_path1, custom_quantiles, consistent_quantiles, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, AutoTitleB, Title, AutoNameB, Name, Save, Ext, max=zmax, df=df_filtered, Weight=Weight, scale=logz, frequency = zaxis, Normalize=Norm)
     elif config.get("plot_type") == "grid":
-        PlotGrid(file_path1, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, df=df_filtered, scale=logz, frequency=zaxis, Normalize=Norm)
+        PlotGrid(file_path1, custom_quantiles, consistent_quantiles, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, df=df_filtered, scale=logz, frequency=zaxis, Normalize=Norm)
     else:
         print("Invalid plot_type in config_PlotQuantiles.json5. Use 'segments' or 'grid'.")
