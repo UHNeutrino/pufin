@@ -54,7 +54,7 @@ def DefineKinematics(df):
 
     return cos_proton;
     """)
-    
+    #df = df.Filter("PProton1 >= 0")
     df = df.Define("initNeucMag", """
     std::vector<float> mags;
     for (size_t i = 0; i < px_init.size(); ++i) {
@@ -272,7 +272,7 @@ def Savehist(hist, AxisInfo, save_location, filename, ext, max = 0, Normalize = 
     yvar = AxisInfo[2]
     yunit = AxisInfo[3]
     PlotTitle = AxisInfo[4]
-
+    #ROOT.gStyle.SetPalette(ROOT.kBird)
     if max != 0:
         hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle)
     else:
