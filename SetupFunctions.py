@@ -1,5 +1,6 @@
 import ROOT
 import os
+from array import array
 
 def setupRoot():
     ROOT.gStyle.SetStatX(0.85)  # Closer to the left edge
@@ -55,6 +56,63 @@ def formatTcanvasSame(c):
     c.SetBottomMargin(0.12) # Adjust as needed
     #hist.Draw("HIST")  # Draw the histogram as a standard histogram
     c.SetCanvasSize(c.GetWw(), c.GetWh())
+
+def formatComparisonHist(hist, Compare_type, zmin=None, zmax=None):
+    """
+    Set a blue-white-red color palette for TH2 histograms and center the color scale.
+    
+    Parameters:
+        hist (ROOT.TH2): The 2D histogram to format.
+        Compare_type (str): Either "Difference" (center at 0) or "Ratio" (center at 1).
+    """
+    from array import array
+    n_color_contours = 999
+
+    # Get max and min bin contents
+    max_val = hist.GetBinContent(hist.GetMaximumBin())
+    min_val = hist.GetBinContent(hist.GetMinimumBin())
+
+    if not hasattr(formatComparisonHist, "initialized"):
+        formatComparisonHist.initialized = True
+        ROOT.gStyle.SetNumberContours(n_color_contours)
+
+        NRGBs = 3
+
+        stops = array('d', [0.00, 0.5, 1.00])
+        red   = array('d', [0.00, 1.00, 1.00])
+        green = array('d', [0.00, 1.00, 0.00])
+        blue  = array('d', [1.00, 1.00, 0.00])
+
+        colmin = ROOT.TColor.CreateGradientColorTable(NRGBs, stops, red, green, blue, n_color_contours)
+        formatComparisonHist.colors = [colmin + i for i in range(n_color_contours)]
+
+    # Set Z-axis range to center color palette
+    if zmin != "None" and zmax != "None":
+        hist.SetMinimum(zmin)
+        hist.SetMaximum(zmax)
+
+    elif Compare_type == "Difference":
+        max_abs = max(abs(max_val), abs(min_val))
+        hist.SetMinimum(-max_abs)
+        hist.SetMaximum(+max_abs)
+    elif Compare_type == "Ratio":
+        # # Set custom palette: blue → black → red
+        # NRGBs = 3
+        # stops = array('d', [0.00, 0.5, 1.00])
+        # red   = array('d', [0.00, 0.00, 1.00])  # red on the right
+        # green = array('d', [0.00, 0.00, 0.00])  # black in the center
+        # blue  = array('d', [1.00, 0.00, 0.00])  # blue on the left
+
+        # colmin = ROOT.TColor.CreateGradientColorTable(NRGBs, stops, red, green, blue, n_color_contours)
+        # formatComparisonHist.colors = [colmin + i for i in range(n_color_contours)]
+        
+        # delta = max(abs(1 - max_val), abs(1 - min_val))
+        # hist.SetMinimum(1 - delta)
+        # hist.SetMaximum(1 + delta)
+        print("formatComparisonHist does not currently work for Ratio plots.")
+
+    return hist
+
 
 def modeDic():
     CCmodes={1 : "NEU,N --> LEPTON-,P",

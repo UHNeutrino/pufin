@@ -274,10 +274,11 @@ if (quantiles["Bool"]):
             quantiles["AutoTitleB"],
             quantiles["Title"],
             quantiles["AutoNameB"],
-            quantiles["Name"],
+            quantiles["SaveName"],
             quantiles["Save"],
             quantiles["Ext"],
             max = quantiles["zmax"], 
+            min = quantiles["zmin"],
             df=df_filtered, 
             Weight=Weight, 
             scale=quantiles["logz"], 
@@ -285,8 +286,51 @@ if (quantiles["Bool"]):
             Normalize=quantiles["Norm"])
     #elif quantiles["plot_type"] == "grid":
         #pq.PlotGrid(file_path1, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, df=df_filtered, scale=logz, frequency=zaxis, Normalize=Norm)
+    elif quantiles["plot_type"] == "compare":
+        file_name2 = input("Give Root File name: ")
+        file_path2 = f"/data/t2k-nova/FlatTrees/{file_name2}"
+        treeName = "FlatTree_VARS"
+    
+        df1b = ROOT.RDataFrame(treeName,file_path2)
+        df1b = df1b.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+        df1b = pp.DefineKinematics(df1b)
+    
+        if quantiles["reWeight2"][0]:
+            Weight = True
+            df1b = pp.defineWeightsSpline(df1b, quantiles["reWeight2"][1], quantiles["reWeight2"][2])
+        
+        df_filtered2 = df1b.Filter(quantiles["cut"])
+        pq.PlotCompare(
+            file_path1,
+            file_path2,
+            quantiles["custom_quantiles"],
+            quantiles["consistent_quantiles"],
+            quantiles["x1"], 
+            quantiles["y1"], 
+            quantiles["x2"], 
+            quantiles["y2"], 
+            quantiles["xLabel"], 
+            quantiles["yLabel"], 
+            quantiles["mode_title"], 
+            quantiles["mode_label"],
+            quantiles["max_energy"],
+            quantiles["AutoTitleB"],
+            quantiles["Title"],
+            quantiles["AutoNameB"],
+            quantiles["SaveName"],
+            quantiles["Save"],
+            quantiles["Ext"],
+            max = quantiles["zmax"], 
+            min = quantiles["zmin"],
+            df=df_filtered, 
+            df2=df_filtered2, 
+            Weight=Weight, 
+            scale=quantiles["logz"], 
+            frequency=quantiles["zaxis"], 
+            Normalize=quantiles["Norm"],
+            Compare_type=quantiles["compare_type"])
     else:
-        print("Invalid plot_type in config_PlotQuantiles.json5. Use 'segments' or 'grid'.")
+        print("Invalid plot_type in config_PlotQuantiles.json5. Use 'segments', 'grid' or 'ratio'.")
     
 
 if (Contour["Bool"]):
