@@ -176,11 +176,12 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, xLabel, yLabel, mod
         hist1 = df.Histo2D(histogramInfo,x,y,"weights")
     else:
         hist1 = df.Histo2D(histogramInfo,x,y)
-        
-    NameParts = SF.formatName(dir_location)
-    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+    hist1_obj = hist1.GetValue() # This creates the actual TH2D object in C++ memory
     
-    hist = SF.formatHist(hist1 ,f'{xLabel}', '(GeV)', f'{mode_title} Grid: {yLabel}', '',NameParts = NameParts) 
+    NameParts = SF.formatName(dir_location)
+    #Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+    
+    hist = SF.formatHist(hist1_obj ,f'{xLabel}', '(GeV)', f'{mode_title} Grid: {yLabel}', '',NameParts = NameParts) 
 
     # Create a TLatex object to add text
     latex = ROOT.TLatex()
@@ -194,18 +195,29 @@ def PlotQuantiles(x, y, histogramInfo, file_path, df, title, xLabel, yLabel, mod
     #c.SaveAs(f"{HOME}/t2k-nova/{title}_{Name}.png")
     return hist 
 
-def MultiPlot(histos, slice, x, custom_quantiles, AutoTitleB, Title, AutoNameB, Name, Weight, Save, Ext, file_path, scale, frequency, Normalize, max, xLabel, yLabel, mode_title, mode_label): 
+def MultiPlot(histos, slice, x, custom_quantiles, AutoTitleB, Title, AutoNameB, SaveName, Weight, Save, Ext, file_path, scale, frequency, Normalize, max, min, xLabel, yLabel, mode_title, mode_label, file_path2=None, Compare_type=None): 
     ## histos = list of histograms to plot
     ## x is plotting variable x 
     ## scale (boolean: true = logz); frequency (boolean: true = show z color axis); Normalize (boolean: true = normalize); max (int or "None")
     ## mode_title for plot; mode_label for saving
-    
-    dir_location = file_path
-    file_name = file_path.split('/')[-1]
-    generator = file_name.split('_')[1]
-    flux = file_name.split('_')[2]
-    
-    NameParts = SF.formatName(dir_location)
+    if file_path2:
+        dir_location = file_path
+        dir_location2 = file_path2
+        file_name = file_path.split('/')[-1]
+        file_name2 = file_path2.split('/')[-1]
+        generator = file_name.split('_')[1]
+        generator2 = file_name2.split('_')[1]
+        flux = file_name.split('_')[2]
+        
+        NameParts = SF.formatName(dir_location)
+        NameParts2 = SF.formatName(dir_location2)
+    else:
+        dir_location = file_path
+        file_name = file_path.split('/')[-1]
+        generator = file_name.split('_')[1]
+        flux = file_name.split('_')[2]
+        
+        NameParts = SF.formatName(dir_location) 
     
 
     # Create a canvas
@@ -254,6 +266,12 @@ def MultiPlot(histos, slice, x, custom_quantiles, AutoTitleB, Title, AutoNameB, 
             histos[i].SetMaximum(float(max)) 
         elif max == "None":
             histos[i].SetMaximum()
+        if min is not None and min != "None":
+            histos[i].SetMinimum(float(min)) 
+        elif min == "None":
+            histos[i].SetMinimum()
+        if Compare_type == "Difference":
+            histos[i] = SF.formatComparisonHist(histos[i], Compare_type, min, max)
         # Retrieve histogram title
         hist_title = histos[i].GetName()
         Plot_Title_Parts = hist_title.split('_')
@@ -271,9 +289,10 @@ def MultiPlot(histos, slice, x, custom_quantiles, AutoTitleB, Title, AutoNameB, 
         title_text.DrawLatex(0.6, 0.55, f"{Plot_Title_0_Parts[0]}:")  # Position near top-center
         if len(Plot_Title_0_Parts) > 1:
             title_text.DrawLatex(0.6, 0.45, f"{Plot_Title_0_Parts[1]}")
-        title_text.DrawLatex(0.6, 0.35, f"{Plot_Title_Parts[1]} events")
-        title_text.DrawLatex(0.6, 0.25, f"{percent}%")
-        title_text.DrawLatex(0.6, 0.15, "of total generated")
+        if file_path2 == "None":
+            title_text.DrawLatex(0.6, 0.35, f"{Plot_Title_Parts[1]} events")
+            title_text.DrawLatex(0.6, 0.25, f"{percent}%")
+            title_text.DrawLatex(0.6, 0.15, "of total generated")
         #print(f"Histogram {i} title: {hist_title}")  # Debugging step
 
     
@@ -282,20 +301,29 @@ def MultiPlot(histos, slice, x, custom_quantiles, AutoTitleB, Title, AutoNameB, 
     title = ROOT.TLatex()
     title.SetTextSize(0.035)
     title.SetTextAlign(22)  # Center alignment
-    if custom_quantiles:
+    if file_path2:
         if AutoTitleB:
             if Weight:
-                title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} + Weight {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in custom {slice})")  # (x, y) in normalized device coordinates
+                title.DrawLatexNDC(0.5, 0.97, f"{Compare_type}: {NameParts[1]} vs. {NameParts2[1]} {NameParts[2]} + Weight {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events")  # (x, y) in normalized device coordinates
             else:
-                title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in custom {slice})")
+                title.DrawLatexNDC(0.5, 0.97, f"{Compare_type}: {NameParts[1]} vs. {NameParts2[1]} {NameParts[2]} {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events")
+        else:
+            title.DrawLatexNDC(0.5, 0.97, f"{Title}")
+        
+    elif custom_quantiles:
+        if AutoTitleB:
+            if Weight:
+                title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} + Weight {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events")  # (x, y) in normalized device coordinates
+            else:
+                title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events")
         else:
             title.DrawLatexNDC(0.5, 0.97, f"{Title}")
     else:
         if AutoTitleB:
             if Weight:
-                title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} + Weight {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in equal {slice})")  # (x, y) in normalized device coordinates
+                title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} + Weight {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events")  # (x, y) in normalized device coordinates
             else:
-                title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events (binned in equal {slice})")
+                title.DrawLatexNDC(0.5, 0.97, f"{NameParts[1]}: {NameParts[2]} {mode_title} #nu_{{#mu}} events cut from {NameParts[3]} generated events")
         else:
             title.DrawLatexNDC(0.5, 0.97, f"{Title}")
     # Add X-axis label (centered at the bottom) 
@@ -314,14 +342,22 @@ def MultiPlot(histos, slice, x, custom_quantiles, AutoTitleB, Title, AutoNameB, 
     ROOT.gPad.Update()
     cFull.Update()
     # Save the canvas
-    if custom_quantiles:
+    if file_path2:
+        if AutoNameB:
+            if Weight:
+                cFull.SaveAs(f"{HOME}/{Save}/{Compare_type}_{generator}_{generator2}_{NameParts[2]}+Weight_{mode_label}_custom_{slice}_Quantiles_{x}.{Ext}")
+            else:
+                cFull.SaveAs(f"{HOME}/{Save}/{Compare_type}_{generator}_{generator2}_{NameParts[2]}_{mode_label}_custom_{slice}_Quantiles_{x}.{Ext}")
+        else:
+            cFull.SaveAs(f"{HOME}/{Save}/{SaveName}.{Ext}")
+    elif custom_quantiles:
         if AutoNameB:
             if Weight:
                 cFull.SaveAs(f"{HOME}/{Save}/{generator}_{NameParts[2]}+Weight_{mode_label}_custom_{slice}_Quantiles_{x}.{Ext}")
             else:
                 cFull.SaveAs(f"{HOME}/{Save}/{generator}_{NameParts[2]}_{mode_label}_custom_{slice}_Quantiles_{x}.{Ext}")
         else:
-            cFull.SaveAs(f"{HOME}/{Save}/{Name}.{Ext}")
+            cFull.SaveAs(f"{HOME}/{Save}/{SaveName}.{Ext}")
     else:
         if AutoNameB:
             if Weight:
@@ -329,15 +365,15 @@ def MultiPlot(histos, slice, x, custom_quantiles, AutoTitleB, Title, AutoNameB, 
             else:
                 cFull.SaveAs(f"{HOME}/{Save}/{generator}_{NameParts[2]}_{mode_label}_{slice}_Quantiles_{x}.{Ext}")
         else:
-            cFull.SaveAs(f"{HOME}/{Save}/{Name}.{Ext}")
+            cFull.SaveAs(f"{HOME}/{Save}/{SaveName}.{Ext}")
 
-def PlotSegments(file_path, custom_quantiles, consistent_quantiles, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, AutoTitleB, Title, AutoNameB, Name, Save, Ext, max, df, Weight, scale, frequency, Normalize): 
+def PlotSegments(file_path, custom_quantiles, consistent_quantiles, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, AutoTitleB, Title, AutoNameB, SaveName, Save, Ext, max, min, df, Weight, scale, frequency, Normalize): 
     # x1 and y1 binning variables; x2 and y2 plotting variables
     # mode_title plotting title; mode_label saving title
     # scale (boolean: true = logz); frequency (boolean: true = show z color axis); Normalize (boolean: true = normalize); max (int or "None")
     dir_location = file_path
     NameParts = SF.formatName(dir_location)
-    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+    #Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     
     histos = []  # Store histograms here in order to plot on divided canvas
     
@@ -395,8 +431,134 @@ def PlotSegments(file_path, custom_quantiles, consistent_quantiles, x1, y1, x2, 
         histos.append(hist)
     
 
-    MultiPlot(histos, slice, x2, custom_quantiles, AutoTitleB, Title, AutoNameB, Name, Weight, Save, Ext, file_path=file_path, scale=scale, frequency=frequency, Normalize=Normalize, max = max, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label)
-
+    MultiPlot(histos, slice, x2, custom_quantiles, AutoTitleB, Title, AutoNameB, SaveName, Weight, Save, Ext, file_path=file_path, scale=scale, frequency=frequency, Normalize=Normalize, max = max, min = min, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label)
+def PlotCompare(file_path, file_path2, custom_quantiles, consistent_quantiles, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, AutoTitleB, Title, AutoNameB, SaveName, Save, Ext, max, min, df, df2, Weight, scale, frequency, Normalize, Compare_type): 
+    # x1 and y1 binning variables; x2 and y2 plotting variables
+    # mode_title plotting title; mode_label saving title
+    # scale (boolean: true = logz); frequency (boolean: true = show z color axis); Normalize (boolean: true = normalize); max (int or "None")
+    dir_location = file_path
+    dir_location2 = file_path2
+    NameParts = SF.formatName(dir_location)
+    #Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+    NameParts2 = SF.formatName(dir_location2)
+    #Name2 = NameParts2[1] + "_" + NameParts2[2] + "_" + NameParts2[3]
+    
+    histos = []  # Store histograms here in order to plot on divided canvas
+    histos2 = []  # Store histograms here in order to plot on divided canvas
+    
+    # Make q0 vs q3 histogram to find quantiles with equal events 
+    slice = x1 
+    if custom_quantiles:
+        _, total_events = constant_event_binning(x1, y1, max_energy, df=df, Weight=Weight)
+        _, total_events2 = constant_event_binning(x1, y1, max_energy, df=df2, Weight=Weight)
+        x_bins = consistent_quantiles
+        
+    else:
+        print ("Must use consistent quantiles to make ratio plots")
+    
+    nbins = max_energy*20
+    histInfo = (f"Full {slice} Spectrum_{total_events}", f"{y2} vs {x2} plot", nbins, 0, max_energy, 102, -1.02, 1.02)
+    histInfo2 = (f"Full {slice} Spectrum_{total_events2}", f"{y2} vs {x2} plot", nbins, 0, max_energy, 102, -1.02, 1.02)
+    if Weight:
+        hist_AllEvents = df.Histo2D(histInfo,x2,y2,"weights")
+        hist_AllEvents2 = df2.Histo2D(histInfo,x2,y2,"weights")
+    else:
+        hist_AllEvents = df.Histo2D(histInfo,x2,y2)
+        hist_AllEvents2 = df2.Histo2D(histInfo2,x2,y2)
+    # cAllEvents = ROOT.TCanvas()
+    
+    # SF.formatTcanvas(hist_AllEvents,cAllEvents)
+    
+    #title = hist_AllEvents.GetName()
+    #print(f"{title}")
+    #title2 = hist_AllEvents2.GetName()
+    #print(f"{title2}")
+    hist1 = hist_AllEvents.GetValue()
+    hist2 = hist_AllEvents2.GetValue()
+    histos.append(hist1)
+    histos2.append(hist2)
+    
+    # Apply quantile_cutting to make a new dataframe for each quantile 
+    quantile_dfs = quantile_cutting(x1, x_bins, Weight, df=df)   
+    quantile_dfs2 = quantile_cutting(x1, x_bins, Weight, df=df2)
+        
+    event_counts = {}  # Dictionary to store event counts
+    # Check: Print the number of events in each quantile
+    for i, df in enumerate(quantile_dfs):
+        if Weight:
+            count = df.Sum("weights").GetValue()
+        else:
+            count = df.Count().GetValue()
+        print(f"Quantile {i+1}: {count} events")
+        event_counts[i] = count  # Store in dictionary
+    
+    # Create and save a plot for each quantile
+    for i, df in enumerate(quantile_dfs):
+        # Define title to use as the name of the histogram for multiplot text
+        lower_bound = x_bins[i]
+        upper_bound = x_bins[i + 1]
+        title = f"{slice} range: {lower_bound:.2f} to {upper_bound:.2f} GeV_{event_counts[i]}"
+        histInfo = (f"{title}", f"{y2} vs {x2} plot", nbins, 0, max_energy, 102, -1.02, 1.02)
+        hist = PlotQuantiles(x2, y2, histInfo, file_path=file_path, df=df, title = title, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label, Weight=Weight)
+        histos.append(hist)
+    
+    event_counts2 = {}  # Dictionary to store event counts
+    # Check: Print the number of events in each quantile
+    for i, df in enumerate(quantile_dfs2):
+        if Weight:
+            count = df.Sum("weights").GetValue()
+        else:
+            count = df.Count().GetValue()
+        print(f"Quantile {i+1}: {count} events")
+        event_counts2[i] = count  # Store in dictionary
+    
+    # Create and save a plot for each quantile
+    for i, df in enumerate(quantile_dfs2):
+        # Define title to use as the name of the histogram for multiplot text
+        lower_bound = x_bins[i]
+        upper_bound = x_bins[i + 1]
+        title2 = f"{slice} range: {lower_bound:.2f} to {upper_bound:.2f} GeV_{event_counts2[i]}"
+        histInfo = (f"{title2}", f"{y2} vs {x2} plot", nbins, 0, max_energy, 102, -1.02, 1.02)
+        hist = PlotQuantiles(x2, y2, histInfo, file_path=file_path2, df=df, title = title2, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label, Weight=Weight)
+        histos2.append(hist)
+        
+        
+    # hist1 = hist_AllEvents.GetValue()
+    # hist2 = hist_AllEvents2.GetValue()    
+    # ratio_histo = hist1.Clone(f"ratio")
+    # ratio_histo.Divide(hist2)
+    # cFull = ROOT.TCanvas("cFull", "Canvas with Subdivisions", 1200, 800) 
+    # ratio_histo.Draw("colz")
+    # cFull.SaveAs(f"{HOME}/{Save}/{Name}.{Ext}")
+    
+    if Compare_type == "Ratio":
+        compare_histos = []
+        for i in range(len(histos)):
+            ratio_hist = histos[i].Clone()
+            if i ==0:
+                title_str = f"Full {slice} Spectrum"
+            else:
+                title_str = f"{slice} range: {lower_bound:.2f} to {upper_bound:.2f} GeV"
+            ratio_hist.SetTitle(title_str)
+            ratio_hist.Divide(histos2[i])
+            compare_histos.append(ratio_hist)
+            
+    elif Compare_type == "Difference":
+        compare_histos = []
+        for i in range(len(histos)):
+            difference_hist = histos[i].Clone()
+            difference_hist.Add(histos2[i], -1)
+            if i ==0:
+                title_str = f"Full {slice} Spectrum"
+            else:
+                title_str = f"{slice} range: {lower_bound:.2f} to {upper_bound:.2f} GeV"
+            difference_hist.SetTitle(title_str)
+            compare_histos.append(difference_hist)
+            
+    else:
+        print("Compare_type must be 'Ratio' or 'Difference'.")
+         
+    MultiPlot(compare_histos, slice, x2, custom_quantiles, AutoTitleB, Title, AutoNameB, SaveName, Weight, Save, Ext, file_path=file_path, scale=scale, frequency=frequency, Normalize=Normalize, max = max, min = min, xLabel=xLabel, yLabel=yLabel, mode_title=mode_title, mode_label=mode_label, file_path2=file_path2, Compare_type=Compare_type)
 
 # Need to add scale, frequency, Normalize and max to this function!!!
 def PlotGrid(file_path, custom_quantiles, consistent_quantiles, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, df, Weight, scale, frequency, Normalize):
@@ -405,7 +567,7 @@ def PlotGrid(file_path, custom_quantiles, consistent_quantiles, x1, y1, x2, y2, 
     # scale (boolean: true = logz); frequency (boolean: true = show z color axis); Normalize (boolean: true = normalize); max (int or "None")
     dir_location = file_path
     NameParts = SF.formatName(dir_location)
-    Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
+    #Name = NameParts[1] + "_" + NameParts[2] + "_" + NameParts[3]
     
     # Make q0 vs q3 histogram to find quantiles with equal events
     slice = x1
