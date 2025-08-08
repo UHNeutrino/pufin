@@ -95,21 +95,21 @@ def formatComparisonHist(hist, Compare_type, zmin=None, zmax=None):
         max_abs = max(abs(max_val), abs(min_val))
         hist.SetMinimum(-max_abs)
         hist.SetMaximum(+max_abs)
-    elif Compare_type == "Ratio":
-        # # Set custom palette: blue → black → red
-        # NRGBs = 3
-        # stops = array('d', [0.00, 0.5, 1.00])
-        # red   = array('d', [0.00, 0.00, 1.00])  # red on the right
-        # green = array('d', [0.00, 0.00, 0.00])  # black in the center
-        # blue  = array('d', [1.00, 0.00, 0.00])  # blue on the left
+    # elif Compare_type == "Ratio":
+    #     # Set custom palette: blue → black → red
+    #     NRGBs = 3
+    #     stops = array('d', [0.00, 0.5, 1.00])
+    #     red   = array('d', [0.00, 0.00, 1.00])  # red on the right
+    #     green = array('d', [0.00, 0.00, 0.00])  # black in the center
+    #     blue  = array('d', [1.00, 0.00, 0.00])  # blue on the left
 
-        # colmin = ROOT.TColor.CreateGradientColorTable(NRGBs, stops, red, green, blue, n_color_contours)
-        # formatComparisonHist.colors = [colmin + i for i in range(n_color_contours)]
+    #     colmin = ROOT.TColor.CreateGradientColorTable(NRGBs, stops, red, green, blue, n_color_contours)
+    #     formatComparisonHist.colors = [colmin + i for i in range(n_color_contours)]
         
-        # delta = max(abs(1 - max_val), abs(1 - min_val))
-        # hist.SetMinimum(1 - delta)
-        # hist.SetMaximum(1 + delta)
-        print("formatComparisonHist does not currently work for Ratio plots.")
+    #     delta = max(abs(1 - max_val), abs(1 - min_val))
+    #     hist.SetMinimum(1 - delta)
+    #     hist.SetMaximum(1 + delta)
+    #     print("formatComparisonHist does not currently work for Ratio plots.")
 
     return hist
 
