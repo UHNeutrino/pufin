@@ -37,6 +37,8 @@ if (plots["Bool"]):
             df = pp.DefineEvis(df)  
         if (plots["KinematicsB"]):
             df = pp.DefineKinematics(df)
+        if (plots["TkiB"]):
+            df = pp.DefineTKI(df)
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
         if(plots["reWeight"][0]):
@@ -144,22 +146,24 @@ if (same1D["Bool"]):
     #legend = ROOT.TLegend(0.3, 0.6, 0.59, 0.79) ## better for cos theta plots
     
     norm = same1D.get("Norm")
-    logz = same1D.get("logz")
+    logy = same1D.get("logy")
     kin = same1D.get("KinematicsB", False)
     Evis = same1D.get("EvisB", False)
+    Tki = same1D.get("TkiB", False)
     histCounter = 0
     for plot in plots_list:
-        
+        file = plot["File"]
         key = plot["Key"]
         color_str = plot["Color"]
         label = plot["Label"]
         reweight_flag, rw_file, rw_flux = plot["reWeight"]
         spline = plot["Spline"]
+        Var = plot["Var"]
 
         # Find matching file
-        matches = glob.glob(f"{userFolder}/*{key}*.root")
+        matches = glob.glob(f"{userFolder}/*{file}*.root")
         if not matches:
-            print(f"No file found for key: {key}")
+            print(f"No file found for key: {file}")
             continue
 
         file_path = matches[0]
@@ -198,16 +202,17 @@ if (same1D["Bool"]):
         if same1D["VBins"][0]:
             histInfo = varBinInfo
         if weight_col:
-            rdf_hist = df.Histo1D(histInfo, same1D["Var"], weight_col)
+            rdf_hist = df.Histo1D(histInfo, plot["Var"], weight_col)
         else:
-            rdf_hist = df.Histo1D(histInfo, same1D["Var"])
+            rdf_hist = df.Histo1D(histInfo, plot["Var"])
 
         hist_rdfs.append(rdf_hist)  # Keep RDF object alive
         hist = rdf_hist.GetValue()
         pp.HistoErrorBars(hist)
         if norm and hist.Integral() != 0:
             hist.Scale(1.0 / hist.Integral())
-        hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
+        #hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
+        hist = sf.formatHist(hist, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
         
         color = getattr(ROOT, color_str.split("+")[0]) + int(color_str.split("+")[1]) if "+" in color_str else getattr(ROOT, color_str)
         hist.SetLineColor(color)
@@ -224,20 +229,12 @@ if (same1D["Bool"]):
         legend.AddEntry(hist, label, "l")
         hist_dict[key] = hist
         histCounter += 1
-    if logz:
-        c.SetLogz()
+    if logy:
+        c.SetLogy()
     legend.Draw("SAME")
 
     outname = f"{HOME}/{same1D['Save']}/{same1D['Name']}.{same1D['Ext']}"
     c.SaveAs(outname)
-# if (quantiles["Bool"]):
-#     import PlotQuantiles as pq
-#     pq.config = quantiles
-#     exec(open("PlotQuantiles.py").read())
-# if (quantiles["Bool"]):
-#     import FourQuantiles as pq
-#     pq.config = quantiles
-#     exec(open("FourQuantiles.py").read())
 
 if (quantiles["Bool"]):
     file_name = input("Give Root File name: ")
@@ -247,12 +244,19 @@ if (quantiles["Bool"]):
     df1 = ROOT.RDataFrame(treeName,file_path1)
     df1 = df1.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
     df1 = pp.DefineKinematics(df1)
+    df1 = pp.DefineTKI(df1)
 
     Weight = False
+    Flux =""
     
     if quantiles["reWeight"][0]:
         Weight = True
-        df1 = pp.defineWeightsSpline(df1, quantiles["reWeight"][1], quantiles["reWeight"][2])
+        Flux_parts = quantiles["reWeight"][1].split("/")
+        if "NOvA" in Flux_parts[4]:
+            Flux = "NOvA"
+        else:
+            Flux = "T2K"
+        df1 = pp.defineWeightsSpline(df1, quantiles["reWeight"][1], quantiles["reWeight"][2], "flux1")
         
     df_filtered = df1.Filter(quantiles["cut"])
     
@@ -280,7 +284,8 @@ if (quantiles["Bool"]):
             max = quantiles["zmax"], 
             min = quantiles["zmin"],
             df=df_filtered, 
-            Weight=Weight, 
+            Weight=Weight,
+            Flux=Flux, 
             scale=quantiles["logz"], 
             frequency=quantiles["zaxis"], 
             Normalize=quantiles["Norm"])
@@ -294,10 +299,16 @@ if (quantiles["Bool"]):
         df1b = ROOT.RDataFrame(treeName,file_path2)
         df1b = df1b.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
         df1b = pp.DefineKinematics(df1b)
-    
+
+        Flux2 =""
         if quantiles["reWeight2"][0]:
             Weight = True
-            df1b = pp.defineWeightsSpline(df1b, quantiles["reWeight2"][1], quantiles["reWeight2"][2])
+            Flux_parts2 = quantiles["reWeight2"][1].split("/")
+            if "NOvA" in Flux_parts2[4]:
+                Flux2 = "NOvA"
+            else:
+                Flux2 = "T2K"
+            df1b = pp.defineWeightsSpline(df1b, quantiles["reWeight2"][1], quantiles["reWeight2"][2], "flux2")
         
         df_filtered2 = df1b.Filter(quantiles["cut"])
         pq.PlotCompare(
@@ -324,7 +335,9 @@ if (quantiles["Bool"]):
             min = quantiles["zmin"],
             df=df_filtered, 
             df2=df_filtered2, 
-            Weight=Weight, 
+            Weight=Weight,
+            Flux=Flux,
+            Flux2=Flux2, 
             scale=quantiles["logz"], 
             frequency=quantiles["zaxis"], 
             Normalize=quantiles["Norm"],

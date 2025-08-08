@@ -149,33 +149,33 @@ def DefineEvis(df):
 
     df = df.Define("Evis_kin", "(TMath::Power(.938272,2)-TMath::Power(.93956-0.09215,2)-TMath::Power(.105608,2)+2*(.93956-0.09215)*ELep)/(2*(0.93956-0.09215-ELep+PLep*CosLep))")
 
-    
+def DefineTKI(df):
     # Define Neutrino Momentum as a Vector
-    df = df.Define("PNu", """ 
-        double px_nu = 0;
-        double py_nu = 0;
-        double pz_nu = 0;
-        TVector3 pnu(px_nu, py_nu, pz_nu);
+    # df = df.Define("PNu", """ 
+    #     double px_nu = 0;
+    #     double py_nu = 0;
+    #     double pz_nu = 0;
+    #     TVector3 pnu(px_nu, py_nu, pz_nu);
         
-        for (size_t i = 0; i < pdg_init.size(); ++i) {
-            if (pdg_init[i] == 14) { //neutrino 
-                px_nu += px_init[i];
-                py_nu += py_init[i];
-                pz_nu += pz_init[i]; 
-            }
-        }
-        pnu.SetXYZ(px_nu, py_nu, pz_nu);
+    #     for (size_t i = 0; i < pdg_init.size(); ++i) {
+    #         if (pdg_init[i] == 14) { //neutrino 
+    #             px_nu += px_init[i];
+    #             py_nu += py_init[i];
+    #             pz_nu += pz_init[i]; 
+    #         }
+    #     }
+    #     pnu.SetXYZ(px_nu, py_nu, pz_nu);
         
-        return pnu;
+    #     return pnu;
 
-    """)
+    # """)
     
     # Define PTLep: Transverse Momemtum of Lepton (Cross Product with Neutrino Momentum)
     df = df.Define("PTLep", """
         double px_lep = 0;
         double py_lep = 0;
         double pz_lep = 0;
-        TVector3 plep(0, 0, 0);
+        TVector3 ptlep(0, 0, 0);
         for (size_t i = 0; i < pdg.size(); ++i) {
             if (pdg[i] == 13) {
                 px_lep += px[i];
@@ -184,66 +184,88 @@ def DefineEvis(df):
                 
             }
         }
-        plep.SetXYZ(px_lep, py_lep, pz_lep);
-        return PNu.Cross(plep);
+        ptlep.SetXYZ(px_lep, py_lep, 0);
+        return ptlep;
     """)
     
     # Transverse Momentum of Hadrons (Including Neutrons): Protons, +/-/0 Pions, Neutrons
-    df = df.Define("PTHad_IN", """
-        double px_had_in = 0;
-        double py_had_in = 0;
-        double pz_had_in = 0;
-        TVector3 phad_in(0, 0, 0);
+    df = df.Define("PTHad", """
+        double px_had = 0;
+        double py_had = 0;
+        double pz_had = 0;
+        TVector3 pthad(0, 0, 0);
         for (size_t i = 0; i < pdg.size(); ++i) {
             int pdg_val = pdg[i];
             if (pdg_val == 2212 || pdg_val == 211 || pdg_val == -211 || pdg_val == 111 || pdg_val == 2112) {
-                px_had_in += px[i];
-                py_had_in += py[i];
-                pz_had_in += pz[i];
+                px_had += px[i];
+                py_had += py[i];
+                pz_had += pz[i];
                 
             }
         }
-        phad_in.SetXYZ(px_had_in, py_had_in, pz_had_in);
-        return PNu.Cross(phad_in);
+        pthad.SetXYZ(px_had, py_had, 0);
+        return pthad;
     """)
     
-    # Transverse Momentum of Hadrons (Omitting Neutrons): Protons, +/-/0 Pions
-    df = df.Define("PTHad_ON", """
-    double px_had_on = 0;
-    double py_had_on = 0;
-    double pz_had_on = 0;
-    TVector3 phad_on(0, 0, 0);
-    for (size_t i = 0; i < pdg.size(); ++i) {
-        int pdg_val = pdg[i];
-        if (pdg_val == 2212 || pdg_val == 211 || pdg_val == -211 || pdg_val == 111) {
-            px_had_on += px[i];
-            py_had_on += py[i];
-            pz_had_on += pz[i];
-            
+    df = df.Define("DeltaAlphaT", """
+    TVector3 delta_p_T = PTLep + PTHad;
+
+    double dot = -(PTLep.Dot(delta_p_T));
+    double magLep = PTLep.Mag();
+    double magDelta = delta_p_T.Mag();
+
+    double denom = magLep * magDelta;
+    double delta_alpha_t;
+
+    if ((dot == 0 || dot != dot) || (denom == 0 || denom != denom) || (fabs(dot) > fabs(denom))) {
+        delta_alpha_t = -5.0;
+    } else {
+        delta_alpha_t = acos(dot / denom) * 180. / M_PI;
+        if (delta_alpha_t != delta_alpha_t && fabs(dot - denom) < 1e-10) {
+            delta_alpha_t = 0.0;
         }
     }
-    phad_on.SetXYZ(px_had_on, py_had_on, pz_had_on);
-    return PNu.Cross(phad_on);
-    """)
+
+    return delta_alpha_t;
+""")
+
+    
+    # # Transverse Momentum of Hadrons (Omitting Neutrons): Protons, +/-/0 Pions
+    # df = df.Define("PTHad_ON", """
+    # double px_had_on = 0;
+    # double py_had_on = 0;
+    # double pz_had_on = 0;
+    # TVector3 phad_on(0, 0, 0);
+    # for (size_t i = 0; i < pdg.size(); ++i) {
+    #     int pdg_val = pdg[i];
+    #     if (pdg_val == 2212 || pdg_val == 211 || pdg_val == -211 || pdg_val == 111) {
+    #         px_had_on += px[i];
+    #         py_had_on += py[i];
+    #         pz_had_on += pz[i];
+            
+    #     }
+    # }
+    # phad_on.SetXYZ(px_had_on, py_had_on, pz_had_on);
+    # return PNu.Cross(phad_on);
+    # """)
     
     # Transverse Kinematic Imbalance (Including Neutrons)
-    df = df.Define("TKI_IN", """
+    df = df.Define("DeltaPT", """
     TVector3 delta_p_T(PTLep.X(), PTLep.Y(), PTLep.Z());
-    delta_p_T += PTHad_IN;
+    delta_p_T += PTHad;
         
     return delta_p_T.Mag();
     """)
     
-    # Transverse Kinematic Imbalance (Omitting Neutrons)
-    df = df.Define("TKI_ON", """
-    TVector3 delta_p_T(PTLep.X(), PTLep.Y(), PTLep.Z());
-    delta_p_T += PTHad_ON;
+    # # Transverse Kinematic Imbalance (Omitting Neutrons)
+    # df = df.Define("TKI_ON", """
+    # TVector3 delta_p_T(PTLep.X(), PTLep.Y(), PTLep.Z());
+    # delta_p_T += PTHad_ON;
         
-    return delta_p_T.Mag();
-    """)
+    # return delta_p_T.Mag();
+    # """)
 
     return df
-
 
 def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
     if file_path is None:
@@ -630,7 +652,7 @@ def defineWeights(df, rwRootFile, histName):
 
     return df        
 
-def defineWeightsSpline(df, rwRootFile, histName):
+def defineWeightsSpline(df, rwRootFile, histName, label=""):
     flux_file = ROOT.TFile.Open(rwRootFile)
     hist = flux_file.Get(histName)  
     hist.SetDirectory(0)  
@@ -652,23 +674,44 @@ def defineWeightsSpline(df, rwRootFile, histName):
         graph.SetPoint(i - 1, x, y)
 
    # Create TSpline3 from the graph
-    spline = ROOT.TSpline3("flux_spline", graph)
-
+    #spline = ROOT.TSpline3("flux_spline", graph)
+    
+    # Unique spline and function names
+    spline_name = f"g_fluxSpline_{label}"
+    func_name = f"get_flux_weight_{label}"
+    spline = ROOT.TSpline3(spline_name, graph)
+    
     # Bind spline as a global C++ object
-    ROOT.gROOT.ProcessLine("TSpline3* g_fluxSpline = nullptr;")
-    ROOT.gROOT.ProcessLine("g_fluxSpline = new TSpline3();")  # placeholder
-    ROOT.g_fluxSpline = spline
+    # ROOT.gROOT.ProcessLine("TSpline3* g_fluxSpline = nullptr;")
+    # ROOT.gROOT.ProcessLine(f"TSpline3* {spline_name} = nullptr;")
+    # ROOT.gROOT.ProcessLine("g_fluxSpline = new TSpline3();")  # placeholder
+    #ROOT.gROOT.ProcessLine(f"{spline_name} = new TSpline3();")  # placeholder
+    #ROOT.g_fluxSpline = spline
+
+    # Declare the global variable (no assignment yet)
+    ROOT.gInterpreter.Declare(f"TSpline3* {spline_name};")
+    # Assign from Python side using setattr
+    setattr(ROOT, spline_name, spline)
 
     # Declare external spline access and eval function
-    ROOT.gInterpreter.Declare("""
-        double get_flux_weight(double E) {
-            return g_fluxSpline->Eval(E);
-        }
+    # ROOT.gInterpreter.Declare("""
+    #     double get_flux_weight(double E) {
+    #         return g_fluxSpline->Eval(E);
+    #     }
+    # """)
+
+    ROOT.gInterpreter.Declare(f"""
+        extern TSpline3* {spline_name};
+        double {func_name}(double E) {{
+            return {spline_name}->Eval(E);
+        }}
     """)
 
 
+   
     # Define new column in DataFrame
-    df = df.Define("weights", f"get_flux_weight(Enu_true)")
+    #df = df.Define("weights", f"get_flux_weight(Enu_true)")
+    df = df.Define("weights", f"{func_name}(Enu_true)")
 
     return df
 
