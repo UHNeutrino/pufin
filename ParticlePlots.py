@@ -207,8 +207,48 @@ def DefineTKI(df):
         return pthad;
     """)
     
-    df = df.Define("DeltaAlphaT", """
+    df = df.Define("PTProton1", """
+        TVector3 pproton(0, 0, 0);
+        TVector3 Best(0, 0, 0);
+        double Best_mag = -5.0;
+        for (size_t i = 0; i < pdg.size(); ++i) {
+            if (pdg[i] == 2212) { // Proton
+                pproton.SetXYZ(px[i], py[i], pz[i]);
+                double p_mag = pproton.Mag();
+                if (p_mag > Best_mag) {
+                    Best_mag = p_mag;
+                    Best.SetXYZ(px[i], py[i], pz[i]);
+                    
+                }
+            }
+        }
+        return TVector3(Best.X(), Best.Y(), 0);
+    """)
+    
+    df = df.Define("DeltaAlphaT_Had", """
         TVector3 delta_p_T = PTLep + PTHad;
+
+        double dot = -(PTLep.Dot(delta_p_T));
+        double magLep = PTLep.Mag();
+        double magDelta = delta_p_T.Mag();
+
+        double denom = magLep * magDelta;
+        double delta_alpha_t;
+
+        if ((dot == 0 || dot != dot) || (denom == 0 || denom != denom) || (fabs(dot) > fabs(denom))) {
+            delta_alpha_t = -5.0;
+        } else {
+            delta_alpha_t = acos(dot / denom) * 180. / M_PI;
+            if (delta_alpha_t != delta_alpha_t && fabs(dot - denom) < 1e-10) {
+                delta_alpha_t = 0.0;
+            }
+        }
+
+        return delta_alpha_t;
+    """)
+    
+    df = df.Define("DeltaAlphaT", """
+        TVector3 delta_p_T = PTLep + PTProton1;
 
         double dot = -(PTLep.Dot(delta_p_T));
         double magLep = PTLep.Mag();
@@ -230,15 +270,22 @@ def DefineTKI(df):
     """)
 
     # All Delta PT variables return a scalar
-    df = df.Define("DeltaPT", """
+    df = df.Define("DeltaPT_Had", """
         TVector3 delta_p_T(PTLep.X(), PTLep.Y(), PTLep.Z());
         delta_p_T += PTHad;
             
         return delta_p_T.Mag();
         """)
     
+    df = df.Define("DeltaPT", """
+        TVector3 delta_p_T(PTLep.X(), PTLep.Y(), PTLep.Z());
+        delta_p_T += PTProton1;
+            
+        return delta_p_T.Mag();
+        """)
+    
     # Parallel componet to the transverse momentum transfer vector q_T
-    df = df.Define("DeltaPT_y", """
+    df = df.Define("DeltaPT_y_Had", """
         TVector3 delta_pt = PTLep + PTHad;        
         double pTlep = PTLep.Mag();
         if (pTlep == 0 || pTlep != pTlep) return -5.0;   
@@ -246,9 +293,33 @@ def DefineTKI(df):
         return delta_pt.Dot(qT_hat);
     """)
     
+    df = df.Define("DeltaPT_y", """
+        TVector3 delta_pt = PTLep + PTProton1;        
+        double pTlep = PTLep.Mag();
+        if (pTlep == 0 || pTlep != pTlep) return -5.0;   
+        TVector3 qT_hat = (-1.0 / pTlep) * PTLep;        
+        return delta_pt.Dot(qT_hat);
+    """)
+    
     # Perpendicular component to the transverse mometum transver vector q_T
-    df = df.Define("DeltaPT_x", """
+    df = df.Define("DeltaPT_x_Had", """
         TVector3 delta_pt = PTLep + PTHad;
+        double pnu = PNu.Mag();
+        double pTlep = PTLep.Mag();
+        if (pnu == 0 || pTlep == 0) return -5.0;
+        
+        TVector3 z_hat = (1.0 / pnu) * PNu;
+        TVector3 qT_hat = (-1.0 / pTlep) * PTLep; 
+        TVector3 x_hat = z_hat.Cross(qT_hat);
+        double xmag = x_hat.Mag();
+        if (xmag == 0 || xmag != xmag) return -5.0;
+        x_hat *= (1.0 / xmag); 
+        
+        return delta_pt.Dot(x_hat);
+    """)
+    
+    df = df.Define("DeltaPT_x", """
+        TVector3 delta_pt = PTLep + PTProton1;
         double pnu = PNu.Mag();
         double pTlep = PTLep.Mag();
         if (pnu == 0 || pTlep == 0) return -5.0;
