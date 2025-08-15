@@ -151,24 +151,24 @@ def DefineEvis(df):
 
 def DefineTKI(df):
     # Define Neutrino Momentum as a Vector
-    # df = df.Define("PNu", """ 
-    #     double px_nu = 0;
-    #     double py_nu = 0;
-    #     double pz_nu = 0;
-    #     TVector3 pnu(px_nu, py_nu, pz_nu);
+    df = df.Define("PNu", """ 
+        double px_nu = 0;
+        double py_nu = 0;
+        double pz_nu = 0;
+        TVector3 pnu(px_nu, py_nu, pz_nu);
         
-    #     for (size_t i = 0; i < pdg_init.size(); ++i) {
-    #         if (pdg_init[i] == 14) { //neutrino 
-    #             px_nu += px_init[i];
-    #             py_nu += py_init[i];
-    #             pz_nu += pz_init[i]; 
-    #         }
-    #     }
-    #     pnu.SetXYZ(px_nu, py_nu, pz_nu);
+        for (size_t i = 0; i < pdg_init.size(); ++i) {
+            if (pdg_init[i] == 14) { //neutrino 
+                px_nu += px_init[i];
+                py_nu += py_init[i];
+                pz_nu += pz_init[i]; 
+            }
+        }
+        pnu.SetXYZ(px_nu, py_nu, pz_nu);
         
-    #     return pnu;
+        return pnu;
 
-    # """)
+    """)
     
     # Define PTLep: Transverse Momemtum of Lepton (Cross Product with Neutrino Momentum)
     df = df.Define("PTLep", """
@@ -208,27 +208,68 @@ def DefineTKI(df):
     """)
     
     df = df.Define("DeltaAlphaT", """
-    TVector3 delta_p_T = PTLep + PTHad;
+        TVector3 delta_p_T = PTLep + PTHad;
 
-    double dot = -(PTLep.Dot(delta_p_T));
-    double magLep = PTLep.Mag();
-    double magDelta = delta_p_T.Mag();
+        double dot = -(PTLep.Dot(delta_p_T));
+        double magLep = PTLep.Mag();
+        double magDelta = delta_p_T.Mag();
 
-    double denom = magLep * magDelta;
-    double delta_alpha_t;
+        double denom = magLep * magDelta;
+        double delta_alpha_t;
 
-    if ((dot == 0 || dot != dot) || (denom == 0 || denom != denom) || (fabs(dot) > fabs(denom))) {
-        delta_alpha_t = -5.0;
-    } else {
-        delta_alpha_t = acos(dot / denom) * 180. / M_PI;
-        if (delta_alpha_t != delta_alpha_t && fabs(dot - denom) < 1e-10) {
-            delta_alpha_t = 0.0;
+        if ((dot == 0 || dot != dot) || (denom == 0 || denom != denom) || (fabs(dot) > fabs(denom))) {
+            delta_alpha_t = -5.0;
+        } else {
+            delta_alpha_t = acos(dot / denom) * 180. / M_PI;
+            if (delta_alpha_t != delta_alpha_t && fabs(dot - denom) < 1e-10) {
+                delta_alpha_t = 0.0;
+            }
         }
-    }
 
-    return delta_alpha_t;
-""")
+        return delta_alpha_t;
+    """)
 
+    # All Delta PT variables return a scalar
+    df = df.Define("DeltaPT", """
+        TVector3 delta_p_T(PTLep.X(), PTLep.Y(), PTLep.Z());
+        delta_p_T += PTHad;
+            
+        return delta_p_T.Mag();
+        """)
+    
+    # Parallel componet to the transverse momentum transfer vector q_T
+    df = df.Define("DeltaPT_y", """
+        TVector3 delta_pt = PTLep + PTHad;        
+        double pTlep = PTLep.Mag();
+        if (pTlep == 0 || pTlep != pTlep) return -5.0;   
+        TVector3 qT_hat = (-1.0 / pTlep) * PTLep;        
+        return delta_pt.Dot(qT_hat);
+    """)
+    
+    # Perpendicular component to the transverse mometum transver vector q_T
+    df = df.Define("DeltaPT_x", """
+        TVector3 delta_pt = PTLep + PTHad;
+        double pnu = PNu.Mag();
+        double pTlep = PTLep.Mag();
+        if (pnu == 0 || pTlep == 0) return -5.0;
+        
+        TVector3 z_hat = (1.0 / pnu) * PNu;
+        TVector3 qT_hat = (-1.0 / pTlep) * PTLep; 
+        TVector3 x_hat = z_hat.Cross(qT_hat);
+        double xmag = x_hat.Mag();
+        if (xmag == 0 || xmag != xmag) return -5.0;
+        x_hat *= (1.0 / xmag); 
+        
+        return delta_pt.Dot(x_hat);
+    """)
+    
+    # # Transverse Kinematic Imbalance (Omitting Neutrons)
+    # df = df.Define("TKI_ON", """
+    # TVector3 delta_p_T(PTLep.X(), PTLep.Y(), PTLep.Z());
+    # delta_p_T += PTHad_ON;
+        
+    # return delta_p_T.Mag();
+    # """)
     
     # # Transverse Momentum of Hadrons (Omitting Neutrons): Protons, +/-/0 Pions
     # df = df.Define("PTHad_ON", """
@@ -249,21 +290,7 @@ def DefineTKI(df):
     # return PNu.Cross(phad_on);
     # """)
     
-    # Transverse Kinematic Imbalance (Including Neutrons)
-    df = df.Define("DeltaPT", """
-    TVector3 delta_p_T(PTLep.X(), PTLep.Y(), PTLep.Z());
-    delta_p_T += PTHad;
-        
-    return delta_p_T.Mag();
-    """)
-    
-    # # Transverse Kinematic Imbalance (Omitting Neutrons)
-    # df = df.Define("TKI_ON", """
-    # TVector3 delta_p_T(PTLep.X(), PTLep.Y(), PTLep.Z());
-    # delta_p_T += PTHad_ON;
-        
-    # return delta_p_T.Mag();
-    # """)
+    # Delta PT that includes protons, neutrons, and all pions in final state
 
     return df
 
