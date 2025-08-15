@@ -85,6 +85,8 @@ if (stacks["Bool"]):
         colors = []
         if(stacks["EvisB"]):
             df = pp.DefineEvis(df)
+        if(stacks["TkiB"]):
+            df = pp.DefineTKI(df)
         for word in stacks["AxisInfo"].split(','):
                 AxisInfo.append(word)
         for cut,name in stacks["StackCuts"].items():
@@ -116,6 +118,8 @@ if (overlap["Bool"]):
         colors = []
         if(overlap["EvisB"]):
             df = pp.DefineEvis(df)
+        if(overlap["TkiB"]):
+            df = pp.DefineTKI(df)
         for word in overlap["AxisInfo"].split(','):
                 AxisInfo.append(word)
         for cut,name in overlap["StackCuts"].items():
@@ -181,6 +185,8 @@ if (same1D["Bool"]):
             df = pp.DefineEvis(df)
         if kin:
             df = pp.DefineKinematics(df)
+        if Tki:
+            df = pp.DefineTKI(df)
         if reweight_flag:
             if spline:
                 df = pp.defineWeightsSpline(df, rw_file, rw_flux)
@@ -299,6 +305,7 @@ if (quantiles["Bool"]):
         df1b = ROOT.RDataFrame(treeName,file_path2)
         df1b = df1b.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
         df1b = pp.DefineKinematics(df1b)
+        df1b = pp.DefineTKI(df1b)
 
         Flux2 =""
         if quantiles["reWeight2"][0]:
@@ -365,6 +372,8 @@ if (Contour["Bool"]):
             df = pp.DefineEvis(df)
         if (Contour["KinematicsB"]):
             df = pp.DefineKinematics(df)
+        if (Contour["TkiB"]):
+            df = pp.DefineTKI(df)
         if(Contour["reWeight"][0]):
             df = pp.defineWeightsSpline(df,Contour["reWeight"][1],Contour["reWeight"][2])
         for word in Contour["AxisInfo"].split(','):
