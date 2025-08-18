@@ -45,13 +45,13 @@
             "Flux":"NOvAflux",
             "Type":"1D",
             // Specify the cut for the dataframe. For no cuts, type "None"
-            "Cut": "flagCC0pi == true && Mode ==1",
-            "Var1": "DeltaPT_x",
-            "Var2": "CosLep",
-            "AxisInfo":"#deltaP_{Tx} , GeV/c, entries,  , #deltaP_{Tx} QE Genie NOvA flux",
-            "Bins": [40, 0, 1], //[60,0,3,42,-1.05,1.05],
-            "Save": "t2k-nova/plots_SanityCheck",
-            "Name": "DelaPTx_NOvAFlux_QE",
+            "Cut": "flagCC0pi == true && Mode ==1", //(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)",
+            "Var1": "DeltaAlphaT",
+            "Var2": "DeltaAlphaT",
+            "AxisInfo":"#delta#alpha_{T} , degrees, Events, ,  QE Events with Muon and Leading Proton: Genie NOvA flux",
+            "Bins": [80, 0, 180], // [60,-2.0,1.0,80,0,180],
+            "Save": "t2k-nova/plots_TKI",
+            "Name": "DeltaAlphaT_NOvAFlux_QE",
             "Ext": "png",
             "Norm": false,
             "max": -1, 
@@ -110,17 +110,21 @@
             "TkiB": true,
             "Cut": "flagCC0pi == true && Mode ==1",
             // "AxisInfo": "Q^{2}, (GeV), Probability, ,Q^{2} for QE events", //Q2
-            "AxisInfo": "#deltaP_{T}, GeV/c, Frequency, , Delta PT x & y", //PLep
-            "Bins": [40, 0, 1],
+            "AxisInfo": "#deltaP_{T}, GeV/c, Frequency, , QE Delta PT x & y for Leading Proton", //PLep
+            "Bins": [80, -1, 1],
             //If VBins is true, treats the second element as bin edges
             "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
-            "Save": "t2k-nova/plots_SanityCheck", 
-            "Name": "Comparedptxy",
+            "Save": "t2k-nova/plots_TKI", 
+            "Name": "Comparedptxy_LP_Ratio",
             "Ext": "png",
             "Norm": false,
             "logy": false,
             "ErrorBars": false,
             "max": -1,
+            "Add_Ratio": true,  // show ratio panel
+            "RatioOf": ["DeltaPT_y","DeltaPT_x"], // numerator,denominator by plot Key
+            "RatioRange": [0, 1.5],           
+
             "Plots": [
                 
             {
