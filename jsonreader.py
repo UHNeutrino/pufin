@@ -467,7 +467,7 @@ if (Contour["Bool"]):
             x = Contour["AutoQuant"][1]
             y = Contour["AutoQuant"][2]
             # Get the total number of events
-            histogramInfo = ("name", f"{y} vs {x} plot", 1000000, 0, df.Max(x).GetValue(), 1, 0, df.Max(y).GetValue()) #just need 1 bin in y
+            histogramInfo = ("name", f"{y} vs {x} plot", 2000000, df.Min(x).GetValue(), df.Max(x).GetValue(), 1, 0, df.Max(y).GetValue()) #just need 1 bin in y
             if (df.HasColumn("weights")):
                 cuthist = df.Histo2D(histogramInfo, x,y,"weights")
                 print("weights activated1")
@@ -482,10 +482,10 @@ if (Contour["Bool"]):
                 cumulative_events.append(cumulative_events[-1] + bin_total)
 
             # Now that we have cumulative events, let's split them into x sections
-            x_bins = [0]  # Start at 0
+            x_bins = [df.Min(x).GetValue()]  # Start at -100
             target_events_per_section = total_events / Contour["AutoQuant"][4]
 
-            for i in range(1, Contour["AutoQuant"][4]):  # Divide into 5 sections
+            for i in range(1, Contour["AutoQuant"][4]):  # Divide into i sections
                 target = i * target_events_per_section
                 # Find the first bin index where the cumulative event count exceeds the target
                 bin_idx = min(range(len(cumulative_events)), key=lambda idx: abs(cumulative_events[idx] - target))
@@ -500,8 +500,6 @@ if (Contour["Bool"]):
                 # Define a filter string for the current quantile
                 cuts.append(f"{lower_bound} <= {x} && {x} < {upper_bound}")
                 Legend.append(f" {lower_bound:.2f} <= {x} < {upper_bound:.2f}")
-            # print(cuts)
-            # print(Legend)
             # save intermediary hist 
             if Contour["AutoQuant"][3]:
                 save_L0 = Contour["Save"] + "/" + "INT" +Contour["Name"] + "." +Contour["Ext"]
@@ -511,18 +509,6 @@ if (Contour["Bool"]):
             for cut,name in Contour["ConCuts"].items():
                 cuts.append(cut)
                 Legend.append(name)
-
-        # if (len(Contour["TotalPercents"]) > 1):
-        #     LegendTemp = []
-        #     counter = 0
-        #     for Name in Legend:
-        #         for percent in Contour["TotalPercents"]:
-        #             if (counter%2):
-        #                 LegendTemp.append(Name)
-        #             else:
-        #                 LegendTemp.append(str(percent)+" % of total")
-        #             counter += 1
-        #     Legend = LegendTemp
 
         for num in Contour["Colors"].split(","):
             colors.append(int(num))

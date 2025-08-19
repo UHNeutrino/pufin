@@ -95,5 +95,106 @@
             // "Spline":true
             // }
             ]
+        },
+        // EKIN VS ENU TRUE
+        "Contour":
+        {
+            "Bool":true,
+            "EvisB": true,
+            "KinematicsB":false,
+            "TkiB": false,
+            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],
+            // "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
+            "Gen":"NEUT5.9",
+            "Flux":"flatf",
+            // "Type":"2D", Only 2D possible
+            // "Cut": "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16) && flagCC0pi == true ",
+            "Cut": "flagCC0pi == true",
+            "Var1": "Evis_kin",
+            "Var2":"Enu_true",
+            // "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H", "!((Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)||Mode == 1 || Mode == 2 )":"Other"},
+            "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H"},
+            "AutoQuant":[false, "q3", "q0",false,3],
+            "TotalPercents":[90], //requires pdf save for line textures to show up
+            // "ConCuts":{"q3 <=.72": "Less than .72 GeV"},
+            "Colors":"632, 416, 880, 800, 600",
+            // "AxisInfo":"Lepton Momentum, GeV, Cos#theta_{#mu}, , NEUT 5.9 0Pi Lepton Kinematics for Flat Flux with T2K weights",
+            "AxisInfo":"E_{#nu} kin, GeV, E_{#nu} true, GeV , NEUT 5.9 0Pi E_{#nu} for Flat Flux with T2K weights",
+
+            // "Bins":[60,0,3,42,-1.05,1.05],
+            "Bins":[100,0,5,80,0,4],
+            "logz":true,
+            "Save": "t2k-nova/Ploished_Plots",
+            "Name": "EnergyPolishedPlot",
+            "Ext": "png",
+
+        },
+        "Contour":
+        {
+            "Bool":true,
+            "EvisB": true,
+            "KinematicsB":false,
+            "TkiB": false,
+            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],
+            // "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
+            "Gen":"NEUT5.9",
+            "Flux":"flatf",
+            // "Type":"2D", Only 2D possible
+            // "Cut": "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16) && flagCC0pi == true ",
+            "Cut": "Mode == 1",
+            "Var1": "q0",
+            "Var2":"q3",
+            // "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H", "!((Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)||Mode == 1 || Mode == 2 )":"Other"},
+            "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H"},
+            "AutoQuant":[true, "Evis_2", "q0",false,5],
+            "TotalPercents":[90], //requires pdf save for line textures to show up
+            // "ConCuts":{"q3 <=.72": "Less than .72 GeV"},
+            "Colors":"632, 416, 880, 800, 600",
+            // "AxisInfo":"Lepton Momentum, GeV, Cos#theta_{#mu}, , NEUT 5.9 0Pi Lepton Kinematics for Flat Flux with T2K weights",
+            "AxisInfo":"W, GeV, Q^{2}, GeV^{2} , NEUT 5.9 QE Momentum Deposition Phase Space for Flat Flux with T2K weights",
+            // "Bins":[100,0,5,100,0,5],
+            "Bins":[60,0,3,60,0,3],
+            // "Bins":[60,0,3,42,-1.05,1.05],
+            // "Bins":[100,0,5,80,0,4],
+            "logz":true,
+            "Save": "t2k-nova/Ploished_Plots",
+            "Name": "q0q3PolishedPlotVis2",
+            "Ext": "png",
+
+        },
+        //Ptheta PLOTS
+        "Contour":
+        {
+            "Bool":true,
+            "EvisB": false,
+            "KinematicsB":false,
+            "TkiB": true,
+            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],
+            // "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
+            "Gen":"NEUT5.9",
+            "Flux":"flatf",
+            // "Type":"2D", Only 2D possible
+            // "Cut": "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16) && flagCC0pi == true ",
+            "Cut": "flagCC0pi == true",
+            "Var1": "PLep",
+            "Var2":"CosLep",
+            // "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H", "!((Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)||Mode == 1 || Mode == 2 )":"Other"},
+            // "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H"},
+            "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H"},
+
+            "AutoQuant":[true, "DeltaPT_y", "DeltaPT_x",true,3],
+            "TotalPercents":[50, 90], //requires pdf save for line textures to show up
+            // "ConCuts":{"q3 <=.72": "Less than .72 GeV"},
+            "Colors":"632, 416, 880, 800, 600",
+            "AxisInfo":"Lepton Momentum, GeV, Cos#theta_{#mu}, , NEUT 5.9 0Pi Lepton Kinematics for Flat Flux with T2K weights",
+            // "AxisInfo":"P_{#mu}, GeV ,Cos(#theta_{#mu}), , NEUT 5.9 0Pi E_{#nu} for T2K Flux",
+
+            "Bins":[60,0,3,42,-1.05,1.05],
+            // "Bins":[170,0,8.5,170,0,8.5],
+            "logz":true,
+            "Save": "t2k-nova/Ploished_Plots",
+            "Name": "LEPTKINDeltaYPolishedPlot",
+            "Ext": "pdf",
+
         }
 }

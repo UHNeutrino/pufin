@@ -148,6 +148,7 @@ def DefineEvis(df):
 
 
     df = df.Define("Evis_kin", "(TMath::Power(.938272,2)-TMath::Power(.93956-0.09215,2)-TMath::Power(.105608,2)+2*(.93956-0.09215)*ELep)/(2*(0.93956-0.09215-ELep+PLep*CosLep))")
+    return df
 
 def DefineTKI(df):
     # Define Neutrino Momentum as a Vector
@@ -707,14 +708,16 @@ def DrawXLines(hist, x_bins, y_max):
 def SaveIntPlot(df,x,y,x_bins,saveL):
     xmax = int((df.Max(x).GetValue()*1.2)*100)/100
     ymax = int((df.Max(y).GetValue()*1.2)*100)/100
+    xmin = int((df.Min(x).GetValue()*1.2)*100)/100
+    ymin = int((df.Min(y).GetValue()*1.2)*100)/100
     bin_width = 0.01
     nbins_x = int(xmax / bin_width)
     nbins_y = int(ymax / bin_width)
     interHistogramInfo = (
         "INTNAME",
         f"{y} vs {x} plot",
-        nbins_x, 0, xmax,   # X: nbins, min, max
-        nbins_y, 0, ymax    # Y: nbins, min, max
+        nbins_x, xmin, xmax,   # X: nbins, min, max
+        nbins_y, ymin, ymax    # Y: nbins, min, max
     )
     print(interHistogramInfo)
     if (df.HasColumn("weights")):
