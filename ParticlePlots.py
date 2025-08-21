@@ -33,6 +33,20 @@ def DefineKinematics(df):
     return max_proton_p;
     """)
     
+    df = df.Define("PPionPlus", """
+    double max_pi_p = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 211) { // Pi+
+            double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
+            if (p_magnitude > max_pi_p) {
+                max_pi_p = p_magnitude;
+            }
+        }
+    }
+    return max_pi_p;
+    """)
+
+
     df = df.Define("CosProton", """
     double cos_proton = -5.0;
     double max_proton_p = -1.0;
@@ -147,7 +161,28 @@ def DefineEvis(df):
     # Assuming we're using Carbon 12, might be wrong on that!
 
 
-    df = df.Define("Evis_kin", "(TMath::Power(.938272,2)-TMath::Power(.93956-0.09215,2)-TMath::Power(.105608,2)+2*(.93956-0.09215)*ELep)/(2*(0.93956-0.09215-ELep+PLep*CosLep))")
+    df = df.Define("Evis_kin", """
+                double Energy = -9999.9;
+                if (ELep > 0.0 && std::abs(CosLep) <= 1)
+                {
+                    Energy = (TMath::Power(.938272,2)-TMath::Power(.93956-0.09215,2)-TMath::Power(.105608,2)+2*(.93956-0.09215)*ELep)/(2*(0.93956-0.09215-ELep+PLep*CosLep)) ;
+                }
+                return Energy;
+                   """)
+    
+    df = df.Define("Eres_kin","""
+                double EnergyResKin = ((Evis_kin-Enu_true)/Enu_true);
+                if (EnergyResKin > 1.0)
+                {
+                    EnergyResKin = 1.0;
+                }
+                if (EnergyResKin < -1.0)
+                {
+                    EnergyResKin = -1.0;
+                }
+                return EnergyResKin;
+                   """)
+
     return df
 
 def DefineTKI(df):

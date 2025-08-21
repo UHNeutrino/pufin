@@ -268,10 +268,11 @@ if (same1D["Bool"]):
         hist_dict[key] = hist
         histCounter += 1
     if logy:
+        c.SetLogy()
         if Add_Ratio:
             topPad.SetLogy()
     else:
-        c.SetLogy()
+        print("NO LOG")
     if Add_Ratio:
         topPad.cd()
     legend.Draw("SAME")
@@ -454,6 +455,7 @@ if (Contour["Bool"]):
         colors = []
         if(Contour["EvisB"]):
             df = pp.DefineEvis(df)
+            df = df.Filter("Evis_kin != -9999.9")
         if (Contour["KinematicsB"]):
             df = pp.DefineKinematics(df)
         if (Contour["TkiB"]):

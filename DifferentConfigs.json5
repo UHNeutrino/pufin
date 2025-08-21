@@ -97,7 +97,7 @@
             ]
         },
         // EKIN VS ENU TRUE
-        "Contour":
+    "Contour":
         {
             "Bool":true,
             "EvisB": true,
@@ -129,6 +129,7 @@
             "Ext": "png",
 
         },
+        // q0 q3 plots
         "Contour":
         {
             "Bool":true,
@@ -141,24 +142,24 @@
             "Flux":"flatf",
             // "Type":"2D", Only 2D possible
             // "Cut": "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16) && flagCC0pi == true ",
-            "Cut": "Mode == 1",
-            "Var1": "q0",
-            "Var2":"q3",
+            "Cut": "flagCC0pi == true",
+            "Var1": "q3",
+            "Var2":"q0",
             // "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H", "!((Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)||Mode == 1 || Mode == 2 )":"Other"},
             "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H"},
-            "AutoQuant":[true, "Evis_2", "q0",false,5],
+            "AutoQuant":[true, "Eres_kin", "Enu_true",true,5],
             "TotalPercents":[90], //requires pdf save for line textures to show up
             // "ConCuts":{"q3 <=.72": "Less than .72 GeV"},
             "Colors":"632, 416, 880, 800, 600",
             // "AxisInfo":"Lepton Momentum, GeV, Cos#theta_{#mu}, , NEUT 5.9 0Pi Lepton Kinematics for Flat Flux with T2K weights",
-            "AxisInfo":"W, GeV, Q^{2}, GeV^{2} , NEUT 5.9 QE Momentum Deposition Phase Space for Flat Flux with T2K weights",
+            "AxisInfo":"q3, GeV, q0, GeV , NEUT 5.9 0Pi Momentum Transfer Phase Space for T2K Flux",
             // "Bins":[100,0,5,100,0,5],
             "Bins":[60,0,3,60,0,3],
             // "Bins":[60,0,3,42,-1.05,1.05],
             // "Bins":[100,0,5,80,0,4],
             "logz":true,
             "Save": "t2k-nova/Ploished_Plots",
-            "Name": "q0q3PolishedPlotVis2",
+            "Name": "Finalq3q0EresPolishedPlot",
             "Ext": "png",
 
         },
