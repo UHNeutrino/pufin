@@ -94,6 +94,24 @@
             // "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
             // "Spline":true
             // }
+            // {
+            //     "Key": "DeltaPT_x", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
+            //     "File": "Flat_GenieN24_flatf_1e7",
+            //     "Label": "#delta PT_{X}",
+            //     "Color": "kBlue",
+            //     "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
+            //     "Spline":false,
+            //     "Var": "DeltaPT_x"
+            //     },
+            //     {
+            //     "Key": "DeltaPT_y",
+            //     "File": "Flat_GenieN24_flatf_1e7",
+            //     "Label": "#delta PT_{Y}",
+            //     "Color": "kOrange+2",
+            //     "reWeight":[false, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu"],
+            //     "Spline":false,
+            //     "Var": "DeltaPT_y"
+            //     }
             ]
         },
         // EKIN VS ENU TRUE
