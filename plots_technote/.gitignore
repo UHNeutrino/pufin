@@ -1,5 +1,0 @@
-printf '\n# Allow QE/q3 plots\n!plots_technote/Quantiles/QE/q3/\n!plots_technote/Quantiles/QE/q3/*.png\n' >> .gitignore
-# Track all PNGs under plots_technote (any depth)
-!plots_technote/
-!plots_technote/**/*.png
-
