@@ -1,0 +1,27 @@
+{
+    "plots":
+        {
+            "Bool": true,
+            "EvisB": false,
+            "KinematicsB":false,
+            "TkiB": false,
+            "sysRW":[true, "/data/t2k-nova/LarsGen/GenieGen/GENIEN24FORREAL_ff_sysweights.root","weighttree","FrAbs_pi"],
+            "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
+            "Gen":"GENIEN24SYSTEST",
+            "Flux":"flatf",
+            "Type":"1D",
+            // Specify the cut for the dataframe. For no cuts, type "None"
+            "Cut": "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16) && flagCC0pi == true",
+            // "Cut": "flagCC0pi == true",
+            "Var1": "Enu_true",
+            "Var2": "DeltaAlphaT",
+            "AxisInfo":"Enu True , GeV, Events, ,  PiAbs Events Yes SYST",
+            "Bins": [160, 0, 8], // [60,-2.0,1.0,80,0,180],
+            "Save": "t2k-nova/plotsSys",
+            "Name": "PiAbsTweak",
+            "Ext": "png",
+            "Norm": false,
+            "max": -1, 
+            "logz": false
+        }
+}
