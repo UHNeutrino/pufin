@@ -538,9 +538,9 @@ def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path, Normalize = 0)
     canvas = ROOT.TCanvas("canvas", "Canvas for Stacked Histograms", 1000, 600)
 
     stack.Draw("HIST")  # "HIST" option tells ROOT to draw the histograms
-    stack.GetXaxis().SetTitle(AxisInfo[0])
-    stack.GetYaxis().SetTitle(AxisInfo[1])
-    stack.SetTitle(AxisInfo[2])
+    stack.GetXaxis().SetTitle(AxisInfo[0]+ " " + AxisInfo[1])
+    stack.GetYaxis().SetTitle(AxisInfo[2]+ " " +AxisInfo[3])
+    stack.SetTitle(AxisInfo[4])
 
     # Add legend
     legend = ROOT.TLegend(0.7, 0.7, 0.9, 0.9)  # Define legend position
