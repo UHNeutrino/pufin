@@ -1,5 +1,5 @@
 export GENIE_FQ_DIR=/project/software/GENIE_v3_06_00/Generator
-export GENIE_VERSION=3_06_00
+export GENIE_VERSION=v3_06_00
 export GENIE=${GENIE_FQ_DIR}
 export GENIE_LIB=${GENIE_FQ_DIR}/lib
 export GENIE_INC=${GENIE_FQ_DIR}/install/include/GENIE/
@@ -13,7 +13,7 @@ export CMAKE_PREFIX_PATH=${GENIE_FQ_DIR}:${CMAKE_PREFIX_PATH}
 export PKG_CONFIG_PATH=${GENIE_FQ_DIR}:${PKG_CONFIG_PATH}
 export GENIE_XSEC_DIR=$GENIE_FQ_DIR/xsec/G1810a0211a-k250-e1000/
 export GENIE_XSEC_FILE=$GENIE_XSEC_DIR/gxspl-NUbig.xml
-export GENIE_XSEC_TUNE=G18_10a_02_11a
+export GENIE_XSEC_TUNE=N24_20i_02_11b
 export PYTHIA6_LIB_DIR=/usr/lib/
 #GENIE CONVERTED
 export ROOT_INCLUDE_PATH=/project/software/nusystematics/install/include:$ROOT_INCLUDE_PATH
@@ -58,7 +58,9 @@ export CPLUS_INCLUDE_PATH=/home/project/ROOT/v6_26_06_pythia6/include:$CPLUS_INC
 #export CPLUS_INCLUDE_PATH=/home/mazen_malak/gcc-dev/gcc-install/include/c++/9.3.0:$CPLUS_INCLUDE_PATH
 export CPLUS_INCLUDE_PATH=${NUISANCE_INCLUDE_DIR}:$CPLUS_INCLUDE_PATH
 # FIX THESE^ ?
-### Nuisance Code breaks if I don't include this??
+
+
+# ### Nuisance Code breaks if I don't include this??
 export NUISANCE=/project/software/nuisance/build/Linux
 export PATH=$NUISANCE/bin:$PATH
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NUISANCE/lib
@@ -68,3 +70,7 @@ source /project/software/nuisance/install/setup.sh
 export NUSYSTEMATICS=/project/software/nusystematics/install
 export PATH=$NUSYSTEMATICS/bin:$PATH
 export LD_LIBRARY_PATH=$NUSYSTEMATICS/lib:$LD_LIBRARY_PATH
+# Source ROOT setup
+source /project/ROOT/v6_30_02_cxx17/bin/thisroot.sh
+source /project/software/neut/build/Linux/setup.sh
+export ROOTSYS=/project/ROOT/v6_30_02_cxx17
