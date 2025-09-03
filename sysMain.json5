@@ -1,7 +1,7 @@
 {
     "plots":
         {
-            "Bool": true,
+            "Bool": false,
             "EvisB": false,
             "KinematicsB":false,
             "TkiB": false,
@@ -22,6 +22,30 @@
             "Ext": "png",
             "Norm": false,
             "max": -1, 
+            "logz": false
+        },
+    "stacks":
+        {
+            "Bool":true,
+            "EvisB": false,
+            "TkiB": false,
+            "sysRW":[true, "/data/t2k-nova/LarsGen/GenieGen/GENIEN24FORREAL_ff_sysweights.root","weighttree","FrAbs_pi"],
+            "reWeight":[false, "/data/t2k-nova/fluxes/mono_energetic_flux_3.0GeV_v2.root","h1"],
+            "Gen":"GENIEN24SYSTEST",
+            "Flux":"flatf",
+            "Type":"1D", //Only 1D works
+            "Cut": "flagCC0pi == true",
+            "Var1": "Enu_true",
+            "StackCuts":{ "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16":"PiAbs","Mode == 1": "QE", "Mode == 2":"2p2h"},
+            "Colors":"632, 416, 880, 800",
+            "AxisInfo":"E#nu True, GeV,counts, ,Flat Flux Mode Breakdown",
+            "Bins":[200,0,10,100,0,1],
+            "Save": "t2k-nova/plotsSys",
+            "Name": "ModeBreakdownYesSys",
+            "Ext": "png",
+            // THE FOLLOWING IS NOT WORKING
+            "Norm": false,
+            "max": 0, 
             "logz": false
         }
 }

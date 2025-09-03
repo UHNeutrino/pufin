@@ -16,6 +16,7 @@ f = open(f'{HOME}/t2k-nova/sysMain.json5')
 data = json5.load(f)
 
 plots = data.get("plots")
+stacks = data.get("stacks")
 
 if (plots["Bool"]):
     root_files = glob.glob(userFolder + f'/*{plots["Gen"]}*{plots["Flux"]}*.root')
@@ -77,3 +78,46 @@ if (plots["Bool"]):
             fileN = generator+flux+plots["Name"]+x
             fileN = fileN.replace(" ", "-")
             pp.Savehist(hist,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"])
+
+if (stacks["Bool"]):
+    root_files = glob.glob(userFolder + f'/*{stacks["Gen"]}*{stacks["Flux"]}*.root')
+    if root_files == []:
+        print("NO such root files")
+
+    weights = ""
+    for file_path in root_files:
+        file_name = file_path.split('/')[-1]
+        generator = file_name.split('_')[1]
+        flux = file_name.split('_')[2]
+        if (stacks["sysRW"][0]) :
+            f2 = ROOT.TFile(file_path)
+            ft2 = f2.Get("FlatTree_VARS")
+            ft2.AddFriend(stacks["sysRW"][2],stacks["sysRW"][1])
+            print( type(ft2))
+            df = ROOT.RDataFrame(ft2)
+            df = df.Filter(stacks["Cut"])
+            weights = stacks["sysRW"][3]
+        else:
+            df = pp.CreateDataFrame(file_path, stacks["Cut"])
+        BinL = stacks["Bins"]
+        AxisInfo = []
+        cuts = []
+        Legend = []
+        colors = []
+        if(stacks["EvisB"]):
+            df = pp.DefineEvis(df)
+        if(stacks["TkiB"]):
+            df = pp.DefineTKI(df)
+        for word in stacks["AxisInfo"].split(','):
+                AxisInfo.append(word)
+        print(AxisInfo)
+        for cut,name in stacks["StackCuts"].items():
+            cuts.append(cut)
+            Legend.append(name)
+        histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
+        for num in stacks["Colors"].split(","):
+            colors.append(int(num))
+        
+        stack, histlist = pp.PlotStackedEventCuts(df, stacks["Var1"], histInfo, cuts, colors,weights = weights)
+        save_L = stacks["Save"] + "/" + generator + '-' + flux + stacks["Name"] + "." +stacks["Ext"]
+        pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L, Normalize=stacks["Norm"])

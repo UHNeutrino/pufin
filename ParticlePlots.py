@@ -516,12 +516,15 @@ def PlotStackedEventModes(df, x, histInfo, modes, colors):
 
     return stack, histlist, Legend
 
-def PlotStackedEventCuts(df, x, histInfo, cuts, colors):
+def PlotStackedEventCuts(df, x, histInfo, cuts, colors, weights=""):
     stack = ROOT.THStack("stack","")
     histlist = []
     for i in range(len(cuts)):
         modedf = df.Filter(f"{cuts[i]}")
-        hist = modedf.Histo1D(histInfo,x)
+        if (df.HasColumn(weights)):
+            hist = modedf.Histo1D(histInfo,x,weights)
+        else:
+            hist = modedf.Histo1D(histInfo,x)
         # print(colors[i])
         hist.SetFillColor(colors[i])
         th1d = hist.GetPtr()
