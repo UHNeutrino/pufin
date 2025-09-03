@@ -234,11 +234,6 @@ if (same1D["Bool"]):
 
         hist_rdfs.append(rdf_hist)  # Keep RDF object alive
         hist = rdf_hist.GetValue()
-        # If Add_Ratio, let ratio pad own the x-axis labels/titles
-        # if Add_Ratio:
-        #     hist.GetXaxis().SetLabelSize(0)
-        #     hist.GetXaxis().SetTitleSize(0)
-            #hist.GetXaxis().SetLabelOffset(999)
         pp.HistoErrorBars(hist)
         if norm and hist.Integral() != 0:
             hist.Scale(1.0 / hist.Integral())
@@ -255,8 +250,8 @@ if (same1D["Bool"]):
         color = getattr(ROOT, color_str.split("+")[0]) + int(color_str.split("+")[1]) if "+" in color_str else getattr(ROOT, color_str)
         hist.SetLineColor(color)
         hist.SetLineWidth(1)
-        if (histCounter == 0):
-            hist.SetLineWidth(2)
+        # if (histCounter == 0):
+        #     hist.SetLineWidth(2)
         # ^This could be better
 
         if same1D["ErrorBars"]:
@@ -297,6 +292,13 @@ if (same1D["Bool"]):
         h_ratio.Divide(h_den)
 
         # Style the ratio axes
+        # -- Reset X axis that may have been hidden in the source histogram --
+        xa = h_ratio.GetXaxis()
+        xa.SetLabelOffset(0.01)   # undo the 999 offset
+        xa.SetTickLength(0.04)    # visible ticks
+        xa.SetTitleSize(0.12)
+        xa.SetLabelSize(0.10)
+        
         h_ratio.SetTitle("")
         h_ratio.GetYaxis().SetTitle(f"{RatioOf[0]} / {RatioOf[1]}")
         h_ratio.GetYaxis().SetNdivisions(505)
