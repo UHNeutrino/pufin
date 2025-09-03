@@ -6,4 +6,8 @@ NEUT_generation_excess/*
 *.card
 *.pdf
 *.root
+<<<<<<< HEAD
 plots_technote
+=======
+plots_technote/
+>>>>>>> main
