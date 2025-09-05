@@ -93,7 +93,7 @@ void nusysSave(){
         for(int syst=0;syst<syst_name.size();syst++){
             // std::cout << "Get Events" << std::endl;
             // Evaluate spline at chosen dial (example: 1.5) and store in syst_weights
-            syst_weights[syst] = resp->GetSpline(syst_id[syst], Events_stand).Eval(1.5);
+            syst_weights[syst] = resp->GetSpline(syst_id[syst], Events_stand).Eval(1);
         }
         outtree->Fill();
     }

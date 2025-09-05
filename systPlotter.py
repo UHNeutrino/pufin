@@ -120,7 +120,7 @@ if (stacks["Bool"]):
             colors.append(int(num))
         
         stack, histlist = pp.PlotStackedEventCuts(df, stacks["Var1"], histInfo, cuts, colors,weights = weights)
-        save_L = stacks["Save"] + "/" + generator + '-' + flux + stacks["Name"] + "." +stacks["Ext"]
+        save_L = stacks["Save"] + "/" + stacks["Name"] + "." +stacks["Ext"]
         pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L, Normalize=stacks["Norm"])
 
 
