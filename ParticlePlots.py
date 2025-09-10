@@ -33,6 +33,19 @@ def DefineKinematics(df):
     return max_proton_p;
     """)
     
+    df = df.Define("PProton1_PFSI", """
+    double max_proton_p_pfsi = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg_vert.size(); ++i) {
+        if (pdg_vert[i] == 2212) { // Proton
+            double p_magnitude = std::sqrt(px_vert[i] * px_vert[i] + py_vert[i] * py_vert[i] + pz_vert[i] * pz_vert[i]);
+            if (p_magnitude > max_proton_p_pfsi) {
+                max_proton_p_pfsi = p_magnitude;
+            }
+        }
+    }
+    return max_proton_p_pfsi;
+    """)
+    
     df = df.Define("PPionPlus", """
     double max_pi_p = -1.0; // Initialize to a negative value
     for (size_t i = 0; i < pdg.size(); ++i) {
@@ -44,6 +57,19 @@ def DefineKinematics(df):
         }
     }
     return max_pi_p;
+    """)
+    
+    df = df.Define("PPionPlus_PFSI", """
+    double max_pi_p_pfsi = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg_vert.size(); ++i) {
+        if (pdg_vert[i] == 211) { // Pi+
+            double p_magnitude = std::sqrt(px_vert[i] * px_vert[i] + py_vert[i] * py_vert[i] + pz_vert[i] * pz_vert[i]);
+            if (p_magnitude > max_pi_p_pfsi) {
+                max_pi_p_pfsi = p_magnitude;
+            }
+        }
+    }
+    return max_pi_p_pfsi;
     """)
 
 
@@ -68,6 +94,29 @@ def DefineKinematics(df):
 
     return cos_proton;
     """)
+    
+    df = df.Define("CosProton_PFSI", """
+    double cos_proton_pfsi = -5.0;
+    double max_proton_ppfsi = -1.0;
+    int max_index = -1;
+
+    for (size_t i = 0; i < pdg_vert.size(); ++i) {
+        if (pdg_vert[i] == 2212) {
+            double p = std::sqrt(px_vert[i]*px_vert[i] + py_vert[i]*py_vert[i] + pz_vert[i]*pz_vert[i]);
+            if (p > max_proton_ppfsi) {
+                max_proton_ppfsi = p;
+                max_index = i;
+            }
+        }
+    }
+
+    if (max_index >= 0 && max_proton_ppfsi > 0) {
+        cos_proton_pfsi = pz_vert[max_index] / max_proton_ppfsi;
+    }
+
+    return cos_proton_pfsi;
+    """)
+    
     #df = df.Filter("PProton1 >= 0")
     df = df.Define("initNeucMag", """
     std::vector<float> mags;
@@ -107,9 +156,28 @@ def DefineEvis(df):
         }
         return e_had;
     """)
+    
+    df = df.Define("E_had_PFSI", """
+        double e_had_pfsi = 0;
+        for (size_t i = 0; i < pdg_vert.size(); ++i) {
+            int pdg_val = pdg_vert[i];
+            double energy = E_vert[i]; // E_vert is a value in ttree
+
+            if (pdg_val == 2212) { // Proton
+                e_had_pfsi += energy - 0.938; // KE of proton
+            } else if (pdg_val == 211 || pdg_val == -211) { // Charged pion
+                e_had_pfsi += energy - 0.1396; // KE of charged pion
+            } else if (pdg_val == 111 || pdg_val == 11 || pdg_val == -11 || pdg_val == 22) { // pi0, electron, positron, photon
+                e_had_pfsi += energy; // Total energy
+            }
+        }
+        return e_had_pfsi;
+    """)
 
     # Add Evis_2 to dataframe (based on Erecoild from nuisance)
     df = df.Define("Evis_2", "E_had + ELep")
+    
+    df = df.Define("Evis_2_PFSI", "E_had_PFSI + ELep")
     
     # E_had3 = skip bindinos & nucleons + total energy minus proton mass of (Primarily) strange baryons
     # since decays will mostly contain protons 
@@ -243,6 +311,24 @@ def DefineTKI(df):
         return pthad;
     """)
     
+    df = df.Define("PTHad_PFSI", """
+        double px_had_pfsi = 0;
+        double py_had_pfsi = 0;
+        double pz_had_pfsi = 0;
+        TVector3 pthad_pfsi(0, 0, 0);
+        for (size_t i = 0; i < pdg_vert.size(); ++i) {
+            int pdg_val = pdg_vert[i];
+            if (pdg_val == 2212 || pdg_val == 211 || pdg_val == -211 || pdg_val == 111 || pdg_val == 2112) {
+                px_had_pfsi += px_vert[i];
+                py_had_pfsi += py_vert[i];
+                pz_had_pfsi += pz_vert[i];
+                
+            }
+        }
+        pthad_pfsi.SetXYZ(px_had_pfsi, py_had_pfsi, 0);
+        return pthad_pfsi;
+    """)
+    
     df = df.Define("PTProton1", """
         TVector3 pproton(0, 0, 0);
         TVector3 Best(0, 0, 0);
@@ -259,6 +345,25 @@ def DefineTKI(df):
             }
         }
         return TVector3(Best.X(), Best.Y(), 0);
+    """)
+    
+    df = df.Define("PTProton1_PFSI", """
+        TVector3 pproton_pfsi(0, 0, 0);
+        TVector3 Best_pfsi(0, 0, 0);
+        double Best_mag = -5.0;
+        double p_mag = -5.0;
+        for (size_t i = 0; i < pdg_vert.size(); ++i) {
+            if (pdg_vert[i] == 2212) { // Proton
+                pproton_pfsi.SetXYZ(px_vert[i], py_vert[i], pz_vert[i]);
+                double p_mag = pproton_pfsi.Mag();
+                if (p_mag > Best_mag) {
+                    Best_mag = p_mag;
+                    Best_pfsi.SetXYZ(px_vert[i], py_vert[i], pz_vert[i]);
+                    
+                }
+            }
+        }
+        return TVector3(Best_pfsi.X(), Best_pfsi.Y(), 0);
     """)
     
     df = df.Define("DeltaAlphaT_Had", """
@@ -304,6 +409,28 @@ def DefineTKI(df):
 
         return delta_alpha_t;
     """)
+    
+    df = df.Define("DeltaAlphaT_PFSI", """
+        TVector3 delta_p_T_pfsi = PTLep + PTProton1_PFSI;
+
+        double dot = -(PTLep.Dot(delta_p_T_pfsi));
+        double magLep = PTLep.Mag();
+        double magDelta = delta_p_T_pfsi.Mag();
+
+        double denom = magLep * magDelta;
+        double delta_alpha_t_pfsi;
+
+        if ((dot == 0 || dot != dot) || (denom == 0 || denom != denom) || (fabs(dot) > fabs(denom))) {
+            delta_alpha_t_pfsi = -5.0;
+        } else {
+            delta_alpha_t_pfsi = acos(dot / denom) * 180. / M_PI;
+            if (delta_alpha_t_pfsi != delta_alpha_t_pfsi && fabs(dot - denom) < 1e-10) {
+                delta_alpha_t_pfsi = 0.0;
+            }
+        }
+
+        return delta_alpha_t_pfsi;
+    """)
 
     # All Delta PT variables return a scalar
     df = df.Define("DeltaPT_Had", """
@@ -311,14 +438,21 @@ def DefineTKI(df):
         delta_p_T += PTHad;
             
         return delta_p_T.Mag();
-        """)
+    """)
     
     df = df.Define("DeltaPT", """
         TVector3 delta_p_T(PTLep.X(), PTLep.Y(), PTLep.Z());
         delta_p_T += PTProton1;
             
         return delta_p_T.Mag();
-        """)
+    """)
+    
+    df = df.Define("DeltaPT_PFSI", """
+        TVector3 delta_p_T_pfsi(PTLep.X(), PTLep.Y(), PTLep.Z());
+        delta_p_T_pfsi += PTProton1_PFSI;
+            
+        return delta_p_T_pfsi.Mag();
+    """)
     
     # Parallel componet to the transverse momentum transfer vector q_T
     df = df.Define("DeltaPT_y_Had", """
@@ -335,6 +469,14 @@ def DefineTKI(df):
         if (pTlep == 0 || pTlep != pTlep) return -5.0;   
         TVector3 qT_hat = (-1.0 / pTlep) * PTLep;        
         return delta_pt.Dot(qT_hat);
+    """)
+    
+    df = df.Define("DeltaPT_y_PFSI", """
+        TVector3 delta_pt_pfsi = PTLep + PTProton1_PFSI;        
+        double pTlep = PTLep.Mag();
+        if (pTlep == 0 || pTlep != pTlep) return -5.0;   
+        TVector3 qT_hat = (-1.0 / pTlep) * PTLep;        
+        return delta_pt_pfsi.Dot(qT_hat);
     """)
     
     # Perpendicular component to the transverse mometum transver vector q_T
@@ -368,6 +510,22 @@ def DefineTKI(df):
         x_hat *= (1.0 / xmag); 
         
         return delta_pt.Dot(x_hat);
+    """)
+    
+    df = df.Define("DeltaPT_x_PFSI", """
+        TVector3 delta_pt_pfsi = PTLep + PTProton1_PFSI;
+        double pnu = PNu.Mag();
+        double pTlep = PTLep.Mag();
+        if (pnu == 0 || pTlep == 0) return -5.0;
+        
+        TVector3 z_hat = (1.0 / pnu) * PNu;
+        TVector3 qT_hat = (-1.0 / pTlep) * PTLep; 
+        TVector3 x_hat = z_hat.Cross(qT_hat);
+        double xmag = x_hat.Mag();
+        if (xmag == 0 || xmag != xmag) return -5.0;
+        x_hat *= (1.0 / xmag); 
+        
+        return delta_pt_pfsi.Dot(x_hat);
     """)
     
     # # Transverse Kinematic Imbalance (Omitting Neutrons)
