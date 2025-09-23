@@ -1,0 +1,45 @@
+### Neut
+export NEUT=/project/software/neut/build/Linux
+export PATH=$PATH:$NEUT/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NEUT/lib
+export NEUT_VERSION=5.9.0
+### Nuisance
+export NUISANCE=/project/software/nuisance/build/Linux
+export PATH=$NUISANCE/bin:$PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NUISANCE/lib
+export PKG_CONFIG_PATH=/project/software/neut/build/Linux:$PKG_CONFIG_PATH
+source /project/software/nuisance/install/setup.sh
+### nusystematics
+#export NUSYSTEMATICS=/project/software/nusystematics/install
+#export PATH=$NUSYSTEMATICS/bin:$PATH
+#export LD_LIBRARY_PATH=$NUSYSTEMATICS/lib:$LD_LIBRARY_PATH
+### TBB (if needed explicitly by downstream builds)
+#export TBB_DIR=/project/software/nusystematics/tbb/tbb-install/lib64/cmake/TBB
+### NIWGReWeight
+export NIWGRW_FQ_DIR=/project/software/NIWGReWeight
+export NIWGRW=${NIWGRW_FQ_DIR}/build/Linux
+source /project/software/NIWGReWeight/build/Linux/bin/setup.NIWG.sh
+## T2KReWeight
+export T2KRW=/project/software/T2KReWeight24.12/build/Linux
+source /project/software/T2KReWeight24.12/build/Linux/bin/setup.T2K.sh
+## LHAPDF
+export LHAPDF_LIB_DIR=/usr/lib64
+export LHAPDF_INC_DIR=/usr/include/LHAPDF
+#CPP include
+export CPLUS_INCLUDE_PATH=/home/project/nuisance/nusyst_dev/nusystematics/build/Linux/include/:$CPLUS_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=${fhiclcpp_ROOT}/include/:$CPLUS_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=${cetlib_ROOT}/include/:$CPLUS_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=${NIWGRW}/include/:$CPLUS_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=${T2KRW}/include/:$CPLUS_INCLUDE_PATH
+### ROOT
+export ROOT_INCLUDE_PATH=${fhiclcpp_ROOT}/include/:$ROOT_INCLUDE_PATH
+export ROOT_INCLUDE_PATH=${cetlib_ROOT}/include/:$ROOT_INCLUDE_PATH
+export ROOT_INCLUDE_PATH=${NIWGRW}/include:$ROOT_INCLUDE_PATH
+export ROOT_INCLUDE_PATH=${T2KRW}/include:$ROOT_INCLUDE_PATH
+export ROOT_INCLUDE_PATH=${NEUT}/include:$ROOT_INCLUDE_PATH
+export ROOT_INCLUDE_PATH=${NUISANCE_INCLUDE_DIR}:$ROOT_INCLUDE_PATH
+
+# Source ROOT setup
+source /project/ROOT/v6_30_02_cxx17/bin/thisroot.sh
+source /project/software/neut/build/Linux/setup.sh
+export ROOTSYS=/project/ROOT/v6_30_02_cxx17
