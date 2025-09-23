@@ -153,8 +153,10 @@ if (same1D["Bool"]):
         c.SetLeftMargin(0.18)
         c.SetBottomMargin(0.12)
     ROOT.gStyle.SetOptStat(0)
-    legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79) ## most plots
-    #legend = ROOT.TLegend(0.3, 0.6, 0.59, 0.79) ## better for cos theta plots
+    # legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79) ## most plots
+    # legend = ROOT.TLegend(0.3, 0.6, 0.59, 0.79) ## better for cos theta plots
+    legend = ROOT.TLegend(0.3, 0.2, 0.59, 0.39) ## plot in bottom middle
+
     
     norm = same1D.get("Norm")
     logy = same1D.get("logy")
