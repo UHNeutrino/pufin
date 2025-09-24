@@ -87,22 +87,7 @@ void nusysSave(){
     std::cout <<  "Events:" << std::endl;
     std::cout << num_of_events << std::endl;
 
-    // // Cap requested events to what the TTree actually has to avoid crashes - returns 1 for weight by default
-    // const Long64_t tree_entries = mytree->GetEntries();
-    // const Long64_t requested    = Get_Num_Events(userdata);
-    // const Long64_t nloop        = std::min(tree_entries, requested);
 
-    // std::cout << "Events requested: " << requested << "\n";
-    // std::cout << "Events in tree  : " << tree_entries << "\n";
-    // std::cout << "Looping over    : " << nloop << std::endl;
-
-    // // (optional but handy) keep an event index in the output for joining later
-    // int event_index = -1;
-    // outtree->Branch("event_index", &event_index);
-
-
-
-    // The stuff before the temp spline is important
     for(int event_num =0; event_num<num_of_events; event_num++){
         if(event_num%1000==0){
             std::cout << event_num << std::endl;
@@ -119,37 +104,7 @@ void nusysSave(){
         }
         outtree->Fill();
     }
-    // for (Long64_t event_num = 0; event_num < nloop; ++event_num) {
-    //     if (event_num % 1000 == 0) std::cout << event_num << std::endl;
     
-    //     mytree->GetEntry(event_num);
-    //     const genie::EventRecord& event = *(myEventRecord->event);
-    
-    //     // Build per-event responses
-    //     auto Events_stand = resp->GetEventResponses(event);
-    
-    //     // For each configured systematic, build a spline if present; else weight=1.0
-    //     for (size_t s = 0; s < syst_name.size(); ++s) {
-    //         auto pid = syst_id[s];
-    
-    //         // Build the spline for this event+parameter
-    //         auto spl = resp->GetSpline(pid, Events_stand);
-    
-    //         // Guard: if the provider didn’t supply a response (no knots), treat as N/A → 1.0
-    //         if (spl.GetNp() == 0) {
-    //             syst_weights[s] = 1.0;
-    //             continue;
-    //         }
-    
-    //         // Evaluate at your chosen dial
-    //         syst_weights[s] = spl.Eval(1.5);
-    //     }
-    
-    //     // (optional) event index for joining later
-    //     event_index = static_cast<int>(event_num);
-    
-    //     outtree->Fill();
-    // }    
     outfile->cd();
     outtree->Write();
     outfile->Close();
