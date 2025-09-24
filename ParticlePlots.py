@@ -347,6 +347,46 @@ def DefineTKI(df):
         return TVector3(Best.X(), Best.Y(), 0);
     """)
     
+    df = df.Define("PTPion1", """
+        TVector3 ppion(0, 0, 0);
+        TVector3 Best(0, 0, 0);
+        double Best_mag = -5.0;
+        double pion_mag = -5.0;
+        for (size_t i = 0; i < pdg.size(); ++i) {
+            int pdg_val = pdg[i];
+            if (pdg_val == 211 || pdg_val == -211 || pdg_val == 111) { // All pions
+                ppion.SetXYZ(px[i], py[i], pz[i]);
+                pion_mag = ppion.Mag();
+                if (pion_mag > Best_mag) {
+                    Best_mag = pion_mag;
+                    Best.SetXYZ(px[i], py[i], pz[i]);
+                    
+                }
+            }
+        }
+        return TVector3(Best.X(), Best.Y(), 0);
+    """)
+    
+    df = df.Define("PTPion1_PFSI", """
+        TVector3 ppion_pfsi(0, 0, 0);
+        TVector3 Best_pfsi(0, 0, 0);
+        double Best_mag = -5.0;
+        double pion_mag = -5.0;
+        for (size_t i = 0; i < pdg_vert.size(); ++i) {
+            int pdg_val = pdg_vert[i];
+            if (pdg_val == 211 || pdg_val == -211 || pdg_val == 111) { // All pions
+                ppion_pfsi.SetXYZ(px_vert[i], py_vert[i], pz_vert[i]);
+                pion_mag = ppion_pfsi.Mag();
+                if (pion_mag > Best_mag) {
+                    Best_mag = pion_mag;
+                    Best_pfsi.SetXYZ(px_vert[i], py_vert[i], pz_vert[i]);
+                    
+                }
+            }
+        }
+        return TVector3(Best_pfsi.X(), Best_pfsi.Y(), 0);
+    """)
+    
     df = df.Define("PTProton1_PFSI", """
         TVector3 pproton_pfsi(0, 0, 0);
         TVector3 Best_pfsi(0, 0, 0);
@@ -456,11 +496,19 @@ def DefineTKI(df):
     
     # Parallel componet to the transverse momentum transfer vector q_T
     df = df.Define("DeltaPT_y_Had", """
-        TVector3 delta_pt = PTLep + PTHad;        
+        TVector3 delta_pt_had = PTLep + PTHad;        
         double pTlep = PTLep.Mag();
         if (pTlep == 0 || pTlep != pTlep) return -5.0;   
         TVector3 qT_hat = (-1.0 / pTlep) * PTLep;        
-        return delta_pt.Dot(qT_hat);
+        return delta_pt_had.Dot(qT_hat);
+    """)
+    
+    df = df.Define("DeltaPT_y_Had_PFSI", """
+        TVector3 delta_pt_had_pfsi = PTLep + PTHad_PFSI;        
+        double pTlep = PTLep.Mag();
+        if (pTlep == 0 || pTlep != pTlep) return -5.0;   
+        TVector3 qT_hat = (-1.0 / pTlep) * PTLep;        
+        return delta_pt_had_pfsi.Dot(qT_hat);
     """)
     
     df = df.Define("DeltaPT_y", """
@@ -479,6 +527,24 @@ def DefineTKI(df):
         return delta_pt_pfsi.Dot(qT_hat);
     """)
     
+    # Delta PT-y with leading proton + leading pion
+    df = df.Define("DeltaPT_y_pion", """
+        TVector3 delta_pt_pp = PTLep + PTProton1 + PTPion1;        
+        double pTlep = PTLep.Mag();
+        if (pTlep == 0 || pTlep != pTlep) return -5.0;   
+        TVector3 qT_hat = (-1.0 / pTlep) * PTLep;        
+        return delta_pt_pp.Dot(qT_hat);
+    """)
+    
+    # PFSI Delta PT-y with leading proton + leading pion
+    df = df.Define("DeltaPT_y_pion_PFSI", """
+        TVector3 delta_pt_pfsi_pp = PTLep + PTProton1_PFSI + PTPion1_PFSI;        
+        double pTlep = PTLep.Mag();
+        if (pTlep == 0 || pTlep != pTlep) return -5.0;   
+        TVector3 qT_hat = (-1.0 / pTlep) * PTLep;        
+        return delta_pt_pfsi_pp.Dot(qT_hat);
+    """)
+    
     # Perpendicular component to the transverse mometum transver vector q_T
     df = df.Define("DeltaPT_x_Had", """
         TVector3 delta_pt = PTLep + PTHad;
@@ -494,6 +560,22 @@ def DefineTKI(df):
         x_hat *= (1.0 / xmag); 
         
         return delta_pt.Dot(x_hat);
+    """)
+    
+    df = df.Define("DeltaPT_x_Had_PFSI", """
+        TVector3 delta_pt_had_pfsi = PTLep + PTHad_PFSI;
+        double pnu = PNu.Mag();
+        double pTlep = PTLep.Mag();
+        if (pnu == 0 || pTlep == 0) return -5.0;
+        
+        TVector3 z_hat = (1.0 / pnu) * PNu;
+        TVector3 qT_hat = (-1.0 / pTlep) * PTLep; 
+        TVector3 x_hat = z_hat.Cross(qT_hat);
+        double xmag = x_hat.Mag();
+        if (xmag == 0 || xmag != xmag) return -5.0;
+        x_hat *= (1.0 / xmag); 
+        
+        return delta_pt_had_pfsi.Dot(x_hat);
     """)
     
     df = df.Define("DeltaPT_x", """
@@ -526,6 +608,39 @@ def DefineTKI(df):
         x_hat *= (1.0 / xmag); 
         
         return delta_pt_pfsi.Dot(x_hat);
+    """)
+    
+    # Delta PT-x with leading proton + leading pion
+    df = df.Define("DeltaPT_x_pion", """
+        TVector3 delta_pt_pp = PTLep + PTProton1 + PTPion1;
+        double pnu = PNu.Mag();
+        double pTlep = PTLep.Mag();
+        if (pnu == 0 || pTlep == 0) return -5.0;
+        
+        TVector3 z_hat = (1.0 / pnu) * PNu;
+        TVector3 qT_hat = (-1.0 / pTlep) * PTLep; 
+        TVector3 x_hat = z_hat.Cross(qT_hat);
+        double xmag = x_hat.Mag();
+        if (xmag == 0 || xmag != xmag) return -5.0;
+        x_hat *= (1.0 / xmag); 
+        
+        return delta_pt_pp.Dot(x_hat);
+    """)
+    # PFSI Delta PT-x with leading proton + leading pion
+    df = df.Define("DeltaPT_x_pion_PFSI", """
+        TVector3 delta_pt_pp_pfsi = PTLep + PTProton1_PFSI + PTPion1_PFSI;
+        double pnu = PNu.Mag();
+        double pTlep = PTLep.Mag();
+        if (pnu == 0 || pTlep == 0) return -5.0;
+        
+        TVector3 z_hat = (1.0 / pnu) * PNu;
+        TVector3 qT_hat = (-1.0 / pTlep) * PTLep; 
+        TVector3 x_hat = z_hat.Cross(qT_hat);
+        double xmag = x_hat.Mag();
+        if (xmag == 0 || xmag != xmag) return -5.0;
+        x_hat *= (1.0 / xmag); 
+        
+        return delta_pt_pp_pfsi.Dot(x_hat);
     """)
     
     # # Transverse Kinematic Imbalance (Omitting Neutrons)

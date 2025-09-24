@@ -15,7 +15,7 @@
 #include <memory>
 
 
-void t2krwTest(){
+void t2krwSave(){
     // auto T2Krw = t2krew::MakeT2KReWeightInstance();
     std::string card_file = "/data/t2k-nova/LarsGen/neutsysBig.card";
     const char* infile = "/data/t2k-nova/LarsGen/neutSysTest1e6.root";
