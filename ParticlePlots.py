@@ -973,7 +973,8 @@ def PlotContEventCuts(df, x, y, histInfo, cuts, percents):
 
 def SaveContHist(histlist, AxisInfo, Legend, colors, percents, save_path, logz):
     # stupid crap at the begining to get a proper legend
-    legend = ROOT.TLegend(0.7, 0.1, 0.9, 0.3)  # Define legend position
+    # legend = ROOT.TLegend(0.7, 0.1, 0.9, 0.3)  # Define legend position
+    legend = ROOT.TLegend(0.7, 0.7, 0.9, 0.9)  # Define legend position
     styletemp = [1,2,3,4,5]
     style = []
     for z in range(0,len(percents)):
@@ -1063,7 +1064,7 @@ def SaveContHist(histlist, AxisInfo, Legend, colors, percents, save_path, logz):
            
     
     legend.Draw()
-    pave = ROOT.TPaveText(0.7, 0.3, 0.9, 0.35, "NDC")  # (x1, y1, x2, y2)
+    pave = ROOT.TPaveText(0.7, 0.65, 0.9, 0.7, "NDC")  # (x1, y1, x2, y2)
     pave.AddText(f"Events: {histlist[0].Integral():.0f}")
     pave.SetFillColor(0)    # Transparent fill
     pave.SetBorderSize(1)   # Border thickness
