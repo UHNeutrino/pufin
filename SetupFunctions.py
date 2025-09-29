@@ -37,7 +37,7 @@ def formatHist(hist, xvar, xunit, yvar, yunit, max = -1, PlotTitle = None, NameP
     hist.GetYaxis().SetLabelSize(0.05)
     hist.GetYaxis().SetTitleSize(0.05)
     hist.GetZaxis().SetLabelSize(0.05)
-    return hist.Clone()
+    return hist
 
 def formatTcanvas(hist, c):
     # Adjust margins; Default is 0.1; increase as needed

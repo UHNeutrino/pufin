@@ -57,7 +57,7 @@
             "TkiB": false,
             "Cut": "flagCC0pi == true && (Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)",
             // "AxisInfo": "Q^{2}, (GeV), Probability, ,Q^{2} for QE events", //Q2
-            "AxisInfo": "E_{#nu}, GeV, Frequency, , Pion Abs events Neut Vs Neut", //PLep
+            "AxisInfo": "E_{#nu}, GeV, Frequency, , Pion Abs events Neut Vs GENIE", //PLep
             "Bins": [200, 0, 10],
             //If VBins is true, treats the second element as bin edges
             "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
@@ -68,7 +68,7 @@
             "logy": false,
             "ErrorBars": false,
             "max": -1,
-            "Add_Ratio": false,  // show ratio panel
+            "Add_Ratio": true,  // show ratio panel
             "RatioOf": ["1Sigma","1SigmaGEN"], // numerator,denominator by plot Key
             "RatioRange": [0, 2.0],           
             "Plots": [
@@ -76,7 +76,7 @@
             "Key": "1Sigma",
             "File": "flat_NEUTSys_flatf_1e6",
             "Label": "1 #sigma PionAbs Neut",
-            "Color": "kOrange+2",
+            "Color": "kBlue",
             "sysRW":[true, "/data/t2k-nova/SysWeights/nuisSysTestBig_with_NEUTweights.root","weighttree;2","PionFSI_AbsProb"],
             "reWeight":[false, "/data/t2k-nova/fluxes/SBND_G4BNBFlux.root","flux_numu"],
             "Var": "Enu_true"
@@ -94,7 +94,7 @@
             "Key": "1SigmaGEN", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
             "File": "Flat_GenieN24_flatf_1e6",
             "Label": "1 #sigma PionAbs GENIE",
-            "Color": "kBlue",
+            "Color": "kOrange+2",
             "sysRW":[true, "/data/t2k-nova/SysWeights/N2420i0211b_Flat_1000000_Default_numu_sysweights_PiAbs.root","weighttree","FrAbs_pi"],
             "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
             "Var": "Enu_true"

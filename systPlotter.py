@@ -198,18 +198,17 @@ if (same1D["Bool"]):
             df = ROOT.RDataFrame(ft2)
             df = df.Filter(same1D["Cut"])
             weight_col = sysRW_branch
-            print("Weight Col:")
-            print(weight_col)
-            print(sysRW_branch)
+            print(f"Weight Col:{weight_col} sysrw: {sysRW_branch} ")
+
         else:
             df = pp.CreateDataFrame(file_path, same1D["Cut"])
         # df = pp.CreateDataFrame(file_path, same1D["Cut"])
-        unfiltered = df.Count().GetValue()
-        df = df.Filter("Enu_true < 8.0 ")
-        frakLost = 1.0 - df.Count().GetValue()/unfiltered
-        print(f"Fraction lost from E Nu cut: {frakLost}")
-        print(f"Events lost from E Nu cut: {unfiltered - df.Count().GetValue()}")
-        print(f'Total Events {df.Count().GetValue()}')
+        # unfiltered = df.Count().GetValue()
+        # df = df.Filter("Enu_true < 8.0 ")
+        # frakLost = 1.0 - df.Count().GetValue()/unfiltered
+        # print(f"Fraction lost from E Nu cut: {frakLost}")
+        # print(f"Events lost from E Nu cut: {unfiltered - df.Count().GetValue()}")
+        # print(f'Total Events {df.Count().GetValue()}')
 
         if Evis:
             df = pp.DefineEvis(df)
@@ -246,11 +245,13 @@ if (same1D["Bool"]):
 
         hist_rdfs.append(rdf_hist)  # Keep RDF object alive
         hist = rdf_hist.GetValue()
+        
         pp.HistoErrorBars(hist)
         if norm and hist.Integral() != 0:
             hist.Scale(1.0 / hist.Integral())
         #hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
         hist = sf.formatHist(hist, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
+        print("Bug above^?")
         
         if Add_Ratio and top_histo:
             hist.GetXaxis().SetLabelSize(0)     # hide numbers
@@ -261,6 +262,7 @@ if (same1D["Bool"]):
             
         color = getattr(ROOT, color_str.split("+")[0]) + int(color_str.split("+")[1]) if "+" in color_str else getattr(ROOT, color_str)
         hist.SetLineColor(color)
+        print(f"color: {color}")
         hist.SetLineWidth(1)
         # if (histCounter == 0):
         #     hist.SetLineWidth(2)
