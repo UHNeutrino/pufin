@@ -26,17 +26,17 @@ R__LOAD_LIBRARY(libGRwClc.so)
 
 
 void nusysSave(){
-    //std::string fcl_file = "/home/mazen_malak/Thesis_results/all.fcl";
-    std::string fcl_file = "/home/kdobbs/t2k-nova/nusystrun/all.fcl";
-   // std::string Genie_path_name = "/data/t2k-nova/LarsGen/GenieGen/GENIEN24FORREAL_ff";  
-    std::string Genie_path_name = "/data/t2k-nova/KristenGen/SystWeights/GENIEN24_ff";
+    std::string fcl_file = "/home/lboe/t2k-nova/systReWeighters/all.fcl";
+    // std::string fcl_file = "/home/kdobbs/t2k-nova/nusystrun/all.fcl";
+    std::string Genie_path_name = "/data/t2k-nova/KristenGen/N2420i0211b_Flat_1000000_Default_numu";  
+    // std::string Genie_path_name = "/data/t2k-nova/KristenGen/SystWeights/GENIEN24_ff";
     std::string Genie_file_str  = Genie_path_name + ".root";  
-    std::string OutPath_str     = Genie_path_name + "_sysweights_E0CCQE2.root";  
+    std::string OutPath_str     = Genie_path_name + "_sysweights_PiAbs.root";  
     const char* Genie_file = Genie_file_str.c_str(); // Genie file path
     const char* OutPath    = OutPath_str.c_str();
 
-    // std::string userdata = "/data/t2k-nova/LarsGen/GenieGen/N24Config.txt"; //Config file path??
-    std::string userdata = "/home/kdobbs/t2k-nova/nusystrun/N24Config.txt"; //Config file path??
+    std::string userdata = "/home/lboe/t2k-nova/systReWeighters/N24Config.txt"; //Config file path??
+    // std::string userdata = "/home/kdobbs/t2k-nova/nusystrun/N24Config.txt"; //Config file path??
     std::cout << "hi" << std::endl;
 
     // ############################################################
