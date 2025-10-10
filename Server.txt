@@ -1,1 +1,2 @@
-Hi. This is what we have done:
+This is a log of the day the /data drive died and what was done to make the world right again.
+
