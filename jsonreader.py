@@ -27,9 +27,11 @@ if (plots["Bool"]):
         print("NO such root files")
 
     for file_path in root_files:
+        # print(file_path)
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
+        Tevents = file_name.split('_')[3]
         BinL = plots["Bins"]
         AxisInfo = []
         df = pp.CreateDataFrame(file_path, plots["Cut"])
@@ -64,7 +66,7 @@ if (plots["Bool"]):
         else:
             nx = datetime.datetime.now()
             x = str(nx)
-            fileN = generator+flux+plots["Name"]+x
+            fileN = Tevents+generator+flux+plots["Name"]+x
             fileN = fileN.replace(" ", "-")
             pp.Savehist(hist,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"])
 
