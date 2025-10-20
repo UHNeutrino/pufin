@@ -34,6 +34,17 @@ def DefineKinematics(df):
     return max_proton_p;
     """)
     
+    df = df.Define("PProton", """
+    double proton_p = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 2212) { // Proton
+            proton_p = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
+            
+        }
+    }
+    return proton_p;
+    """)
+    
     # Momentum of the highest momentum proton after the neutrino interaction, but BEFORE FSI (scalar)
     df = df.Define("PProton1_PFSI", """
     double max_proton_p_pfsi = -1.0; // Initialize to a negative value
@@ -743,6 +754,25 @@ def DefineTKI(df):
     # """)
     
     # Delta PT that includes protons, neutrons, and all pions in final state
+
+    return df
+
+def FlagParticleThresholds(df): 
+    """
+    Add boolean flags for particle momentum thresholds. 
+    True if PLep > Threshold, False otherwise.
+    """
+    # NOvA muon momentum threshold > 490 MeV/c 
+    #df = df.Define("flagNovaMuonP", f"(bool)(PLep > 0.490)") 
+    cols = [str(c) for c in df.GetColumnNames()]
+    if "flagNovaMuonP" in cols:
+        df = df.Redefine("flagNovaMuonP", f"(PLep > 0.490)")
+    else:
+        df = df.Define("flagNovaMuonP", f"(PLep > 0.490)")
+    if "flagNovaProtonP" in cols:
+        df = df.Redefine("flagNovaProtonP", f"(PProton > 0.500)")
+    else:
+        df = df.Define("flagNovaProtonP", f"(PProton > 0.500)")
 
     return df
 

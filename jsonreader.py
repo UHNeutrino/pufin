@@ -10,7 +10,8 @@ import array
 
 HOME = os.getenv("HOME", "/home/lboe")
 sf.setupRoot
-userFolder = f"/data/t2k-nova/FlatTrees"
+# userFolder = f"/data/t2k-nova/FlatTrees"
+userFolder = f'{HOME}/t2k-nova/FlatTrees'
 f = open(f'{HOME}/t2k-nova/main.json5')
 data = json5.load(f)
 
@@ -32,13 +33,18 @@ if (plots["Bool"]):
         flux = file_name.split('_')[2]
         BinL = plots["Bins"]
         AxisInfo = []
-        df = pp.CreateDataFrame(file_path, plots["Cut"])
+        #df = pp.CreateDataFrame(file_path, plots["Cut"])
+        df = pp.CreateDataFrame(file_path, cut ="None")
         if(plots["EvisB"]):
             df = pp.DefineEvis(df)  
         if (plots["KinematicsB"]):
             df = pp.DefineKinematics(df)
         if (plots["TkiB"]):
             df = pp.DefineTKI(df)
+        if (plots["ThresholdsB"]):
+            df = pp.FlagParticleThresholds(df)
+        if plots.get("Cut"):
+            df = df.Filter(plots["Cut"])
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
         if(plots["reWeight"][0]):
@@ -77,7 +83,8 @@ if (stacks["Bool"]):
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
-        df = pp.CreateDataFrame(file_path, stacks["Cut"])
+        #df = pp.CreateDataFrame(file_path, stacks["Cut"])
+        df = pp.CreateDataFrame(file_path, cut="None")
         BinL = stacks["Bins"]
         AxisInfo = []
         cuts = []
@@ -87,6 +94,10 @@ if (stacks["Bool"]):
             df = pp.DefineEvis(df)
         if(stacks["TkiB"]):
             df = pp.DefineTKI(df)
+        if (stacks["ThresholdsB"]):
+            df = pp.FlagParticleThresholds(df)
+        if stacks.get("Cut"):
+            df = df.Filter(stacks["Cut"])
         for word in stacks["AxisInfo"].split(','):
                 AxisInfo.append(word)
         for cut,name in stacks["StackCuts"].items():
@@ -110,7 +121,8 @@ if (overlap["Bool"]):
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
-        df = pp.CreateDataFrame(file_path, overlap["Cut"])
+        # df = pp.CreateDataFrame(file_path, overlap["Cut"])
+        df = pp.CreateDataFrame(file_path, cut = "None")
         BinL = overlap["Bins"]
         AxisInfo = []
         cuts = []
@@ -120,6 +132,10 @@ if (overlap["Bool"]):
             df = pp.DefineEvis(df)
         if(overlap["TkiB"]):
             df = pp.DefineTKI(df)
+        if (overlap["ThresholdsB"]):
+            df = pp.FlagParticleThresholds(df)
+        if overlap.get("Cut"):
+            df = df.Filter(overlap["Cut"])
         for word in overlap["AxisInfo"].split(','):
                 AxisInfo.append(word)
         for cut,name in overlap["StackCuts"].items():
@@ -170,6 +186,7 @@ if (same1D["Bool"]):
     kin = same1D.get("KinematicsB", False)
     Evis = same1D.get("EvisB", False)
     Tki = same1D.get("TkiB", False)
+    Thresholds = same1D.get("ThresholdsB", False)
     
     histCounter = 0
     hist_order = []
@@ -193,7 +210,8 @@ if (same1D["Bool"]):
         file_path = matches[0]
         print(f"Processing {file_path}")
 
-        df = pp.CreateDataFrame(file_path, same1D["Cut"])
+        #df = pp.CreateDataFrame(file_path, same1D["Cut"])
+        df = pp.CreateDataFrame(file_path, cut = "None")
         unfiltered = df.Count().GetValue()
         df = df.Filter("Enu_true < 8.0 ")
         frakLost = 1.0 - df.Count().GetValue()/unfiltered
@@ -207,6 +225,10 @@ if (same1D["Bool"]):
             df = pp.DefineKinematics(df)
         if Tki:
             df = pp.DefineTKI(df)
+        if Thresholds:
+            df = pp.FlagParticleThresholds(df)
+        if same1D.get("Cut"):
+            df = df.Filter(same1D["Cut"])
         if reweight_flag:
             if spline:
                 df = pp.defineWeightsSpline(df, rw_file, rw_flux)
@@ -215,7 +237,7 @@ if (same1D["Bool"]):
             weight_col = "weights"
         else:
             weight_col = ""
-
+            
         bins = array.array('d',same1D["VBins"][1])
 
         histInfo = ("name", f"hist_{key}", BinL[0], BinL[1], BinL[2])
@@ -332,12 +354,22 @@ if (same1D["Bool"]):
 if (quantiles["Bool"]):
     file_name = input("Give Root File name: ")
     file_path1 = f"/data/t2k-nova/FlatTrees/{file_name}"
-    treeName = "FlatTree_VARS"
-    
-    df1 = ROOT.RDataFrame(treeName,file_path1)
-    df1 = df1.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
-    df1 = pp.DefineKinematics(df1)
-    df1 = pp.DefineTKI(df1)
+    #treeName = "FlatTree_VARS"
+    df1 = pp.CreateDataFrame(file_path1, cut ="None")
+    if(quantiles["EvisB"]):
+        df1 = pp.DefineEvis(df1)  
+    if (quantiles["KinematicsB"]):
+        df1 = pp.DefineKinematics(df1)
+    if (quantiles["TkiB"]):
+        df1 = pp.DefineTKI(df1)
+    if (quantiles["ThresholdsB"]):
+        df1 = pp.FlagParticleThresholds(df1)
+    if quantiles.get("Cut"):
+        df1 = df.Filter(quantiles["Cut"])
+    # df1 = ROOT.RDataFrame(treeName,file_path1)
+    # df1 = df1.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+    # df1 = pp.DefineKinematics(df1)
+    # df1 = pp.DefineTKI(df1)
 
     Weight = False
     Flux =""
@@ -387,12 +419,23 @@ if (quantiles["Bool"]):
     elif quantiles["plot_type"] == "compare":
         file_name2 = input("Give Root File name: ")
         file_path2 = f"/data/t2k-nova/FlatTrees/{file_name2}"
-        treeName = "FlatTree_VARS"
+        #treeName = "FlatTree_VARS"
+        df1b = pp.CreateDataFrame(file_path2, cut ="None")
+        if(quantiles["EvisB"]):
+            df1b = pp.DefineEvis(df1b)  
+        if (quantiles["KinematicsB"]):
+            df1b = pp.DefineKinematics(df1b)
+        if (quantiles["TkiB"]):
+            df1b = pp.DefineTKI(df1b)
+        if (quantiles["ThresholdsB"]):
+            df1b = pp.FlagParticleThresholds(df1b)
+        if quantiles.get("Cut"):
+            df1b = df.Filter(quantiles["Cut"])
     
-        df1b = ROOT.RDataFrame(treeName,file_path2)
-        df1b = df1b.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
-        df1b = pp.DefineKinematics(df1b)
-        df1b = pp.DefineTKI(df1b)
+        # df1b = ROOT.RDataFrame(treeName,file_path2)
+        # df1b = df1b.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+        # df1b = pp.DefineKinematics(df1b)
+        # df1b = pp.DefineTKI(df1b)
 
         Flux2 =""
         if quantiles["reWeight2"][0]:
@@ -449,7 +492,8 @@ if (Contour["Bool"]):
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
-        df = pp.CreateDataFrame(file_path, Contour["Cut"])
+        #df = pp.CreateDataFrame(file_path, Contour["Cut"])
+        df = pp.CreateDataFrame(file_path, cut ="None")
         BinL = Contour["Bins"]
         AxisInfo = []
         cuts = []
@@ -462,11 +506,14 @@ if (Contour["Bool"]):
             df = pp.DefineKinematics(df)
         if (Contour["TkiB"]):
             df = pp.DefineTKI(df)
+        if (Contour["ThresholdsB"]):
+            df = pp.FlagParticleThresholds(df)
+        if Contour.get("Cut"):
+            df = df.Filter(Contour["Cut"])
         if(Contour["reWeight"][0]):
             df = pp.defineWeightsSpline(df,Contour["reWeight"][1],Contour["reWeight"][2])
         for word in Contour["AxisInfo"].split(','):
                 AxisInfo.append(word)
-
         if Contour["AutoQuant"][0]:
             x = Contour["AutoQuant"][1]
             y = Contour["AutoQuant"][2]
