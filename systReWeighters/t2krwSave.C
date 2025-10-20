@@ -17,9 +17,9 @@
 
 void t2krwSave(){
     // auto T2Krw = t2krew::MakeT2KReWeightInstance();
-    std::string card_file = "/data/t2k-nova/LarsGen/neutsysMed.card";
-    const char* infile = "/data/t2k-nova/LarsGen/neutSysTest1e5.root";
-    const char* outfile = "/data/t2k-nova/LarsGen/NEUTSYS/nuisSysTestMed_with_NEUTweights.root";
+    std::string card_file = "/data/t2k-nova/LarsGen/neutsysBig.card";
+    const char* infile = "/data/t2k-nova/LarsGen/neutSysTest1e6.root";
+    const char* outfile = "/data/t2k-nova/KristenGen/NeutSys/nuisSysBig_with_NEUTweights.root";
     TFile *fin = TFile::Open(infile, "READ");
     if (!fin || fin->IsZombie()) {
         std::cerr << "Error: cannot open input file " << infile << std::endl;
