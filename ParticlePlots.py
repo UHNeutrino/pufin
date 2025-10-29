@@ -72,6 +72,19 @@ def DefineKinematics(df):
     }
     return max_pi_p;
     """)
+
+    df = df.Define("PPionMax", """
+    double max_pi_p = -1.0; // Initialize to a negative value
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 211 || pdg[i] == -211 || pdg[i] == 111) { // Any Pion
+            double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
+            if (p_magnitude > max_pi_p) {
+                max_pi_p = p_magnitude;
+            }
+        }
+    }
+    return max_pi_p;
+    """)
     
     # Momentum of the highest momentum pion(+) after the neutrino interaction, but BEFORE FSI (scalar)
     df = df.Define("PPionPlus_PFSI", """
@@ -773,6 +786,11 @@ def FlagParticleThresholds(df):
         df = df.Redefine("flagNovaProtonP", f"(PProton > 0.500)")
     else:
         df = df.Define("flagNovaProtonP", f"(PProton > 0.500)")
+    df = df.Define("flagT2KMuonP", f"(PLep > 0.225)")
+    df = df.Define("flagT2KProtonP", f"(PProton > 0.525)")
+    df = df.Define("flagT2KPionPlusP", f"(PPionPlus > 0.400)")
+    df = df.Define("flagT2KALL", f"(flagT2KMuonP && flagT2KProtonP && flagT2KPionPlusP)")
+
 
     return df
 
@@ -1133,7 +1151,7 @@ def SaveIntPlot(df,x,y,x_bins,saveL):
         nbins_x, xmin, xmax,   # X: nbins, min, max
         nbins_y, ymin, ymax    # Y: nbins, min, max
     )
-    print(interHistogramInfo)
+    # print(interHistogramInfo)
     if (df.HasColumn("weights")):
         interhist = df.Histo2D(interHistogramInfo, x,y,"weights")
         # print("weights activated1")

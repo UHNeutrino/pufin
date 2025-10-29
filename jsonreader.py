@@ -10,8 +10,8 @@ import array
 
 HOME = os.getenv("HOME", "/home/lboe")
 sf.setupRoot
-# userFolder = f"/data/t2k-nova/FlatTrees"
-userFolder = f'{HOME}/t2k-nova/FlatTrees'
+userFolder = f"/data/t2k-nova/FlatTrees"
+# userFolder = f'{HOME}/t2k-nova/FlatTrees'
 f = open(f'{HOME}/t2k-nova/main.json5')
 data = json5.load(f)
 
@@ -25,7 +25,8 @@ Contour = data.get("Contour")
 if (plots["Bool"]):
     root_files = glob.glob(userFolder + f'/*{plots["Gen"]}*{plots["Flux"]}*.root')
     if root_files == []:
-        print("NO such root files")
+        printMsg =  "NO such root files:"+f'/*{plots["Gen"]}*{plots["Flux"]}*.root'
+        print(printMsg)
 
     for file_path in root_files:
         # print(file_path)
@@ -72,7 +73,7 @@ if (plots["Bool"]):
         else:
             nx = datetime.datetime.now()
             x = str(nx)
-            fileN = Tevents+generator+flux+plots["Name"]+x
+            fileN = plots["Name"]+Tevents+generator+flux+x
             fileN = fileN.replace(" ", "-")
             pp.Savehist(hist,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"])
 
