@@ -51,7 +51,7 @@ if (plots["Bool"]):
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
         if(plots["reWeight"][0]):
-            df = pp.defineWeightsSpline(df,plots["reWeight"][1],plots["reWeight"][2])
+            df = pp.defineWeightsSpline(df,plots["reWeight"][1],plots["reWeight"][2], Fscale = plots["reWeight"][3])
         if plots["Type"] == "1D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
             if(plots["reWeight"][0]):
@@ -199,8 +199,7 @@ if (same1D["Bool"]):
         key = plot["Key"]
         color_str = plot["Color"]
         label = plot["Label"]
-        reweight_flag, rw_file, rw_flux = plot["reWeight"]
-        spline = plot["Spline"]
+        reweight_flag, rw_file, rw_flux, Fscale = plot["reWeight"]
         Var = plot["Var"]
         hist_order.append(key)
 
@@ -233,10 +232,7 @@ if (same1D["Bool"]):
         if same1D.get("Cut"):
             df = df.Filter(same1D["Cut"])
         if reweight_flag:
-            if spline:
-                df = pp.defineWeightsSpline(df, rw_file, rw_flux)
-            else:
-                df = pp.defineWeights(df, rw_file, rw_flux)
+            df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -570,4 +566,7 @@ if (Contour["Bool"]):
         print(AxisInfo)
         histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts, Contour["TotalPercents"])
         save_L = Contour["Save"]+ "/" + generator + '-' + flux + Contour["Name"] + "." +Contour["Ext"]
-        pp.SaveContHist(histlist, AxisInfo, Legend, colors, Contour["TotalPercents"], save_L,Contour["logz"])
+        if Contour["ContStyle"]:
+            pp.SaveContHistStyles(histlist, AxisInfo, colors, Contour["styles"], Contour["Clabels"], Contour["Slabels"], save_L, Contour["logz"])
+        else:
+            pp.SaveContHist(histlist, AxisInfo, Legend, colors, Contour["TotalPercents"], save_L, Contour["logz"])

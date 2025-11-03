@@ -51,7 +51,7 @@
         },
     "1DSame":
         {
-            "Bool": false,
+            "Bool": true,
             "EvisB": false,
             "KinematicsB":false,
             "TkiB": false,

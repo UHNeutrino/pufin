@@ -280,6 +280,20 @@ def DefineEvis(df):
                 }
                 return EnergyResKin;
                    """)
+    
+
+    df = df.Define("Eres_cal","""
+                double EnergyResCal = ((Evis_2-Enu_true)/Enu_true);
+                if (EnergyResCal > 1.0)
+                {
+                    EnergyResCal = 1.0;
+                }
+                if (EnergyResCal < -1.0)
+                {
+                    EnergyResCal = -1.0;
+                }
+                return EnergyResCal;
+                   """)
 
     return df
 
@@ -1122,6 +1136,98 @@ def SaveContHist(histlist, AxisInfo, Legend, colors, percents, save_path, logz):
 
     canvas.SaveAs(f"{HOME}/{save_path}")
 
+def SaveContHistStyles(histlist, AxisInfo, colors, styles, Clabels, Slabels, save_path, logz):
+    # stupid crap at the begining to get a proper legend
+    # legend = ROOT.TLegend(0.7, 0.1, 0.9, 0.3)  # Define legend position
+    legend1 = ROOT.TLegend(0.7, 0.7, 0.8, 0.9)  # Define legend position
+    legend2 = ROOT.TLegend(0.8, 0.7, 0.9, 0.9)
+
+
+    fh1 = ROOT.TH1D()
+    fh2 = ROOT.TH1D()
+    fh3 = ROOT.TH1D()
+    fh4 = ROOT.TH1D()
+    fh5 = ROOT.TH1D()
+    fh6 = ROOT.TH1D()
+    fh7 = ROOT.TH1D()
+    fh8 = ROOT.TH1D()
+    fh9 = ROOT.TH1D()
+    fh10 = ROOT.TH1D()
+    fakehistList = [fh1,fh2,fh3,fh4,fh5,fh6,fh7,fh8,fh9,fh10]
+    i = 0
+
+
+    for cName, cValue  in Clabels.items():
+        fakehistList[i].SetLineColor(cValue)
+        legend1.AddEntry(fakehistList[i] , cName, "l")
+        i+=1
+    for sName, sValue in Slabels.items():
+        fakehistList[i].SetLineStyle(sValue)
+        legend2.AddEntry(fakehistList[i] , sName, "l")
+        i+=1   
+
+    ROOT.gStyle.SetOptStat(0)
+    # ROOT.gStyle.SetStatX(.9)
+    # ROOT.gStyle.SetStatY(.4)
+    # ROOT.gStyle.SetStatH(.1)
+    # ROOT.gStyle.SetStatW(.2)
+    ROOT.gStyle.SetPalette(52)
+    ROOT.TColor.InvertPalette()
+    canvas = ROOT.TCanvas("canvas", "Canvas for Contour Histograms", 1000, 600)
+    # Add legend
+    # legend = ROOT.TLegend(0.7, 0.1, 0.9, 0.3)  # Define legend position
+    histlist[0].GetXaxis().SetTitle(AxisInfo[0]+ AxisInfo[1])
+    histlist[0].GetYaxis().SetTitle(AxisInfo[2]+ AxisInfo[3])
+    histlist[0].SetTitle(AxisInfo[4])
+    histlist[0].Draw("COLZ")  # "HIST" option tells ROOT to draw the histograms
+    if logz:
+        canvas.SetLogz()
+    # legend.AddEntry(histlist[0], f"{Legend[0]}", "f")
+    i=0
+
+
+    for i in range(0, len(histlist)-1):
+        histlist[i+1].SetLineColor(colors[i])
+        histlist[i+1].SetFillStyle(0)
+        # print(style[(i%len(percents))])
+        histlist[i+1].SetLineStyle(styles[i])
+        histlist[i+1].SetLineWidth(1)
+        histlist[i+1].Draw("CONT3 SAME")  # "HIST" option tells ROOT to draw the histograms
+
+    
+    # if (len(percents) > 1):
+    #     legend.SetNColumns(2)
+    #     counter1 = 0
+    #     counter2 = 0
+    #     for i in range(0,len(histlist)):
+    #         if ((i+1)%2):
+    #             if (counter1 < len(percents)):
+    #                 histlist[1].SetLineColor(ROOT.kBlack)
+    #                 histlist[1].SetLineStyle(style[(counter1%len(percents))])
+    #                 legend.AddEntry(histlist[1], f"{percents[counter1]}% of events", "l")
+    #             else:
+    #                 legend.AddEntry(0, " ", "")
+    #             counter1 += 1
+    #         else:
+    #             if (counter2 < len(Legend)):
+    #                 histlist[1].SetLineColor(colors[counter2])
+    #                 legend.AddEntry(histlist[1], f"{Legend[counter2]}", "l")
+    #             else:
+    #                 legend.AddEntry(0, " ", "")
+    #             counter2 += 1
+           
+    
+    legend1.Draw()
+    legend2.Draw()
+    pave = ROOT.TPaveText(0.7, 0.65, 0.9, 0.7, "NDC")  # (x1, y1, x2, y2)
+    pave.AddText(f"Events: {histlist[0].Integral():.0f}")
+    pave.SetFillColor(0)    # Transparent fill
+    pave.SetBorderSize(1)   # Border thickness
+    pave.SetTextSize(0.025)  # Optional
+    pave.Draw()
+    # latex.DrawLatex(0.9, 0.35, f"Events = {histlist[0].Integral():.1f}")
+
+    canvas.SaveAs(f"{HOME}/{save_path}")
 
 
 def DrawXLines(hist, x_bins, y_max):
@@ -1185,7 +1291,7 @@ def defineWeights(df, rwRootFile, histName):
 
     return df        
 
-def defineWeightsSpline(df, rwRootFile, histName, label=""):
+def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1):
     flux_file = ROOT.TFile.Open(rwRootFile)
     hist = flux_file.Get(histName)  
     hist.SetDirectory(0)  
@@ -1203,7 +1309,7 @@ def defineWeightsSpline(df, rwRootFile, histName, label=""):
 
     for i in range(1, n_points + 1):
         x = hist.GetBinCenter(i)
-        y = hist.GetBinContent(i)
+        y = hist.GetBinContent(i) * Fscale
         graph.SetPoint(i - 1, x, y)
 
    # Create TSpline3 from the graph

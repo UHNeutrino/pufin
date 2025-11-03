@@ -72,7 +72,7 @@ for Wkey, value in Wevo.items():
         key = plot["Key"]
         color_str = plot["Color"]
         label = plot["Label"]
-        reweight_flag, rw_file, rw_flux = plot["reWeight"]
+        reweight_flag, rw_file, rw_flux, Fscale = plot["reWeight"]
         Var = plot["Var"]
         hist_order.append(key)
 
@@ -103,7 +103,7 @@ for Wkey, value in Wevo.items():
         if same1D.get("Cut"):
             df = df.Filter(same1D["Cut"])
         if reweight_flag:
-            df = pp.defineWeightsSpline(df, rw_file, rw_flux)
+            df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -130,7 +130,7 @@ for Wkey, value in Wevo.items():
         if norm and hist.Integral() != 0:
             hist.Scale(1.0 / hist.Integral())
         #hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
-        PT = "Pion Momentum distribution for " + str(Wkey) + " and Q^{2}<=1"
+        PT = "Pion Momentum distribution for " + str(Wkey) + " and Q^{2}>1"
         hist = sf.formatHist(hist, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PT)
         
         if Add_Ratio and top_histo:

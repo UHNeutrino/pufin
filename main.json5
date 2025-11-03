@@ -40,12 +40,12 @@
         },
     "plots":
         {
-            "Bool": true,
+            "Bool": false,
             "EvisB": false,
             "KinematicsB":true,
             "TkiB": false,
             "ThresholdsB": true,
-            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],
+            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu", 1],
             "Gen":"NEUT5.9",
             // "Gen":"NEUT5.9",
             "Flux":"flatf",
@@ -117,50 +117,49 @@
             "EvisB": false,
             "KinematicsB":false,
             "TkiB": false,
-            "ThresholdsB": true,
-            "Cut": "flagNovaMuonP", // For no cuts, type ""
+            "ThresholdsB": false,
+            "Cut": "", // For no cuts, type ""
             // "Cut": "flagCC0pi == true && (Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)",
-            "AxisInfo": "#mu momentum, GeV/c, Frequency, , Test Muon Momentum YES Threshold ", //Q2
+            "AxisInfo": "E_{#nu}, GeV, Events, , T2K vs NOvA Plot ", //Q2
             //"AxisInfo": "#deltaP_{T}, GeV/c, Frequency, , QE Delta PT x & y for Leading Proton", //PLep
             "Bins": [200, 0, 10],
             //If VBins is true, treats the second element as bin edges
             "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
-            "Save": "t2k-nova/test", 
-            "Name": "1DsameYesThreshold",
+            "Save": "t2k-nova/CMPFinal", 
+            "Name": "Test",
             "Ext": "png",
             "Norm": false,
             "logy": false,
             "ErrorBars": false,
             "max": -1,
-            "Add_Ratio": true,  // show ratio panel
+            "Add_Ratio": false,  // show ratio panel
             "RatioOf": ["N24","AR23"], // numerator,denominator by plot Key
             "RatioRange": [0, 1.5],           
             "Plots": [
+            {
+            "Key": "T2K",
+            "File": "Flat_NEUT5.9_flatf_1e7",
+            "Label": "T2K Flux",
+            "Color": "kRed",
+            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu", 1],
+            "Var": "Enu_true"
+            },
 
             {
-            "Key": "N24", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
-            "File": "GenieN24_flatf_1e6",
-            "Label": "N24 on Carbon",
+            "Key": "NOvA", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
+            "File": "Flat_NEUT5.9_flatf_1e7",
+            "Label": "NOvA Flux",
             "Color": "kBlue",
-            "reWeight":[false, "/data/t2k-nova/KristenGen/GenieSys/GENIEN24_ff_sysweights_FrAbs_pi.root","FrAbs_pi"],
-            "Spline":true,
-            "Var": "PLep"
+            "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 1],
+            "Var": "Enu_true"
             },
-            {
-            "Key": "AR23",
-            "File": "GenieAR23_0-8.0GeV",
-            "Label": "AR23 on Argon",
-            "Color": "kOrange+2",
-            "reWeight":[false, "/data/t2k-nova/SysWeights/GENIEN24_ff_sysweights_FrAbs_pi.root","flux_numu"],
-            "Spline":false,
-            "Var": "PLep"
-            }
+
 
         ]
         },
     "Contour":
         {
-            "Bool": false,
+            "Bool": true,
             "EvisB": false,
             "KinematicsB":true,
             "TkiB": true,
@@ -179,6 +178,23 @@
             "ConCuts":{"Mode == 1":"1P1H","Mode == 2":"2P2H","(Mode == 11 || Mode ==  12 || Mode ==13 || Mode == 14 || Mode == 15) && flagCC0pi == true": "Pion Abs"},
             "AutoQuant":[false, "PPionPlus", "Enu_true",true,5],
             "TotalPercents":[90], //requires pdf save for line textures to show up
+            
+
+            // ---------------------------------------
+            "ContStyle":true,
+            "Clabels":{
+                "1p1h": 632,
+                "2p2h": 416,
+                "RES": 880
+            },
+            "Slabels":{
+                "EKinRes <0.9": 2,
+                "EkinRes >1.1": 3,
+                "0.9 <= EkinRes <=1.1": 1
+            },
+            styles:[1,1,2,2],
+            // ----------------------------------------------------
+            
             // "ConCuts":{"q3 <=.72": "Less than .72 GeV"},
             "Colors":"632, 416, 880, 800, 600",
             // "AxisInfo":"Lepton Momentum, GeV, Cos#theta_{#mu}, , NEUT 5.9 0Pi Lepton Kinematics for Flat Flux with T2K weights",
@@ -188,7 +204,7 @@
             // "Bins":[60,0,3,42,-1.05,1.05],
             "Bins":[40,0,2,60,0,180],
             "logz":true,
-            "Save": "t2k-nova/plots_TKI",
+            "Save": "t2k-nova/CMPFinal",
             "Name": "testC",
             "Ext": "png"
 
