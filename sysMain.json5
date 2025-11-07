@@ -61,7 +61,7 @@
             "Bins": [60, 0, 3],
             //If VBins is true, treats the second element as bin edges
             "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
-            "Save": "t2k-nova/xsecTalkPlots", 
+            "Save": "t2k-nova/CMPFinal", 
             "Name": "NEUTandGENIE0Sig",
             "Ext": "png",
             "Norm": false,
@@ -69,29 +69,29 @@
             "ErrorBars": false,
             "max": -1,
             "Add_Ratio": true,  // show ratio panel
-            "RatioOf": ["0Sigma","0SigmaGEN"], // numerator,denominator by plot Key
+            "RatioOf": [ "0Sigma","0SigmaGEN","1Sigma", "1SigmaGEN"], // numerator,denominator by plot Key
             "RatioRange": [0, 2.0],           
             "Plots": [
-            // {
-            // "Key": "1Sigma",
-            // "File": "flat_NEUTSys_flatf_1e6",
-            // "Label": "1 #sigma PionAbs Neut",
-            // "Color": "kBlue",
-            // "sysRW":[true, "/data/t2k-nova/SysWeights/nuisSysTestBig_with_NEUTweights.root","weighttree;2","PionFSI_AbsProb"],
-            // "reWeight":[false, "/data/t2k-nova/fluxes/SBND_G4BNBFlux.root","flux_numu"],
-            // "Style":1,
-            // "Var": "Q2"
-            // },
-            // {
-            // "Key": "1SigmaGEN", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
-            // "File": "Flat_GenieN24_flatf_1e6",
-            // "Label": "1 #sigma PionAbs GENIE",
-            // "Color": "kRed",
-            // "sysRW":[true, "/data/t2k-nova/SysWeights/N2420i0211b_Flat_1000000_Default_numu_sysweights_PiAbs.root","weighttree","FrAbs_pi"],
-            // "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
-            // "Style":1,
-            // "Var": "Q2"
-            // },
+            {
+            "Key": "1Sigma",
+            "File": "flat_NEUTSys_flatf_1e6",
+            "Label": "1 #sigma PionAbs Neut",
+            "Color": "kBlue",
+            "sysRW":[true, "/data/t2k-nova/SysWeights/nuisSysTestBig_with_NEUTweights.root","weighttree;2","PionFSI_AbsProb"],
+            "reWeight":[false, "/data/t2k-nova/fluxes/SBND_G4BNBFlux.root","flux_numu"],
+            "Style":1,
+            "Var": "Q2"
+            },
+            {
+            "Key": "1SigmaGEN", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
+            "File": "Flat_GenieN24_flatf_1e6",
+            "Label": "1 #sigma PionAbs GENIE",
+            "Color": "kRed",
+            "sysRW":[true, "/data/t2k-nova/SysWeights/N2420i0211b_Flat_1000000_Default_numu_sysweights_PiAbs.root","weighttree","FrAbs_pi"],
+            "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
+            "Style":1,
+            "Var": "Q2"
+            },
             {
             "Key": "0Sigma", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
             "File": "flat_NEUTSys_flatf_1e6",

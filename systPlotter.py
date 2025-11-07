@@ -128,6 +128,7 @@ if (same1D["Bool"]):
     plots_list = same1D["Plots"]
     hist_dict = {}
     hist_rdfs = []  # Keep these alive to avoid ROOT segfaults
+    colorL = []
         
     AxisInfo = same1D["AxisInfo"].split(",")
     BinL = same1D["Bins"]
@@ -264,6 +265,8 @@ if (same1D["Bool"]):
         hist.SetLineColor(color)        
         hist.SetLineStyle(plot["Style"])
         print(f"color: {color}")
+        # if histCounter%2:
+        #     colorL.append(color)
         hist.SetLineWidth(1)
         # if (histCounter == 0):
         #     hist.SetLineWidth(2)
@@ -290,52 +293,64 @@ if (same1D["Bool"]):
     # Draw the Ratio Plot
     if Add_Ratio and len(hist_order) >= 2:
         # pick numerator / denominator
-        if RatioOf and all(k in hist_dict for k in RatioOf[:2]):
-            h_num = hist_dict[RatioOf[0]]
-            h_den = hist_dict[RatioOf[1]]
-            ratio_label = f"{RatioOf[0]}/{RatioOf[1]}"
-        else:
-            h_den = hist_dict[hist_order[0]]
-            h_num = hist_dict[hist_order[1]]
-            ratio_label = "second/first"
+        for N in range(0,int(len(RatioOf)/2)):
+            if RatioOf and all(k in hist_dict for k in RatioOf):
+                h_num = hist_dict[RatioOf[N*2]].Clone(f"h_num{N}")
+                h_den = hist_dict[RatioOf[N*2 +1]].Clone(f"h_den{N}")
+                ratio_label = f"{RatioOf[0]}/{RatioOf[1]}"
+                print(RatioOf)
+            else:
+                print("Keys are messed up in RatioOf")
+                break
 
-        # Make the ratio
-        ratioPad.cd()
-        h_ratio = h_num.Clone("h_ratio")
-        h_ratio.SetDirectory(0)
-        # Guard against zero bins in denominator; you can also sanitize bin-by-bin if needed
-        h_ratio.Divide(h_den)
+            # Make the ratio
+            ratioPad.cd()
+            h_ratio = h_num.Clone(f"h_ratio{N}")
+            # h_ratio = h_num
+            h_ratio.SetDirectory(0)
+            # Guard against zero bins in denominator; you can also sanitize bin-by-bin if needed
+            h_ratio.Divide(h_den)
+            print(f'N value: {N}')
 
-        # Style the ratio axes
-        # -- Reset X axis that may have been hidden in the source histogram --
-        xa = h_ratio.GetXaxis()
-        xa.SetLabelOffset(0.01)   # undo the 999 offset
-        xa.SetTickLength(0.04)    # visible ticks
-        xa.SetTitleSize(0.12)
-        xa.SetLabelSize(0.10)
-        
-        h_ratio.SetTitle("")
-        h_ratio.GetYaxis().SetTitle(f"{RatioOf[0]} / {RatioOf[1]}")
-        h_ratio.GetYaxis().SetNdivisions(505)
-        h_ratio.GetYaxis().SetTitleSize(0.10)
-        h_ratio.GetYaxis().SetTitleOffset(0.55)
-        h_ratio.GetYaxis().SetLabelSize(0.10)
-        h_ratio.GetXaxis().SetTitle(f"{xvar} {f'({xunit})' if xunit.strip() else ''}".strip())
-        h_ratio.GetXaxis().SetTitleSize(0.12)
-        h_ratio.GetXaxis().SetLabelSize(0.10)
+            if N == 0:
+                # Style the ratio axes
+                # -- Reset X axis that may have been hidden in the source histogram --
+                xa = h_ratio.GetXaxis()
+                xa.SetLabelOffset(0.01)   # undo the 999 offset
+                xa.SetTickLength(0.04)    # visible ticks
+                xa.SetTitleSize(0.12)
+                xa.SetLabelSize(0.10)
+                
+                h_ratio.SetTitle("")
+                h_ratio.GetYaxis().SetTitle(f"{RatioOf[0]} / {RatioOf[1]}")
+                h_ratio.GetYaxis().SetNdivisions(505)
+                h_ratio.GetYaxis().SetTitleSize(0.10)
+                h_ratio.GetYaxis().SetTitleOffset(0.55)
+                h_ratio.GetYaxis().SetLabelSize(0.10)
+                h_ratio.GetXaxis().SetTitle(f"{xvar} {f'({xunit})' if xunit.strip() else ''}".strip())
+                h_ratio.GetXaxis().SetTitleSize(0.12)
+                h_ratio.GetXaxis().SetLabelSize(0.10)
 
-        # Y-range if provided
-        if RatioRange and len(RatioRange) == 2:
-            h_ratio.SetMinimum(RatioRange[0])
-            h_ratio.SetMaximum(RatioRange[1])
+            # Y-range if provided
+            if RatioRange and len(RatioRange) == 2:
+                h_ratio.SetMinimum(RatioRange[0])
+                h_ratio.SetMaximum(RatioRange[1])
+            
+            # Hard coding color and style for convienince:
+            colorL = [ROOT.kRed, ROOT.kBlue]
 
-        h_ratio.SetLineColor(ROOT.kBlack)
-        #h_ratio.Draw("E1")
-        h_ratio.Draw()
+            h_ratio.SetLineColor(colorL[N])
+            h_ratio.SetLineStyle(1)
+            #h_ratio.Draw("E1")
+            if N == 0:
+                h_ratio.Draw("HIST E1")
+            else:
+                h_ratio.Draw("HIST E1 SAME")
 
         # Draw a horizontal line at 1
         xmin = h_ratio.GetXaxis().GetXmin()
         xmax = h_ratio.GetXaxis().GetXmax()
+        
         line = ROOT.TLine(xmin, 1.0, xmax, 1.0)
         line.SetLineStyle(2)
         line.Draw("SAME")
