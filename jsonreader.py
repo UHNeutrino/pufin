@@ -73,7 +73,7 @@ if (plots["Bool"]):
         else:
             nx = datetime.datetime.now()
             x = str(nx)
-            fileN = plots["Name"]+Tevents+generator+flux+x
+            fileN = plots["Name"]+generator+flux+x
             fileN = fileN.replace(" ", "-")
             pp.Savehist(hist,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"])
 

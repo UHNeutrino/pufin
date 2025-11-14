@@ -130,7 +130,7 @@ for Wkey, value in Wevo.items():
         if norm and hist.Integral() != 0:
             hist.Scale(1.0 / hist.Integral())
         #hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
-        PT = "Pion Momentum distribution for " + str(Wkey) + " and Q^{2}>1"
+        PT = PlotTitle + str(Wkey) + " and Q^{2}<=1"
         hist = sf.formatHist(hist, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PT)
         
         if Add_Ratio and top_histo:

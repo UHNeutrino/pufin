@@ -803,6 +803,7 @@ def FlagParticleThresholds(df):
     df = df.Define("flagT2KMuonP", f"(PLep > 0.225)")
     df = df.Define("flagT2KProtonP", f"(PProton > 0.525)")
     df = df.Define("flagT2KPionPlusP", f"(PPionPlus > 0.400)")
+    df = df.Define("flagT2KPionPlusP_M", f"(PPionPlus > 0.050)")
     df = df.Define("flagT2KALL", f"(flagT2KMuonP && flagT2KProtonP && flagT2KPionPlusP)")
 
 
