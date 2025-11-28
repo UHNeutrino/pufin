@@ -165,8 +165,8 @@ for Qkeym, Qvalue in Q2evo.items():
             histCounter += 1
 
         if customL:
-            # legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79) ## most plots
-            legend = ROOT.TLegend(0.3, 0.6, 0.4, 0.75) ## most plots
+            legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79) ## most plots
+            # legend = ROOT.TLegend(0.3, 0.6, 0.4, 0.75) ## most plots
             fakeHist1 = ROOT.TH1D()
             fakeHist1.SetLineColor(ROOT.kRed)
             legend.AddEntry(fakeHist1, "NO#nuA Flux", "l")
@@ -174,16 +174,29 @@ for Qkeym, Qvalue in Q2evo.items():
             fakeHist2 = ROOT.TH1D()
             fakeHist2.SetLineColor(ROOT.kBlue)
             legend.AddEntry(fakeHist2, "T2K Flux", "l")
+
+            fakeHist3 = ROOT.TH1D()
+            fakeHist3.SetLineColor(ROOT.kBlack)
+            fakeHist3.SetLineStyle(1)
+            legend.AddEntry(fakeHist3, "NEUT", "l")
+
+            fakeHist4 = ROOT.TH1D()
+            fakeHist4.SetLineColor(ROOT.kBlack)
+            fakeHist4.SetLineStyle(2)
+            legend.AddEntry(fakeHist4, "GENIE", "l")
             
             # fakeHist3 = ROOT.TH1D()
+            # fakeHist3.SetLineColor(ROOT.kBlack)
             # fakeHist3.SetLineStyle(1)
             # legend.AddEntry(fakeHist3, "#pi+", "l")
 
             # fakeHist4 = ROOT.TH1D()
+            # fakeHist4.SetLineColor(ROOT.kBlack)
             # fakeHist4.SetLineStyle(2)
             # legend.AddEntry(fakeHist4, "#pi-", "l")
 
             # fakeHist5 = ROOT.TH1D()
+            # fakeHist5.SetLineColor(ROOT.kBlack)
             # fakeHist5.SetLineStyle(3)
             # legend.AddEntry(fakeHist5, "#pi0", "l")
 
