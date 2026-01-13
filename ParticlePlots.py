@@ -1265,7 +1265,7 @@ def SaveIntPlot(df,x,y,x_bins,saveL):
     c = DrawXLines(interhist, x_bins, df.Max(y).GetValue())
     c.SaveAs(saveL)
 
-def defineWeights(df, rwRootFile, histName, binNorm = 0, FScale = 1):
+def defineWeights(df, rwRootFile, histName, Fscale = 1):
     flux_file = ROOT.TFile.Open(rwRootFile)
     hist = flux_file.Get(histName)  
     hist.SetDirectory(0)  
@@ -1290,25 +1290,25 @@ def defineWeights(df, rwRootFile, histName, binNorm = 0, FScale = 1):
 
     return df        
 
-def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, binNorm = 0, area = False):
+def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, areaB = False):
     flux_file = ROOT.TFile.Open(rwRootFile)
     hist = flux_file.Get(histName)  
     hist.SetDirectory(0)  
     flux_file.Close()
 
-    if (binNorm!=0):
-        for i in range(1, hist.GetNbinsX() + 1):
-            content = hist.GetBinContent(i)
-            error   = hist.GetBinError(i)
-            width   = hist.GetBinWidth(i)
-            if width > 0:
-                new_content = content * (binNorm / width)
-                new_error   = error   * (binNorm / width)
+    # if (Fscale != 1):
+    #     for i in range(1, hist.GetNbinsX() + 1):
+    #         content = hist.GetBinContent(i)
+    #         error   = hist.GetBinError(i)
+    #         width   = hist.GetBinWidth(i)
+    #         if width > 0:
+    #             new_content = content * width * Fscale
+    #             new_error   = error   * width * Fscale
 
-                hist.SetBinContent(i, new_content)
-                hist.SetBinError(i, new_error)
+    #             hist.SetBinContent(i, new_content)
+    #             hist.SetBinError(i, new_error)
 
-    if (area):
+    if (areaB):
         integral1 = hist.Integral("width")  # Use "width" to integrate over bin widths (important for variable bins)
         if integral1 > 0:
             hist.Scale(1.0 / integral1)
@@ -1316,13 +1316,35 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, binNorm 
             raise ValueError("Histogram has zero integral; cannot normalize.")
 
 
-    n_points = hist.GetNbinsX()
-    graph = ROOT.TGraph(n_points)
+    n_points0 = hist.GetNbinsX()
+    graph0 = ROOT.TGraph(n_points0)
 
-    for i in range(1, n_points + 1):
+    for i in range(1, n_points0 + 1):
         x = hist.GetBinCenter(i)
-        y = hist.GetBinContent(i) * Fscale
-        graph.SetPoint(i - 1, x, y)
+        y = hist.GetBinContent(i)
+        graph0.SetPoint(i - 1, x, y)
+
+
+    # DOUBLE SPLINE FOR UNIT CONVERSIONS
+    spline_name0 = f"g_fluxSpline_{label}"
+    spline0 = ROOT.TSpline3(spline_name0, graph0)
+    width0 = 10
+
+    for i in range(1, 10):
+        x = hist.GetBinWidth(i)
+        if (x < width0):
+            width0 = x
+
+    n_points = int(hist.GetXaxis().GetXmax()/width0)
+    
+    graph = ROOT.TGraph(n_points)
+    for i in range(1, n_points + 1):
+        x = i*width0
+        y = spline0.Eval(x)
+        if (Fscale != 1):
+                new_y = y * width0 * Fscale
+        graph.SetPoint(i - 1, x, new_y)
+    
 
    # Create TSpline3 from the graph
     #spline = ROOT.TSpline3("flux_spline", graph)

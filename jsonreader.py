@@ -182,7 +182,7 @@ if (same1D["Bool"]):
         c.SetBottomMargin(0.12)
     ROOT.gStyle.SetOptStat(0)
     legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79) ## most plots
-    #legend = ROOT.TLegend(0.3, 0.6, 0.59, 0.79) ## better for cos theta plots
+    # legend = ROOT.TLegend(0.3, 0.6, 0.59, 0.79) ## better for cos theta plots
     
     norm = same1D.get("Norm")
     logy = same1D.get("logy")
@@ -199,7 +199,7 @@ if (same1D["Bool"]):
         key = plot["Key"]
         color_str = plot["Color"]
         label = plot["Label"]
-        reweight_flag, rw_file, rw_flux, Fscale = plot["reWeight"]
+        reweight_flag, rw_file, rw_flux, Fscale, areaB = plot["reWeight"]
         Var = plot["Var"]
         hist_order.append(key)
 
@@ -232,7 +232,7 @@ if (same1D["Bool"]):
         if same1D.get("Cut"):
             df = df.Filter(same1D["Cut"])
         if reweight_flag:
-            df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale)
+            df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB)
             weight_col = "weights"
         else:
             weight_col = ""
