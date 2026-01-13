@@ -1265,7 +1265,7 @@ def SaveIntPlot(df,x,y,x_bins,saveL):
     c = DrawXLines(interhist, x_bins, df.Max(y).GetValue())
     c.SaveAs(saveL)
 
-def defineWeights(df, rwRootFile, histName):
+def defineWeights(df, rwRootFile, histName, binNorm = 0, FScale = 1):
     flux_file = ROOT.TFile.Open(rwRootFile)
     hist = flux_file.Get(histName)  
     hist.SetDirectory(0)  
@@ -1290,17 +1290,30 @@ def defineWeights(df, rwRootFile, histName):
 
     return df        
 
-def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1):
+def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, binNorm = 0, area = False):
     flux_file = ROOT.TFile.Open(rwRootFile)
     hist = flux_file.Get(histName)  
     hist.SetDirectory(0)  
     flux_file.Close()
 
-    integral = hist.Integral("width")  # Use "width" to integrate over bin widths (important for variable bins)
-    if integral > 0:
-        hist.Scale(1.0 / integral)
-    else:
-        raise ValueError("Histogram has zero integral; cannot normalize.")
+    if (binNorm!=0):
+        for i in range(1, hist.GetNbinsX() + 1):
+            content = hist.GetBinContent(i)
+            error   = hist.GetBinError(i)
+            width   = hist.GetBinWidth(i)
+            if width > 0:
+                new_content = content * (binNorm / width)
+                new_error   = error   * (binNorm / width)
+
+                hist.SetBinContent(i, new_content)
+                hist.SetBinError(i, new_error)
+
+    if (area):
+        integral1 = hist.Integral("width")  # Use "width" to integrate over bin widths (important for variable bins)
+        if integral1 > 0:
+            hist.Scale(1.0 / integral1)
+        else:
+            raise ValueError("Histogram has zero integral; cannot normalize.")
 
 
     n_points = hist.GetNbinsX()
@@ -1319,12 +1332,6 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1):
     func_name = f"get_flux_weight_{label}"
     spline = ROOT.TSpline3(spline_name, graph)
     
-    # Bind spline as a global C++ object
-    # ROOT.gROOT.ProcessLine("TSpline3* g_fluxSpline = nullptr;")
-    # ROOT.gROOT.ProcessLine(f"TSpline3* {spline_name} = nullptr;")
-    # ROOT.gROOT.ProcessLine("g_fluxSpline = new TSpline3();")  # placeholder
-    #ROOT.gROOT.ProcessLine(f"{spline_name} = new TSpline3();")  # placeholder
-    #ROOT.g_fluxSpline = spline
 
     # Declare the global variable (no assignment yet)
     ROOT.gInterpreter.Declare(f"TSpline3* {spline_name};")
