@@ -280,18 +280,15 @@ def DefineEvis(df):
                 }
                 return EnergyResKin;
                    """)
-    
+    df = df.Define("Eres_kin2","""
+                double EnergyResKin2 = ((Evis_kin-Enu_true)/Enu_true);
+        
+                return EnergyResKin2;
+                   """)
 
     df = df.Define("Eres_cal","""
-                double EnergyResCal = ((Evis_2-Enu_true)/Enu_true);
-                if (EnergyResCal > 1.0)
-                {
-                    EnergyResCal = 1.0;
-                }
-                if (EnergyResCal < -1.0)
-                {
-                    EnergyResCal = -1.0;
-                }
+                double EnergyResCal = (Evis_3-Enu_true) / Enu_true;
+              
                 return EnergyResCal;
                    """)
 
@@ -797,13 +794,13 @@ def FlagParticleThresholds(df):
     else:
         df = df.Define("flagNovaMuonP", f"(PLep > 0.490)")
     if "flagNovaProtonP" in cols:
-        df = df.Redefine("flagNovaProtonP", f"(PProton > 0.500)")
+        df = df.Redefine("flagNovaProtonP", f"(PProton > .600)")
     else:
-        df = df.Define("flagNovaProtonP", f"(PProton > 0.500)")
+        df = df.Define("flagNovaProtonP", f"(PProton > .600)")
+    df = df.Define("flagNovaPionPlusP", f"(PPionPlus > .390)")
     df = df.Define("flagT2KMuonP", f"(PLep > 0.225)")
     df = df.Define("flagT2KProtonP", f"(PProton > 0.525)")
-    df = df.Define("flagT2KPionPlusP", f"(PPionPlus > 0.400)")
-    df = df.Define("flagT2KPionPlusP_M", f"(PPionPlus > 0.050)")
+    df = df.Define("flagT2KPionPlusP", f"(PPionPlus > 0.05)")
     df = df.Define("flagT2KALL", f"(flagT2KMuonP && flagT2KProtonP && flagT2KPionPlusP)")
 
 
@@ -836,6 +833,7 @@ def Savehist(hist, AxisInfo, save_location, filename, ext, max = 0, Normalize = 
     yvar = AxisInfo[2]
     yunit = AxisInfo[3]
     PlotTitle = AxisInfo[4]
+    ROOT.gStyle.SetPalette(ROOT.kInvertedDarkBodyRadiator)
     #ROOT.gStyle.SetPalette(ROOT.kBird)
     if max != 0:
         hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle)
