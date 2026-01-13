@@ -111,121 +111,96 @@
         },
     "1DSame":
         {
-            "Bool": true,
-            "EvisB": true,
+            "Bool": false,
+            "EvisB": false,
             "KinematicsB":true,
             "TkiB": false,
-            "ThresholdsB": true,
-            "Cut": "Q2 <= 1 && flagCC0pi==true && flagNovaMuonP && flagNovaProtonP", // For no cuts, type ""
+            "ThresholdsB": false,
+            "Cut": "(flagCC1pip == true || flagNC1pip == true || flagCC1pim == true || flagNC1pim == true || flagCC1pi0 == true || flagNC1pi0 == true)", // For no cuts, type ""
             // "Cut": "flagCC0pi == true && (Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)",
-            "AxisInfo": "Ecal Resolution, GeV, Arbitrary Units, , Ecal Resolution 0Pi Q^{2} < 1 w/ NOvA Thresholds", //Q2
+            "AxisInfo": "Leading #pi Momentum, GeV, Arbitrary Units, , Leading #pi Momentum for 1#pi Interactions", //Q2
             //"AxisInfo": "#deltaP_{T}, GeV/c, Frequency, , QE Delta PT x & y for Leading Proton", //PLep
             "Bins": [40, -1, 1],
             //If VBins is true, treats the second element as bin edges
             "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
-            "Save": "t2k-nova/plots_EnergySmearing/_ResolutionStudies/0Pi", 
-            "Name": "EcalRes0PiQ2<1wThresholds",
+            "Save": "t2k-nova/JapanPlots", 
+            "Name": "PionMomentaNEUT1",
             "Ext": "png",
             "Norm": false,
             "logy": false,
             "ErrorBars": false,
             "max": -1,
             "Add_Ratio": false,  // show ratio panel
-            "RatioOf": ["N24","AR23"], // numerator,denominator by plot Key
+            "RatioOf": ["T2Knumu","T2Knue"], // numerator,denominator by plot Key
             "RatioRange": [0, 1.5],           
             "Plots": [
             {
-            "Key": "Mode==1", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
-            "File": "GenieN24_flatf_1e7",
-            "Label": "QE",
+            "Key": "NEUTnue", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
+            "File": "Flat_NEUT5.9_flatfnue_1e6",
+            "Label": "NEUT #nu_{e}",
             "Color": "kBlue",
-            "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu"],
-            "Spline":true,
-            "Var": "Eres_cal"
+            "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 1],
+            "Var": "PPionMax"
             },
             {
-            "Key": "Mode==2", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
-            "File": "GenieN24_flatf_1e7",
-            "Label": "2P2H",
+            "Key": "NEUTnumu",
+            "File": "Flat_NEUT5.9_flatf_1e7",
+            "Label": "NEUT #nu_{#mu}",
             "Color": "kRed",
-            "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu"],
-            "Spline":true,
-            "Var": "Eres_cal"
-            },
-            {
-            "Key": "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
-            "File": "GenieN24_flatf_1e7",
-            "Label": "Pion Abs",
-            "Color": "kOrange+2",
-            "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu"],
-            "Spline":true,
-            "Var": "Eres_cal"
+            "reWeight":[false, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu", 1],
+            "Var": "PPionMax"
             }
-            // {
-            // "Key": "NEUT5.9",
-            // "File": "NEUT5.9_flatf_1e7",
-            // "Label": "T2K Flux",
-            // "Color": "kRed",
-            // "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],
-            // "Spline":true,
-            // "Var": "Eres_cal"
-            // }
-
-
         ]
         },
     "Contour":
         {
-            "Bool": false,
+            "Bool": true,
             "EvisB": true,
             "KinematicsB":true,
-            "TkiB": false,
-            "ThresholdsB": true,
-            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"],
-            //"reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu"],
-            "Gen":"NEUT5.9",
-            "Flux":"flatf_1e7",
+            "TkiB": true,
+            "ThresholdsB": false,
+            // "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu"],
+            "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu"],
+            "Gen":"NEUT5.5",
+            "Flux":"1.0GeV",
             // "Type":"2D", Only 2D possible
-            "Cut": "Q2 <= 1 && flagCC0pi==true && flagT2KMuonP && flagT2KProtonP", // && flagNovaMuonP && flagNovaProtonP", // For no cuts, type ""
+            "Cut": "flagCC0pi == true && ELep > 0.0", // For no cuts, type ""
             // "Cut": "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16) && flagCC0pi == true ",
-            //"Cut": "flagCC1pip == true", //"flagCC0pi == true",
-            "Var1": "Evis_kin",
-            "Var2":"Enu_true",
-            //"ConCuts":{"q3 >= 0 && q3 < 1":"0.00 <= q3 < 1.00", "q3 >= 1 && q3 < 1.5":"1.00 <= q3q < 1.50", "q3 >= 1.5 && q3 < 2":"1.50 <= q3 < 2.00","q3 >= 2 && q3 < 3":"2.00 <= q3 < 3.00","q3 >= 3 && q3 < 8":"3.00 <= q3 < 8.00"},
-            //"ConCuts":{"CosLep <= 0":"-1 <= CosLep < 0", "CosLep >= 0 && CosLep < .48":"0 <= CosLep < .48", "CosLep >= .48 && CosLep < .73":".48 <= CosLep < .73","CosLep >= .73 && CosLep < .90":".73 <= CosLep < .90","CosLep >= .90":".90 <= CosLep < 1"},
-            "ConCuts":{"Mode == 1":"QE","Mode == 2":"2P2H","(Mode == 11 || Mode ==  12 || Mode ==13 || Mode == 14 || Mode == 15)": "Pion Abs"},
-            "AutoQuant":[false, "PPionPlus", "Enu_true",true,5],
+            // "Cut": "flagCC1pip == true", //"flagCC0pi == true",
+            "Var1":"DeltaPT_x",
+            "Var2":"DeltaPT_y",
+            // "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H", "!((Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)||Mode == 1 || Mode == 2 )":"Other"},
+            "ConCuts":{"Mode == 1":"1p1h","Mode == 2":"2p2h","(Mode == 11 || Mode ==  12 || Mode ==13 || Mode == 14 || Mode == 15) && flagCC0pi == true": "Pion Abs"},
+            "AutoQuant":[true, "Evis_kin", "Enu_true",true,5],
             "TotalPercents":[75], //requires pdf save for line textures to show up
             
 
             // ---------------------------------------
-            "ContStyle":false,
+            "ContStyle":true,
             "Clabels":{
                 "1p1h": 632,
                 "2p2h": 416,
                 "RES": 880
             },
             "Slabels":{
-                "EKinRes <0.9": 2,
+                "EkinRes <0.9": 2,
                 "EkinRes >1.1": 3,
                 "0.9 <= EkinRes <=1.1": 1
             },
-            styles:[1,1,2,2],
+            styles:[1,1,2,2,1],
             // ----------------------------------------------------
             
             // "ConCuts":{"q3 <=.72": "Less than .72 GeV"},
-            "Colors":"600, 416, 880, 800, 605",
-            //"Colors":"600, 602, 605, 607, 610",
-            "AxisInfo":"Ekin, GeV, Enu_true, GeV , NEUT5.9 0pi Smearing Q^{2} <= 1",
-            //"AxisInfo":"E_{cal}, GeV, Enu_{True}, GeV , NEUT 5.9 0Pi E_{#nu} for Flat Flux with T2K weights",
+            "Colors":"632, 416, 880, 800, 600",
+            // "AxisInfo":"Lepton Momentum, GeV, Cos#theta_{#mu}, , NEUT 5.9 0Pi Lepton Kinematics for Flat Flux with T2K weights",
+            "AxisInfo":"DeltaPT_x, , DeltaPT_y, , NEUT5.5 DeltaPT_x vs DeltaPT_y Ekin resonance contour",
             // "Bins":[100,0,5,100,0,5],
             // "Bins":[120,-1,1,120,-1,1],
             // "Bins":[60,0,3,42,-1.05,1.05],
-            "Bins":[100,0,5, 100,0,5],
+            "Bins":[100,-1,1,100,-1,1],
             "logz":true,
-            "Save": "t2k-nova/plots_EnergySmearing/_ResolutionStudies/0Pi",
-            "Name": "EkinSmearInt0piQ2<1wThresholds",
-            "Ext": "png"
-
+            "Save": "t2k-nova/JapanPlots",
+            "Name": "NEUT5.5 DeltaPT_x vs DeltaPT_y Ekin resonance contour 12",
+            "Ext": "pdf"
         }
 }
