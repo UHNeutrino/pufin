@@ -11,7 +11,6 @@ import array
 HOME = os.getenv("HOME", "/home/lboe")
 sf.setupRoot
 userFolder = f"/data/t2k-nova/FlatTrees"
-# userFolder = f'{HOME}/t2k-nova/FlatTrees'
 f = open(f'{HOME}/t2k-nova/main.json5')
 data = json5.load(f)
 
@@ -38,6 +37,7 @@ if (plots["Bool"]):
         AxisInfo = []
         #df = pp.CreateDataFrame(file_path, plots["Cut"])
         df = pp.CreateDataFrame(file_path, cut ="None")
+
         if(plots["EvisB"]):
             df = pp.DefineEvis(df)  
         if (plots["KinematicsB"]):
@@ -221,10 +221,11 @@ if (same1D["Bool"]):
         print(f"Events lost from E Nu cut: {unfiltered - df.Count().GetValue()}")
         print(f'Total Events {df.Count().GetValue()}')
 
-        if Evis:
-            df = pp.DefineEvis(df)
+
         if kin:
             df = pp.DefineKinematics(df)
+        if Evis:
+            df = pp.DefineEvis(df)
         if Tki:
             df = pp.DefineTKI(df)
         if Thresholds:
@@ -236,6 +237,8 @@ if (same1D["Bool"]):
             weight_col = "weights"
         else:
             weight_col = ""
+        # if same1D.get("Cut"):
+        #     df = df.Filter(same1D["Cut"])
             
         bins = array.array('d',same1D["VBins"][1])
 
