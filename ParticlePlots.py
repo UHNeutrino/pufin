@@ -258,12 +258,16 @@ def DefineEvis(df):
     # nabbed formula from https://indico.fnal.gov/event/53004/contributions/244614/attachments/158383/207801/interactionModelTalk.pdf
     # Assuming we're using Carbon 12, might be wrong on that!
 
-
+    # Eb from Bodek paper for neutron in C+O
     df = df.Define("Evis_kin", """
                 double Energy = -9999.9;
+                double Mp = .938272
+                double Mn = .93956
+                double Mu = .105608
+                double Eb = .0301 
                 if (ELep > 0.0 && std::abs(CosLep) <= 1)
                 {
-                    Energy = (TMath::Power(.938272,2)-TMath::Power(.93956-0.09215,2)-TMath::Power(.105608,2)+2*(.93956-0.09215)*ELep)/(2*(0.93956-0.09215-ELep+PLep*CosLep)) ;
+                    Energy = (TMath::Power(Mp,2)-TMath::Power(Mn-Eb,2)-TMath::Power(Mu,2)+2*(Mn-Eb)*ELep)/(2*(Mn-Eb-ELep+PLep*CosLep)) ;
                 }
                 return Energy;
                    """)
@@ -799,7 +803,7 @@ def FlagParticleThresholds(df):
         df = df.Define("flagNovaProtonP", f"(PProton > .600)")
     df = df.Define("flagNovaPionPlusP", f"(PPionPlus > .390)")
     df = df.Define("flagT2KMuonP", f"(PLep > 0.225)")
-    df = df.Define("flagT2KProtonP", f"(PProton > 0.525)")
+    df = df.Define("flagT2KProtonP", f"(PProton > 0.400)") # value from T2K technote
     df = df.Define("flagT2KPionPlusP", f"(PPionPlus > 0.05)")
     df = df.Define("flagT2KALL", f"(flagT2KMuonP && flagT2KProtonP && flagT2KPionPlusP)")
 
