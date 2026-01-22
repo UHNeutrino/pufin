@@ -20,6 +20,7 @@ stacks = data.get("stacks")
 overlap = data.get("overlap")
 same1D = data.get("1DSame")
 Contour = data.get("Contour")
+ContourStyle = data.get("ContourStyle")
 
 if (plots["Bool"]):
     root_files = glob.glob(userFolder + f'/*{plots["Gen"]}*{plots["Flux"]}*.root')
@@ -199,7 +200,7 @@ if (same1D["Bool"]):
         key = plot["Key"]
         color_str = plot["Color"]
         label = plot["Label"]
-        reweight_flag, rw_file, rw_flux, Fscale, areaB, undoNormB = plot["reWeight"]
+        reweight_flag, rw_file, rw_flux, Fscale, areaB = plot["reWeight"]
         Var = plot["Var"]
         hist_order.append(key)
 
@@ -233,7 +234,7 @@ if (same1D["Bool"]):
         if same1D.get("Cut"):
             df = df.Filter(same1D["Cut"])
         if reweight_flag:
-            df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
+            df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -573,3 +574,70 @@ if (Contour["Bool"]):
             pp.SaveContHistStyles(histlist, AxisInfo, colors, Contour["styles"], Contour["Clabels"], Contour["Slabels"], save_L, Contour["logz"])
         else:
             pp.SaveContHist(histlist, AxisInfo, Legend, colors, Contour["TotalPercents"], save_L, Contour["logz"])
+
+
+if (ContourStyle["Bool"]):
+    root_files = glob.glob(userFolder + f'/*{Contour["Gen"]}*{ContourStyle["Flux"]}*.root')
+    if root_files == []:
+        print("NO such root files")
+
+    for file_path in root_files:
+        file_name = file_path.split('/')[-1]
+        generator = file_name.split('_')[1]
+        flux = file_name.split('_')[2]
+        #df = pp.CreateDataFrame(file_path, Contour["Cut"])
+        df = pp.CreateDataFrame(file_path, cut ="None")
+        BinL = ContourStyle["Bins"]
+        AxisInfo = []
+        cuts = []
+        colors = []
+        styles = []
+        ColorLabels = {}
+        StyleLabels = {}
+        name1 = " "
+        name2 = " "
+        if(ContourStyle["EvisB"]):
+            df = pp.DefineEvis(df)
+            df = df.Filter("Evis_kin != -9999.9")
+        if (ContourStyle["KinematicsB"]):
+            df = pp.DefineKinematics(df)
+        if (ContourStyle["TkiB"]):
+            df = pp.DefineTKI(df)
+        if (ContourStyle["ThresholdsB"]):
+            df = pp.FlagParticleThresholds(df)
+        if ContourStyle.get("Cut"):
+            df = df.Filter(ContourStyle["Cut"])
+        if(ContourStyle["reWeight"][0]):
+            df = pp.defineWeightsSpline(df,ContourStyle["reWeight"][1],ContourStyle["reWeight"][2])
+        for word in ContourStyle["AxisInfo"].split(','):
+                AxisInfo.append(word)
+
+        
+        for cut1, info1 in ContourStyle["ColorCuts"].items():
+            for cut2, info2 in ContourStyle["StyleCuts"].items():
+                cuts.append(cut1+" && "+cut2)
+                name1, color = info1.split(",")
+                name2, style = info2.split(",")
+                colors.append(int(color))
+                styles.append(int(style))
+    
+        for cut1, info1 in ContourStyle["ColorCuts"].items():
+                name1, color = info1.split(",")
+                ColorLabels.update({name1:int(color)})
+        for cut2, info2 in ContourStyle["StyleCuts"].items():
+                name2, style = info2.split(",")
+                StyleLabels.update({name2:int(style)})
+
+
+        print(f"cuts {cuts}")
+        print(f"colors {colors}")
+        print(f"styles {styles}")
+        print(f"Labels {ColorLabels} and { StyleLabels}") 
+
+         
+
+        histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
+        print(AxisInfo)
+        histlist = pp.PlotContEventCuts(df, ContourStyle["Var1"], ContourStyle["Var2"], histInfo, cuts, ContourStyle["TotalPercents"])
+        save_L = ContourStyle["Save"]+ "/" + generator + '-' + flux + ContourStyle["Name"] + "." +ContourStyle["Ext"]
+        pp.SaveContHistStyles(histlist, AxisInfo, colors, styles, ColorLabels, StyleLabels, save_L, Contour["logz"])

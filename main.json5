@@ -111,7 +111,7 @@
         },
     "1DSame":
         {
-            "Bool": true,
+            "Bool": false,
             "EvisB": false,
             "KinematicsB":true,
             "TkiB": false,
@@ -170,26 +170,21 @@
             "Var1":"DeltaPT_x",
             "Var2":"DeltaPT_y",
             // "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H", "!((Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)||Mode == 1 || Mode == 2 )":"Other"},
-            "ConCuts":{"Mode == 1":"1p1h","Mode == 2":"2p2h","(Mode == 11 || Mode ==  12 || Mode ==13 || Mode == 14 || Mode == 15) && flagCC0pi == true": "Pion Abs"},
+            "ConCuts":{"Mode == 1 && Eres_kin": "P1"},
             "AutoQuant":[true, "Evis_kin", "Enu_true",true,5],
             "TotalPercents":[75], //requires pdf save for line textures to show up
-            
-
             // ---------------------------------------
-            // "ContStyle":true,
-            // "Clabels":{
-            //     "1p1h": 632,
-            //     "2p2h": 416,
-            //     "RES": 880
-            // },
-            // "Slabels":{
-            //     "EkinRes <0.9": 2,
-            //     "EkinRes >1.1": 3,
-            //     "0.9 <= EkinRes <=1.1": 1
-            // },
-            // styles:[1,1,2,2,1],
+            "ContStyle":true,
+            "Clabels":{
+                "1p1h": 632,
+                "2p2h": 416,
+            },
+            "Slabels":{
+                "EkinRes <0.9": 2,
+                "EkinRes >1.1": 3,
+            },
+            styles:[1,1,2,2,1],
             // ----------------------------------------------------
-            
             // "ConCuts":{"q3 <=.72": "Less than .72 GeV"},
             "Colors":"632, 416, 880, 800, 600",
             // "AxisInfo":"Lepton Momentum, GeV, Cos#theta_{#mu}, , NEUT 5.9 0Pi Lepton Kinematics for Flat Flux with T2K weights",
@@ -201,6 +196,30 @@
             "logz":true,
             "Save": "t2k-nova/JapanPlots",
             "Name": "NEUT5.5 DeltaPT_x vs DeltaPT_y Ekin resonance contour 12",
+            "Ext": "pdf"
+        },
+    "ContourStyle":
+        {
+            "Bool": true,
+            "EvisB": true,
+            "KinematicsB":true,
+            "TkiB": true,
+            "ThresholdsB": false,
+            // "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu"],
+            "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu"],
+            "Gen":"NEUT5.5",
+            "Flux":"1.0GeV",
+            "Cut": "flagCC0pi == true && ELep > 0.0", // For no cuts, type "", this is the inital cut that applies to all events
+            "Var1":"DeltaPT_x",
+            "Var2":"DeltaPT_y",
+            "TotalPercents":[75],
+            "ColorCuts":{"Mode == 1":"1P1H, 632", "Mode == 2":"2P2H, 416"}, // "Cut":"Label, color number"
+            "StyleCuts":{"Eres_kin < -0.1":"ErK < -10%, 3","Eres_kin > 0.1":"ErK > 10%, 2","Eres_kin >= -0.1 && Eres_kin <= 0.1":"ErK ~ 0%, 1"  },//"Cut":"Label, style number"
+            "AxisInfo":"DeltaPT_x, , DeltaPT_y, , NEUT5.5 DeltaPT_x vs DeltaPT_y Ekin resonance contour",
+            "Bins":[100,-1,1,100,-1,1],
+            "logz":true,
+            "Save": "t2k-nova/StyleTest",
+            "Name": "Test",
             "Ext": "pdf"
         }
 }

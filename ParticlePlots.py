@@ -261,10 +261,10 @@ def DefineEvis(df):
     # Eb from Bodek paper for neutron in C+O
     df = df.Define("Evis_kin", """
                 double Energy = -9999.9;
-                double Mp = .938272
-                double Mn = .93956
-                double Mu = .105608
-                double Eb = .0301 
+                double Mp = .938272;
+                double Mn = .93956;
+                double Mu = .105608;
+                double Eb = .0301 ;
                 if (ELep > 0.0 && std::abs(CosLep) <= 1)
                 {
                     Energy = (TMath::Power(Mp,2)-TMath::Power(Mn-Eb,2)-TMath::Power(Mu,2)+2*(Mn-Eb)*ELep)/(2*(Mn-Eb-ELep+PLep*CosLep)) ;
@@ -1346,7 +1346,7 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, areaB = 
     for i in range(1, n_points + 1):
         x = i*width0
         y = spline0.Eval(x)
-        print(f"i: {i} x: {x} y: {y} ")
+        # print(f"i: {i} x: {x} y: {y} ")
         if (Fscale != 1):
             if undoNormB:
                 new_y = y * width0 * Fscale
