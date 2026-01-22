@@ -1290,9 +1290,10 @@ def defineWeights(df, rwRootFile, histName, Fscale = 1):
 
     return df        
 
-def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, areaB = False):
+def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, areaB = False, undoNormB = False):
     flux_file = ROOT.TFile.Open(rwRootFile)
     hist = flux_file.Get(histName)  
+    print(histName)
     hist.SetDirectory(0)  
     flux_file.Close()
 
@@ -1341,9 +1342,14 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, areaB = 
     for i in range(1, n_points + 1):
         x = i*width0
         y = spline0.Eval(x)
+        print(f"i: {i} x: {x} y: {y} ")
         if (Fscale != 1):
+            if undoNormB:
                 new_y = y * width0 * Fscale
-        graph.SetPoint(i - 1, x, new_y)
+            else:
+                new_y = y * Fscale
+            y = new_y
+        graph.SetPoint(i - 1, x, y)
     
 
    # Create TSpline3 from the graph

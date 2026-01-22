@@ -199,7 +199,7 @@ if (same1D["Bool"]):
         key = plot["Key"]
         color_str = plot["Color"]
         label = plot["Label"]
-        reweight_flag, rw_file, rw_flux, Fscale, areaB = plot["reWeight"]
+        reweight_flag, rw_file, rw_flux, Fscale, areaB, undoNormB = plot["reWeight"]
         Var = plot["Var"]
         hist_order.append(key)
 
@@ -232,7 +232,7 @@ if (same1D["Bool"]):
         if same1D.get("Cut"):
             df = df.Filter(same1D["Cut"])
         if reweight_flag:
-            df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB)
+            df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
             weight_col = "weights"
         else:
             weight_col = ""
