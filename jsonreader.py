@@ -200,7 +200,7 @@ if (same1D["Bool"]):
         key = plot["Key"]
         color_str = plot["Color"]
         label = plot["Label"]
-        reweight_flag, rw_file, rw_flux, Fscale, areaB = plot["reWeight"]
+        reweight_flag, rw_file, rw_flux, Fscale, areaB, undoNormB = plot["reWeight"]
         Var = plot["Var"]
         hist_order.append(key)
 
@@ -234,7 +234,7 @@ if (same1D["Bool"]):
         if same1D.get("Cut"):
             df = df.Filter(same1D["Cut"])
         if reweight_flag:
-            df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB)
+            df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -514,7 +514,7 @@ if (Contour["Bool"]):
         if Contour.get("Cut"):
             df = df.Filter(Contour["Cut"])
         if(Contour["reWeight"][0]):
-            df = pp.defineWeightsSpline(df,Contour["reWeight"][1],Contour["reWeight"][2])
+            df = pp.defineWeightsSpline(df, Contour["reWeight"][1], Contour["reWeight"][2], Fscale = Contour["reWeight"][3], areaB = Contour["reWeight"][4], undoNormB = Contour["reWeight"][5])
         for word in Contour["AxisInfo"].split(','):
                 AxisInfo.append(word)
         if Contour["AutoQuant"][0]:
@@ -570,10 +570,10 @@ if (Contour["Bool"]):
         print(AxisInfo)
         histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts, Contour["TotalPercents"])
         save_L = Contour["Save"]+ "/" + generator + '-' + flux + Contour["Name"] + "." +Contour["Ext"]
-        if Contour["ContStyle"]:
-            pp.SaveContHistStyles(histlist, AxisInfo, colors, Contour["styles"], Contour["Clabels"], Contour["Slabels"], save_L, Contour["logz"])
-        else:
-            pp.SaveContHist(histlist, AxisInfo, Legend, colors, Contour["TotalPercents"], save_L, Contour["logz"])
+        # if Contour["ContStyle"]:
+        #     pp.SaveContHistStyles(histlist, AxisInfo, colors, Contour["styles"], Contour["Clabels"], Contour["Slabels"], save_L, Contour["logz"])
+        # else:
+        pp.SaveContHist(histlist, AxisInfo, Legend, colors, Contour["TotalPercents"], save_L, Contour["logz"])
 
 
 if (ContourStyle["Bool"]):
