@@ -40,27 +40,28 @@
         },
     "plots":
         {
-            "Bool": false,
+            "Bool": true,
             "EvisB": true,
             "KinematicsB":true,
             "TkiB": false,
             "ThresholdsB": true,
-            "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"],
+            "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 1, true, false],
             "Gen":"GenieN24",
             "Flux":"flatf_1e7",
-            "Type":"1D",
+            "Type":"2D",
             // Specify the cut for the dataframe. For no cuts, type ""
             "Cut": "flagCC0pi == true && flagNovaMuonP && flagNovaProtonP",
-            "Var1": "Eres_cal",
-            "Var2": "Q2",
-            "AxisInfo":"W , GeV, Q^{2}, GeV^{2} , Example 2 Pi+",
-            "Bins": [40, -1, 1,200,0,5], // [60,-2.0,1.0,80,0,180],
+            "Var1": "Enu_true",
+            "Var2": "Evis_3",
+            "AxisInfo":"True E_{#nu} , GeV, E_{cal}, GeV , GenieN24 Opi w/ NOvA Thresholds",
+            "Bins": [100, 0, 5,100,0,5], // [60,-2.0,1.0,80,0,180],
             "Save": "t2k-nova/test",
-            "Name": "Eres",
+            "Name": "Profile",
             "Ext": "png",
             "Norm": false,
             "max": -1, 
-            "logz": false
+            "logz": false,
+            "profileX": true
         },
     "stacks":
         {
@@ -154,23 +155,23 @@
         },
     "Contour":
         {
-            "Bool": true,
+            "Bool": false,
             "EvisB": true,
             "KinematicsB":true,
             "TkiB": false,
             "ThresholdsB": true,
-            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_finebins.root","enu_nd5_23a_untuned_numu", 1, true, false],
-            //"reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 1, true, false],
+            //"reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_finebins.root","enu_nd5_23a_untuned_numu", 1, true, false],
+            "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 1, true, false],
             "Gen":"Flat_NEUT5.9",
             "Flux":"flatf_1e7",
             // "Type":"2D", Only 2D possible
-            "Cut": "flagCC0pi == true && flagT2KProtonP == true && flagT2KMuonP == true", // For no cuts, type ""
+            "Cut": "flagCC0pi == true && (Q2 > 0.4) && flagNovaProtonP == true && flagNovaMuonP == true", // For no cuts, type ""
             // "Cut": "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16) && flagCC0pi == true ",
             // "Cut": "flagCC1pip == true", //"flagCC0pi == true",
             "Var1":"Enu_true",
-            "Var2":"Evis_kin",
+            "Var2":"Evis_3",
             // "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H", "!((Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)||Mode == 1 || Mode == 2 )":"Other"},
-            "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H"},
+            "ConCuts":{ "Mode == 1":"QE", "Mode == 2":"2P2H", "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs"},
             "AutoQuant":[false, "Evis_kin", "Enu_true",true,5],
             "TotalPercents":[90], //requires pdf save for line textures to show up
             // ---------------------------------------
@@ -186,16 +187,16 @@
             // styles:[1,1,2,2,1],
             // ----------------------------------------------------
             // "ConCuts":{"q3 <=.72": "Less than .72 GeV"},
-            "Colors":"600, 416, 880, 800",
+            "Colors":"600, 416, 880, 800", // blue, green, purple, ? 
             // "AxisInfo":"Lepton Momentum, GeV, Cos#theta_{#mu}, , NEUT 5.9 0Pi Lepton Kinematics for Flat Flux with T2K weights",
-            "AxisInfo":"True E_{#nu}, (GeV), Ekin, (GeV), Neut 5.9 0Pi w/ T2K Thresholds",
+            "AxisInfo":"True E_{#nu}, (GeV), Ecal, (GeV), NEUT 5.9 0Pi Q^{2} > 0.4 w/ NOvA Flux/Thresholds/Reco",
             "Bins":[100,0,5,100,0,5],
             // "Bins":[120,-1,1,120,-1,1],
             // "Bins":[60,0,3,42,-1.05,1.05],
             //"Bins":[100,-1,1,100,-1,1],
             "logz":true,
             "Save": "t2k-nova/plots_EnergySmearing",
-            "Name": "Test2",
+            "Name": "NOvASmear0PiQ2region2",
             "Ext": "png"
         },
     "ContourStyle":

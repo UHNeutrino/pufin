@@ -907,6 +907,47 @@ def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, max=Non
     SF.formatTcanvasSame(c)  # Format the canvas based on the first histogram
     legend.Draw("SAME") #draw legend.
     c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
+    
+def Savehist2DWithProfile(hist1, prof1, AxisInfo, save_location, filename, ext,
+                          max=0, Normalize=False, logz=False,
+                          draw2d_opt="COLZ", drawprof_opt="SAME"):
+    xvar, xunit, yvar, yunit, PlotTitle = AxisInfo[0], AxisInfo[1], AxisInfo[2], AxisInfo[3], AxisInfo[4]
+
+    ROOT.gStyle.SetPalette(ROOT.kInvertedDarkBodyRadiator)
+
+    # Format the TH2 (axes, titles, ranges, etc.)
+    if max != 0:
+        h1 = SF.formatHist(hist1, xvar, xunit, yvar, yunit, max=max, PlotTitle=PlotTitle)
+    else:
+        h1 = SF.formatHist(hist1, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
+
+    c = ROOT.TCanvas()
+
+    if Normalize:
+        integ = h1.Integral()
+        if integ != 0:
+            h1.Scale(1.0 / integ)
+
+    # Make the canvas nice for 2D color palettes
+    c.SetRightMargin(0.15)
+    c.SetLeftMargin(0.14)
+    c.SetBottomMargin(0.14)
+
+    if logz:
+        c.SetLogz()
+
+    # 1) draw the 2D first
+    h1.Draw(draw2d_opt)
+
+    # 2) style + draw the profile on top
+    if prof1:
+        prof1.SetLineWidth(1)
+        prof1.SetMarkerStyle(20)
+        prof1.SetMarkerSize(0.5)
+        prof1.Draw(drawprof_opt)
+
+    c.SaveAs(f"{HOME}/{save_location}/{filename}.{ext}")
+
 
 def PlotStackedEventModes(df, x, histInfo, modes, colors):
     modeDic = SF.modeDic()

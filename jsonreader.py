@@ -38,6 +38,7 @@ if (plots["Bool"]):
         AxisInfo = []
         #df = pp.CreateDataFrame(file_path, plots["Cut"])
         df = pp.CreateDataFrame(file_path, cut ="None")
+        reweight_flag, rw_file, rw_flux, Fscale, areaB, undoNormB = plots["reWeight"]
 
         if(plots["EvisB"]):
             df = pp.DefineEvis(df)  
@@ -51,8 +52,12 @@ if (plots["Bool"]):
             df = df.Filter(plots["Cut"])
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
-        if(plots["reWeight"][0]):
-            df = pp.defineWeightsSpline(df,plots["reWeight"][1],plots["reWeight"][2], Fscale = plots["reWeight"][3])
+        if reweight_flag:
+            df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
+            weight_col = "weights"
+        else:
+            weight_col = ""
+
         if plots["Type"] == "1D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
             if(plots["reWeight"][0]):
@@ -65,6 +70,12 @@ if (plots["Bool"]):
                 hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"],"weights")
             else:
                 hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"])
+            if(plots["profileX"]):
+                h2 = hist.GetValue()
+                h2.SetDirectory(0)
+                p1 = h2.ProfileX("hProfileX", 1, -1, "s")
+                p1.SetDirectory(0)
+            
         if plots["Ext"] == "root":
             rootTitle = plots["Cut"]
             rootTitle = rootTitle.replace(" ","")
@@ -76,7 +87,11 @@ if (plots["Bool"]):
             x = str(nx)
             fileN = plots["Name"]+generator+flux+x
             fileN = fileN.replace(" ", "-")
-            pp.Savehist(hist,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"])
+            if (plots["profileX"]): 
+                pp.Savehist2DWithProfile(hist, p1,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"]) 
+            else:
+                pp.Savehist(hist,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"])
+                
 
 if (stacks["Bool"]):
     root_files = glob.glob(userFolder + f'/*{stacks["Gen"]}*{stacks["Flux"]}*.root')
