@@ -61,8 +61,8 @@
             "Norm": false,
             "max": -1, 
             "logz": false,
-            "profileX": true,
-            "diagonal": true
+            "profileX": true, // only works with 2D
+            "diagonal": true // only works with profileX=true
         },
     "stacks":
         {
