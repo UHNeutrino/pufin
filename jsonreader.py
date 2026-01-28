@@ -88,7 +88,7 @@ if (plots["Bool"]):
             fileN = plots["Name"]+generator+flux+x
             fileN = fileN.replace(" ", "-")
             if (plots["profileX"]): 
-                pp.Savehist2DWithProfile(hist, p1,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"]) 
+                pp.Savehist2DWithProfile(hist, p1,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"], diagonal=plots["diagonal"]) 
             else:
                 pp.Savehist(hist,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"])
                 

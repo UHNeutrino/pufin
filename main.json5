@@ -61,7 +61,8 @@
             "Norm": false,
             "max": -1, 
             "logz": false,
-            "profileX": true
+            "profileX": true,
+            "diagonal": true
         },
     "stacks":
         {

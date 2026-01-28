@@ -909,8 +909,8 @@ def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, max=Non
     c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
     
 def Savehist2DWithProfile(hist1, prof1, AxisInfo, save_location, filename, ext,
-                          max=0, Normalize=False, logz=False,
-                          draw2d_opt="COLZ", drawprof_opt="SAME"):
+                          max=0, Normalize=False, logz=False, diagonal=False, 
+                          draw2d_opt="COLZ"):
     xvar, xunit, yvar, yunit, PlotTitle = AxisInfo[0], AxisInfo[1], AxisInfo[2], AxisInfo[3], AxisInfo[4]
 
     ROOT.gStyle.SetPalette(ROOT.kInvertedDarkBodyRadiator)
@@ -944,7 +944,13 @@ def Savehist2DWithProfile(hist1, prof1, AxisInfo, save_location, filename, ext,
         prof1.SetLineWidth(1)
         prof1.SetMarkerStyle(20)
         prof1.SetMarkerSize(0.5)
-        prof1.Draw(drawprof_opt)
+        prof1.Draw("SAME")
+        
+    if diagonal:
+        diag = ROOT.TLine(0,0,5,5)
+        diag.SetLineColor(ROOT.kGreen)
+        diag.Draw("SAME")
+        
 
     c.SaveAs(f"{HOME}/{save_location}/{filename}.{ext}")
 
