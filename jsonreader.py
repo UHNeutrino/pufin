@@ -623,7 +623,7 @@ if (ContourStyle["Bool"]):
         if ContourStyle.get("Cut"):
             df = df.Filter(ContourStyle["Cut"])
         if(ContourStyle["reWeight"][0]):
-            df = pp.defineWeightsSpline(df,ContourStyle["reWeight"][1],ContourStyle["reWeight"][2])
+            df = pp.defineWeightsSpline(df, ContourStyle["reWeight"][1], ContourStyle["reWeight"][2], Fscale = ContourStyle["reWeight"][3], areaB = ContourStyle["reWeight"][4], undoNormB = ContourStyle["reWeight"][5])
         for word in ContourStyle["AxisInfo"].split(','):
                 AxisInfo.append(word)
 
