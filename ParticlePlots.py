@@ -274,13 +274,13 @@ def DefineEvis(df):
     
     df = df.Define("Eres_kin","""
                 double EnergyResKin = ((Evis_kin-Enu_true)/Enu_true);
-                if (EnergyResKin > 1.0)
+                if (EnergyResKin > 10.0)
                 {
-                    EnergyResKin = 1.0;
+                    EnergyResKin = 10.0;
                 }
-                if (EnergyResKin < -1.0)
+                if (EnergyResKin < -10.0)
                 {
-                    EnergyResKin = -1.0;
+                    EnergyResKin = -10.0;
                 }
                 return EnergyResKin;
                    """)

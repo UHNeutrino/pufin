@@ -73,7 +73,7 @@ for Qkeym, Qvalue in Q2evo.items():
             key = plot["Key"]
             color_str = plot["Color"]
             label = plot["Label"]
-            reweight_flag, rw_file, rw_flux, Fscale = plot["reWeight"]
+            reweight_flag, rw_file, rw_flux, Fscale, areaB, undoNormB = plot["reWeight"]
             Var = plot["Var"]
             hist_order.append(key)
 
@@ -105,7 +105,7 @@ for Qkeym, Qvalue in Q2evo.items():
             if same1D.get("Cut"):
                 df = df.Filter(same1D["Cut"])
             if reweight_flag:
-                df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale)
+                df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
                 weight_col = "weights"
             else:
                 weight_col = ""
