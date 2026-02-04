@@ -125,7 +125,7 @@
             //If VBins is true, treats the second element as bin edges
             "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
             "Save": "t2k-nova/2-1-2026", 
-            "Name": "PerPOTScalingCustomFluxNova",
+            "Name": "1ScalingAdHocCustomFluxNova",
             "Ext": "png",
             "Norm": false,
             "logy": false,
@@ -140,7 +140,7 @@
             "File": "Flat_NEUT5.9_flatf_1e7",
             "Label": "NEUT NO#nuA",
             "Color": "kBlue",
-            "reWeight":[true, "/data/t2k-nova/fluxes/NOvAFlux.root","cafanauniq0", 1.805e-26, false, false], //boolian to start, file location, scaling factor (put 1 for nothing), area norm bool, multiply by bin with bool
+            "reWeight":[true, "/data/t2k-nova/fluxes/NOvAFlux.root","cafanauniq0", 2.68873e-11, false, false], //boolian to start, file location, scaling factor (put 1 for nothing), area norm bool, multiply by bin with bool
             "Var": "Enu_true"
             },
             {
@@ -148,7 +148,7 @@
             "File": "Flat_NEUT5.9_flatf_1e7",
             "Label": "NEUT T2K",
             "Color": "kRed",
-            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu", 2e-20, false, true],
+            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu", 2.167e-7, false, true],
             "Var": "Enu_true"
             }
             ]
