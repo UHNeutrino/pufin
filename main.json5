@@ -42,27 +42,29 @@
         {
             "Bool": false,
             "EvisB": true,
-            "KinematicsB":true,
+            "KinematicsB":false,
             "TkiB": false,
-            "ThresholdsB": true,
-            "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 1, true, false],
+            "ThresholdsB": false,
+            //"reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 7.737e14, false, false],
+            "reWeight":[true, "/data/t2k-nova/fluxes/NOvAFlux.root","cafanauniq0", 1.397e-11, false, false],
+            //"reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_finebins.root","enu_nd5_23a_untuned_numu", 1, true, false],
             "Gen":"GenieN24",
-            "Flux":"flatf_1e7",
-            "Type":"2D",
+            "Flux":"flatf_1e6",
+            "Type":"1D",
             // Specify the cut for the dataframe. For no cuts, type ""
-            "Cut": "flagCC0pi == true && flagNovaMuonP && flagNovaProtonP",
+            "Cut": "",
             "Var1": "Enu_true",
             "Var2": "Evis_3",
-            "AxisInfo":"True E_{#nu} , GeV, E_{cal}, GeV , GenieN24 Opi w/ NOvA Thresholds",
-            "Bins": [100, 0, 5,100,0,5], // [60,-2.0,1.0,80,0,180],
+            "AxisInfo":"True E_{#nu}, GeV, # events, , GenieN24 SF area norm = false undonorm = false",
+            "Bins": [100, 0, 5], // [60,-2.0,1.0,80,0,180],
             "Save": "t2k-nova/test",
-            "Name": "Profile",
+            "Name": "test12",
             "Ext": "png",
             "Norm": false,
             "max": -1, 
             "logz": false,
-            "profileX": true, // only works with 2D
-            "diagonal": true // only works with profileX=true
+            "profileX": false, // only works with 2D
+            "diagonal": false // only works with profileX=true
         },
     "stacks":
         {
@@ -113,7 +115,7 @@
         },
     "1DSame":
         {
-            "Bool": true,
+            "Bool": false,
             "EvisB": false,
             "KinematicsB":true,
             "TkiB": false,
@@ -202,26 +204,26 @@
         },
     "ContourStyle":
         {
-            "Bool": false,
-            "EvisB": true,
+            "Bool": true,
+            "EvisB": false,
             "KinematicsB":true,
-            "TkiB": false,
+            "TkiB": true,
             "ThresholdsB": true,
-            // "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu"],
+            //"reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu", 1, true, false],
             "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 1, true, false],
-            "Gen":"NEUT5.5",
+            "Gen":"GenieN24",
             "Flux":"flatf_1e7",
-            "Cut": "flagCC0pi == true && flagT2KMuonP == true && flagT2KProtonP == true", // For no cuts, type "", this is the inital cut that applies to all events
-            "Var1":"Enu_true",
-            "Var2":"Evis_kin",
+            "Cut": "flagCC0pi == true && flagNovaMuonP == true && flagNovaProtonP == true", // For no cuts, type "", this is the inital cut that applies to all events
+            "Var1":"q3",
+            "Var2":"q0",
             "TotalPercents":[90],
-            "ColorCuts":{"Mode == 1":"1P1H, 800", "Mode == 2":"2P2H, 416", "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)":"Pion Abs, 880"}, // "Cut":"Label, color number"
-            "StyleCuts":{"Q2 < 0.4":"Q^{2} < .4, 2","Q2 >= 0.4":"Q^{2} >= .4, 1"}, //"Eres_kin >= -0.1 && Eres_kin <= 0.1":"ErK ~ 0%, 1"  },//"Cut":"Label, style number"
-            "AxisInfo":"Enu_true, GeV, Ekin, (GeV), NEUT5.9 0Pi with T2K thresholds",
-            "Bins":[100,0,5,100,0,5],
+            "ColorCuts":{"Mode == 1":"QE, 600", "Mode == 2":"2P2H, 416", "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)":"Pion Abs, 880"}, // "Cut":"Label, color number"
+            "StyleCuts":{"abs(DeltaPT_x) < 0.05":"|#delta P_{Tx}| < .05, 2","abs(DeltaPT_x) > 0.05":"|#delta P_{Tx}| > .05, 1"}, //"Eres_kin >= -0.1 && Eres_kin <= 0.1":"ErK ~ 0%, 1"  },//"Cut":"Label, style number"
+            "AxisInfo":"q3, (GeV/c), q0, (GeV), GenieN24 0Pi with NOvA thresholds",
+            "Bins":[60,0,3,60,0,3],
             "logz":true,
-            "Save": "t2k-nova/plots_EnergySmearing/",
-            "Name": "Test",
-            "Ext": "pdf"
+            "Save": "t2k-nova/plots_Contours/TKI",
+            "Name": "q0q3ModeDptx",
+            "Ext": "png"
         }
 }

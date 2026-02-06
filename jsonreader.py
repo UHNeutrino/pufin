@@ -592,7 +592,7 @@ if (Contour["Bool"]):
 
 
 if (ContourStyle["Bool"]):
-    root_files = glob.glob(userFolder + f'/*{Contour["Gen"]}*{ContourStyle["Flux"]}*.root')
+    root_files = glob.glob(userFolder + f'/*{ContourStyle["Gen"]}*{ContourStyle["Flux"]}*.root')
     if root_files == []:
         print("NO such root files")
 
