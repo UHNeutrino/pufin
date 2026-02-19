@@ -1394,9 +1394,10 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, areaB = 
         x = i*width0
         y = spline0.Eval(x)
         # print(f"i: {i} x: {x} y: {y} ")
-        if (Fscale != 1):
+        if (Fscale != 1 or undoNormB):
             if undoNormB:
                 new_y = y * width0 * Fscale
+                print(f"y: {y} Width: {width0} New Y: {new_y}")
             else:
                 new_y = y * Fscale
             y = new_y
@@ -1524,12 +1525,14 @@ def SaveOverlapPlot(histlist, AxisInfo, Legend, save_path, hist_max=None, Normal
     c.SetBottomMargin(0.15) #Adjust the bottom margin to avoid cutting off the x-axis label
     legend = ROOT.TLegend(0.85, 0.7, 1.0, 0.9)  # Define legend position
     for i in range(len(histlist)):
+        h = histlist[i].GetPtr()
         if i == 0:
-            histlist[i].Draw("HIST")
-            legend.AddEntry(histlist[i], f"{Legend[i]}", "f")
+            h.Draw("HIST")
+            # print(f"first arg {histlist[i]} second :{Legend[i]}")
+            legend.AddEntry(h, f"{Legend[i]}", "f")
         else:
             histlist[i].Draw("HIST SAME")
-            legend.AddEntry(histlist[i].GetPtr(), f"{Legend[i]}", "f")
+            legend.AddEntry(h, f"{Legend[i]}", "f")
     legend.Draw()
 
     # saves hist to a specific directory 

@@ -249,6 +249,7 @@ if (same1D["Bool"]):
         if same1D.get("Cut"):
             df = df.Filter(same1D["Cut"])
         if reweight_flag:
+            print(f"UNDONORM : {undoNormB}")
             df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
             weight_col = "weights"
         else:
