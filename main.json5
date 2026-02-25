@@ -92,7 +92,7 @@
         },
      "overlap":
         {
-            "Bool": true,
+            "Bool": false,
             "EvisB": true,
             "TkiB": true,
             "ThresholdsB": false,
@@ -115,45 +115,49 @@
         },
     "1DSame":
         {
-            "Bool": false,
-            "EvisB": false,
+            "Bool": true,
+            "EvisB": true,
             "KinematicsB":true,
             "TkiB": false,
             "ThresholdsB": false,
-            "Cut": "(flagCC1pip == true || flagNC1pip == true || flagCC1pim == true || flagNC1pim == true || flagCC1pi0 == true || flagNC1pi0 == true)", // For no cuts, type ""
+            "Cut": "",//"(flagCC1pip == true || flagNC1pip == true || flagCC1pim == true || flagNC1pim == true || flagCC1pi0 == true || flagNC1pi0 == true)", // For no cuts, type ""
             // "Cut": "flagCC0pi == true && (Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)",
-            "AxisInfo": "E_{#nu} True, GeV, Events reweighted to flux, , T2K vs NOvA area Div by EVENTS times integral", //Q2
+            "AxisInfo": "Enu True, GeV, Frequency, , T2K all", //Q2
             //"AxisInfo": "#deltaP_{T}, GeV/c, Frequency, , QE Delta PT x & y for Leading Proton", //PLep
-            "Bins": [120, 0, 6],
+            "Bins": [240, 0, 6],
             //If VBins is true, treats the second element as bin edges
             "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
-            "Save": "t2k-nova/Sanity", 
-            "Name": "AREAdivEVtimeFInt",
+            "Save": "t2k-nova/test", 
+            "Name": "Feb25Both",
             "Ext": "png",
             "Norm": false,
             "logy": false,
             "ErrorBars": false,
             "max": -1,
             "Add_Ratio": false,  // show ratio panel
-            "RatioOf": ["T2Knumu","T2Knue"], // numerator,denominator by plot Key
+            "RatioOf": ["FSI","NoFSI"], // numerator,denominator by plot Key
             "RatioRange": [0, 1.5],           
             "Plots": [
             {
-            "Key": "NEUTT2K",
-            "File": "Flat_NEUT5.9_flatf_1e7",
-            "Label": "NEUT T2K",
-            "Color": "kRed",
-            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_finebins.root","enu_nd5_23a_untuned_numu", 1953646.87543, true, false],
+            "Key": "NEUTNOvA",
+            "File": "NEUT5.9_flatf_1e7",
+            //"Cut": "flagCC0pi == true && flagNovaProtonP == true && flagNovaMuonP == true && (Q2 >= 0.4)",
+            "Label": "NEUTNOva",
+            "Color": "kBlack",
+            //"reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu", 3419920, false, true],
+            //"reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 1, false, true], //boolian to start, file location, scaling factor (put 1 for nothing), area norm bool, multiply by bin with bool
+            "reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 3419920, false, true],
+            //"reWeight":[true, "/data/t2k-nova/fluxes/NOvAFlux.root","cafanauniq0", 1, false, true],
             "Var": "Enu_true"
             },
-            // {
-            // "Key": "NEUTNOvA", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
-            // "File": "Flat_NEUT5.9_flatf_1e7",
-            // "Label": "NEUT NO#nuA",
-            // "Color": "kBlue",
-            // "reWeight":[true, "/data/t2k-nova/fluxes/NOvAFlux.root","cafanauniq0", 1e-8, false, false], //boolian to start, file location, scaling factor (put 1 for nothing), area norm bool, multiply by bin with bool
-            // "Var": "Enu_true"
-            // },
+            {
+            "Key": "NEUTT2K", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
+            "File": "Flat_NEUT5.9_flatf_1e7",
+            "Label": "NEUT T2K",
+            "Color": "kBlue",
+            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu", 6.718e-6, false, true], //boolian to start, file location, scaling factor (put 1 for nothing), area norm bool, multiply by bin with bool
+            "Var": "Enu_true"
+            },
             
             ]
         },

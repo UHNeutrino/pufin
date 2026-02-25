@@ -1348,25 +1348,16 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, areaB = 
     hist.SetDirectory(0)  
     flux_file.Close()
 
-    # if (Fscale != 1):
-    #     for i in range(1, hist.GetNbinsX() + 1):
-    #         content = hist.GetBinContent(i)
-    #         error   = hist.GetBinError(i)
-    #         width   = hist.GetBinWidth(i)
-    #         if width > 0:
-    #             new_content = content * width * Fscale
-    #             new_error   = error   * width * Fscale
-
-    #             hist.SetBinContent(i, new_content)
-    #             hist.SetBinError(i, new_error)
-
     if (areaB):
         integral1 = hist.Integral("width")  # Use "width" to integrate over bin widths (important for variable bins)
         if integral1 > 0:
             hist.Scale(1.0 / integral1)
         else:
             raise ValueError("Histogram has zero integral; cannot normalize.")
-
+    print("original bin integral")
+    print(hist.Integral())
+    print("original width integral")
+    print(hist.Integral("width"))
 
     n_points0 = hist.GetNbinsX()
     graph0 = ROOT.TGraph(n_points0)
@@ -1375,70 +1366,85 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, areaB = 
         x = hist.GetBinCenter(i)
         y = hist.GetBinContent(i)
         graph0.SetPoint(i - 1, x, y)
+        # print("original histogram")
+        # print(f"i: {i} x: {x} y: {y} ")
 
 
     # DOUBLE SPLINE FOR UNIT CONVERSIONS
-    spline_name0 = f"g_fluxSpline_{label}"
+    # First spline made from original histogram
+    spline_name0 = f"g_fluxSpline_0{label}"
     spline0 = ROOT.TSpline3(spline_name0, graph0)
-    width0 = 10
-
-    for i in range(1, 10):
-        x = hist.GetBinWidth(i)
-        if (x < width0):
-            width0 = x
-
-    n_points = int(hist.GetXaxis().GetXmax()/width0)
+    func_name0 = f"get_flux_weight_0{label}"
     
-    graph = ROOT.TGraph(n_points)
-    for i in range(1, n_points + 1):
-        x = i*width0
+    spline_bin_integral0 = 0.0
+    for i in range(1, hist.GetNbinsX() + 1):
+        x = hist.GetBinCenter(i)
+        spline_bin_integral0 += spline0.Eval(x)
+    print("spline bin-integral0 (hist-like) =", spline_bin_integral0)
+    
+    spline_width_integral0 = 0.0
+    for i in range(1, hist.GetNbinsX() + 1):
+        x = hist.GetBinCenter(i)
+        w = hist.GetBinWidth(i)
+        spline_width_integral0 += spline0.Eval(x) * w
+    print("spline width-integral0 (hist-like) =", spline_width_integral0)
+    
+    # Undo bin normalization
+    #b = .05
+    graph1 = ROOT.TGraph(n_points0)
+    for i in range(1, n_points0 + 1):
+        x = hist.GetBinCenter(i)
+        w = hist.GetBinWidth(i)
+        #print(w)
         y = spline0.Eval(x)
         # print(f"i: {i} x: {x} y: {y} ")
         if (Fscale != 1 or undoNormB):
             if undoNormB:
-                new_y = y * width0 * Fscale
-                print(f"y: {y} Width: {width0} New Y: {new_y}")
+                new_y = y * (w) * Fscale
+                # print("undo norm histogram")
+                # print(f"y: {y} Width: {w} New Y: {new_y}")
             else:
                 new_y = y * Fscale
             y = new_y
-        graph.SetPoint(i - 1, x, y)
-    
-
-   # Create TSpline3 from the graph
-    #spline = ROOT.TSpline3("flux_spline", graph)
-    
+        graph1.SetPoint(i - 1, x, y)
+        
+        
     # Unique spline and function names
-    spline_name = f"g_fluxSpline_{label}"
-    func_name = f"get_flux_weight_{label}"
-    spline = ROOT.TSpline3(spline_name, graph)
+    spline_name1 = f"g_fluxSpline_1{label}"
+    func_name1 = f"get_flux_weight_1{label}"
+    spline1 = ROOT.TSpline3(spline_name1, graph1)
     
+    spline_bin_integral1 = 0.0
+    for i in range(1, hist.GetNbinsX() + 1):
+        x = hist.GetBinCenter(i)
+        spline_bin_integral1 += spline1.Eval(x)
+    print("spline bin-integral1 (hist-like) =", spline_bin_integral1)   
+    
+    spline_width_integral1 = 0.0
+    for i in range(1, hist.GetNbinsX() + 1):
+        x = hist.GetBinCenter(i)
+        w = hist.GetBinWidth(i)
+        spline_width_integral1 += spline1.Eval(x) * w
+    print("spline width-integral1 (hist-like) =", spline_width_integral1)
 
     # Declare the global variable (no assignment yet)
-    ROOT.gInterpreter.Declare(f"TSpline3* {spline_name};")
+    ROOT.gInterpreter.Declare(f"TSpline3* {spline_name0};")
     # Assign from Python side using setattr
-    setattr(ROOT, spline_name, spline)
-
-    # Declare external spline access and eval function
-    # ROOT.gInterpreter.Declare("""
-    #     double get_flux_weight(double E) {
-    #         return g_fluxSpline->Eval(E);
-    #     }
-    # """)
+    setattr(ROOT, spline_name0, spline0)
 
     ROOT.gInterpreter.Declare(f"""
-        extern TSpline3* {spline_name};
-        double {func_name}(double E) {{
-            return {spline_name}->Eval(E);
+        extern TSpline3* {spline_name0};
+        double {func_name0}(double E) {{
+            return {spline_name0}->Eval(E);
         }}
     """)
 
 
    
     # Define new column in DataFrame
-    #df = df.Define("weights", f"get_flux_weight(Enu_true)")
-    df = df.Define("weights", f"{func_name}(Enu_true)")
+    df = df.Define("weights", f"{func_name0}(Enu_true)")
 
-    return df
+    return df, spline_bin_integral1
 
 def defineSplineTest(df, rwRootFile, histName):
     flux_file = ROOT.TFile.Open(rwRootFile)

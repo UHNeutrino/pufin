@@ -172,6 +172,7 @@ if (same1D["Bool"]):
     plots_list = same1D["Plots"]
     hist_dict = {}
     hist_rdfs = []  # Keep these alive to avoid ROOT segfaults
+    #hist_rdfs1 = []  # Keep these alive to avoid ROOT segfaults
         
     AxisInfo = same1D["AxisInfo"].split(",")
     BinL = same1D["Bins"]
@@ -230,6 +231,7 @@ if (same1D["Bool"]):
 
         #df = pp.CreateDataFrame(file_path, same1D["Cut"])
         df = pp.CreateDataFrame(file_path, cut = "None")
+        #df1 = pp.CreateDataFrame(file_path, cut = "None")
         unfiltered = df.Count().GetValue()
         df = df.Filter("Enu_true < 8.0 ")
         frakLost = 1.0 - df.Count().GetValue()/unfiltered
@@ -249,8 +251,25 @@ if (same1D["Bool"]):
         if same1D.get("Cut"):
             df = df.Filter(same1D["Cut"])
         if reweight_flag:
+            f_flux = ROOT.TFile.Open(rw_file, "READ")
+            if not f_flux or f_flux.IsZombie():
+                print(f"[reWeight] Could not open rw_file: {rw_file}")
+            else:
+                h_flux = f_flux.Get(rw_flux)
+                if not h_flux:
+                    print(f"[reWeight] Could not find histogram '{rw_flux}' in {rw_file}")
+                    f_flux.ls()
+                else:
+                    print(f"[reWeight] Flux hist: {rw_flux}")
+                    print(f"  Integral()        = {h_flux.Integral()}")
+                    I_flux = h_flux.Integral("width")
+                    print(f"  Integral('width') = {h_flux.Integral('width')}")
+                f_flux.Close()
+
+        if reweight_flag:
             print(f"UNDONORM : {undoNormB}")
-            df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
+            #df1 = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = 1, areaB = areaB, undoNormB = undoNormB)
+            df, spline_bin_integral1 = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -269,6 +288,7 @@ if (same1D["Bool"]):
         if same1D["VBins"][0]:
             histInfo = varBinInfo
         if weight_col:
+            #rdf_hist1 = df1.Histo1D(histInfo, plot["Var"], weight_col)
             rdf_hist = df.Histo1D(histInfo, plot["Var"], weight_col)
         else:
             rdf_hist = df.Histo1D(histInfo, plot["Var"])
@@ -278,6 +298,19 @@ if (same1D["Bool"]):
         pp.HistoErrorBars(hist)
         if norm and hist.Integral() != 0:
             hist.Scale(1.0 / hist.Integral())
+
+        hist = rdf_hist.GetValue()
+        
+        if undoNormB:
+            target = spline_bin_integral1
+            current = hist.Integral()
+            s = target / current
+            hist.Scale(s)
+            print("scale factor integral")
+            print(hist.Integral())
+            # print("width scale factor integral")
+            # print(hist.Integral("width"))
+            
         #hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
         hist = sf.formatHist(hist, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
         
