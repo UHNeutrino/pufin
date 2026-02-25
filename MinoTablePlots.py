@@ -60,7 +60,7 @@ for Qkeym, Qvalue in Q2evo.items():
         kin = same1D.get("KinematicsB", False)
         Evis = same1D.get("EvisB", False)
         Tki = same1D.get("TkiB", False)
-        Thresholds = same1D.get("ThresholdsB", False)
+        Thresholds = same1D.get("ThresholdsB")
 
         histCounter = 0
         hist_order = []
@@ -91,7 +91,7 @@ for Qkeym, Qvalue in Q2evo.items():
             unfiltered = df.Count().GetValue()
             df = df.Filter(f"W < {value[1]} && W >= {value[0]} ")
             df = df.Filter(Qvalue)
-            df = df.Filter(plot["Cut2"])
+            
             print(f"Events in {Wkey}: {df.Count().GetValue()} of {unfiltered}")
 
             if Evis:
@@ -101,6 +101,7 @@ for Qkeym, Qvalue in Q2evo.items():
             if Tki:
                 df = pp.DefineTKI(df)
             if Thresholds:
+                print("HELLOO")
                 df = pp.FlagParticleThresholds(df)
             if same1D.get("Cut"):
                 df = df.Filter(same1D["Cut"])
@@ -109,6 +110,8 @@ for Qkeym, Qvalue in Q2evo.items():
                 weight_col = "weights"
             else:
                 weight_col = ""
+
+            df = df.Filter(plot["Cut2"])
                 
             bins = array.array('d',same1D["VBins"][1])
 
@@ -169,21 +172,21 @@ for Qkeym, Qvalue in Q2evo.items():
             # legend = ROOT.TLegend(0.3, 0.6, 0.4, 0.75) ## most plots
             fakeHist1 = ROOT.TH1D()
             fakeHist1.SetLineColor(ROOT.kRed)
-            legend.AddEntry(fakeHist1, "NO#nuA Flux", "l")
+            legend.AddEntry(fakeHist1, "NO#nuA Interactions", "l")
 
             fakeHist2 = ROOT.TH1D()
             fakeHist2.SetLineColor(ROOT.kBlue)
-            legend.AddEntry(fakeHist2, "T2K Flux", "l")
+            legend.AddEntry(fakeHist2, "T2K Interactions x 10", "l")
 
-            fakeHist3 = ROOT.TH1D()
-            fakeHist3.SetLineColor(ROOT.kBlack)
-            fakeHist3.SetLineStyle(1)
-            legend.AddEntry(fakeHist3, "NEUT", "l")
+            # fakeHist3 = ROOT.TH1D()
+            # fakeHist3.SetLineColor(ROOT.kBlack)
+            # fakeHist3.SetLineStyle(1)
+            # legend.AddEntry(fakeHist3, "NEUT", "l")
 
-            fakeHist4 = ROOT.TH1D()
-            fakeHist4.SetLineColor(ROOT.kBlack)
-            fakeHist4.SetLineStyle(2)
-            legend.AddEntry(fakeHist4, "GENIE", "l")
+            # fakeHist4 = ROOT.TH1D()
+            # fakeHist4.SetLineColor(ROOT.kBlack)
+            # fakeHist4.SetLineStyle(2)
+            # legend.AddEntry(fakeHist4, "GENIE", "l")
             
             # fakeHist3 = ROOT.TH1D()
             # fakeHist3.SetLineColor(ROOT.kBlack)
