@@ -246,10 +246,14 @@ if (same1D["Bool"]):
             df = pp.DefineEvis(df)
         if Tki:
             df = pp.DefineTKI(df)
-        if Thresholds:
-            df = pp.FlagParticleThresholds(df)
-        if same1D.get("Cut"):
-            df = df.Filter(same1D["Cut"])
+        # if Thresholds:
+        #     df = pp.FlagParticleThresholds(df)
+        # if same1D.get("Cut"):
+        #     df = df.Filter(same1D["Cut"])
+        #     histInfo = ("name", f"hist_{key}", BinL[0], BinL[1], BinL[2])
+        #     current_hist = df.Histo1D(histInfo, plot["Var"])
+        #     current = current_hist.Integral("width")
+        #     print(current)
         if reweight_flag:
             f_flux = ROOT.TFile.Open(rw_file, "READ")
             if not f_flux or f_flux.IsZombie():
@@ -299,20 +303,45 @@ if (same1D["Bool"]):
         if norm and hist.Integral() != 0:
             hist.Scale(1.0 / hist.Integral())
 
-        hist = rdf_hist.GetValue()
+        #hist = rdf_hist.GetValue()
         
         if undoNormB:
             target = spline_bin_integral1
             current = hist.Integral()
+            print(current)
             s = target / current
-            hist.Scale(s)
-            print("scale factor integral")
-            print(hist.Integral())
+            # hist.Scale(s)
+            # print("scale factor integral")
+            # print(hist.Integral())
             # print("width scale factor integral")
             # print(hist.Integral("width"))
             
+                    
+        if Thresholds:
+            df = pp.FlagParticleThresholds(df)    
+        if same1D.get("Cut"):
+            df_cut = df.Filter(same1D["Cut"])
+        else:
+            df_cut = df
+            
+        # Build the CUT histogram, still using weights if you have them
+        if weight_col:
+            rdf_cut = df_cut.Histo1D(histInfo, plot["Var"], weight_col)
+        else:
+            rdf_cut = df_cut.Histo1D(histInfo, plot["Var"])
+            
+        hist_cut = rdf_cut.GetValue()
+        hist_cut.SetDirectory(0)
+        
+        # Scale cut histogram by the same global factor s
+        if undoNormB:
+            hist_cut.Scale(s)
+            
+        print("scale factor integral (cut hist)")
+        print(hist_cut.Integral())
+            
         #hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
-        hist = sf.formatHist(hist, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
+        hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
         
         if Add_Ratio and top_histo:
             hist.GetXaxis().SetLabelSize(0)     # hide numbers
