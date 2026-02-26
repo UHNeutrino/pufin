@@ -100,18 +100,18 @@ for Qkeym, Qvalue in Q2evo.items():
                 df = pp.DefineKinematics(df)
             if Tki:
                 df = pp.DefineTKI(df)
-            if Thresholds:
-                print("HELLOO")
-                df = pp.FlagParticleThresholds(df)
-            if same1D.get("Cut"):
-                df = df.Filter(same1D["Cut"])
+            # if Thresholds:
+            #     print("HELLOO")
+            #     df = pp.FlagParticleThresholds(df)
+            # if same1D.get("Cut"):
+            #     df = df.Filter(same1D["Cut"])
             if reweight_flag:
-                df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
+                df, spline_bin_integral1 = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
                 weight_col = "weights"
             else:
                 weight_col = ""
-
-            df = df.Filter(plot["Cut2"])
+            allCut = plot["Cut2"] + " && " +same1D.get("Cut")
+            # df = df.Filter()
                 
             bins = array.array('d',same1D["VBins"][1])
 
@@ -133,10 +133,37 @@ for Qkeym, Qvalue in Q2evo.items():
             hist = rdf_hist.GetValue()
             pp.HistoErrorBars(hist)
             if norm and hist.Integral() != 0:
-                hist.Scale(1.0 / hist.Integral())
-            #hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
+                hist.Scale(1.0 / hist.Integral())  
+            if undoNormB:
+                target = spline_bin_integral1
+                current = hist.Integral()
+                # print(current)
+                s = target / current    
+            if Thresholds:
+                df = pp.FlagParticleThresholds(df)
+            if same1D.get("Cut"):
+                print(allCut)
+                df_cut = df.Filter(allCut)
+            else:
+                df_cut = df
+                
+            # Build the CUT histogram, still using weights if you have them
+            if weight_col:
+                rdf_cut = df_cut.Histo1D(histInfo, plot["Var"], weight_col)
+            else:
+                rdf_cut = df_cut.Histo1D(histInfo, plot["Var"])
+                
+            hist_cut = rdf_cut.GetValue()
+            hist_cut.SetDirectory(0)
+            
+            # Scale cut histogram by the same global factor s
+            if undoNormB:
+                hist_cut.Scale(s)
+                
+            print("scale factor integral (cut hist)")
+            print(hist_cut.Integral())
             PT = PlotTitle + str(Wkey) + f" and {Qvalue}"
-            hist = sf.formatHist(hist, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PT)
+            hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PT)
             
             if Add_Ratio and top_histo:
                 hist.GetXaxis().SetLabelSize(0)     # hide numbers
@@ -178,15 +205,15 @@ for Qkeym, Qvalue in Q2evo.items():
             fakeHist2.SetLineColor(ROOT.kBlue)
             legend.AddEntry(fakeHist2, "T2K Interactions x 10", "l")
 
-            # fakeHist3 = ROOT.TH1D()
-            # fakeHist3.SetLineColor(ROOT.kBlack)
-            # fakeHist3.SetLineStyle(1)
-            # legend.AddEntry(fakeHist3, "NEUT", "l")
+            fakeHist3 = ROOT.TH1D()
+            fakeHist3.SetLineColor(ROOT.kBlack)
+            fakeHist3.SetLineStyle(1)
+            legend.AddEntry(fakeHist3, "No Thresholds", "l")
 
-            # fakeHist4 = ROOT.TH1D()
-            # fakeHist4.SetLineColor(ROOT.kBlack)
-            # fakeHist4.SetLineStyle(2)
-            # legend.AddEntry(fakeHist4, "GENIE", "l")
+            fakeHist4 = ROOT.TH1D()
+            fakeHist4.SetLineColor(ROOT.kBlack)
+            fakeHist4.SetLineStyle(2)
+            legend.AddEntry(fakeHist4, "With Thresholds", "l")
             
             # fakeHist3 = ROOT.TH1D()
             # fakeHist3.SetLineColor(ROOT.kBlack)
