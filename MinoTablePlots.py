@@ -110,7 +110,7 @@ for Qkeym, Qvalue in Q2evo.items():
                 weight_col = "weights"
             else:
                 weight_col = ""
-            allCut = plot["Cut2"] + " && " +same1D.get("Cut")
+            allCut = same1D.get("Cut")  + " && " + plot["Cut2"]
             # df = df.Filter()
                 
             bins = array.array('d',same1D["VBins"][1])
@@ -158,9 +158,19 @@ for Qkeym, Qvalue in Q2evo.items():
             
             # Scale cut histogram by the same global factor s
             if undoNormB:
+                target = spline_bin_integral1
+                current = hist.Integral()
+                print("uncut bin integral")
+                print(current)
+                s = target / current
+                hist.Scale(s)
+                print("uncut scaled bin integral")
+                print(hist.Integral())
+            # Scale cut histogram by the same global factor s
+            if undoNormB:
                 hist_cut.Scale(s)
-                
-            print("scale factor integral (cut hist)")
+
+            print("scaled bin integral (cut hist)")
             print(hist_cut.Integral())
             PT = PlotTitle + str(Wkey) + f" and {Qvalue}"
             hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PT)
