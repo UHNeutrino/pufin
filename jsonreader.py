@@ -292,8 +292,8 @@ if (same1D["Bool"]):
         if same1D["VBins"][0]:
             histInfo = varBinInfo
         if weight_col:
-            #rdf_hist1 = df1.Histo1D(histInfo, plot["Var"], weight_col)
-            rdf_hist = df.Histo1D(histInfo, plot["Var"], weight_col)
+            #rdf_hist = df.Histo1D(histInfo, plot["Var"], weight_col)
+            rdf_hist = df.Histo1D(histInfo, 'Enu_true', weight_col)
         else:
             rdf_hist = df.Histo1D(histInfo, plot["Var"])
 
