@@ -307,9 +307,13 @@ if (same1D["Bool"]):
         
         if undoNormB:
             target = spline_bin_integral1
-            current = hist.Integral()
+            current = hist.Integral() 
+            print("uncut bin integral")
             print(current)
             s = target / current
+            hist.Scale(s)
+            print("uncut scaled bin integral")
+            print(hist.Integral())  
             # hist.Scale(s)
             # print("scale factor integral")
             # print(hist.Integral())
@@ -337,8 +341,10 @@ if (same1D["Bool"]):
         if undoNormB:
             hist_cut.Scale(s)
             
-        print("scale factor integral (cut hist)")
+        print("scaled bin integral (cut hist)")
         print(hist_cut.Integral())
+        # print("scaled width integral (cut hist)")
+        # print(hist_cut.Integral("width"))
             
         #hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
         hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
