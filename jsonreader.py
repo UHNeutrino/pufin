@@ -231,7 +231,6 @@ if (same1D["Bool"]):
 
         #df = pp.CreateDataFrame(file_path, same1D["Cut"])
         df = pp.CreateDataFrame(file_path, cut = "None")
-        #df1 = pp.CreateDataFrame(file_path, cut = "None")
         unfiltered = df.Count().GetValue()
         df = df.Filter("Enu_true < 8.0 ")
         frakLost = 1.0 - df.Count().GetValue()/unfiltered
@@ -272,8 +271,7 @@ if (same1D["Bool"]):
 
         if reweight_flag:
             print(f"UNDONORM : {undoNormB}")
-            #df1 = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = 1, areaB = areaB, undoNormB = undoNormB)
-            df, spline_bin_integral1 = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -282,6 +280,7 @@ if (same1D["Bool"]):
             
         bins = array.array('d',same1D["VBins"][1])
 
+        histInfoScale = ("name", f"hist_{key}", 120, 0, 8)
         histInfo = ("name", f"hist_{key}", BinL[0], BinL[1], BinL[2])
         # print("bins")
         # print(bins)
@@ -292,8 +291,7 @@ if (same1D["Bool"]):
         if same1D["VBins"][0]:
             histInfo = varBinInfo
         if weight_col:
-            #rdf_hist = df.Histo1D(histInfo, plot["Var"], weight_col)
-            rdf_hist = df.Histo1D(histInfo, 'Enu_true', weight_col)
+            rdf_hist = df.Histo1D(histInfoScale, 'Enu_true', weight_col)
         else:
             rdf_hist = df.Histo1D(histInfo, plot["Var"])
 
@@ -306,7 +304,7 @@ if (same1D["Bool"]):
         #hist = rdf_hist.GetValue()
         
         if undoNormB:
-            target = spline_bin_integral1
+            target = bin_integral_unnorm
             current = hist.Integral() 
             print("uncut bin integral")
             print(current)
