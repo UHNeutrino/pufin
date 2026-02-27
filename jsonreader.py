@@ -303,7 +303,7 @@ if (same1D["Bool"]):
 
         #hist = rdf_hist.GetValue()
         
-        if undoNormB:
+        if (Fscale != 1 or undoNormB):
             target = bin_integral_unnorm
             current = hist.Integral() 
             print("uncut bin integral")
@@ -336,7 +336,7 @@ if (same1D["Bool"]):
         hist_cut.SetDirectory(0)
         
         # Scale cut histogram by the same global factor s
-        if undoNormB:
+        if Fscale != 1 or undoNormB:
             hist_cut.Scale(s)
             
         print("scaled bin integral (cut hist)")
