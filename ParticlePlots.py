@@ -1380,9 +1380,16 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, areaB = 
     # ABSOLUTE SCALE: Convert bin normalized histo to "per-bin" contents and apply Fscale
     bin_integral_unnorm = 0.0   
     for i in range(1, hist.GetNbinsX() + 1):
+        x = hist.GetBinCenter(i)
+        if x > 8.0:
+            break
         y = hist.GetBinContent(i)
         w = hist.GetBinWidth(i)
-        bin_integral_unnorm += y * w * Fscale   # multiply each bin by its width, then Fscale
+        if undoNormB == True:
+            bin_integral_unnorm += y * w * Fscale   # multiply each bin by its width, then Fscale
+        else:
+            bin_integral_unnorm += y * Fscale
+        
 
     print("bin integral after (content*width*Fscale) =", bin_integral_unnorm)
 
