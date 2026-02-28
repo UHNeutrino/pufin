@@ -172,7 +172,6 @@ if (same1D["Bool"]):
     plots_list = same1D["Plots"]
     hist_dict = {}
     hist_rdfs = []  # Keep these alive to avoid ROOT segfaults
-    #hist_rdfs1 = []  # Keep these alive to avoid ROOT segfaults
         
     AxisInfo = same1D["AxisInfo"].split(",")
     BinL = same1D["Bins"]
@@ -245,14 +244,14 @@ if (same1D["Bool"]):
             df = pp.DefineEvis(df)
         if Tki:
             df = pp.DefineTKI(df)
-        # if Thresholds:
-        #     df = pp.FlagParticleThresholds(df)
+        if Thresholds:
+            df = pp.FlagParticleThresholds(df)
         # if same1D.get("Cut"):
         #     df = df.Filter(same1D["Cut"])
-        #     histInfo = ("name", f"hist_{key}", BinL[0], BinL[1], BinL[2])
-        #     current_hist = df.Histo1D(histInfo, plot["Var"])
-        #     current = current_hist.Integral("width")
-        #     print(current)
+        #     # histInfo = ("name", f"hist_{key}", BinL[0], BinL[1], BinL[2])
+        #     # current_hist = df.Histo1D(histInfo, plot["Var"])
+        #     # current = current_hist.Integral()
+        #     # print(current)
         if reweight_flag:
             f_flux = ROOT.TFile.Open(rw_file, "READ")
             if not f_flux or f_flux.IsZombie():
@@ -280,7 +279,7 @@ if (same1D["Bool"]):
             
         bins = array.array('d',same1D["VBins"][1])
 
-        histInfoScale = ("name", f"hist_{key}", 120, 0, 8)
+        histInfoScale = ("h_scale", f"hist_{key}", 120, 0, 8)
         histInfo = ("name", f"hist_{key}", BinL[0], BinL[1], BinL[2])
         # print("bins")
         # print(bins)
@@ -325,7 +324,8 @@ if (same1D["Bool"]):
             df_cut = df.Filter(same1D["Cut"])
         else:
             df_cut = df
-            
+        #df_cut = df  # uncomment if trying to scale using a specific interaction cross section 
+        
         # Build the CUT histogram, still using weights if you have them
         if weight_col:
             rdf_cut = df_cut.Histo1D(histInfo, plot["Var"], weight_col)
