@@ -89,10 +89,10 @@ for Qkeym, Qvalue in Q2evo.items():
             #df = pp.CreateDataFrame(file_path, same1D["Cut"])
             df = pp.CreateDataFrame(file_path, cut = "None")
             unfiltered = df.Count().GetValue()
-            df = df.Filter(f"W < {value[1]} && W >= {value[0]} ")
-            df = df.Filter(Qvalue)
-            df = df.Filter(plot["Cut2"])
-            print(f"Events in {Wkey}: {df.Count().GetValue()} of {unfiltered}")
+            # df = df.Filter(f"W < {value[1]} && W >= {value[0]} ")
+            # df = df.Filter(Qvalue)
+            # df = df.Filter(plot["Cut2"])
+            # print(f"Events in {Wkey}: {df.Count().GetValue()} of {unfiltered}")
 
             if Evis:
                 df = pp.DefineEvis(df)
@@ -102,16 +102,19 @@ for Qkeym, Qvalue in Q2evo.items():
                 df = pp.DefineTKI(df)
             if Thresholds:
                 df = pp.FlagParticleThresholds(df)
-            if same1D.get("Cut"):
-                df = df.Filter(same1D["Cut"])
+            # if same1D.get("Cut"):
+            #     df = df.Filter(same1D["Cut"])
+            
+            
             if reweight_flag:
-                df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
+                df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
                 weight_col = "weights"
             else:
                 weight_col = ""
                 
             bins = array.array('d',same1D["VBins"][1])
 
+            histInfoScale = ("h_scale", f"hist_{key}", 160, 0, 8)
             histInfo = ("name", f"hist_{Wkey}", BinL[0], BinL[1], BinL[2])
             # print("bins")
             # print(bins)
@@ -122,7 +125,7 @@ for Qkeym, Qvalue in Q2evo.items():
             if same1D["VBins"][0]:
                 histInfo = varBinInfo
             if weight_col:
-                rdf_hist = df.Histo1D(histInfo, plot["Var"], weight_col)
+                rdf_hist = df.Histo1D(histInfoScale, 'Enu_true', weight_col)
             else:
                 rdf_hist = df.Histo1D(histInfo, plot["Var"])
 
@@ -131,9 +134,49 @@ for Qkeym, Qvalue in Q2evo.items():
             pp.HistoErrorBars(hist)
             if norm and hist.Integral() != 0:
                 hist.Scale(1.0 / hist.Integral())
-            #hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
+                
+            if (Fscale != 1 or undoNormB):
+                target = bin_integral_unnorm
+                current = hist.Integral() 
+                print("uncut bin integral")
+                print(current)
+                s = target / current
+                hist.Scale(s)
+                print("uncut scaled bin integral")
+                print(hist.Integral())    
+                
+            # if Thresholds:
+            #     df = pp.FlagParticleThresholds(df)    
+            if same1D.get("Cut"):
+                df_cut = df.Filter(same1D["Cut"])
+            else:
+                df_cut = df
+                
+            df_cut = df_cut.Filter(f"W < {value[1]} && W >= {value[0]} ")
+            df_cut = df_cut.Filter(Qvalue)
+            df_cut = df_cut.Filter(plot["Cut2"])
+            print(f"Events in {Wkey}: {df_cut.Count().GetValue()} of {unfiltered}")
+            
+                
+            # Build the CUT histogram, still using weights if you have them
+            if weight_col:
+                rdf_cut = df_cut.Histo1D(histInfo, plot["Var"], weight_col)
+            else:
+                rdf_cut = df_cut.Histo1D(histInfo, plot["Var"])
+            
+            hist_cut = rdf_cut.GetValue()
+            hist_cut.SetDirectory(0)
+        
+            # Scale cut histogram by the same global factor s
+            if Fscale != 1 or undoNormB:
+                hist_cut.Scale(s)
+            
+            print("scaled bin integral (cut hist)")
+            print(hist_cut.Integral())
+                
+                
             PT = PlotTitle + str(Wkey) + f" and {Qvalue}"
-            hist = sf.formatHist(hist, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PT)
+            hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PT)
             
             if Add_Ratio and top_histo:
                 hist.GetXaxis().SetLabelSize(0)     # hide numbers
