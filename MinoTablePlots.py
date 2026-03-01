@@ -85,14 +85,14 @@ for Qkeym, Qvalue in Q2evo.items():
 
             file_path = matches[0]
             print(f"Processing {file_path}")
-
+            
             #df = pp.CreateDataFrame(file_path, same1D["Cut"])
             df = pp.CreateDataFrame(file_path, cut = "None")
             unfiltered = df.Count().GetValue()
-            df = df.Filter(f"W < {value[1]} && W >= {value[0]} ")
-            df = df.Filter(Qvalue)
-            
-            print(f"Events in {Wkey}: {df.Count().GetValue()} of {unfiltered}")
+            # df = df.Filter(f"W < {value[1]} && W >= {value[0]} ")
+            # df = df.Filter(Qvalue)
+            # df = df.Filter(plot["Cut2"])
+            # print(f"Events in {Wkey}: {df.Count().GetValue()} of {unfiltered}")
 
             if Evis:
                 df = pp.DefineEvis(df)
@@ -214,22 +214,26 @@ for Qkeym, Qvalue in Q2evo.items():
             # legend = ROOT.TLegend(0.3, 0.6, 0.4, 0.75) ## most plots
             fakeHist1 = ROOT.TH1D()
             fakeHist1.SetLineColor(ROOT.kRed)
+            #legend.AddEntry(fakeHist1, "NO#nuA Flux", "l")
             legend.AddEntry(fakeHist1, "NO#nuA Interactions", "l")
 
             fakeHist2 = ROOT.TH1D()
             fakeHist2.SetLineColor(ROOT.kBlue)
-            legend.AddEntry(fakeHist2, "T2K Interactions x 10", "l")
+            #legend.AddEntry(fakeHist2, "T2K Flux", "l")
+            legend.AddEntry(fakeHist2, "T2K Interactions x 30", "l")
 
             fakeHist3 = ROOT.TH1D()
             fakeHist3.SetLineColor(ROOT.kBlack)
             fakeHist3.SetLineStyle(1)
+            #legend.AddEntry(fakeHist3, "NEUT", "l")
             legend.AddEntry(fakeHist3, "No Thresholds", "l")
 
             fakeHist4 = ROOT.TH1D()
             fakeHist4.SetLineColor(ROOT.kBlack)
             fakeHist4.SetLineStyle(2)
+            #legend.AddEntry(fakeHist4, "GENIE", "l")
             legend.AddEntry(fakeHist4, "With Thresholds", "l")
-            
+        
             # fakeHist3 = ROOT.TH1D()
             # fakeHist3.SetLineColor(ROOT.kBlack)
             # fakeHist3.SetLineStyle(1)
