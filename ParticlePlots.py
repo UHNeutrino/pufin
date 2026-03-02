@@ -801,10 +801,10 @@ def FlagParticleThresholds(df):
         df = df.Redefine("flagNovaProtonP", f"(PProton > .600)")
     else:
         df = df.Define("flagNovaProtonP", f"(PProton > .600)")
-    df = df.Define("flagNovaPionPlusP", f"(PPionPlus > .250)")
+    df = df.Define("flagNovaPionPlusP", f"(PPionMax > .250)")
     df = df.Define("flagT2KMuonP", f"(PLep > 0.225)")
     df = df.Define("flagT2KProtonP", f"(PProton > 0.400)") # value from T2K technote
-    df = df.Define("flagT2KPionPlusP", f"(PPionPlus > 0.05)")
+    df = df.Define("flagT2KPionPlusP", f"(PPionMax > 0.05)")
     df = df.Define("flagT2KALL", f"(flagT2KMuonP && flagT2KProtonP && flagT2KPionPlusP)")
     df = df.Define("flagNOvAALL", f"(flagNovaMuonP && flagNovaProtonP && flagNovaPionPlusP)")
 
