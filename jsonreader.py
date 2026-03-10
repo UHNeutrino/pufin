@@ -215,7 +215,7 @@ if (same1D["Bool"]):
         key = plot["Key"]
         color_str = plot["Color"]
         label = plot["Label"]
-        reweight_flag, rw_file, rw_flux, Fscale, areaB, undoNormB = plot["reWeight"]
+        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = plot["reWeight"]
         Var = plot["Var"]
         hist_order.append(key)
 
@@ -270,7 +270,7 @@ if (same1D["Bool"]):
 
         if reweight_flag:
             print(f"UNDONORM : {undoNormB}")
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xspline, areaB = areaB, undoNormB = undoNormB)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -279,7 +279,7 @@ if (same1D["Bool"]):
             
         bins = array.array('d',same1D["VBins"][1])
 
-        histInfoScale = ("h_scale", f"hist_{key}", 120, 0, 8)
+        histInfoScale = ("h_scale", f"hist_{key}", 160, 0, 8)
         histInfo = ("name", f"hist_{key}", BinL[0], BinL[1], BinL[2])
         # print("bins")
         # print(bins)
