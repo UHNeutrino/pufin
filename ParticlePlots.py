@@ -1,4 +1,5 @@
 import ROOT
+import array as pyarray
 import os
 import SetupFunctions as SF
 
@@ -801,12 +802,12 @@ def FlagParticleThresholds(df):
         df = df.Redefine("flagNovaProtonP", f"(PProton > .600)")
     else:
         df = df.Define("flagNovaProtonP", f"(PProton > .600)")
-    df = df.Define("flagNovaPionPlusP", f"(PPionMax > .250)")
+    df = df.Define("flagNovaPionPlusP", f"(PPionMax > .390)")
     df = df.Define("flagT2KMuonP", f"(PLep > 0.225)")
     df = df.Define("flagT2KProtonP", f"(PProton > 0.400)") # value from T2K technote
     df = df.Define("flagT2KPionPlusP", f"(PPionMax > 0.05)")
     df = df.Define("flagT2KALL", f"(flagT2KMuonP && flagT2KProtonP && flagT2KPionPlusP)")
-    df = df.Define("flagNOvAALL", f"(flagNovaMuonP && flagNovaProtonP && flagNovaPionPlusP)")
+    df = df.Define("flagNovaALL", f"(flagNovaMuonP && flagNovaProtonP && flagNovaPionPlusP)")
 
 
     return df
@@ -1340,9 +1341,32 @@ def defineWeights(df, rwRootFile, histName, Fscale = 1):
     """)
     df = df.Define("weights", "getFluxWeight(Enu_true)")
 
-    return df        
+    return df    
 
-def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, areaB = False, undoNormB = False):
+def make_xsec_hist_like_flux(h_flux, g_cc, g_nc, name="h_xsec"):
+    nb = h_flux.GetNbinsX()
+
+    # Build edges array from flux histogram (works for variable bins too)
+    edges = [h_flux.GetXaxis().GetBinLowEdge(1)]
+    for i in range(1, nb + 1):
+        edges.append(h_flux.GetXaxis().GetBinUpEdge(i))
+    edges_arr = pyarray.array('d', edges)
+
+    h_xsec = ROOT.TH1D(name, name, nb, edges_arr)
+    h_xsec.Sumw2()
+
+    for i in range(1, nb + 1):
+        x = h_flux.GetBinCenter(i)
+        cc = float(g_cc.Eval(x))
+        nc = float(g_nc.Eval(x))
+        if cc < 0: cc = 0.0
+        if nc < 0: nc = 0.0
+        h_xsec.SetBinContent(i, cc + nc)
+
+    h_xsec.SetDirectory(0)
+    return h_xsec    
+
+def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline = "", areaB = False, undoNormB = False):
     flux_file = ROOT.TFile.Open(rwRootFile)
     hist = flux_file.Get(histName)  
     print(histName)
@@ -1378,18 +1402,132 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, areaB = 
         spline_width_integral0 += spline0.Eval(x) * w
     print("spline width-integral0 (hist-like) =", spline_width_integral0)
     
+    ########## Code for showing un-normalized spline/shape ############################################
+    ##################################################################################################
+   
+    # graph1 = ROOT.TGraph(n_points0)
+    # for i in range(1, n_points0 + 1):
+    #     x = hist.GetBinCenter(i)
+    #     w = hist.GetBinWidth(i)
+    #     #print(w)
+    #     y = spline0.Eval(x)
+    #     # print(f"i: {i} x: {x} y: {y} ")
+    #     if (Fscale != 1 or undoNormB):
+    #         if undoNormB:
+    #             new_y = y * (w) * Fscale
+    #             # print("undo norm histogram")
+    #             # print(f"y: {y} Width: {w} New Y: {new_y}")
+    #         else:
+    #             new_y = y * Fscale
+    #         y = new_y
+    #     graph1.SetPoint(i - 1, x, y)
+        
+        
+    # # Unique spline and function names
+    # spline_name1 = f"g_fluxSpline_1{label}"
+    # func_name1 = f"get_flux_weight_1{label}"
+    # spline1 = ROOT.TSpline3(spline_name1, graph1)
+    ##########################################################################################
+    ##########################################################################################
+    
     # ABSOLUTE SCALE: Convert bin normalized histo to "per-bin" contents and apply Fscale
+
+    if xspline == "G":
+        pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root"
+        CCpath = "nu_mu_C12/tot_cc"
+        NCpath = "nu_mu_C12/tot_nc"
+
+        fx = ROOT.TFile.Open(pathx, "READ")
+        if not fx or fx.IsZombie():
+            raise RuntimeError(f"Could not open xsec file: {pathx}")
+
+        g_cc = fx.Get(CCpath)
+        g_nc = fx.Get(NCpath)
+        if not g_cc or not g_nc:
+            fx.ls()
+            raise RuntimeError(f"Missing graph(s): CC={CCpath} NC={NCpath}")
+
+        # Optional: detach so closing file won’t kill them
+        g_cc = g_cc.Clone("g_cc")
+        g_nc = g_nc.Clone("g_nc")
+        fx.Close()
+    elif xspline == "N":
+        pathx = "/data/t2k-nova/xsec-splines/totpau.tbl"
+        xs, ys = [], []
+
+        with open(pathx, "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+
+                # Skip header lines (e.g., starts with "Energy")
+                if line.lower().startswith("energy"):
+                    continue
+
+                parts = line.split()
+                # Expect: Energy numu numubar nue nuebar electron
+                if len(parts) < 2:
+                    continue
+
+                try:
+                    E = float(parts[0])
+                    numu = float(parts[1])
+                except ValueError:
+                    continue
+
+                xs.append(E)
+                ys.append(numu)
+
+        if len(xs) < 4:
+            raise RuntimeError(f"Not enough points to make a TSpline3 (got {len(xs)})")
+
+        # Build TGraph
+        g = ROOT.TGraph(len(xs))
+        for i, (x, y) in enumerate(zip(xs, ys)):
+            g.SetPoint(i, x, y)
+
+        # Make spline
+        neut_spline = ROOT.TSpline3("neut_spline", g)
+
+    ##########################################################################
+    #h_xsec = make_xsec_hist_like_flux(hist, g_cc, g_nc, name="h_xsec")
+    ##########################################################################
+    
     bin_integral_unnorm = 0.0   
     for i in range(1, hist.GetNbinsX() + 1):
         x = hist.GetBinCenter(i)
-        if x > 8.0:
+        if x > 8.0: # Integrals aren't totally matching up when I use this
             break
         y = hist.GetBinContent(i)
         w = hist.GetBinWidth(i)
-        if undoNormB == True:
-            bin_integral_unnorm += y * w * Fscale   # multiply each bin by its width, then Fscale
+        #######################################################################
+        #y_xsec = h_xsec.GetBinContent(i)
+        ########################################################################
+        
+        # evaluate CC/NC xsecs at this energy
+        if xspline == "G":
+            CCxsec = float(g_cc.Eval(x))
+            NCxsec = float(g_nc.Eval(x))
+
+            # clip negatives to 0
+            if CCxsec < 0: CCxsec = 0.0
+            if NCxsec < 0: NCxsec = 0.0
+
+            xsec = CCxsec + NCxsec 
+        elif xspline == "N":
+            xsec = float(neut_spline.Eval(x))
+            if xsec < 0: xsec = 0.0
+            
         else:
-            bin_integral_unnorm += y * Fscale
+            xsec = 1
+        
+        if undoNormB == True:
+            bin_integral_unnorm += y * w * Fscale * xsec   # multiply each bin by its width, then Fscale
+            #bin_integral_unnorm += y * y_xsec * w * Fscale
+        else:
+            bin_integral_unnorm += y * Fscale * xsec
+            #bin_integral_unnorm += y * y_xsec * Fscale
         
 
     print("bin integral after (content*width*Fscale) =", bin_integral_unnorm)

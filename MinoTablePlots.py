@@ -73,7 +73,7 @@ for Qkeym, Qvalue in Q2evo.items():
             key = plot["Key"]
             color_str = plot["Color"]
             label = plot["Label"]
-            reweight_flag, rw_file, rw_flux, Fscale, areaB, undoNormB = plot["reWeight"]
+            reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = plot["reWeight"]
             Var = plot["Var"]
             hist_order.append(key)
 
@@ -107,7 +107,7 @@ for Qkeym, Qvalue in Q2evo.items():
             
             
             if reweight_flag:
-                df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
+                df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xspline, areaB = areaB, undoNormB = undoNormB)
                 weight_col = "weights"
             else:
                 weight_col = ""
@@ -214,6 +214,7 @@ for Qkeym, Qvalue in Q2evo.items():
             # legend = ROOT.TLegend(0.3, 0.6, 0.4, 0.75) ## most plots
             fakeHist1 = ROOT.TH1D()
             fakeHist1.SetLineColor(ROOT.kRed)
+            legend.AddEntry(fakeHist1, "NO#nuA Interaactions", "l")
             #legend.AddEntry(fakeHist1, "NO#nuA Flux", "l")
             legend.AddEntry(fakeHist1, "NO#nuA Interactions", "l")
 
@@ -225,12 +226,15 @@ for Qkeym, Qvalue in Q2evo.items():
             fakeHist3 = ROOT.TH1D()
             fakeHist3.SetLineColor(ROOT.kBlack)
             fakeHist3.SetLineStyle(1)
+            legend.AddEntry(fakeHist3, "No Thresholds", "l")
             #legend.AddEntry(fakeHist3, "NEUT", "l")
             legend.AddEntry(fakeHist3, "No Thresholds", "l")
 
             fakeHist4 = ROOT.TH1D()
             fakeHist4.SetLineColor(ROOT.kBlack)
             fakeHist4.SetLineStyle(2)
+            legend.AddEntry(fakeHist4, "With Thresholds", "l")
+            
             #legend.AddEntry(fakeHist4, "GENIE", "l")
             legend.AddEntry(fakeHist4, "With Thresholds", "l")
         
