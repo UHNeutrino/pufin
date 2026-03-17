@@ -38,7 +38,7 @@ if (plots["Bool"]):
         AxisInfo = []
         #df = pp.CreateDataFrame(file_path, plots["Cut"])
         df = pp.CreateDataFrame(file_path, cut ="None")
-        reweight_flag, rw_file, rw_flux, Fscale, areaB, undoNormB = plots["reWeight"]
+        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = plots["reWeight"]
 
         if(plots["EvisB"]):
             df = pp.DefineEvis(df)  
@@ -53,7 +53,7 @@ if (plots["Bool"]):
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
         if reweight_flag:
-            df = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, areaB = areaB, undoNormB = undoNormB)
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xspline, areaB = areaB, undoNormB = undoNormB)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -77,9 +77,10 @@ if (plots["Bool"]):
                 p1.SetDirectory(0)
             
         if plots["Ext"] == "root":
-            rootTitle = plots["Cut"]
-            rootTitle = rootTitle.replace(" ","")
-            out_file = ROOT.TFile(f"/data/t2k-nova/Histograms/{rootTitle}.root", "UPDATE")
+            hist.SetName("h")
+            saveLoc = HOME+"/"+plots["Save"]+"/"+plots["Name"]
+            out_file = ROOT.TFile(f"{saveLoc}.root", "RECREATE")
+            print(f"Saved {saveLoc}.root")
             hist.Write()  # Write the histogram to the file
             out_file.Close()  # Close to finalize writing
         else:
