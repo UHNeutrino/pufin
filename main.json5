@@ -1,11 +1,19 @@
 {
-    "quantiles":
+    "global":
         {
-            "Bool": false,
+            "FlatTrees":"",
+            "Save": "t2k-nova/plots_EnergySmearing/",
+            "DebugLvl":0,
             "EvisB": false,
             "KinematicsB":false,
             "TkiB": false,
             "ThresholdsB": false,
+            "Ext": "png"
+
+        },
+    "quantiles":
+        {
+            "Bool": false,
             "reWeight": [false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"], // "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"
             "reWeight2":[true,  "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"], // "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"
             "Spline":true,
@@ -41,12 +49,14 @@
     "plots":
         {
             "Bool": true,
-            "EvisB": true,
+            "EvisB": false,
             "KinematicsB":false,
             "TkiB": false,
             "ThresholdsB": false,
             //"reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 7.737e14, false, false],
-            "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_finebins.root","enu_nd5_23a_untuned_numu", 2.79276e-7, "N", false, true],
+            // "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu", 2.79276e-7, "N", false, true],
+            "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 2.79276e-7, "N", false, true],
+            
             //"reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_finebins.root","enu_nd5_23a_untuned_numu", 1, true, false],
             "Gen":"NEUT5.9",
             "Flux":"flatf_1e7",
@@ -55,10 +65,10 @@
             "Cut": "",
             "Var1": "Enu_true",
             "Var2": "Evis_3",
-            "AxisInfo":"True E_{#nu}, GeV, # events, ? , GenieN24 SF area norm = false undonorm = false",
+            "AxisInfo":"True E_{#nu}, GeV, Interactions,  , UHMC Neutrino Energy",
             "Bins": [160, 0, 8], // [60,-2.0,1.0,80,0,180],
             "Save": "UHMCVerification",
-            "Name": "T2KEventRate",
+            "Name": "UHMCEnuTrue13A",
             "Ext": "root",
             "Norm": false,
             "max": -1, 
@@ -69,9 +79,6 @@
     "stacks":
         {
             "Bool":false,
-            "EvisB": true,
-            "TkiB": false,
-            "ThresholdsB": false,
             "reWeight":[false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu"],
             "Gen":"GenieN24",
             "Flux":"2.0Gev",
@@ -93,9 +100,6 @@
      "overlap":
         {
             "Bool": false,
-            "EvisB": true,
-            "TkiB": true,
-            "ThresholdsB": false,
             "reWeight":[false, "/data/t2k-nova/fluxes/mono_energetic_flux_3.0GeV_v2.root","h1"],
             "Gen":"NEUT5.5",
             "Flux":"1.0GeV",
@@ -116,10 +120,6 @@
     "1DSame":
         {
             "Bool": false,
-            "EvisB": true,
-            "KinematicsB":true,
-            "TkiB": false,
-            "ThresholdsB": false,
             "Cut": "",//"(flagCC1pip == true || flagNC1pip == true || flagCC1pim == true || flagNC1pim == true)", // For no cuts, type ""
             //"Cut": "(flagCC1pip == true || flagNC1pip == true || flagCC1pim == true || flagNC1pim == true) && Q2 <= 1 && W >= 1.1 && W < 1.4",
             "AxisInfo": "Enu_true, GeV, Frequency, , ",// @ NOvA 1 Pion Q2 & W cuts", //Q2
@@ -167,44 +167,18 @@
     "Contour":
         {
             "Bool": false,
-            "EvisB": true,
-            "KinematicsB":true,
-            "TkiB": false,
-            "ThresholdsB": true,
-            //"reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_finebins.root","enu_nd5_23a_untuned_numu", 1, true, false],
             "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 1, true, false],
             "Gen":"Flat_NEUT5.9",
             "Flux":"flatf_1e7",
-            // "Type":"2D", Only 2D possible
             "Cut": "flagCC0pi == true && (Q2 > 0.4) && flagNovaProtonP == true && flagNovaMuonP == true", // For no cuts, type ""
-            // "Cut": "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16) && flagCC0pi == true ",
-            // "Cut": "flagCC1pip == true", //"flagCC0pi == true",
             "Var1":"Enu_true",
             "Var2":"Evis_3",
-            // "ConCuts":{"(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs", "Mode == 1":"1P1H","Mode == 2":"2P2H", "!((Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)||Mode == 1 || Mode == 2 )":"Other"},
             "ConCuts":{ "Mode == 1":"QE", "Mode == 2":"2P2H", "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs"},
             "AutoQuant":[false, "Evis_kin", "Enu_true",true,5],
             "TotalPercents":[90], //requires pdf save for line textures to show up
-            // ---------------------------------------
-            // "ContStyle":false,
-            // "Clabels":{
-            //     "1p1h": 600,
-            //     "2p2h": 416,
-            // },
-            // "Slabels":{
-            //     "EkinRes <0.9": 2,
-            //     "EkinRes >1.1": 3,
-            // },
-            // styles:[1,1,2,2,1],
-            // ----------------------------------------------------
-            // "ConCuts":{"q3 <=.72": "Less than .72 GeV"},
             "Colors":"600, 416, 880, 800", // blue, green, purple, ? 
-            // "AxisInfo":"Lepton Momentum, GeV, Cos#theta_{#mu}, , NEUT 5.9 0Pi Lepton Kinematics for Flat Flux with T2K weights",
             "AxisInfo":"True E_{#nu}, (GeV), Ecal, (GeV), NEUT 5.9 0Pi Q^{2} > 0.4 w/ NOvA Flux/Thresholds/Reco",
             "Bins":[100,0,5,100,0,5],
-            // "Bins":[120,-1,1,120,-1,1],
-            // "Bins":[60,0,3,42,-1.05,1.05],
-            //"Bins":[100,-1,1,100,-1,1],
             "logz":true,
             "Save": "t2k-nova/plots_EnergySmearing",
             "Name": "NOvASmear0PiQ2region2",
@@ -213,11 +187,6 @@
     "ContourStyle":
         {
             "Bool": false,
-            "EvisB": false,
-            "KinematicsB":true,
-            "TkiB": true,
-            "ThresholdsB": true,
-            //"reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu", 1, true, false],
             "reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 1, true, false],
             "Gen":"GenieN24",
             "Flux":"flatf_1e7",

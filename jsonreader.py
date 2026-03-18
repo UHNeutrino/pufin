@@ -14,15 +14,15 @@ userFolder = f"/data/t2k-nova/FlatTrees"
 f = open(f'{HOME}/t2k-nova/main.json5')
 data = json5.load(f)
 
-quantiles = data.get("quantiles")
-plots = data.get("plots")
-stacks = data.get("stacks")
-overlap = data.get("overlap")
-same1D = data.get("1DSame")
-Contour = data.get("Contour")
-ContourStyle = data.get("ContourStyle")
+# quantiles = data.get("quantiles")
+# plots = data.get("plots")
+# stacks = data.get("stacks")
+# overlap = data.get("overlap")
+# same1D = data.get("1DSame")
+# Contour = data.get("Contour")
+# ContourStyle = data.get("ContourStyle")
 
-if (plots["Bool"]):
+def MakePlots(plots):
     root_files = glob.glob(userFolder + f'/*{plots["Gen"]}*{plots["Flux"]}*.root')
     if root_files == []:
         printMsg =  "NO such root files:"+f'/*{plots["Gen"]}*{plots["Flux"]}*.root'
@@ -114,7 +114,7 @@ if (plots["Bool"]):
         hist_cut.SetDirectory(0)
         
         # Scale cut histogram by the same global factor s
-        if Fscale != 1 or undoNormB:
+        if (Fscale != 1 or undoNormB) and weight_col:
             hist_cut.Scale(s)
             
         print("scaled bin integral (cut hist)")
@@ -141,7 +141,7 @@ if (plots["Bool"]):
                 pp.Savehist(hist,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"])
                 
 
-if (stacks["Bool"]):
+def MakeStacks(stacks):
     root_files = glob.glob(userFolder + f'/*{stacks["Gen"]}*{stacks["Flux"]}*.root')
     if root_files == []:
         print("NO such root files")
@@ -179,7 +179,7 @@ if (stacks["Bool"]):
         pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L, Normalize=stacks["Norm"])
 
 
-if (overlap["Bool"]):
+def MakeOverlap(overlap):
     root_files = glob.glob(userFolder + f'/*{overlap["Gen"]}*{overlap["Flux"]}*.root')
     if root_files == []:
         print("NO such root files")
@@ -216,7 +216,7 @@ if (overlap["Bool"]):
         save_L = overlap["Save"] + generator + '-' + flux + overlap["Name"] + "." +overlap["Ext"]
         pp.SaveOverlapPlot(histlist, AxisInfo, Legend,save_L, Normalize=overlap["Norm"])
         
-if (same1D["Bool"]):
+def MakeSame1D(same1D):
     plots_list = same1D["Plots"]
     hist_dict = {}
     hist_rdfs = []  # Keep these alive to avoid ROOT segfaults
@@ -484,7 +484,7 @@ if (same1D["Bool"]):
     outname = f"{HOME}/{same1D['Save']}/{same1D['Name']}.{same1D['Ext']}"
     c.SaveAs(outname)
 
-if (quantiles["Bool"]):
+def MakeQuantiles(quantiles):
     file_name = input("Give Root File name: ")
     file_path1 = f"/data/t2k-nova/FlatTrees/{file_name}"
     #treeName = "FlatTree_VARS"
@@ -498,7 +498,7 @@ if (quantiles["Bool"]):
     if (quantiles["ThresholdsB"]):
         df1 = pp.FlagParticleThresholds(df1)
     if quantiles.get("Cut"):
-        df1 = df.Filter(quantiles["Cut"])
+        df1 = df1.Filter(quantiles["Cut"])
     # df1 = ROOT.RDataFrame(treeName,file_path1)
     # df1 = df1.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
     # df1 = pp.DefineKinematics(df1)
@@ -563,7 +563,7 @@ if (quantiles["Bool"]):
         if (quantiles["ThresholdsB"]):
             df1b = pp.FlagParticleThresholds(df1b)
         if quantiles.get("Cut"):
-            df1b = df.Filter(quantiles["Cut"])
+            df1b = df1b.Filter(quantiles["Cut"])
     
         # df1b = ROOT.RDataFrame(treeName,file_path2)
         # df1b = df1b.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
@@ -616,7 +616,7 @@ if (quantiles["Bool"]):
         print("Invalid plot_type in config_PlotQuantiles.json5. Use 'segments', 'grid' or 'ratio'.")
     
 
-if (Contour["Bool"]):
+def Contour(Contour):
     root_files = glob.glob(userFolder + f'/*{Contour["Gen"]}*{Contour["Flux"]}*.root')
     if root_files == []:
         print("NO such root files")
@@ -706,7 +706,7 @@ if (Contour["Bool"]):
         pp.SaveContHist(histlist, AxisInfo, Legend, colors, Contour["TotalPercents"], save_L, Contour["logz"])
 
 
-if (ContourStyle["Bool"]):
+def MakeContourStyle(ContourStyle):
     root_files = glob.glob(userFolder + f'/*{ContourStyle["Gen"]}*{ContourStyle["Flux"]}*.root')
     if root_files == []:
         print("NO such root files")
