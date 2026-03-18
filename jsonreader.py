@@ -46,10 +46,6 @@ if (plots["Bool"]):
             df = pp.DefineKinematics(df)
         if (plots["TkiB"]):
             df = pp.DefineTKI(df)
-        if (plots["ThresholdsB"]):
-            df = pp.FlagParticleThresholds(df)
-        if plots.get("Cut"):
-            df = df.Filter(plots["Cut"])
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
         if reweight_flag:
@@ -75,6 +71,57 @@ if (plots["Bool"]):
                 h2.SetDirectory(0)
                 p1 = h2.ProfileX("hProfileX", 1, -1, "s")
                 p1.SetDirectory(0)
+
+        ################################################################
+        #Histogram scaling for event rates
+        if (Fscale != 1 or undoNormB) and weight_col:
+            target = bin_integral_unnorm
+            current = hist.Integral() 
+            print("uncut bin integral")
+            print(current)
+            s = target / current
+            hist.Scale(s)
+            print("uncut scaled bin integral")
+            print(hist.Integral())  
+            # hist.Scale(s)
+            # print("scale factor integral")
+            # print(hist.Integral())
+            # print("width scale factor integral")
+            # print(hist.Integral("width"))
+            
+                    
+        if (plots["ThresholdsB"]):
+            df = pp.FlagParticleThresholds(df)  
+        if plots.get("Cut"):
+            df_cut = df.Filter(plots["Cut"])
+        else:
+            df_cut = df
+        #df_cut = df  # uncomment if trying to scale using a specific interaction cross section 
+        
+        # Build the CUT histogram, still using weights if you have them
+        if plots["Type"] == "1D":
+            if weight_col:
+                rdf_cut = df_cut.Histo1D(histInfo, plots["Var1"], weight_col)
+            else:
+                rdf_cut = df_cut.Histo1D(histInfo, plots["Var1"])
+        if plots["Type"] == "2D":
+            if weight_col:
+                rdf_cut = df_cut.Histo2D(histInfo, plots["Var1"], plots["Var2"], weight_col)
+            else:
+                rdf_cut = df_cut.Histo2D(histInfo, plots["Var1"],plots["Var2"])
+            
+        hist_cut = rdf_cut.GetValue()
+        hist_cut.SetDirectory(0)
+        
+        # Scale cut histogram by the same global factor s
+        if Fscale != 1 or undoNormB:
+            hist_cut.Scale(s)
+            
+        print("scaled bin integral (cut hist)")
+        print(hist_cut.Integral())
+        xvar, xunit, yvar, yunit, PlotTitle = AxisInfo
+        hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=plots["max"], PlotTitle=PlotTitle)
+        ########################################################################################################################
             
         if plots["Ext"] == "root":
             hist.SetName("h")
@@ -86,7 +133,7 @@ if (plots["Bool"]):
         else:
             nx = datetime.datetime.now()
             x = str(nx)
-            fileN = plots["Name"]+generator+flux+x
+            fileN = plots["Name"]
             fileN = fileN.replace(" ", "-")
             if (plots["profileX"]): 
                 pp.Savehist2DWithProfile(hist, p1,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"], diagonal=plots["diagonal"]) 
@@ -231,12 +278,12 @@ if (same1D["Bool"]):
 
         #df = pp.CreateDataFrame(file_path, same1D["Cut"])
         df = pp.CreateDataFrame(file_path, cut = "None")
-        unfiltered = df.Count().GetValue()
-        df = df.Filter("Enu_true < 8.0 ")
-        frakLost = 1.0 - df.Count().GetValue()/unfiltered
-        print(f"Fraction lost from E Nu cut: {frakLost}")
-        print(f"Events lost from E Nu cut: {unfiltered - df.Count().GetValue()}")
-        print(f'Total Events {df.Count().GetValue()}')
+        # unfiltered = df.Count().GetValue()
+        # df = df.Filter("Enu_true < 8.0 ")
+        # frakLost = 1.0 - df.Count().GetValue()/unfiltered
+        # print(f"Fraction lost from E Nu cut: {frakLost}")
+        # print(f"Events lost from E Nu cut: {unfiltered - df.Count().GetValue()}")
+        # print(f'Total Events {df.Count().GetValue()}')
 
 
         if kin:
