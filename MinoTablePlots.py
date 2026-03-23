@@ -134,16 +134,16 @@ for Qkeym, Qvalue in Q2evo.items():
             pp.HistoErrorBars(hist)
             if norm and hist.Integral() != 0:
                 hist.Scale(1.0 / hist.Integral())
-                
-            if (Fscale != 1 or undoNormB):
-                target = bin_integral_unnorm
-                current = hist.Integral() 
-                print("uncut bin integral")
-                print(current)
-                s = target / current
-                hist.Scale(s)
-                print("uncut scaled bin integral")
-                print(hist.Integral())    
+            if reweight_flag:    
+                if (Fscale != 1 or undoNormB):
+                    target = bin_integral_unnorm
+                    current = hist.Integral() 
+                    print("uncut bin integral")
+                    print(current)
+                    s = target / current
+                    hist.Scale(s)
+                    print("uncut scaled bin integral")
+                    print(hist.Integral())    
                 
             # if Thresholds:
             #     df = pp.FlagParticleThresholds(df)    
@@ -168,8 +168,9 @@ for Qkeym, Qvalue in Q2evo.items():
             hist_cut.SetDirectory(0)
         
             # Scale cut histogram by the same global factor s
-            if Fscale != 1 or undoNormB:
-                hist_cut.Scale(s)
+            if reweight_flag:
+                if Fscale != 1 or undoNormB:
+                    hist_cut.Scale(s)
             
             print("scaled bin integral (cut hist)")
             print(hist_cut.Integral())

@@ -302,20 +302,21 @@ if (same1D["Bool"]):
 
         #hist = rdf_hist.GetValue()
         
-        if (Fscale != 1 or undoNormB):
-            target = bin_integral_unnorm
-            current = hist.Integral() 
-            print("uncut bin integral")
-            print(current)
-            s = target / current
-            hist.Scale(s)
-            print("uncut scaled bin integral")
-            print(hist.Integral())  
-            # hist.Scale(s)
-            # print("scale factor integral")
-            # print(hist.Integral())
-            # print("width scale factor integral")
-            # print(hist.Integral("width"))
+        if reweight_flag:
+            if (Fscale != 1 or undoNormB):
+                target = bin_integral_unnorm
+                current = hist.Integral() 
+                print("uncut bin integral")
+                print(current)
+                s = target / current
+                hist.Scale(s)
+                print("uncut scaled bin integral")
+                print(hist.Integral())  
+                # hist.Scale(s)
+                # print("scale factor integral")
+                # print(hist.Integral())
+                # print("width scale factor integral")
+                # print(hist.Integral("width"))
             
                     
         if Thresholds:
@@ -324,7 +325,7 @@ if (same1D["Bool"]):
             df_cut = df.Filter(same1D["Cut"])
         else:
             df_cut = df
-        #df_cut = df  # uncomment if trying to scale using a specific interaction cross section 
+        # df_cut = df  # uncomment if trying to scale using a specific interaction cross section 
         
         # Build the CUT histogram, still using weights if you have them
         if weight_col:
@@ -336,8 +337,9 @@ if (same1D["Bool"]):
         hist_cut.SetDirectory(0)
         
         # Scale cut histogram by the same global factor s
-        if Fscale != 1 or undoNormB:
-            hist_cut.Scale(s)
+        if reweight_flag:
+            if Fscale != 1 or undoNormB:
+                hist_cut.Scale(s)
             
         print("scaled bin integral (cut hist)")
         print(hist_cut.Integral())
@@ -434,7 +436,28 @@ if (same1D["Bool"]):
 
 
     outname = f"{HOME}/{same1D['Save']}/{same1D['Name']}.{same1D['Ext']}"
-    c.SaveAs(outname)
+
+    if same1D["Ext"] == "root":
+        f_out = ROOT.TFile(outname, "RECREATE")
+
+        # write the plotted hists (and ratio if you made one)
+        for k, h in hist_dict.items():
+            # make sure it survives file close / isn’t tied to a canvas
+            h_out = h.Clone(f"h_{k}")
+            h_out.SetDirectory(0)
+            f_out.cd()
+            h_out.Write()
+
+        # optional: if you created a ratio hist named h_ratio, write it too
+        if Add_Ratio and 'h_ratio' in locals():
+            r_out = h_ratio.Clone("h_ratio")
+            r_out.SetDirectory(0)
+            f_out.cd()
+            r_out.Write()
+
+        f_out.Close()
+    else:
+        c.SaveAs(outname)
 
 if (quantiles["Bool"]):
     file_name = input("Give Root File name: ")

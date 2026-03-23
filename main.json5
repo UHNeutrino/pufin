@@ -120,15 +120,15 @@
             "KinematicsB":true,
             "TkiB": false,
             "ThresholdsB": false,
-            "Cut": "",//"(flagCC1pip == true || flagNC1pip == true || flagCC1pim == true || flagNC1pim == true)", // For no cuts, type ""
+            "Cut": "(flagCC1pip == true || flagNC1pip == true || flagCC1pim == true || flagNC1pim == true) && Q2>1 && W > 1.1 && W <= 1.4",//"(flagCC1pip == true || flagNC1pip == true || flagCC1pim == true || flagNC1pim == true)", // For no cuts, type ""
             //"Cut": "(flagCC1pip == true || flagNC1pip == true || flagCC1pim == true || flagNC1pim == true) && Q2 <= 1 && W >= 1.1 && W < 1.4",
-            "AxisInfo": "Enu_true, GeV, Frequency, , ",// @ NOvA 1 Pion Q2 & W cuts", //Q2
+            "AxisInfo": "PPionMax, GeV/c, Frequency, , ",// @ NOvA 1 Pion Q2 & W cuts", //Q2
             //"AxisInfo": "#deltaP_{T}, GeV/c, Frequency, , QE Delta PT x & y for Leading Proton", //PLep
-            "Bins": [160, 0, 8],
+            "Bins": [60, 0, 3],
             //If VBins is true, treats the second element as bin edges
             "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
             "Save": "t2k-nova/test", 
-            "Name": "March10",
+            "Name": "March21",
             "Ext": "png",
             "Norm": false,
             "logy": false,
@@ -142,16 +142,17 @@
             "Key": "Genie",
             "File": "GenieN24_flatf_1e7",
             //"Cut": "flagCC0pi == true && flagNovaProtonP == true && flagNovaMuonP == true && (Q2 >= 0.4)",
-            "Label": "T2K Flux",
+            "Label": "NOvA Flux",
             "Color": "kBlack",
             //"reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_finebins.root","enu_nd5_23a_untuned_numu", 2.79276e-7, "N", false, true],
             //"reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 1, false, false], //boolian to start, file location, scaling factor (put 1 for nothing), area norm bool, multiply by bin with bool
-            //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 4878644, false, true],
-            //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 12610.6, "G", false, true],
-            "reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 1, "", false, true],
+            //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 8410, "G", false, true],
+            //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 103465.75, "G", false, true],
+            "reWeight":[true, "/data/t2k-nova/fluxes/Prod6extracted_Travis50MeV_flux_ratio.root","h1", 1.86841953e-11, "G", false, false],
+            //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 1, "", false, true],
             //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 243932, false, true],
             //"reWeight":[true, "/data/t2k-nova/fluxes/NOvAFlux.root","cafanauniq0", 8.8e-10, false, false],
-            "Var": "Enu_true"
+            "Var": "PPionMax"
             }
             // {
             // "Key": "NEUTT2K", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
