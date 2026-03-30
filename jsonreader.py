@@ -14,16 +14,10 @@ userFolder = f"/data/t2k-nova/FlatTrees"
 f = open(f'{HOME}/t2k-nova/main.json5')
 data = json5.load(f)
 
-# quantiles = data.get("quantiles")
-# plots = data.get("plots")
-# stacks = data.get("stacks")
-# overlap = data.get("overlap")
-# same1D = data.get("1DSame")
-# Contour = data.get("Contour")
-# ContourStyle = data.get("ContourStyle")
 
-def MakePlots(plots):
-    root_files = glob.glob(userFolder + f'/*{plots["Gen"]}*{plots["Flux"]}*.root')
+def MakePlots(plots, GlobalSettings):
+    userFolder = GlobalSettings["userFolder"]
+    root_files = glob.glob( userFolder+ f'/*{plots["Gen"]}*{plots["Flux"]}*.root')
     if root_files == []:
         printMsg =  "NO such root files:"+f'/*{plots["Gen"]}*{plots["Flux"]}*.root'
         print(printMsg)
@@ -40,11 +34,11 @@ def MakePlots(plots):
         df = pp.CreateDataFrame(file_path, cut ="None")
         reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = plots["reWeight"]
 
-        if(plots["EvisB"]):
+        if(GlobalSettings["EvisB"]):
             df = pp.DefineEvis(df)  
-        if (plots["KinematicsB"]):
+        if (GlobalSettings["KinematicsB"]):
             df = pp.DefineKinematics(df)
-        if (plots["TkiB"]):
+        if (GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
@@ -77,20 +71,17 @@ def MakePlots(plots):
         if (Fscale != 1 or undoNormB) and weight_col:
             target = bin_integral_unnorm
             current = hist.Integral() 
-            print("uncut bin integral")
-            print(current)
             s = target / current
             hist.Scale(s)
-            print("uncut scaled bin integral")
-            print(hist.Integral())  
-            # hist.Scale(s)
-            # print("scale factor integral")
-            # print(hist.Integral())
-            # print("width scale factor integral")
-            # print(hist.Integral("width"))
+            if GlobalSettings["DebugPrint"] != 0:  
+                print("uncut bin integral")
+                print(current)
+                print("uncut scaled bin integral")
+                print(hist.Integral())
+
             
                     
-        if (plots["ThresholdsB"]):
+        if (GlobalSettings["ThresholdsB"]):
             df = pp.FlagParticleThresholds(df)  
         if plots.get("Cut"):
             df_cut = df.Filter(plots["Cut"])
@@ -116,16 +107,16 @@ def MakePlots(plots):
         # Scale cut histogram by the same global factor s
         if (Fscale != 1 or undoNormB) and weight_col:
             hist_cut.Scale(s)
-            
-        print("scaled bin integral (cut hist)")
-        print(hist_cut.Integral())
+        if GlobalSettings["DebugPrint"] != 0:
+            print("scaled bin integral (cut hist)")
+            print(hist_cut.Integral())
         xvar, xunit, yvar, yunit, PlotTitle = AxisInfo
         hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=plots["max"], PlotTitle=PlotTitle)
         ########################################################################################################################
             
         if plots["Ext"] == "root":
             hist.SetName("h")
-            saveLoc = HOME+"/"+plots["Save"]+"/"+plots["Name"]
+            saveLoc = HOME+"/"+GlobalSettings["Save"]+"/"+plots["Name"]
             out_file = ROOT.TFile(f"{saveLoc}.root", "RECREATE")
             print(f"Saved {saveLoc}.root")
             hist.Write()  # Write the histogram to the file
@@ -136,13 +127,14 @@ def MakePlots(plots):
             fileN = plots["Name"]
             fileN = fileN.replace(" ", "-")
             if (plots["profileX"]): 
-                pp.Savehist2DWithProfile(hist, p1,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"], diagonal=plots["diagonal"]) 
+                pp.Savehist2DWithProfile(hist, p1,AxisInfo,GlobalSettings["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"], diagonal=plots["diagonal"]) 
             else:
-                pp.Savehist(hist,AxisInfo,plots["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"])
+                pp.Savehist(hist,AxisInfo,GlobalSettings["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"])
                 
 
-def MakeStacks(stacks):
-    root_files = glob.glob(userFolder + f'/*{stacks["Gen"]}*{stacks["Flux"]}*.root')
+def MakeStacks(stacks,GlobalSettings):
+    userFolder = GlobalSettings["userFolder"]
+    root_files = glob.glob( userFolder+ f'/*{stacks["Gen"]}*{stacks["Flux"]}*.root')
     if root_files == []:
         print("NO such root files")
 
@@ -152,17 +144,23 @@ def MakeStacks(stacks):
         flux = file_name.split('_')[2]
         #df = pp.CreateDataFrame(file_path, stacks["Cut"])
         df = pp.CreateDataFrame(file_path, cut="None")
+        weight_col = ""
+        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = stacks["reWeight"]
         BinL = stacks["Bins"]
         AxisInfo = []
         cuts = []
         Legend = []
         colors = []
-        if(stacks["EvisB"]):
+        if(GlobalSettings["EvisB"]):
             df = pp.DefineEvis(df)
-        if(stacks["TkiB"]):
+        if(GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
-        if (stacks["ThresholdsB"]):
+        if (GlobalSettings["ThresholdsB"]):
             df = pp.FlagParticleThresholds(df)
+        if reweight_flag:
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xspline, areaB = areaB, undoNormB = undoNormB)
+            weight_col = "weights"
+
         if stacks.get("Cut"):
             df = df.Filter(stacks["Cut"])
         for word in stacks["AxisInfo"].split(','):
@@ -174,13 +172,14 @@ def MakeStacks(stacks):
         for num in stacks["Colors"].split(","):
             colors.append(int(num))
         
-        stack, histlist = pp.PlotStackedEventCuts(df, stacks["Var1"], histInfo, cuts, colors)
-        save_L = stacks["Save"] + generator + '-' + flux + stacks["Name"] + "." +stacks["Ext"]
+        stack, histlist = pp.PlotStackedEventCuts(df, stacks["Var1"], histInfo, cuts, colors, weights= weight_col)
+        save_L = GlobalSettings["Save"] + "/" + stacks["Name"] + "." +stacks["Ext"]
         pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L, Normalize=stacks["Norm"])
 
 
-def MakeOverlap(overlap):
-    root_files = glob.glob(userFolder + f'/*{overlap["Gen"]}*{overlap["Flux"]}*.root')
+def MakeOverlap(overlap,GlobalSettings):
+    userFolder = GlobalSettings["userFolder"]
+    root_files = glob.glob( userFolder + f'/*{overlap["Gen"]}*{overlap["Flux"]}*.root')
     if root_files == []:
         print("NO such root files")
         
@@ -190,17 +189,21 @@ def MakeOverlap(overlap):
         flux = file_name.split('_')[2]
         # df = pp.CreateDataFrame(file_path, overlap["Cut"])
         df = pp.CreateDataFrame(file_path, cut = "None")
+        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = overlap["reWeight"]
         BinL = overlap["Bins"]
         AxisInfo = []
         cuts = []
         Legend = []
         colors = []
-        if(overlap["EvisB"]):
+        if(GlobalSettings["EvisB"]):
             df = pp.DefineEvis(df)
-        if(overlap["TkiB"]):
+        if(GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
-        if (overlap["ThresholdsB"]):
+        if (GlobalSettings["ThresholdsB"]):
             df = pp.FlagParticleThresholds(df)
+        if reweight_flag:
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xspline, areaB = areaB, undoNormB = undoNormB)
+            weight_col = "weights"
         if overlap.get("Cut"):
             df = df.Filter(overlap["Cut"])
         for word in overlap["AxisInfo"].split(','):
@@ -212,11 +215,12 @@ def MakeOverlap(overlap):
         for num in overlap["Colors"].split(","):
             colors.append(int(num))
         
-        histlist = pp.overlapPlots(df, overlap["Var1"], histInfo, cuts, colors)
-        save_L = overlap["Save"] + generator + '-' + flux + overlap["Name"] + "." +overlap["Ext"]
+        histlist = pp.overlapPlots(df, overlap["Var1"], histInfo, cuts, colors, weights= weight_col)
+        save_L = GlobalSettings["Save"] + "/" + overlap["Name"] + "." +overlap["Ext"]
         pp.SaveOverlapPlot(histlist, AxisInfo, Legend,save_L, Normalize=overlap["Norm"])
         
-def MakeSame1D(same1D):
+def MakeSame1D(same1D,GlobalSettings):
+    userFolder = GlobalSettings["userFolder"]
     plots_list = same1D["Plots"]
     hist_dict = {}
     hist_rdfs = []  # Keep these alive to avoid ROOT segfaults
@@ -250,10 +254,10 @@ def MakeSame1D(same1D):
     
     norm = same1D.get("Norm")
     logy = same1D.get("logy")
-    kin = same1D.get("KinematicsB", False)
-    Evis = same1D.get("EvisB", False)
-    Tki = same1D.get("TkiB", False)
-    Thresholds = same1D.get("ThresholdsB", False)
+    kin = GlobalSettings.get("KinematicsB", False)
+    Evis = GlobalSettings.get("EvisB", False)
+    Tki = GlobalSettings.get("TkiB", False)
+    Thresholds = GlobalSettings.get("ThresholdsB", False)
     
     histCounter = 0
     hist_order = []
@@ -263,12 +267,12 @@ def MakeSame1D(same1D):
         key = plot["Key"]
         color_str = plot["Color"]
         label = plot["Label"]
-        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = plot["reWeight"]
+        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = same1D["reWeight"]
         Var = plot["Var"]
         hist_order.append(key)
 
         # Find matching file
-        matches = glob.glob(f"{userFolder}/*{file}*.root")
+        matches = glob.glob( f"{userFolder}/*{file}*.root")
         if not matches:
             print(f"No file found for key: {file}")
             continue
@@ -483,7 +487,7 @@ def MakeSame1D(same1D):
         line.Draw("SAME")
 
 
-    outname = f"{HOME}/{same1D['Save']}/{same1D['Name']}.{same1D['Ext']}"
+    outname = f"{HOME}/{GlobalSettings['Save']}/{same1D['Name']}.{same1D['Ext']}"
 
     if same1D["Ext"] == "root":
         f_out = ROOT.TFile(outname, "RECREATE")
@@ -507,18 +511,18 @@ def MakeSame1D(same1D):
     else:
         c.SaveAs(outname)
 
-def MakeQuantiles(quantiles):
+def MakeQuantiles(quantiles, GlobalSettings):
     file_name = input("Give Root File name: ")
     file_path1 = f"/data/t2k-nova/FlatTrees/{file_name}"
     #treeName = "FlatTree_VARS"
     df1 = pp.CreateDataFrame(file_path1, cut ="None")
-    if(quantiles["EvisB"]):
+    if(GlobalSettings["EvisB"]):
         df1 = pp.DefineEvis(df1)  
-    if (quantiles["KinematicsB"]):
+    if (GlobalSettings["KinematicsB"]):
         df1 = pp.DefineKinematics(df1)
-    if (quantiles["TkiB"]):
+    if (GlobalSettings["TkiB"]):
         df1 = pp.DefineTKI(df1)
-    if (quantiles["ThresholdsB"]):
+    if (GlobalSettings["ThresholdsB"]):
         df1 = pp.FlagParticleThresholds(df1)
     if quantiles.get("Cut"):
         df1 = df1.Filter(quantiles["Cut"])
@@ -537,7 +541,7 @@ def MakeQuantiles(quantiles):
             Flux = "NOvA"
         else:
             Flux = "T2K"
-        df1 = pp.defineWeightsSpline(df1, quantiles["reWeight"][1], quantiles["reWeight"][2], "flux1")
+        df1, bin_integral_unnorm = pp.defineWeightsSpline(df1, quantiles["reWeight"][1], quantiles["reWeight"][2], "flux1")
         
     df_filtered = df1.Filter(quantiles["cut"])
     
@@ -560,7 +564,7 @@ def MakeQuantiles(quantiles):
             quantiles["Title"],
             quantiles["AutoNameB"],
             quantiles["SaveName"],
-            quantiles["Save"],
+            GlobalSettings["Save"],
             quantiles["Ext"],
             max = quantiles["zmax"], 
             min = quantiles["zmin"],
@@ -577,13 +581,13 @@ def MakeQuantiles(quantiles):
         file_path2 = f"/data/t2k-nova/FlatTrees/{file_name2}"
         #treeName = "FlatTree_VARS"
         df1b = pp.CreateDataFrame(file_path2, cut ="None")
-        if(quantiles["EvisB"]):
+        if(GlobalSettings["EvisB"]):
             df1b = pp.DefineEvis(df1b)  
-        if (quantiles["KinematicsB"]):
+        if (GlobalSettings["KinematicsB"]):
             df1b = pp.DefineKinematics(df1b)
-        if (quantiles["TkiB"]):
+        if (GlobalSettings["TkiB"]):
             df1b = pp.DefineTKI(df1b)
-        if (quantiles["ThresholdsB"]):
+        if (GlobalSettings["ThresholdsB"]):
             df1b = pp.FlagParticleThresholds(df1b)
         if quantiles.get("Cut"):
             df1b = df1b.Filter(quantiles["Cut"])
@@ -601,7 +605,7 @@ def MakeQuantiles(quantiles):
                 Flux2 = "NOvA"
             else:
                 Flux2 = "T2K"
-            df1b = pp.defineWeightsSpline(df1b, quantiles["reWeight2"][1], quantiles["reWeight2"][2], "flux2")
+            df1b, bin_integral_unnorm = pp.defineWeightsSpline(df1b, quantiles["reWeight2"][1], quantiles["reWeight2"][2], "flux2")
         
         df_filtered2 = df1b.Filter(quantiles["cut"])
         pq.PlotCompare(
@@ -622,7 +626,7 @@ def MakeQuantiles(quantiles):
             quantiles["Title"],
             quantiles["AutoNameB"],
             quantiles["SaveName"],
-            quantiles["Save"],
+            GlobalSettings["Save"],
             quantiles["Ext"],
             max = quantiles["zmax"], 
             min = quantiles["zmin"],
@@ -639,8 +643,9 @@ def MakeQuantiles(quantiles):
         print("Invalid plot_type in config_PlotQuantiles.json5. Use 'segments', 'grid' or 'ratio'.")
     
 
-def Contour(Contour):
-    root_files = glob.glob(userFolder + f'/*{Contour["Gen"]}*{Contour["Flux"]}*.root')
+def MakeContour(Contour,GlobalSettings):
+    userFolder = GlobalSettings["userFolder"]
+    root_files = glob.glob( userFolder + f'/*{Contour["Gen"]}*{Contour["Flux"]}*.root')
     if root_files == []:
         print("NO such root files")
 
@@ -655,19 +660,19 @@ def Contour(Contour):
         cuts = []
         Legend = []
         colors = []
-        if(Contour["EvisB"]):
+        if(GlobalSettings["EvisB"]):
             df = pp.DefineEvis(df)
             df = df.Filter("Evis_kin != -9999.9")
-        if (Contour["KinematicsB"]):
+        if (GlobalSettings["KinematicsB"]):
             df = pp.DefineKinematics(df)
-        if (Contour["TkiB"]):
+        if (GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
-        if (Contour["ThresholdsB"]):
+        if (GlobalSettings["ThresholdsB"]):
             df = pp.FlagParticleThresholds(df)
         if Contour.get("Cut"):
             df = df.Filter(Contour["Cut"])
         if(Contour["reWeight"][0]):
-            df = pp.defineWeightsSpline(df, Contour["reWeight"][1], Contour["reWeight"][2], Fscale = Contour["reWeight"][3], areaB = Contour["reWeight"][4], undoNormB = Contour["reWeight"][5])
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, Contour["reWeight"][1], Contour["reWeight"][2], Fscale = Contour["reWeight"][3], areaB = Contour["reWeight"][4], undoNormB = Contour["reWeight"][5])
         for word in Contour["AxisInfo"].split(','):
                 AxisInfo.append(word)
         if Contour["AutoQuant"][0]:
@@ -709,7 +714,7 @@ def Contour(Contour):
                 Legend.append(f" {lower_bound:.2f} <= {x} < {upper_bound:.2f}")
             # save intermediary hist 
             if Contour["AutoQuant"][3]:
-                save_L0 = Contour["Save"] + "/" + "INT" +Contour["Name"] + "." +Contour["Ext"]
+                save_L0 = GlobalSettings["Save"] + "/" + "INT" +Contour["Name"] + "." +Contour["Ext"]
                 # c.SaveAs(save_L0)
                 pp.SaveIntPlot(df,x,y,x_bins,save_L0)
         else:
@@ -722,15 +727,16 @@ def Contour(Contour):
         histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
         print(AxisInfo)
         histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts, Contour["TotalPercents"])
-        save_L = Contour["Save"]+ "/" + generator + '-' + flux + Contour["Name"] + "." +Contour["Ext"]
+        save_L = GlobalSettings["Save"]+ "/"+ Contour["Name"] + "." +Contour["Ext"]
         # if Contour["ContStyle"]:
         #     pp.SaveContHistStyles(histlist, AxisInfo, colors, Contour["styles"], Contour["Clabels"], Contour["Slabels"], save_L, Contour["logz"])
         # else:
         pp.SaveContHist(histlist, AxisInfo, Legend, colors, Contour["TotalPercents"], save_L, Contour["logz"])
 
 
-def MakeContourStyle(ContourStyle):
-    root_files = glob.glob(userFolder + f'/*{ContourStyle["Gen"]}*{ContourStyle["Flux"]}*.root')
+def MakeContourStyle(ContourStyle,GlobalSettings):
+    userFolder = GlobalSettings["userFolder"]
+    root_files = glob.glob( userFolder + f'/*{ContourStyle["Gen"]}*{ContourStyle["Flux"]}*.root')
     if root_files == []:
         print("NO such root files")
 
@@ -739,7 +745,7 @@ def MakeContourStyle(ContourStyle):
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
         #df = pp.CreateDataFrame(file_path, Contour["Cut"])
-        df = pp.CreateDataFrame(file_path, cut ="None")
+        df = ROOT.RDataFrame(GlobalSettings["treeName"],file_path)
         BinL = ContourStyle["Bins"]
         AxisInfo = []
         cuts = []
@@ -749,19 +755,19 @@ def MakeContourStyle(ContourStyle):
         StyleLabels = {}
         name1 = " "
         name2 = " "
-        if(ContourStyle["EvisB"]):
+        if(GlobalSettings["EvisB"]):
             df = pp.DefineEvis(df)
             df = df.Filter("Evis_kin != -9999.9")
-        if (ContourStyle["KinematicsB"]):
+        if (GlobalSettings["KinematicsB"]):
             df = pp.DefineKinematics(df)
-        if (ContourStyle["TkiB"]):
+        if (GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
-        if (ContourStyle["ThresholdsB"]):
+        if (GlobalSettings["ThresholdsB"]):
             df = pp.FlagParticleThresholds(df)
         if ContourStyle.get("Cut"):
             df = df.Filter(ContourStyle["Cut"])
         if(ContourStyle["reWeight"][0]):
-            df = pp.defineWeightsSpline(df, ContourStyle["reWeight"][1], ContourStyle["reWeight"][2], Fscale = ContourStyle["reWeight"][3], areaB = ContourStyle["reWeight"][4], undoNormB = ContourStyle["reWeight"][5])
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, ContourStyle["reWeight"][1], ContourStyle["reWeight"][2], Fscale = ContourStyle["reWeight"][3], areaB = ContourStyle["reWeight"][4], undoNormB = ContourStyle["reWeight"][5])
         for word in ContourStyle["AxisInfo"].split(','):
                 AxisInfo.append(word)
 
@@ -792,5 +798,5 @@ def MakeContourStyle(ContourStyle):
         histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
         print(AxisInfo)
         histlist = pp.PlotContEventCuts(df, ContourStyle["Var1"], ContourStyle["Var2"], histInfo, cuts, ContourStyle["TotalPercents"])
-        save_L = ContourStyle["Save"]+ "/" + generator + '-' + flux + ContourStyle["Name"] + "." +ContourStyle["Ext"]
-        pp.SaveContHistStyles(histlist, AxisInfo, colors, styles, ColorLabels, StyleLabels, save_L, Contour["logz"])
+        save_L = GlobalSettings["Save"]+ "/" + ContourStyle["Name"] + "." +ContourStyle["Ext"]
+        pp.SaveContHistStyles(histlist, AxisInfo, colors, styles, ColorLabels, StyleLabels, save_L, ContourStyle["logz"])

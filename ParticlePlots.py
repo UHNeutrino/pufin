@@ -821,7 +821,7 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
     
     fileName = f"{dir_location}"
     treeName = "FlatTree_VARS"
-    print(fileName)
+    # print(fileName)
 
     df = ROOT.RDataFrame(treeName,fileName)
     df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
@@ -964,6 +964,7 @@ def PlotStackedEventModes(df, x, histInfo, modes, colors):
     Legend = []
     for i in range(len(modes)):
         modedf = df.Filter(f"Mode == {modes[i]}")
+        
         hist = modedf.Histo1D(histInfo,x)
         # print(colors[i])
         hist.SetFillColor(colors[i])
@@ -974,6 +975,7 @@ def PlotStackedEventModes(df, x, histInfo, modes, colors):
         print(f"Plotting mode {modes[i]}")
 
     return stack, histlist, Legend
+    
 
 def PlotStackedEventCuts(df, x, histInfo, cuts, colors, weights=""):
     stack = ROOT.THStack("stack","")
@@ -1647,12 +1649,15 @@ def defineSplineTest(df, rwRootFile, histName):
     c1.Update()
     c1.SaveAs("/home/lboe/t2k-nova/6-23-25/flux_spline_comparison2.png")
 
-def overlapPlots(df, x, histInfo, cuts, colors):
+def overlapPlots(df, x, histInfo, cuts, colors, weights=""):
     histlist = []
     for i in range(len(cuts)):
         print(f"Plotting mode {cuts[i]}")
         modedf = df.Filter(f"{cuts[i]}")
-        hist = modedf.Histo1D(histInfo,x)
+        if (df.HasColumn(weights)):
+            hist = modedf.Histo1D(histInfo,x,weights)
+        else:
+            hist = modedf.Histo1D(histInfo,x)
         # print(colors[i])
         hist.SetLineColor(colors[i])
         hist.SetFillColor(0)
