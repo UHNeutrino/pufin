@@ -1,6 +1,6 @@
-# T2K-NOvA
+# PUfIN
 
-This repo is for all code related to the T2K-NOvA joint analysis done by Lars Bøe and Kristen Dobbs.
+This repo is for all code related to the Plotting Utility for Interacting Neutrinos (PUfIN) made by Lars Bøe and Kristen Dobbs.
 
 ## Setup Functions
 
