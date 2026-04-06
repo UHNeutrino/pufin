@@ -9,10 +9,10 @@ import glob
 import array
 
 HOME = os.getenv("HOME", "/home/lboe")
-sf.setupRoot
-userFolder = f"/data/t2k-nova/FlatTrees"
-f = open(f'{HOME}/t2k-nova/main.json5')
-data = json5.load(f)
+# sf.setupRoot
+# userFolder = f"/data/t2k-nova/FlatTrees"
+# f = open(f'{HOME}/t2k-nova/main.json5')
+# data = json5.load(f)
 
 
 def MakePlots(plots, GlobalSettings):
@@ -33,6 +33,9 @@ def MakePlots(plots, GlobalSettings):
         #df = pp.CreateDataFrame(file_path, plots["Cut"])
         df = pp.CreateDataFrame(file_path, cut ="None")
         reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = plots["reWeight"]
+        Vbins = array.array('d',plots["VBins"][1])
+        varBinInfo = ROOT.RDF.TH1DModel("h_varbins","h", len(Vbins) - 1, Vbins)
+
 
         if(GlobalSettings["EvisB"]):
             df = pp.DefineEvis(df)  
@@ -50,12 +53,16 @@ def MakePlots(plots, GlobalSettings):
 
         if plots["Type"] == "1D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
+            if plots["VBins"][1]:
+                histInfo = varBinInfo
             if(plots["reWeight"][0]):
                 hist = df.Histo1D(histInfo,plots["Var1"],"weights")
             else:
                 hist = df.Histo1D(histInfo,plots["Var1"])
         if plots["Type"] == "2D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
+            if plots["VBins"][1]:
+                histInfo = varBinInfo
             if(plots["reWeight"][0]):
                 hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"],"weights")
             else:
