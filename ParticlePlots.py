@@ -502,7 +502,18 @@ def DefineTKI(df):
 
         return delta_alpha_t;
     """)
-    
+    df = df.Define("CosDeltaAlphaT", """
+        double CosDeltaAlphaT = -999;
+        if (DeltaAlphaT == -999)
+        {
+            CosDeltaAlphaT = -999;
+        }
+        else
+        {
+            CosDeltaAlphaT = cos(DeltaAlphaT * 3.14159265358979323846 / 180.0);
+        }
+        return CosDeltaAlphaT;
+    """)
     # Delta alpha-T using the lepton, highest momentum proton and highest momentum pion in the final state to calculate delta PT.
     df = df.Define("DeltaAlphaT_pion", """
         TVector3 delta_p_T_pion = PTLep + PTProton1 + PTPion1;
