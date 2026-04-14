@@ -87,6 +87,29 @@ def DefineKinematics(df):
     return max_pi_p;
     """)
     
+    # Cosine of the angle the highest momentum charged pion (in the final state) makes with the initial neutrino direction
+    df = df.Define("CosPion", """
+    double cos_pion = -5.0;
+    double max_pion_p = -1.0;
+    int max_index = -1;
+
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 211 || pdg[i] == -211) {
+            double p = std::sqrt(px[i]*px[i] + py[i]*py[i] + pz[i]*pz[i]);
+            if (p > max_pion_p) {
+                max_pion_p = p;
+                max_index = i;
+            }
+        }
+    }
+
+    if (max_index >= 0 && max_pion_p > 0) {
+        cos_pion = pz[max_index] / max_pion_p;
+    }
+
+    return cos_pion;
+    """)
+    
     # Momentum of the highest momentum pion(+) after the neutrino interaction, but BEFORE FSI (scalar)
     df = df.Define("PPionPlus_PFSI", """
     double max_pi_p_pfsi = -1.0; // Initialize to a negative value
@@ -161,8 +184,41 @@ def DefineKinematics(df):
     }
     return mags;
     """)
+    
+    df = df.Define("Muon_KE", """
+    double muonKE = -1.0;
+    double muon_mc2 = .105658;
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 13) { // muon
+            
+            muonKE = E[i] - muon_mc2;
+            
+        }
+    }
+    return muonKE;
+    """)
 
-
+    df = df.Define("PionMax_KE", """
+    double max_pi_ke = -1.0;
+    double ChargedPion_mc2 = .13957039;
+    double NeutralPion_mc2 = .1349768;
+    
+    for (size_t i = 0; i < pdg.size(); ++i) {
+        if (pdg[i] == 211 || pdg[i] == -211) { // Any charged Pion
+            double pionKE = E[i] - ChargedPion_mc2;
+            if (pionKE > max_pi_ke) {
+                max_pi_ke = pionKE;
+            }
+        }
+        else if (pdg[i] == 111) { // neutral pion
+            double pionKE = E[i] - NeutralPion_mc2;
+            if (pionKE > max_pi_ke) {
+                max_pi_ke = pionKE;
+            }
+        }
+    }
+    return max_pi_ke;
+    """)
     return df
 
 def DefineEvis(df):
@@ -813,12 +869,15 @@ def FlagParticleThresholds(df):
         df = df.Redefine("flagNovaProtonP", f"(PProton > .600)")
     else:
         df = df.Define("flagNovaProtonP", f"(PProton > .600)")
-    df = df.Define("flagNovaPionPlusP", f"(PPionMax > .390)")
-    df = df.Define("flagT2KMuonP", f"(PLep > 0.225)")
+    df = df.Define("flagNovaPionPlusP", f"(PPionMax > .364)") # ~ KE>250 from Palash
+    df = df.Define("flagNovaPion_KE", f"(PionMax_KE > .250)") 
+    df = df.Define("flagNovaCosPion", f"CosPion > 0.342") # Palash cc 1 pi analysis @ NOvA
+    df = df.Define("flagT2KMuonP", f"(PLep > 0.200)") # T2K technote 199
     df = df.Define("flagT2KProtonP", f"(PProton > 0.400)") # value from T2K technote
-    df = df.Define("flagT2KPionPlusP", f"(PPionMax > 0.05)")
-    df = df.Define("flagT2KALL", f"(flagT2KMuonP && flagT2KProtonP && flagT2KPionPlusP)")
-    df = df.Define("flagNovaALL", f"(flagNovaMuonP && flagNovaProtonP && flagNovaPionPlusP)")
+    df = df.Define("flagT2KPionPlusP", f"(PPionMax > 0.05)") # Michelle Tracking
+    df = df.Define("flagT2KCosLep", f"(CosLep > 0.2)") # T2K technote 199 for a 1Pi+ analysis
+    df = df.Define("flagT2KALL", f"(flagT2KMuonP && flagT2KProtonP && flagT2KPionPlusP && flagT2KCosLep)")
+    df = df.Define("flagNovaALL", f"(flagNovaMuonP && flagNovaProtonP && flagNovaPionPlusP && flagNovaPion_KE && flagNovaCosPion)")
 
 
     return df
@@ -832,10 +891,12 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
     
     fileName = f"{dir_location}"
     treeName = "FlatTree_VARS"
-    # print(fileName)
+    #treeName = "gst"
+    print(fileName)
 
     df = ROOT.RDataFrame(treeName,fileName)
     df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+    #df = df.Define("PLep","TMath::Power(TMath::Power(El, 2)-TMath::Power(.1056, 2), 0.5)") # for gst files
 
     if cut == "None":
         return df
@@ -1447,34 +1508,36 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
 
     if xspline == "G":
         pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root"
+        #pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/N1810j00000-k250-e1000-resfixfix/data/xsec_graphs.root"
+        #pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/G1810j00000-k250-e1000/data/xsec_graphs.root"
         CCpath = "nu_mu_C12/tot_cc"
         NCpath = "nu_mu_C12/tot_nc"
-        cc_npath = "nu_mu_C12/tot_cc_n"
-        cc_ppath = "nu_mu_C12/tot_cc_p"
-        cc_cohpath = "nu_mu_C12/coh_cc"
-        cc_dispath = "nu_mu_C12/dis_cc"
-        cc_resppath = "nu_mu_C12/res_cc_p"
-        cc_resnpath = "nu_mu_C12/res_cc_n"
-        cc_mecpath = "nu_mu_C12/mec_cc"
-        cc_qel_n = "nu_mu_C12/qel_cc_n"
-        nc_npath = "nu_mu_C12/tot_nc_n"
-        nc_ppath = "nu_mu_C12/tot_nc_p"
+        # cc_npath = "nu_mu_C12/tot_cc_n"
+        # cc_ppath = "nu_mu_C12/tot_cc_p"
+        # cc_cohpath = "nu_mu_C12/coh_cc"
+        # cc_dispath = "nu_mu_C12/dis_cc"
+        # cc_resppath = "nu_mu_C12/res_cc_p"
+        # cc_resnpath = "nu_mu_C12/res_cc_n"
+        # cc_mecpath = "nu_mu_C12/mec_cc"
+        # cc_qel_n = "nu_mu_C12/qel_cc_n"
+        # nc_npath = "nu_mu_C12/tot_nc_n"
+        # nc_ppath = "nu_mu_C12/tot_nc_p"
 
         fx = ROOT.TFile.Open(pathx, "READ")
         if not fx or fx.IsZombie():
             raise RuntimeError(f"Could not open xsec file: {pathx}")
 
         g_cc = fx.Get(CCpath)
-        g_cc_n = fx.Get(cc_npath)
-        g_cc_p = fx.Get(cc_ppath)
-        g_cc_coh = fx.Get(cc_cohpath)
-        g_cc_dis = fx.Get(cc_dispath)
-        g_cc_res_p = fx.Get(cc_resppath)
-        g_cc_res_n = fx.Get(cc_resnpath)
-        g_cc_mec = fx.Get(cc_mecpath)
-        g_cc_qel_n = fx.Get(cc_qel_n)
-        g_nc_n = fx.Get(nc_npath)
-        g_nc_p = fx.Get(nc_ppath)
+        # g_cc_n = fx.Get(cc_npath)
+        # g_cc_p = fx.Get(cc_ppath)
+        # g_cc_coh = fx.Get(cc_cohpath)
+        # g_cc_dis = fx.Get(cc_dispath)
+        # g_cc_res_p = fx.Get(cc_resppath)
+        # g_cc_res_n = fx.Get(cc_resnpath)
+        # g_cc_mec = fx.Get(cc_mecpath)
+        # g_cc_qel_n = fx.Get(cc_qel_n)
+        # g_nc_n = fx.Get(nc_npath)
+        # g_nc_p = fx.Get(nc_ppath)
         g_nc = fx.Get(NCpath)
         if not g_cc or not g_nc:
             fx.ls()
@@ -1482,16 +1545,16 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
 
         # Optional: detach so closing file won’t kill them
         g_cc = g_cc.Clone("g_cc")
-        g_cc_n = g_cc_n.Clone("g_cc_n")
-        g_cc_p = g_cc_p.Clone("g_cc_p")
-        g_cc_coh = g_cc_coh.Clone("g_cc_coh")
-        g_cc_dis = g_cc_dis.Clone("g_cc_dis")
-        g_cc_res_p = g_cc_res_p.Clone("g_cc_res_p")
-        g_cc_res_n = g_cc_res_n.Clone("g_cc_res_n")
-        g_cc_mec = g_cc_mec.Clone("g_cc_mec")
-        g_cc_qel_n = g_cc_qel_n.Clone("g_cc_qel_n")
-        g_nc_n = g_nc_n.Clone("g_nc_n")
-        g_nc_p = g_nc_p.Clone("g_nc_p")
+        # g_cc_n = g_cc_n.Clone("g_cc_n")
+        # g_cc_p = g_cc_p.Clone("g_cc_p")
+        # g_cc_coh = g_cc_coh.Clone("g_cc_coh")
+        # g_cc_dis = g_cc_dis.Clone("g_cc_dis")
+        # g_cc_res_p = g_cc_res_p.Clone("g_cc_res_p")
+        # g_cc_res_n = g_cc_res_n.Clone("g_cc_res_n")
+        # g_cc_mec = g_cc_mec.Clone("g_cc_mec")
+        # g_cc_qel_n = g_cc_qel_n.Clone("g_cc_qel_n")
+        # g_nc_n = g_nc_n.Clone("g_nc_n")
+        # g_nc_p = g_nc_p.Clone("g_nc_p")
         g_nc = g_nc.Clone("g_nc")
         fx.Close()
     elif xspline == "N":
@@ -1552,32 +1615,33 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
         if xspline == "G":
             CCxsec = float(g_cc.Eval(x))
             NCxsec = float(g_nc.Eval(x))
-            CC_n_xsec = float(g_cc_n.Eval(x))
-            CC_p_xsec = float(g_cc_p.Eval(x))
-            CC_coh_xsec = float(g_cc_coh.Eval(x)) 
-            CC_dis_xsec = float(g_cc_dis.Eval(x))
-            CC_res_p_xsec = float(g_cc_res_p.Eval(x))
-            CC_res_n_xsec = float(g_cc_res_n.Eval(x)) 
-            CC_mec_xsec = float(g_cc_mec.Eval(x))
-            CC_qel_n_xsec = float(g_cc_qel_n.Eval(x)) 
-            NC_n_xsec = float(g_nc_n.Eval(x))
-            NC_p_xsec = float(g_nc_p.Eval(x))
+            # CC_n_xsec = float(g_cc_n.Eval(x))
+            # CC_p_xsec = float(g_cc_p.Eval(x))
+            # CC_coh_xsec = float(g_cc_coh.Eval(x)) 
+            # CC_dis_xsec = float(g_cc_dis.Eval(x))
+            # CC_res_p_xsec = float(g_cc_res_p.Eval(x))
+            # CC_res_n_xsec = float(g_cc_res_n.Eval(x)) 
+            # CC_mec_xsec = float(g_cc_mec.Eval(x))
+            # CC_qel_n_xsec = float(g_cc_qel_n.Eval(x)) 
+            # NC_n_xsec = float(g_nc_n.Eval(x))
+            # NC_p_xsec = float(g_nc_p.Eval(x))
 
             # clip negatives to 0
             if CCxsec < 0: CCxsec = 0.0
             if NCxsec < 0: NCxsec = 0.0
-            if CC_n_xsec < 0: CC_n_xsec = 0.0
-            if CC_p_xsec < 0: CC_p_xsec = 0.0
-            if CC_coh_xsec < 0: CC_coh_xsec = 0.0 
-            if CC_dis_xsec < 0: CC_dis_xsec = 0.0
-            if CC_res_p_xsec < 0: CC_res_p_xsec = 0.0
-            if CC_res_n_xsec < 0: CC_res_n_xsec = 0.0
-            if CC_mec_xsec < 0: CC_mec_xsec = 0.0
-            if CC_qel_n_xsec < 0: CC_qel_n_xsec = 0.0
-            if NC_n_xsec < 0: NC_n_xsec = 0.0
-            if NC_p_xsec < 0: NC_p_xsec = 0.0
+            # if CC_n_xsec < 0: CC_n_xsec = 0.0
+            # if CC_p_xsec < 0: CC_p_xsec = 0.0
+            # if CC_coh_xsec < 0: CC_coh_xsec = 0.0 
+            # if CC_dis_xsec < 0: CC_dis_xsec = 0.0
+            # if CC_res_p_xsec < 0: CC_res_p_xsec = 0.0
+            # if CC_res_n_xsec < 0: CC_res_n_xsec = 0.0
+            # if CC_mec_xsec < 0: CC_mec_xsec = 0.0
+            # if CC_qel_n_xsec < 0: CC_qel_n_xsec = 0.0
+            # if NC_n_xsec < 0: NC_n_xsec = 0.0
+            # if NC_p_xsec < 0: NC_p_xsec = 0.0
 
             xsec = (CCxsec/12) + (NCxsec/12)
+            #xsec = (CCxsec/12)
             #xsec = CCxsec/12 
             #xsec = (CC_coh_xsec/12) + (CC_dis_xsec/12) + (CC_res_p_xsec/12) + (CC_res_n_xsec/12) + (CC_mec_xsec/12) + (CC_qel_n_xsec/12)
             #xsec = (CC_n_xsec/12) + (CC_p_xsec/12) + (CC_coh_xsec/12) + (CC_mec_xsec/12)
@@ -1613,6 +1677,7 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
    
     # Define new column in DataFrame from spline0 to give the right shape
     df = df.Define("weights", f"{func_name0}(Enu_true)")
+    #df = df.Define("weights", f"{func_name0}(Ev)") # for gst files 
 
     # df with weights give flux shape, bin_integral_unnorm give absolute scale for give Fscale (xsec, target, exposure, unit conversion)
     return df, bin_integral_unnorm

@@ -15,7 +15,7 @@ HOME = os.getenv("HOME", "/home/lboe")
 # ---- output directory ----
 experiment = "NOvA"
 outdir = f"{HOME}/t2k-nova/test"
-outfile = "ratio_ExtractedProd5_Travis_flux"
+outfile = "ExtractedProd6OnC_TravisFlux_Ratio.root"
 
 userFolder1 = f"/data/t2k-nova/FlatTrees"
 userFolder2 = f"/data/t2k-nova/Histograms"
@@ -28,28 +28,33 @@ userFolder4 = f"/data/t2k-nova/fluxes"
 AxisInfo = ['True E_{#nu}', 'GeV', 'Events', '', "title"]
 
 ratio_min = 0.8
-ratio_max = 1.4
+ratio_max = 1.2
 
 #### file1 should be the full MC from which we want to extract the flux
-file1 = f"{userFolder2}/CAFAnAprod5_AllFiles_skewfix.root"
-hist_name_1 = "hEnu_Numu"
+file1 = f"{userFolder2}/CAFAna_prod6_NumuOnC_200jobs.root"
+hist_name_1 = "TrueE"
 scale1 = 1/200
-WF = 1.55701627557e-12 # (26.6e20/5.54e21)*(3.89137e31/12)*1e-42
-#WF=1
-hist1_label = "Extracted Flux from CAFAnA"
+WF = 1.03739479e-12 # (26.6e20/5.54e21)*3.89137e31*.666271/12)*1e-42
+#WF = 1.55701627557e-12 # (26.6e20/5.54e21)*(3.89137e31/12)*1e-42 --> updated detector volume
+#WF=2.27628459687e-12 # (26.6e20/5.54e21)*(5.689e31/12)*1e-42 --> old detector volume
+hist1_label = "Extracted Flux from Prod6 on C"
+hist1_ratio_label = "Prod 6"
 
 #### file2 is the flux to which we will compare the extracted flux
 file2 = f"{userFolder4}/NOvAFlux50MeVTravis.root"
 hist_name_2 ="cafanauniq0"
 hist2_label = "Travis Flux 50 MeV"
+hist2_ratio_label = "Travis"
 # file3 = f"{userFolder3}/CC_tot.root"
 # file4 = f"{userFolder3}/CC_npCohMecD12.root"
 
 # Genie xsec paths
-pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/G1810a0211b-k250-e1000/data/xsec_graphs.root"
-#pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root"
+#pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/G1810j00000-k250-e1000/data/xsec_graphs.root"
+pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root"
+#pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/N1810j00000-k250-e1000-resfixfix/data/xsec_graphs.root"
 CCpath = "nu_mu_C12/tot_cc"
 NCpath = "nu_mu_C12/tot_nc"
+cc_qel_n = "nu_mu_C12/qel_cc_n"
 
 def rebin_hist_to_match(hsrc, href, name="h2_rebinned"):
     # build target bin edges from href
@@ -129,12 +134,14 @@ if not fx or fx.IsZombie():
 
 g_cc = fx.Get(CCpath)
 g_nc = fx.Get(NCpath)
+g_cc_qel_n = fx.Get(cc_qel_n)
 if not g_cc or not g_nc:
     fx.ls()
     raise RuntimeError(f"Missing graph(s): CC={CCpath} NC={NCpath}")
 
 g_cc = g_cc.Clone("g_cc")
 g_nc = g_nc.Clone("g_nc")
+g_cc_qel_n = g_cc_qel_n.Clone("g_cc_qel_n")
 fx.Close()
 
 # Make a new hist with identical binning
@@ -156,12 +163,15 @@ for i in range(1, hist1.GetNbinsX() + 1):
     # evaluate CC/NC xsecs at this energy
     CCxsec = float(g_cc.Eval(x))
     NCxsec = float(g_nc.Eval(x))
+    CC_qel_n_xsec = float(g_cc_qel_n.Eval(x)) 
 
     # clip negatives to 0
     if CCxsec < 0: CCxsec = 0.0
     if NCxsec < 0: NCxsec = 0.0
 
     xsec = (CCxsec) + (NCxsec)
+    #xsec = CC_qel_n_xsec
+    #xsec = (CCxsec)
     #xsec = 1
     ynew = y/(xsec*WF) 
     hist1Ex.SetBinContent(i, ynew)
@@ -295,7 +305,7 @@ r.SetTitle("")
 r.SetLineColor(ROOT.kBlack)
 r.SetLineWidth(1)
 
-r.GetYaxis().SetTitle(f"Extracted / {experiment}")
+r.GetYaxis().SetTitle(f"{hist1_ratio_label}/ {hist2_ratio_label}")
 r.GetYaxis().SetNdivisions(505)
 r.GetYaxis().SetTitleSize(0.10)
 r.GetYaxis().SetTitleOffset(0.70)
@@ -318,7 +328,7 @@ r.SetMaximum(ymax)
 # --- force a frame that definitely draws tick labels ---
 frame = ratioPad.DrawFrame(xmin, ymin, xmax, ymax)
 r.Draw("E1 SAME")
-frame.GetYaxis().SetTitle(f"Extracted / {experiment}")
+frame.GetYaxis().SetTitle(f"{hist1_ratio_label}/ {hist2_ratio_label}")
 frame.GetYaxis().SetNdivisions(505)
 frame.GetYaxis().SetTitleSize(0.10)
 frame.GetYaxis().SetTitleOffset(0.70)
