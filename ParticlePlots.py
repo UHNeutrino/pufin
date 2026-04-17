@@ -1558,7 +1558,9 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
         g_nc = g_nc.Clone("g_nc")
         fx.Close()
     elif xspline == "N":
-        pathx = "/data/t2k-nova/xsec-splines/totpau.tbl"
+        pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4totpau.tbl"
+        #pathx = "/data/t2k-nova/xsec-splines/NEUT5_9_0totpau.tbl"
+        NEUT5_6_4totpau.tbl
         xs, ys = [], []
 
         with open(pathx, "r") as f:

@@ -3,33 +3,35 @@
         {
             "userFolder":"/data/t2k-nova/FlatTrees",
             "treeName":"FlatTree_VARS",
-            "Save": "UHMCVerification",
+            //"treeName":"gst",
+            "Save": "t2k-nova/test/April15",
             "DebugLvl":0,
             "EvisB": false,
             "KinematicsB":false,
             "TkiB": false,
             "ThresholdsB": false,
-            "Ext": "png",
+            "Ext": "root",
             "DebugPrint":0,
-            "DebugMode":false,
+            "DebugMode":false
 
         },
     "plots":
         {
-            "Bool": true,
-            "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 2.54e-7, "N", false, true],
-            "Gen":"NEUT5.9",
+            "Bool": false,
+            //"reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 2.54e-7, "N", false, true],
+            "reWeight":[true, "/data/t2k-nova/fluxes/Extracted/ExtractedProd6NumuOnC_TravisFlux_Ratio.root","h2", 1.244873749e-11, "G", false, false],
+            "Gen":"GenieN24",
             "Flux":"flatf_1e7",
             "Type":"1D",
             // Specify the cut for the dataframe. For no cuts, type ""
             "Cut": "flagCCINC == true",
             "Var1": "Enu_true",
             "Var2": "",
-            "AxisInfo":"True E_{#nu}, GeV, Interactions,  , UHMC Neutrino Energy for CC events on Carbon",
+            "AxisInfo":"Muon KE, GeV, Interactions,  , UHMC for CC events on Carbon",
             "Bins": [160, 0, 8], // [60,-2.0,1.0,80,0,180],
             "VBins":[true,[0.0, 0.1, 0.2, 0.34, 0.4, 0.5, 0.6, 0.70, 0.8, 0.9, 1.0, 1.1, 1.200, 1.3, 1.40, 1.5, 1.6, 1.7, 1.8, 1.91, 2.0, 2.1, 2.2, 2.3, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.5, 5.0, 6.0, 7.0, 8.0] ],
-            "Name": "UHMCCConC2",
-            "Ext": "root",
+            "Name": "UHMCCConC",
+            "Ext": "png",
             "Norm": false,
             "max": -1, 
             "logz": false,
@@ -77,15 +79,15 @@
         },
     "1DSame":
         {
-            "Bool": false,
-            "Cut": "flatCCINC==true",
-            "AxisInfo": "Enu_true, GeV/c, Frequency, , ",// @ NOvA 1 Pion Q2 & W cuts", //Q2
+            "Bool": true,
+            "Cut": "",
+            "AxisInfo": "True E_{#nu}, GeV, Interactions, , ",// @ NOvA 1 Pion Q2 & W cuts", //Q2
             //"AxisInfo": "#deltaP_{T}, GeV/c, Frequency, , QE Delta PT x & y for Leading Proton", //PLep
             "Bins": [160, 0, 8],
             //If VBins is true, treats the second element as bin edges
             "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
-            "Name": "CCCarbonTest",
-            "Ext": "png",
+            "Name": "N18onC_Prod6onCFlux",
+            "Ext": "root",
             "Norm": false,
             "logy": false,
             "ErrorBars": false,
@@ -95,22 +97,30 @@
             "RatioRange": [0, 1.5],           
             "Plots": [
             {
-            "Key": "Genie",
-            "File": "GenieN24_flatf_1e7",
-            "Label": "NOvA Flux",
-            "Color": "kRed",
-            "reWeight":[true, "/data/t2k-nova/fluxes/Prod6extracted_Travis50MeV_flux_ratio.root","h1", 1.86841953e-11, "G", false, false],
-            "Var": "Enu_true"
-            },
-            {
-            "Key": "NEUTT2K", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
-            "File": "Flat_NEUT5.9_flatf_1e7",
-            "Label": "NEUT T2K",
-            "Color": "kBlue",
-            "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 2.75e-7, "N", false, true], //boolian to start, file location, scaling factor (put 1 for nothing), area norm bool, multiply by bin with bool
-            "Var": "Enu_true"
-            },
-            
+                "Key": "Genie",
+                "File": "N1810j00000_FlatFlux_9.5e6.gst",
+                //"File": "N1810j00000_FlatFlux_9.5e6.gst",
+                //"Cut": "flagCCINC == true && Mode == 1",
+                "Label": "",
+                "Color": "kBlack",
+                //"reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_finebins.root","enu_nd5_23a_untuned_numu", 2.79276e-7, "N", false, true],
+                //"reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 1, false, false], //boolian to start, file location, scaling factor (put 1 for nothing), area norm bool, multiply by bin with bool
+                //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 8410, "G", false, true],
+                //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 103465.75, "G", false, true],
+                "reWeight":[true, "/data/t2k-nova/fluxes/Extracted/ExtractedProd6OnC_TravisFlux_Ratio.root","h1", 1.244873749e-11, "G", false, false],
+                //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 1, "", false, true],
+                //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 243932, false, true],
+                //"reWeight":[true, "/data/t2k-nova/fluxes/NOvAFlux.root","cafanauniq0", 8.8e-10, false, false],
+                "Var": "Enu_true"
+                }
+                // {
+                // "Key": "NEUTT2K", // "Key" is distinguishing feature between plots, it could be the variable, or the file, or the cut...
+                // "File": "Flat_NEUT5.9_flatf_1e7",
+                // "Label": "NEUT T2K",
+                // "Color": "kBlue",
+                // "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu", 6.718e-6, false, true], //boolian to start, file location, scaling factor (put 1 for nothing), area norm bool, multiply by bin with bool
+                // "Var": "Enu_true"
+                // }
             ]
         },
     "Contour":
