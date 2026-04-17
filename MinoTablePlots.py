@@ -188,10 +188,23 @@ for Qkeym, Qvalue in Q2evo.items():
                 hist.GetXaxis().SetLabelOffset(999) # hide x axis labels
                 top_histo = False
                 
-            color = getattr(ROOT, color_str.split("+")[0]) + int(color_str.split("+")[1]) if "+" in color_str else getattr(ROOT, color_str)
+            #color = getattr(ROOT, color_str.split("+")[0]) + int(color_str.split("+")[1]) if "+" in color_str else getattr(ROOT, color_str)
+            color_str = plot["Color"].strip()
+
+            if "+" in color_str:
+                base, offset = color_str.split("+")
+                color = getattr(ROOT, base.strip()) + int(offset.strip())
+            elif "-" in color_str:
+                base, offset = color_str.split("-")
+                color = getattr(ROOT, base.strip()) - int(offset.strip())
+            elif color_str.lstrip("-").isdigit():
+                color = int(color_str)
+            else:
+                color = getattr(ROOT, color_str)
+            
             hist.SetLineColor(color)
             hist.SetLineStyle(plot["Style"])
-            hist.SetLineWidth(1)
+            hist.SetLineWidth(2)
             # if (histCounter == 0):
             #     hist.SetLineWidth(2)
             # ^This could be better
@@ -214,30 +227,32 @@ for Qkeym, Qvalue in Q2evo.items():
             legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79) ## most plots
             # legend = ROOT.TLegend(0.3, 0.6, 0.4, 0.75) ## most plots
             fakeHist1 = ROOT.TH1D()
-            fakeHist1.SetLineColor(ROOT.kRed)
-            legend.AddEntry(fakeHist1, "NO#nuA Interaactions", "l")
+            fakeHist1.SetLineColor(ROOT.kGray+1)
+            #legend.AddEntry(fakeHist1, "NO#nuA Interaactions", "l")
             #legend.AddEntry(fakeHist1, "NO#nuA Flux", "l")
-            legend.AddEntry(fakeHist1, "NO#nuA Interactions", "l")
+            legend.AddEntry(fakeHist1, "No Thresholds", "l")
 
             fakeHist2 = ROOT.TH1D()
-            fakeHist2.SetLineColor(ROOT.kBlue)
+            #fakeHist2.SetLineColor(ROOT.kBlue)
+            fakeHist2.SetLineColor(ROOT.kMagenta+1)
             #legend.AddEntry(fakeHist2, "T2K Flux", "l")
-            legend.AddEntry(fakeHist2, "T2K Interactions x 30", "l")
+            #legend.AddEntry(fakeHist2, "T2K Interactions x 30", "l")
+            legend.AddEntry(fakeHist2, "Angle Thresholds", "l")
 
             fakeHist3 = ROOT.TH1D()
-            fakeHist3.SetLineColor(ROOT.kBlack)
-            fakeHist3.SetLineStyle(1)
-            legend.AddEntry(fakeHist3, "No Thresholds", "l")
+            #fakeHist3.SetLineColor(ROOT.kBlack)
+            fakeHist3.SetLineColor(ROOT.kAzure+10)
+            #fakeHist3.SetLineStyle(2)
+            #legend.AddEntry(fakeHist3, "No Thresholds", "l")
             #legend.AddEntry(fakeHist3, "NEUT", "l")
-            legend.AddEntry(fakeHist3, "No Thresholds", "l")
+            legend.AddEntry(fakeHist3, "Energy Thresholds", "l")
 
             fakeHist4 = ROOT.TH1D()
+            #fakeHist4.SetLineColor(ROOT.kBlack)
             fakeHist4.SetLineColor(ROOT.kBlack)
-            fakeHist4.SetLineStyle(2)
-            legend.AddEntry(fakeHist4, "With Thresholds", "l")
-            
-            #legend.AddEntry(fakeHist4, "GENIE", "l")
-            legend.AddEntry(fakeHist4, "With Thresholds", "l")
+            #fakeHist4.SetLineStyle(2)
+            #legend.AddEntry(fakeHist4, "With Thresholds", "l")
+            legend.AddEntry(fakeHist4, "All Thresholds", "l")
         
             # fakeHist3 = ROOT.TH1D()
             # fakeHist3.SetLineColor(ROOT.kBlack)

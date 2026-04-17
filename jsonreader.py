@@ -274,7 +274,7 @@ def MakeSame1D(same1D,GlobalSettings):
         key = plot["Key"]
         color_str = plot["Color"]
         label = plot["Label"]
-        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = same1D["reWeight"]
+        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = plot["reWeight"]
         Var = plot["Var"]
         hist_order.append(key)
 
@@ -288,9 +288,11 @@ def MakeSame1D(same1D,GlobalSettings):
         print(f"Processing {file_path}")
 
         #df = pp.CreateDataFrame(file_path, same1D["Cut"])
+        #df = pp.CreateDataFrame(file_path, cut = "cc == true && qel == true")
         df = pp.CreateDataFrame(file_path, cut = "None")
         # unfiltered = df.Count().GetValue()
         # df = df.Filter("Enu_true < 8.0 ")
+        #df = df.Filter("Ev < 8.0 ") ## for gst files
         # frakLost = 1.0 - df.Count().GetValue()/unfiltered
         # print(f"Fraction lost from E Nu cut: {frakLost}")
         # print(f"Events lost from E Nu cut: {unfiltered - df.Count().GetValue()}")
@@ -350,6 +352,7 @@ def MakeSame1D(same1D,GlobalSettings):
             histInfo = varBinInfo
         if weight_col:
             rdf_hist = df.Histo1D(histInfoScale, 'Enu_true', weight_col)
+            #rdf_hist = df.Histo1D(histInfoScale, 'Ev', weight_col) ## for gst files
         else:
             rdf_hist = df.Histo1D(histInfo, plot["Var"])
 
@@ -364,7 +367,8 @@ def MakeSame1D(same1D,GlobalSettings):
         if reweight_flag:
             if (Fscale != 1 or undoNormB):
                 target = bin_integral_unnorm
-                current = hist.Integral() 
+                current = df.Sum(weight_col).GetValue()
+                #current = hist.Integral() 
                 print("uncut bin integral")
                 print(current)
                 s = target / current
