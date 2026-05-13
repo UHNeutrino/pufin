@@ -4,7 +4,7 @@
             "userFolder":"/data/t2k-nova/FlatTrees",
             "treeName":"FlatTree_VARS",
             //"treeName":"gst",
-            "Save": "t2k-nova/test/April15",
+            "Save": "UHMCVerification/InputChecks",
             "DebugLvl":0,
             "EvisB": false,
             "KinematicsB":false,
@@ -17,22 +17,24 @@
         },
     "plots":
         {
-            "Bool": false,
-            //"reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 2.54e-7, "N", false, true],
-            "reWeight":[true, "/data/t2k-nova/fluxes/Extracted/ExtractedProd6NumuOnC_TravisFlux_Ratio.root","h2", 1.244873749e-11, "G", false, false],
-            "Gen":"GenieN24",
-            "Flux":"flatf_1e7",
+            "Bool": true,
+            // "reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu", 3.35e-7, "N564C", false, true],
+            // "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 3.35e-7, "N564C", false, true],
+            "reWeight":[true, "/data/t2k-nova/fluxes/21bv2/run4/nd5_tuned21bv2_13anom_run4_numode_fine.root","enu_nd5_21b_real_numu", 1.466e-8, "N564O", false, true],
+            // "reWeight":[true, "/data/t2k-nova/fluxes/Extracted/ExtractedProd6NumuOnC_TravisFlux_Ratio.root","h2", 1.244873749e-11, "G", false, false],
+            "Gen":"NEUT5.6.4",
+            "Flux":"FFO7ECard",
             "Type":"1D",
             // Specify the cut for the dataframe. For no cuts, type ""
             "Cut": "flagCCINC == true",
             "Var1": "Enu_true",
             "Var2": "",
-            "AxisInfo":"Muon KE, GeV, Interactions,  , UHMC for CC events on Carbon",
+            "AxisInfo":"#nu Energy, GeV, Interactions,  , UHMC CCOxygen Spectrum",
             "Bins": [160, 0, 8], // [60,-2.0,1.0,80,0,180],
-            "VBins":[true,[0.0, 0.1, 0.2, 0.34, 0.4, 0.5, 0.6, 0.70, 0.8, 0.9, 1.0, 1.1, 1.200, 1.3, 1.40, 1.5, 1.6, 1.7, 1.8, 1.91, 2.0, 2.1, 2.2, 2.3, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.5, 5.0, 6.0, 7.0, 8.0] ],
-            "Name": "UHMCCConC",
-            "Ext": "png",
-            "Norm": false,
+            "VBins":[false,[0.0, 0.1, 0.2, 0.34, 0.4, 0.5, 0.6, 0.70, 0.8, 0.9, 1.0, 1.1, 1.200, 1.3, 1.40, 1.5, 1.6, 1.7, 1.8, 1.91, 2.0, 2.1, 2.2, 2.3, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.5, 5.0, 6.0, 7.0, 8.0] ],
+            "Name": "UHMCProd7E21bv2O2",
+            "Ext": "root",
+            "Norm": true,
             "max": -1, 
             "logz": false,
             "profileX": false, // only works with 2D
@@ -41,17 +43,17 @@
     "stacks":
         {
             "Bool":false,
-            "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 1, "", true, false],
-            "Gen":"NEUT5.9",
-            "Flux":"flatf_1e7",
+            "reWeight":[false, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 1, "", true, false],
+            "Gen":"NEUT5.6.4",
+            "Flux":"FFCH7ECard",
             "Type":"1D", //Only 1D works
-            "Cut": "", // For no cuts, type ""
+            "Cut": "flagCCINC == true && tgt == 1000010010", // For no cuts, type ""
             "Var1": "Enu_true",
-            "StackCuts":{"Mode == 1": "QE", "Mode == 2":"2p2h", "flagCC0pi == 1 && (Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)":"Pion Abs"}, //, "Mode == 26":"DIS"},
-            "Colors":"600, 416, 880, 800",
-            "AxisInfo":"#nu Energy, GeV, counts, ,Stacks Test",
+            "StackCuts":{"Mode == 1": "QE", "Mode == 2":"2p2h", "( Mode ==  12 || Mode == 13 || Mode == 14 )":"Neutron Resonance", "(Mode == 11 )":"Proton Resonance","( Mode == 15 )":"Diffractive Channel", "Mode == 16":"Coherent Scatter", "!(Mode==1 || Mode == 2 ||  Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 11 || Mode == 15 || Mode == 16) && flagCCINC == true":"Other"}, //, "Mode == 26":"DIS"},
+            "Colors":"600, 416, 880, 800, 802, 920, 1",
+            "AxisInfo":"#nu Energy, GeV, Unscaled Interactions, , Hydrogen in CH Stacked CC events",
             "Bins": [160, 0, 8], 
-            "Name": "StacksArea",
+            "Name": "HinCHStackedWOther",
             "Ext": "png",
             // THE FOLLOWING IS NOT WORKING
             "Norm": false,
@@ -79,14 +81,14 @@
         },
     "1DSame":
         {
-            "Bool": true,
-            "Cut": "",
-            "AxisInfo": "True E_{#nu}, GeV, Interactions, , ",// @ NOvA 1 Pion Q2 & W cuts", //Q2
+            "Bool": false,
+            "Cut": "flagCCINC == true",
+            "AxisInfo": "True E_{#nu}, GeV, Unscaled Interactions, , CH and C Interactions by channel from flat flux",// @ NOvA 1 Pion Q2 & W cuts", //Q2
             //"AxisInfo": "#deltaP_{T}, GeV/c, Frequency, , QE Delta PT x & y for Leading Proton", //PLep
             "Bins": [160, 0, 8],
             //If VBins is true, treats the second element as bin edges
             "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
-            "Name": "N18onC_Prod6onCFlux",
+            "Name": "1DTest",
             "Ext": "root",
             "Norm": false,
             "logy": false,
@@ -96,21 +98,29 @@
             "RatioOf": ["FSI","NoFSI"], // numerator,denominator by plot Key
             "RatioRange": [0, 1.5],           
             "Plots": [
-            {
-                "Key": "Genie",
-                "File": "N1810j00000_FlatFlux_9.5e6.gst",
-                //"File": "N1810j00000_FlatFlux_9.5e6.gst",
-                //"Cut": "flagCCINC == true && Mode == 1",
-                "Label": "",
-                "Color": "kBlack",
+                {
+                "Key": "NEUT5.6.4",
+                "File": "FFCH7ECard",
+                "Cut": " Mode == 1",
+                "Label": "Carbon QE",
+                "Color": "kBlue",
                 //"reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_finebins.root","enu_nd5_23a_untuned_numu", 2.79276e-7, "N", false, true],
                 //"reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 1, false, false], //boolian to start, file location, scaling factor (put 1 for nothing), area norm bool, multiply by bin with bool
                 //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 8410, "G", false, true],
                 //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 103465.75, "G", false, true],
-                "reWeight":[true, "/data/t2k-nova/fluxes/Extracted/ExtractedProd6OnC_TravisFlux_Ratio.root","h1", 1.244873749e-11, "G", false, false],
+                "reWeight":[false, "/data/t2k-nova/fluxes/Extracted/ExtractedProd6OnC_TravisFlux_Ratio.root","h1", 1.244873749e-11, "G", false, false],
                 //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 1, "", false, true],
                 //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 243932, false, true],
                 //"reWeight":[true, "/data/t2k-nova/fluxes/NOvAFlux.root","cafanauniq0", 8.8e-10, false, false],
+                "Var": "Enu_true"
+                },
+                {
+                "Key": "NEUT5.6.4",
+                "File": "FFCH7ECard",
+                "Cut": "Mode == 2",
+                "Label": "Carbon 2p2h",
+                "Color": "kGreen",
+                "reWeight":[false, "/data/t2k-nova/fluxes/Extracted/ExtractedProd6OnC_TravisFlux_Ratio.root","h1", 1.244873749e-11, "G", false, false],
                 "Var": "Enu_true"
                 }
                 // {

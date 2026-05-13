@@ -1077,7 +1077,7 @@ def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path, Normalize = 0)
 
     # Add legend
     legend = ROOT.TLegend(0.7, 0.7, 0.9, 0.9)  # Define legend position
-    for i in range(len(Legend)):
+    for i in range(len(Legend)-1, -1, -1):
         if Normalize==1:
             # scale = 1/(histlist[i].Integral())
             # print(scale)
@@ -1505,8 +1505,14 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
     ##########################################################################################
     
     # ABSOLUTE SCALE: Convert bin normalized histo to "per-bin" contents and apply Fscale
+    Gen_code = xspline[0]
+    VersionCode = xspline.replace(Gen_code,"")
+    # print(Gen_code)
+    # print(VersionCode)
+    # print(xspline)
+    # exit()
 
-    if xspline == "G":
+    if Gen_code == "G":
         pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root"
         #pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/N1810j00000-k250-e1000-resfixfix/data/xsec_graphs.root"
         #pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/G1810j00000-k250-e1000/data/xsec_graphs.root"
@@ -1557,16 +1563,41 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
         # g_nc_p = g_nc_p.Clone("g_nc_p")
         g_nc = g_nc.Clone("g_nc")
         fx.Close()
-    elif xspline == "N564":
-        pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4totpau.tbl"
-        NEUT5_6_4totpau.tbl
-        xs, ys = [], []
-        
-    elif xspline == "N590":
-        pathx = "/data/t2k-nova/xsec-splines/NEUT5_9_0totpau.tbl"
-        NEUT5_9_0totpau.tbl
-        xs, ys = [], []
 
+    
+    elif Gen_code == "N":
+        if VersionCode == "564C":
+            pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Carbontotpau.tbl"
+            #NEUT5_6_4totpau.tbl
+            xs, ys = [], []
+        elif VersionCode == "564CBase":
+            pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Carbontotpau_base.tbl"
+            #NEUT5_6_4totpau.tbl
+            xs, ys = [], []
+        elif VersionCode == "564H":
+            pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Hydrototpau.tbl"
+            #NEUT5_6_4totpau.tbl
+            xs, ys = [], []
+        elif VersionCode == "564CH":
+            pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4HydroCarbontotpau.tbl"
+            #NEUT5_6_4totpau.tbl
+            xs, ys = [], []
+        elif VersionCode == "564O":
+            pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Oxytotpau.tbl"
+            #NEUT5_6_4totpau.tbl
+            xs, ys = [], []
+        elif VersionCode == "564O":
+            pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Oxytotpau_base.tbl"
+            #NEUT5_6_4totpau.tbl
+            xs, ys = [], []
+            
+        elif VersionCode == "590":
+            pathx = "/data/t2k-nova/xsec-splines/NEUT5_9_0totpau.tbl"
+            #NEUT5_9_0totpau.tbl
+            xs, ys = [], []
+        else:
+            raise Exception("No Neut Version/Target Found")
+        
         with open(pathx, "r") as f:
             for line in f:
                 line = line.strip()
@@ -1601,12 +1632,18 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
 
         # Make spline
         neut_spline = ROOT.TSpline3("neut_spline", g)
+        print(str(neut_spline.Eval(1)))
+    
+    else:
+        raise Exception("No Matching Generator code (G/N)")
+
 
     ##########################################################################
     #h_xsec = make_xsec_hist_like_flux(hist, g_cc, g_nc, name="h_xsec")
     ##########################################################################
     
-    bin_integral_unnorm = 0.0   
+    bin_integral_unnorm = 0.0  
+    xsecTester = 0 
     for i in range(1, hist.GetNbinsX() + 1):
         x = hist.GetBinCenter(i)
         if x > 8.0: # Integrals aren't totally matching up when I use this
@@ -1652,13 +1689,21 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
             #xsec = (CC_coh_xsec/12) + (CC_dis_xsec/12) + (CC_res_p_xsec/12) + (CC_res_n_xsec/12) + (CC_mec_xsec/12) + (CC_qel_n_xsec/12)
             #xsec = (CC_n_xsec/12) + (CC_p_xsec/12) + (CC_coh_xsec/12) + (CC_mec_xsec/12)
             #xsec = (CC_n_xsec/12) + (CC_p_xsec/12) + (NC_n_xsec/12) + (NC_p_xsec/12)
-        elif xspline == "N":
+        elif xspline[0] == "N":
             xsec = float(neut_spline.Eval(x))
             if xsec < 0: xsec = 0.0
             
         else:
             xsec = 1
         
+       
+        while xsecTester<11:
+            print("xsec")
+            print(xsec)
+            xsecTester += 1
+
+
+
         if undoNormB == True:
             bin_integral_unnorm += y * w * Fscale * xsec   # multiply each bin by its width, then Fscale
             #bin_integral_unnorm += y * y_xsec * w * Fscale
@@ -1680,6 +1725,28 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
             return {spline_name0}->Eval(E);
         }}
     """)
+
+    ##################################################
+    #PULL OUT SPLINE TO LOOK AT ################
+    # Create a TF1 using your declared C++ function
+    # Replace E_min, E_max with your energy range
+    # print(type(getattr(ROOT, spline_name0)))
+    # tf1 = getattr(ROOT, spline_name0)
+
+
+    # # Style it
+    # tf1.SetLineColor(ROOT.kBlue)
+    # tf1.SetLineWidth(2)
+    # tf1.SetTitle("Carbon Spline xsec * flux * WF ;E [units]; Interaction weight")
+
+    # # Draw
+    # canvas = ROOT.TCanvas("c", "Spline", 800, 600)
+    # tf1.Draw()
+    # canvas.Update()
+    # tf1.GetHistogram().GetXaxis().SetRangeUser(0, 8)
+    # canvas.Update()
+    # canvas.SaveAs("N590Spline.png")
+    # exit()
    
     # Define new column in DataFrame from spline0 to give the right shape
     df = df.Define("weights", f"{func_name0}(Enu_true)")

@@ -53,7 +53,7 @@ def MakePlots(plots, GlobalSettings):
 
         if plots["Type"] == "1D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
-            if plots["VBins"][1]:
+            if plots["VBins"][0]:
                 histInfo = varBinInfo
             if(plots["reWeight"][0]):
                 hist = df.Histo1D(histInfo,plots["Var1"],"weights")
@@ -61,7 +61,7 @@ def MakePlots(plots, GlobalSettings):
                 hist = df.Histo1D(histInfo,plots["Var1"])
         if plots["Type"] == "2D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
-            if plots["VBins"][1]:
+            if plots["VBins"][0]:
                 histInfo = varBinInfo
             if(plots["reWeight"][0]):
                 hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"],"weights")
