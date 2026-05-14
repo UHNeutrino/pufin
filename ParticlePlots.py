@@ -1655,7 +1655,7 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
         ########################################################################
         
         # evaluate CC/NC xsecs at this energy
-        if xspline == "G":
+        if Gen_code == "G":
             CCxsec = float(g_cc.Eval(x))
             NCxsec = float(g_nc.Eval(x))
             # CC_n_xsec = float(g_cc_n.Eval(x))
@@ -1689,28 +1689,28 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
             #xsec = (CC_coh_xsec/12) + (CC_dis_xsec/12) + (CC_res_p_xsec/12) + (CC_res_n_xsec/12) + (CC_mec_xsec/12) + (CC_qel_n_xsec/12)
             #xsec = (CC_n_xsec/12) + (CC_p_xsec/12) + (CC_coh_xsec/12) + (CC_mec_xsec/12)
             #xsec = (CC_n_xsec/12) + (CC_p_xsec/12) + (NC_n_xsec/12) + (NC_p_xsec/12)
-        elif xspline[0] == "N":
+        elif Gen_code == "N":
             xsec = float(neut_spline.Eval(x))
             if xsec < 0: xsec = 0.0
             
         else:
-            xsec = 1
+            raise Exception("No Matching Generator code (G/N)")
         
        
-        while xsecTester<11:
-            print("xsec")
-            print(xsec)
-            xsecTester += 1
+        # while xsecTester<11:
+        #     print("xsec")
+        #     print(xsec)
+        #     xsecTester += 1
 
 
 
         if undoNormB == True:
-            bin_integral_unnorm += y * w * Fscale * xsec   # multiply each bin by its width, then Fscale
+            bin_integral_unnorm += y * w * Fscale * xsec * 12   # multiply each bin by its width, then Fscale
             #bin_integral_unnorm += y * y_xsec * w * Fscale
         else:
-            bin_integral_unnorm += y * Fscale * xsec
+            bin_integral_unnorm += y * Fscale * xsec * 12
             #bin_integral_unnorm += y * y_xsec * Fscale
-        
+    bin_integral_unnorm /= 12
 
     print("bin integral after (content*width*Fscale) =", bin_integral_unnorm)
 
@@ -1737,7 +1737,7 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
     # # Style it
     # tf1.SetLineColor(ROOT.kBlue)
     # tf1.SetLineWidth(2)
-    # tf1.SetTitle("Carbon Spline xsec * flux * WF ;E [units]; Interaction weight")
+    # tf1.SetTitle("HydroCarbon Spline xsec * flux * WF ;E [units]; Interaction weight")
 
     # # Draw
     # canvas = ROOT.TCanvas("c", "Spline", 800, 600)
@@ -1745,8 +1745,9 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
     # canvas.Update()
     # tf1.GetHistogram().GetXaxis().SetRangeUser(0, 8)
     # canvas.Update()
-    # canvas.SaveAs("N590Spline.png")
+    # canvas.SaveAs("STUPIDSPLINE.png")
     # exit()
+    ##############################################################
    
     # Define new column in DataFrame from spline0 to give the right shape
     df = df.Define("weights", f"{func_name0}(Enu_true)")
