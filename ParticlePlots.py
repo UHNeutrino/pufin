@@ -1507,6 +1507,9 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
     # ABSOLUTE SCALE: Convert bin normalized histo to "per-bin" contents and apply Fscale
     Gen_code = xspline[0]
     VersionCode = xspline.replace(Gen_code,"")
+    if Gen_code == "N" and VersionCode[0]=="R":
+        ChannelCode = VersionCode[-2] + VersionCode[-1]
+        VersionCode = VersionCode.replace(ChannelCode,"")
     # print(Gen_code)
     # print(VersionCode)
     # print(xspline)
@@ -1565,33 +1568,33 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
         fx.Close()
 
     
-    elif Gen_code == "N":
-        if VersionCode == "564C":
+    elif Gen_code == "N" and VersionCode[0]=="T":
+        if VersionCode == "T564C":
             pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Carbontotpau.tbl"
             #NEUT5_6_4totpau.tbl
             xs, ys = [], []
-        elif VersionCode == "564CBase":
+        elif VersionCode == "T564CBase":
             pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Carbontotpau_base.tbl"
             #NEUT5_6_4totpau.tbl
             xs, ys = [], []
-        elif VersionCode == "564H":
+        elif VersionCode == "T564H":
             pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Hydrototpau.tbl"
             #NEUT5_6_4totpau.tbl
             xs, ys = [], []
-        elif VersionCode == "564CH":
+        elif VersionCode == "T564CH":
             pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4HydroCarbontotpau.tbl"
             #NEUT5_6_4totpau.tbl
             xs, ys = [], []
-        elif VersionCode == "564O":
+        elif VersionCode == "T564O":
             pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Oxytotpau.tbl"
             #NEUT5_6_4totpau.tbl
             xs, ys = [], []
-        elif VersionCode == "564O":
+        elif VersionCode == "T564O":
             pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Oxytotpau_base.tbl"
             #NEUT5_6_4totpau.tbl
             xs, ys = [], []
             
-        elif VersionCode == "590":
+        elif VersionCode == "T590":
             pathx = "/data/t2k-nova/xsec-splines/NEUT5_9_0totpau.tbl"
             #NEUT5_9_0totpau.tbl
             xs, ys = [], []
@@ -1632,10 +1635,60 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
 
         # Make spline
         neut_spline = ROOT.TSpline3("neut_spline", g)
-        print(str(neut_spline.Eval(1)))
+        # print(str(neut_spline.Eval(1)))
+    elif Gen_code == "N" and VersionCode[0]=="R":
+        xs, ys = [], []
+        if VersionCode == "R564C":
+            xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root"
+        elif VersionCode == "R564cH10000":
+            xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecscH10000.root"
+        elif VersionCode == "R564O":
+            xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsO.root"
+        else:
+            raise RuntimeError(f"No Neut xsec Found \'{VersionCode}\'")
+        
+        #### Making a list of the hist names
+        HistnameNuMu = "neut_xsec_numu"
+        if ChannelCode == "cc":
+            HistEnding = ["_ccqe", "_npnh", "_ccppip", "_ccppi0", "_ccnpip", "_ccdif", "_cccoh", "_ccgam", "_ccmpi", "_cceta", "_cck", "_ccdis"]
+        elif ChannelCode == "in":
+            HistEnding = ["tot"]
+        elif ChannelCode == "nc":
+            raise RuntimeError(f"NC UNDER CONSTRUCTION")
+        else:
+            raise RuntimeError(f"No Channel found \'{ChannelCode}\'")
+        HistNameList = []
+        for i in range(len(HistEnding)):
+            HistNameList.append(HistnameNuMu + HistEnding[i])
+        ### Grabbing all the relevent xsec TH1Ds within the xsec.root file and adding them together
+        xsecTFile = ROOT.TFile(xpath)
+        for i in range(0,len(HistNameList)):
+            xsecHist = xsecTFile.Get(HistNameList[i])
+            # print(f"Got {HistNameList[i]}")
+            for j in range(1, xsecHist.GetNbinsX()+1):
+                if i == 0:
+                    xs.append(xsecHist.GetBinCenter(j))
+                    ys.append(0)
+                ys[j-1] += xsecHist.GetBinContent(j)
+        xsecTFile.Close()
+        # Build TGraph
+        g = ROOT.TGraph(len(xs))
+        for i, (x, y) in enumerate(zip(xs, ys)):
+            g.SetPoint(i, x, y)
+        # Make spline
+        # neut_spline = ROOT.TSpline3("neut_spline", g)
+        neut_spline = g
+        print(str(g.Eval(3)))
+        print(str(neut_spline.Eval(3)))
+        ###### SAVE SPLINE #############################
+        # f_out = ROOT.TFile("splines.root", "RECREATE")
+        # neut_spline.Write()
+        # f_out.Close()
+        # exit()
+        ###############
     
     else:
-        raise Exception("No Matching Generator code (G/N)")
+        raise Exception("No Matching Generator code (G/NT or NR)")
 
 
     ##########################################################################
@@ -1690,27 +1743,34 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
             #xsec = (CC_n_xsec/12) + (CC_p_xsec/12) + (CC_coh_xsec/12) + (CC_mec_xsec/12)
             #xsec = (CC_n_xsec/12) + (CC_p_xsec/12) + (NC_n_xsec/12) + (NC_p_xsec/12)
         elif Gen_code == "N":
-            xsec = float(neut_spline.Eval(x))
+            xsec = neut_spline.Eval(x)
+            xsec *= 1e38
+            if xsecTester<10:
+                print("xsec")
+                print(xsec)
+                print("X")
+                print(x)
+                print("i")
+                print(i)
+                
+                xsecTester += 1
             if xsec < 0: xsec = 0.0
             
         else:
             raise Exception("No Matching Generator code (G/N)")
         
        
-        # while xsecTester<11:
-        #     print("xsec")
-        #     print(xsec)
-        #     xsecTester += 1
+        
 
 
 
         if undoNormB == True:
-            bin_integral_unnorm += y * w * Fscale * xsec * 12   # multiply each bin by its width, then Fscale
+            bin_integral_unnorm += y * w * Fscale * xsec  # multiply each bin by its width, then Fscale
             #bin_integral_unnorm += y * y_xsec * w * Fscale
         else:
-            bin_integral_unnorm += y * Fscale * xsec * 12
+            bin_integral_unnorm += y * Fscale * xsec
             #bin_integral_unnorm += y * y_xsec * Fscale
-    bin_integral_unnorm /= 12
+
 
     print("bin integral after (content*width*Fscale) =", bin_integral_unnorm)
 
