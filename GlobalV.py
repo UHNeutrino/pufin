@@ -20,3 +20,31 @@ FGD1 = {
     "Oxygen":0.04472,
     "Titanium":0.1632
 }
+
+NeutCardModes = {"CC": "NEUT-CRS 1 1 1 1 1 0 0 0 0  0  0  0  0  1  0  1  0  0  1  0  0  0  1  0  1  0  0  1  1  0\n",
+                 "NC": "NEUT-CRS 0 0 0 0 0 1 1 1 1  1  1  1  1  0  1  0  1  1  0  1  1  1  0  1  0  1  1  0  0  1\n"}
+NeutCardFlavors = {"NuMu": "EVCT-IDPT 14 \n",
+                    "NuMuB":"EVCT-IDPT -14 \n",
+                    "NuE": "EVCT-IDPT 12 \n",
+                    "NuEB": "EVCT-IDPT -12 \n"}
+NeutCardTunes = {
+    "Prod7E":"""EVCT-MPOS 1
+EVCT-POS  0. 0. 0.
+EVCT-MDIR 1
+EVCT-DIR 0. 0. 1.
+EVCT-MPV 3
+EVCT-INMEV 0
+NEUT-PAUL 1
+NEUT-IRADCORR 2
+NEUT-MODE   -1
+NEUT-MAQE 1.21
+NEUT-MDLQE 402
+NEUT-SFCORRNNFRAC 0.3
+NEUT-MDL2P2H 2
+NEUT-RAND 0
+NEUT-QUIET 2
+EVCT-FILENM 'full_flat_flux_0-8.0GeV.root'
+EVCT-HISTNM 'FlatHist'
+NEUT-RAND 1""",
+    "Nuisance": """"""
+}

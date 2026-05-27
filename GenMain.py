@@ -6,6 +6,8 @@ import os
 import pathlib
 import shutil
 import subprocess
+import GlobalV
+
 
 # PDGs = {
 #     "1000010010[1.0]": "H1",
@@ -121,6 +123,72 @@ def gen_series(EventsPerJob: int, nJobs: int, output_dir: str):
         out_files.append(out_file)
 
     return out_files
+
+def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
+    OutPath = os.environ.get("PUFIN_OUT")
+    if not os.environ.get("NEUT_VERSION"):
+        raise ValueError("NEUT_VERSION Environment Variable Not Defined")
+    NeutVersion = str(os.environ.get("NEUT_VERSION")).replace(".","-")
+    CardPath = OutPath+"/"+"NEUT"+"/"+"Cards"
+    os.makedirs(CardPath, exist_ok=True)
+    CardNames = []
+    if not Modes:
+        Modes = ["NC", "CC"]
+    if not Flavors:
+        Flavors = ["NuMu","NuMuB","NuE","NuEB"]
+    for Target in Targets:
+        for Mode in Modes:
+            for Flavor in Flavors:
+                CName = f"NEUT{NeutVersion}_{Tune}_{Mode}{Flavor}_{Target}.card"
+                CardNames.append(CName)
+                f = CardPath + "/" + CName
+                
+                if not os.path.exists(f):
+                    print(f"Missing {f}")
+                    CardString = ""
+                    if not GlobalV.NeutCardTunes.get(Tune):
+                        raise ValueError(f"Tune {Tune} Does Not Exist")
+                    CardString = CardString + GlobalV.NeutCardTunes.get(Tune)
+                    match Flavor:
+                        case "NuMu":
+                            CardString = CardString + f"\nEVCT-NEVT {Events}\n"
+                        case "NuMuB":
+                            SpecialEvent = int(Events/20)
+                            if SpecialEvent < 2000:
+                                SpecialEvent = 2000
+                            CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
+                        case "NuE":
+                            SpecialEvent = int(Events/200)
+                            if SpecialEvent < 2000:
+                                SpecialEvent = 2000
+                            CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
+                        case "NuEB":
+                            SpecialEvent = int(Events/2000)
+                            if SpecialEvent < 2000:
+                                SpecialEvent = 2000
+                            CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
+                        case _:
+                            raise ValueError("UNKNOWN FLAVOR")
+                    CardString = CardString + GlobalV.NeutCardModes.get(Mode)
+                    CardString = CardString + GlobalV.NeutCardFlavors.get(Flavor)
+                    CardString = CardString + GlobalV.NeutCardTargets.get(Target)
+                    # print(CardString)
+                    if NeutVersion == "5-6-4" and Target == "Titanium" and Tune == "Prod7E":
+                        # TI is dumb in 5-6-4
+                        print("Special Ti Problem in 5.6.4")
+                        CardString.replace("NEUT-MDL2P2H 2","NEUT-MDL2P2H 1")
+                        CardString.replace("NEUT-MDLQE 402","NEUT-MDLQE 002")
+                    with open(f, "w") as file:
+                        file.write(CardString)
+                    # print("Mode")
+                    # print(GlobalV.NeutCardModes.get(Mode))
+                    # print("Nu Type")
+                    # print(GlobalV.NeutCardFlavors.get(Flavor))
+                    # print("Target")
+                    # print(GlobalV.NeutCardTargets.get(Target))  
+                    print(f"Made Neut Card: {f}")
+                else:
+                    print(f"Neut Card {CName} exists")
 
 
 
