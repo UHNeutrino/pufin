@@ -1,7 +1,7 @@
 import os
 import argparse
 
-def directorySetup(Generator, Tune, Events, Target=None, Mode=None):
+def DirectorySetup(Generator, Target=None, Mode=None):
     OutPath = os.environ.get("PUFIN_OUT")
     Targets = []
     match Generator.lower():
@@ -16,7 +16,7 @@ def directorySetup(Generator, Tune, Events, Target=None, Mode=None):
         open(OutPath+"/"+"test", 'a').close()  # equivalent to touch
         os.remove(OutPath+"/"+"test")
     except OSError as e:
-            print(f"Error: {e}")
+            raise ValueError(f"Can't write to {OutPath}")
     FilePaths = []
     for target in Targets:
         OnePath = OutPath + "/" + Generator.upper() + "/" + target + "/"
@@ -28,7 +28,42 @@ def directorySetup(Generator, Tune, Events, Target=None, Mode=None):
     print(f"Outputting to {FilePaths}")
     return FilePaths
 
+def FlatFluxMaker():
+    OutPath = os.environ.get("PUFIN_OUT")
+    FluxPath = OutPath+"/"+"FlatFluxes"
+    os.makedirs(FluxPath, exist_ok=True)
+    FlatFluxNames = ["flat_flux_0-8GeV.root","flat_flux_8-30GeV.root","flat_flux_30-120GeV.root"]
+
+    for flux in FlatFluxNames:
+        f = FluxPath + "/" + flux
+        if not os.path.exists(f):
+            print(f"Missing {f}")
+            part = flux.split("_")[2]        # "x-YGeV.root"
+            numbers = part.split("-")     # ["X", "YGeV.root"]
+            low = int(numbers[0])           # "X"
+            high = int(numbers[1].split("GeV")[0])  # "Y"
+            N = (high-low)*125000
+            hist = ROOT.TH1D("FlatHist", "Flat Flux; Energy (GeV); Neutrinos", N, low, high)
+            hist.SetLineWidth(2)
+            hist.SetLineColor(804)
+            for i in range(N):
+                hist.SetBinContent(i+1,1.0)
+            OutFile = ROOT.TFile(f,"RECREATE")
+            hist.Write()
+            OutFile.Close()
+            print(f"Made Flat Flux: {f}")
+        else:
+            print(f"Flat Flux {flux} exists")
+
+
 def Generate(Generator, Tune, Events, Target=None, Mode=None, Multi=None):
+
+    # Grab/Make paths for output generated files
+    FilePaths = DirectorySetup(Generator)
+
+    #Check if FF exist, make them if not
+    FlatFluxMaker()
+
     print("! UNDER CONSTRUCTION !")
 
 
