@@ -1,6 +1,23 @@
 import os
 import argparse
 import ROOT
+import random
+import os
+import pathlib
+import shutil
+import subprocess
+
+# PDGs = {
+#     "1000010010[1.0]": "H1",
+#     "1000060120[1.0]": "C12",
+#     "1000080160[1.0]": "O16",
+#     "1000170350[1.0]": "Cl35",
+#     "1000220480[1.0]": "Ti48",
+#     "12": "NuE",
+#     "-12": "NuEBar",
+#     "14": "NuMu",
+#     "-14": "NuMuBar",
+# }
 
 def DirectorySetup(Generator, Target=None, Mode=None):
     OutPath = os.environ.get("PUFIN_OUT")
@@ -75,3 +92,41 @@ if __name__ =="__main__":
     parser.add_argument("-b", required=True)
     args = parser.parse_args()
     Generate()
+    
+    Mode = "NC"
+    Target = "1000060120[1.0]"
+    Flavor = "12"
+    target_label = PDGs[Target]
+    flavor_label = PDGs[Flavor]
+    Generator = "Genie"
+    Emin = "0"
+    Emax = "8"
+    Erange = f"{Emin}-{Emax}"
+    nJobs = 2
+    Events = 200
+    EventsPerJob = Events//nJobs
+    Version = "3-6-0"
+    Flux_directory = "/data/t2k-nova/fluxes"
+    output_dir = "/data/t2k-nova/KristenGen/MultiGen"
+    GENIE_XSEC_TUNE = os.environ.get("GENIE_XSEC_TUNE", "")
+    if not GENIE_XSEC_TUNE:
+        raise ValueError("GENIE_XSEC_TUNE is not set")
+    Tune = GENIE_XSEC_TUNE.split("_", 1)[0]
+    outFileName = f"Original_{Generator}{Version}_{Tune}_{Mode}_{flavor_label}_{Erange}_{target_label}"
+    FinaloutFileName = f"{outFileName}_{Events}"
+    
+
+    genie_files = gen_series(EventsPerJob, nJobs, output_dir)
+
+    final_genie = f"{output_dir}/{FinaloutFileName}.root"
+    
+    # hadd_cmd = f"hadd -f -k {final_genie} " + " ".join(genie_files)
+    # print(f"Running: {hadd_cmd}")
+    # subprocess.run(hadd_cmd, shell=True, check=True)
+
+    # flatten_cmd = f"""
+    # source /data/t2k-nova/KristenGen/Setup/setup_N24Genie.sh
+    # nuisflat -i GENIE:{final_genie} -o {output_dir}/Flat_{FinaloutFileName}.root
+    # """
+    # print("Flattening final file...")
+    # subprocess.run(flatten_cmd, shell=True, executable="/bin/bash", check=True)
