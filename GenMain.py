@@ -73,6 +73,55 @@ def FlatFluxMaker():
             print(f"Made Flat Flux: {f}")
         else:
             print(f"Flat Flux {flux} exists")
+            
+def gev_gen_genie(events: int, i: int):
+    """Run one GENIE job and return its output filename."""
+    print(f"Running GENIE job {i} with {events} events...")
+
+    seed = random.randint(10000, 999999)
+    GENIE_XSEC_TUNE = os.environ.get("GENIE_XSEC_TUNE", "")
+    if not GENIE_XSEC_TUNE:
+        raise ValueError("GENIE_XSEC_TUNE is not set")
+    Tune = GENIE_XSEC_TUNE.split("_", 1)[0]
+    
+    out_name = (
+        f"{Generator}{Version}_{Tune}_{Mode}_{flavor_label}_"
+        f"{Erange}_{target_label}_{events}_P{i}.root"
+    )
+
+    exec_gen = f"""
+    gevgen \
+      --tune $GENIE_XSEC_TUNE \
+      -t "{Target}" \
+      -n {events} \
+      -e {Emin},{Emax} \
+      -f {Flux_directory}/full_flat_flux_{Emin}-{Emax}GeV.root,h1 \
+      -p {Flavor} \
+      --event-generator-list {Mode} \
+      --seed {seed} \
+      -o {output_dir}/{out_name} \
+      --cross-sections $GENIE_XSEC_FILE
+    """
+    subprocess.run(exec_gen, shell=True, executable="/bin/bash", check=True)
+
+    return f"{output_dir}/{out_name}"
+
+
+def gen_series(EventsPerJob: int, nJobs: int, output_dir: str):
+    """Generate GENIE files serially and return list of filenames."""
+    output_path = pathlib.Path(output_dir)
+    if output_path.exists():
+        shutil.rmtree(output_path)
+    output_path.mkdir(parents=True)
+
+    out_files = []
+
+    for i in range(nJobs):
+        out_file = gev_gen_genie(EventsPerJob, i)
+        out_files.append(out_file)
+
+    return out_files
+
 
 
 def Generate(Generator, Tune, Events, Target=None, Mode=None, Multi=None):
