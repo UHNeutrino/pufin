@@ -172,14 +172,14 @@ def DefineKinematics(df):
     
     #df = df.Filter("PProton1 >= 0")
     df = df.Define("initNeucMag", """
-    std::vector<float> mags;
+    float mags;
     for (size_t i = 0; i < px_init.size(); ++i) {
         int pdg = pdg_init[i];
         if (pdg == 2212 || pdg == 2112){ 
             float px = px_init[i];
             float py = py_init[i];
             float pz = pz_init[i];
-            mags.push_back(std::sqrt(px*px + py*py + pz*pz));
+            mags = std::sqrt(px*px + py*py + pz*pz);
         }
     }
     return mags;
@@ -1680,12 +1680,12 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
         neut_spline = g
         print(str(g.Eval(3)))
         print(str(neut_spline.Eval(3)))
-        ###### SAVE SPLINE #############################
-        # f_out = ROOT.TFile("splines.root", "RECREATE")
+        ##### SAVE xecSPLINE #############################
+        # f_out = ROOT.TFile("23bv2spline.root", "RECREATE")
         # neut_spline.Write()
         # f_out.Close()
         # exit()
-        ###############
+        ##############
     
     else:
         raise Exception("No Matching Generator code (G/NT or NR)")
@@ -1787,19 +1787,22 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
     """)
 
     ##################################################
-    #PULL OUT SPLINE TO LOOK AT ################
+    #PULL OUT FLUX SPLINE TO LOOK AT ################
     # Create a TF1 using your declared C++ function
     # Replace E_min, E_max with your energy range
-    # print(type(getattr(ROOT, spline_name0)))
-    # tf1 = getattr(ROOT, spline_name0)
+    print(type(getattr(ROOT, spline_name0)))
+    tf1 = getattr(ROOT, spline_name0)
 
 
-    # # Style it
-    # tf1.SetLineColor(ROOT.kBlue)
-    # tf1.SetLineWidth(2)
-    # tf1.SetTitle("HydroCarbon Spline xsec * flux * WF ;E [units]; Interaction weight")
+    # Style it
+    tf1.SetLineColor(ROOT.kBlue)
+    tf1.SetLineWidth(2)
+    tf1.SetTitle("21bv2 Spline ;E_{#nu} [GeV]; Flux Weight")
+    f_out = ROOT.TFile("23bv2spline.root", "RECREATE")
+    tf1.Write()
+    f_out.Close()
 
-    # # Draw
+    # Draw
     # canvas = ROOT.TCanvas("c", "Spline", 800, 600)
     # tf1.Draw()
     # canvas.Update()
