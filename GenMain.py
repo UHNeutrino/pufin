@@ -1,5 +1,6 @@
 import os
 import argparse
+import ROOT
 
 def DirectorySetup(Generator, Target=None, Mode=None):
     OutPath = os.environ.get("PUFIN_OUT")
@@ -24,9 +25,10 @@ def DirectorySetup(Generator, Target=None, Mode=None):
         os.makedirs(OnePath, exist_ok=True)
     if Target:
         FilePaths = [OutPath + "/" + Generator.upper() + "/" + Target + "/"]
+        Targets = [Target]
 
     print(f"Outputting to {FilePaths}")
-    return FilePaths
+    return FilePaths, Targets
 
 def FlatFluxMaker():
     OutPath = os.environ.get("PUFIN_OUT")
@@ -57,12 +59,12 @@ def FlatFluxMaker():
 
 
 def Generate(Generator, Tune, Events, Target=None, Mode=None, Multi=None):
-
     # Grab/Make paths for output generated files
-    FilePaths = DirectorySetup(Generator)
+    FilePath,Targets = DirectorySetup(Generator)
 
     #Check if FF exist, make them if not
     FlatFluxMaker()
+
 
     print("! UNDER CONSTRUCTION !")
 
