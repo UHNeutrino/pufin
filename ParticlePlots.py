@@ -2,6 +2,7 @@ import ROOT
 import array as pyarray
 import os
 import SetupFunctions as SF
+import re
 
 
 SF.setupRoot()
@@ -873,7 +874,7 @@ def FlagParticleThresholds(df):
     df = df.Define("flagNovaPion_KE", f"(PionMax_KE > .250)") 
     df = df.Define("flagNovaCosPion", f"CosPion > 0.342") # Palash cc 1 pi analysis @ NOvA
     df = df.Define("flagT2KMuonP", f"(PLep > 0.200)") # T2K technote 199
-    df = df.Define("flagT2KProtonP", f"(PProton > 0.400)") # value from T2K technote
+    df = df.Define("flagT2KProtonP", f"(PProton > 0.450)") # value from T2K technote
     df = df.Define("flagT2KPionPlusP", f"(PPionMax > 0.05)") # Michelle Tracking
     df = df.Define("flagT2KCosLep", f"(CosLep > 0.2)") # T2K technote 199 for a 1Pi+ analysis
     df = df.Define("flagT2KALL", f"(flagT2KMuonP && flagT2KProtonP && flagT2KPionPlusP && flagT2KCosLep)")
@@ -1512,6 +1513,14 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
         #pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/G1810j00000-k250-e1000/data/xsec_graphs.root"
         CCpath = "nu_mu_C12/tot_cc"
         NCpath = "nu_mu_C12/tot_nc"
+        # CCpath = "nu_mu_H1/tot_cc"
+        # NCpath = "nu_mu_H1/tot_nc"
+        # CCpath = "nu_mu_Cl35/tot_cc"
+        # NCpath = "nu_mu_Cl35/tot_nc"
+        # CCpath = "nu_mu_Ti48/tot_cc"
+        # NCpath = "nu_mu_Ti48/tot_nc"
+        # CCpath = "nu_mu_O16/tot_cc"
+        # NCpath = "nu_mu_O16/tot_nc"
         # cc_npath = "nu_mu_C12/tot_cc_n"
         # cc_ppath = "nu_mu_C12/tot_cc_p"
         # cc_cohpath = "nu_mu_C12/coh_cc"
@@ -1564,7 +1573,7 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
         
     elif xspline == "N590":
         pathx = "/data/t2k-nova/xsec-splines/NEUT5_9_0totpau.tbl"
-        NEUT5_9_0totpau.tbl
+        #NEUT5_9_0totpau.tbl
         xs, ys = [], []
 
         with open(pathx, "r") as f:
@@ -1687,6 +1696,251 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
 
     # df with weights give flux shape, bin_integral_unnorm give absolute scale for give Fscale (xsec, target, exposure, unit conversion)
     return df, bin_integral_unnorm
+
+
+def _parse_target_token(target: str):
+    match = re.fullmatch(r"([A-Za-z]+)(\d+)", target)
+    if not match:
+        raise ValueError(
+            f"Target '{target}' must look like C12, H1, Cl35, Ti48, O16"
+        )
+    symbol = match.group(1)
+    divisor = int(match.group(2))
+    label = f"{symbol}{divisor}"
+    return symbol, label, divisor
+
+
+def get_target_reweight_spec(
+    generator: str,
+    target: str,
+    interaction: str,
+    nu_type: str,
+    detector: str,
+    xsec_mode: str,
+    xspline_mode: str,
+    xsec_file: str,
+):
+    _, target_label, target_divisor = _parse_target_token(target)
+
+    if nu_type == "numu":
+        nu_label = "nu_mu"
+    elif nu_type == "nue":
+        nu_label = "nu_e"
+    else:
+        raise ValueError(f"Unsupported nu_type '{nu_type}'")
+
+    allowed_xsec_modes = {"CC", "NC", "total"}
+    if xsec_mode not in allowed_xsec_modes:
+        raise ValueError(
+            f"Unsupported xsec_mode '{xsec_mode}'. "
+            f"Allowed values: {sorted(allowed_xsec_modes)}"
+        )
+
+    allowed_xspline_modes = {"G", "N"}
+    if xspline_mode not in allowed_xspline_modes:
+        raise ValueError(
+            f"Unsupported xspline_mode '{xspline_mode}'. "
+            f"Allowed values: {sorted(allowed_xspline_modes)}"
+        )
+
+    spec = {
+        "generator": generator,
+        "target": target,
+        "interaction": interaction,
+        "nu_type": nu_type,
+        "detector": detector,
+        "xspline_mode": xspline_mode,
+        "xsec_mode": xsec_mode,
+        "xsec_file": xsec_file,
+        "target_divisor": float(target_divisor),
+        "cc_path": "",
+        "nc_path": "",
+    }
+
+    if xspline_mode == "G":
+        spec["cc_path"] = f"{nu_label}_{target_label}/tot_cc"
+        spec["nc_path"] = f"{nu_label}_{target_label}/tot_nc"
+
+    return spec
+
+def defineWeightsSplineStage2(
+    df,
+    rwRootFile,
+    histName,
+    spec,
+    label="",
+    Fscale=1.0,
+    areaB=False,
+    undoNormB=False,
+):
+    import re
+
+    flux_file = ROOT.TFile.Open(rwRootFile)
+    if not flux_file or flux_file.IsZombie():
+        raise RuntimeError(f"Could not open flux file: {rwRootFile}")
+
+    hist = flux_file.Get(histName)
+    if not hist:
+        flux_file.ls()
+        raise RuntimeError(f"Could not find histogram '{histName}' in {rwRootFile}")
+
+    hist = hist.Clone(f"h_flux_{label or 'stage2'}")
+    hist.SetDirectory(0)
+    flux_file.Close()
+
+    print(histName)
+
+    if areaB:
+        integral1 = hist.Integral("width")
+        if integral1 > 0:
+            hist.Scale(1.0 / integral1)
+        else:
+            raise ValueError("Histogram has zero integral; cannot normalize.")
+
+    print("original width integral")
+    print(hist.Integral("width"))
+
+    n_points0 = hist.GetNbinsX()
+    graph0 = ROOT.TGraph(n_points0)
+
+    for i in range(1, n_points0 + 1):
+        x = hist.GetBinCenter(i)
+        y = hist.GetBinContent(i)
+        graph0.SetPoint(i - 1, x, y)
+
+    safe_label = re.sub(r"\W+", "_", label or "stage2")
+    spline_name0 = f"g_fluxSpline_0_{safe_label}"
+    func_name0 = f"get_flux_weight_0_{safe_label}"
+    spline0 = ROOT.TSpline3(spline_name0, graph0)
+
+    spline_width_integral0 = 0.0
+    for i in range(1, hist.GetNbinsX() + 1):
+        x = hist.GetBinCenter(i)
+        w = hist.GetBinWidth(i)
+        spline_width_integral0 += spline0.Eval(x) * w
+    print("spline width-integral0 (hist-like) =", spline_width_integral0)
+
+    xspline_mode = spec["xspline_mode"]
+    xsec_mode = spec["xsec_mode"]
+    target_divisor = float(spec["target_divisor"])
+
+    g_cc = None
+    g_nc = None
+    neut_spline = None
+
+    if xspline_mode == "G":
+        xsec_file = spec["xsec_file"]
+        cc_path = spec["cc_path"]
+        nc_path = spec["nc_path"]
+
+        fx = ROOT.TFile.Open(xsec_file, "READ")
+        if not fx or fx.IsZombie():
+            raise RuntimeError(f"Could not open xsec file: {xsec_file}")
+
+        g_cc = fx.Get(cc_path)
+        g_nc = fx.Get(nc_path)
+        if not g_cc or not g_nc:
+            fx.ls()
+            raise RuntimeError(f"Missing graph(s): CC={cc_path} NC={nc_path}")
+
+        g_cc = g_cc.Clone(f"g_cc_{safe_label}")
+        g_nc = g_nc.Clone(f"g_nc_{safe_label}")
+        fx.Close()
+
+    elif xspline_mode == "N":
+        pathx = spec["xsec_file"]
+        xs, ys = [], []
+
+        nu_type = spec["nu_type"]
+        column_map = {
+            "numu": 1,
+            "numubar": 2,
+            "nue": 3,
+            "nuebar": 4,
+        }
+        if nu_type not in column_map:
+            raise ValueError(f"Unsupported nu_type for N spline: {nu_type}")
+        value_col = column_map[nu_type]
+
+        with open(pathx, "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                if line.lower().startswith("energy"):
+                    continue
+
+                parts = line.split()
+                if len(parts) <= value_col:
+                    continue
+
+                try:
+                    E = float(parts[0])
+                    yval = float(parts[value_col])
+                except ValueError:
+                    continue
+
+                xs.append(E)
+                ys.append(yval)
+
+        if len(xs) < 4:
+            raise RuntimeError(f"Not enough points to make a TSpline3 (got {len(xs)})")
+
+        g = ROOT.TGraph(len(xs))
+        for i, (x, y) in enumerate(zip(xs, ys)):
+            g.SetPoint(i, x, y)
+
+        neut_spline = ROOT.TSpline3(f"neut_spline_{safe_label}", g)
+
+    bin_integral_unnorm = 0.0
+
+    for i in range(1, hist.GetNbinsX() + 1):
+        x = hist.GetBinCenter(i)
+        if x > 8.0:
+            break
+
+        y = hist.GetBinContent(i)
+        w = hist.GetBinWidth(i)
+
+        if xspline_mode == "G":
+            cc_xsec = max(0.0, float(g_cc.Eval(x)))
+            nc_xsec = max(0.0, float(g_nc.Eval(x)))
+
+            if xsec_mode == "CC":
+                xsec = cc_xsec / target_divisor
+            elif xsec_mode == "NC":
+                xsec = nc_xsec / target_divisor
+            elif xsec_mode == "total":
+                xsec = (cc_xsec / target_divisor) + (nc_xsec / target_divisor)
+            else:
+                raise ValueError(f"Unsupported xsec_mode '{xsec_mode}'")
+
+        elif xspline_mode == "N":
+            xsec = max(0.0, float(neut_spline.Eval(x)))
+
+        else:
+            xsec = 1.0
+
+        if undoNormB:
+            bin_integral_unnorm += y * w * Fscale * xsec
+        else:
+            bin_integral_unnorm += y * Fscale * xsec
+
+    print("bin integral after (content*width*Fscale*xsec) =", bin_integral_unnorm)
+
+    ROOT.gInterpreter.Declare(f"TSpline3* {spline_name0};")
+    setattr(ROOT, spline_name0, spline0)
+
+    ROOT.gInterpreter.Declare(f"""
+        extern TSpline3* {spline_name0};
+        double {func_name0}(double E) {{
+            return {spline_name0}->Eval(E);
+        }}
+    """)
+
+    df = df.Define("weights", f"{func_name0}(Enu_true)")
+    return df, bin_integral_unnorm
+
 
 def defineSplineTest(df, rwRootFile, histName):
     flux_file = ROOT.TFile.Open(rwRootFile)
