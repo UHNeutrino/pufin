@@ -22,12 +22,13 @@ def directorySetup(Generator, Tune, Events, Target=None, Mode=None):
         OnePath = OutPath + "/" + Generator.upper() + "/" + target + "/"
         FilePaths.append(OnePath)
         os.makedirs(OnePath, exist_ok=True)
-    
+    if Target:
+        FilePaths = [OutPath + "/" + Generator.upper() + "/" + Target + "/"]
 
     print(f"Outputting to {FilePaths}")
     return FilePaths
 
-def Generate():
+def Generate(Generator, Tune, Events, Target=None, Mode=None, Multi=None):
     print("! UNDER CONSTRUCTION !")
 
 
