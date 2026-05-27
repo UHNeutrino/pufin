@@ -14,6 +14,26 @@ HOME = os.getenv("HOME", "/home/lboe")
 # f = open(f'{HOME}/t2k-nova/main.json5')
 # data = json5.load(f)
 
+# jsonreader.py
+
+# def _print_selected_bins(hist, label, bins=(10, 20, 40, 80)):
+#     print(f"\n===== {label} =====")
+#     print(f"Integral = {hist.Integral():.6e}")
+#     print(f"Entries  = {hist.GetEntries():.6e}")
+#     print(f"Sumw2N   = {hist.GetSumw2N()}")
+#     for ibin in bins:
+#         if ibin < 1 or ibin > hist.GetNbinsX():
+#             print(f"bin {ibin:3d}: out of range")
+#             continue
+#         xlo = hist.GetXaxis().GetBinLowEdge(ibin)
+#         xhi = hist.GetXaxis().GetBinUpEdge(ibin)
+#         val = hist.GetBinContent(ibin)
+#         err = hist.GetBinError(ibin)
+#         print(
+#             f"bin {ibin:3d} [{xlo:7.3f}, {xhi:7.3f})  "
+#             f"content = {val:14.6e}  error = {err:14.6e}"
+#         )
+
 
 def MakePlots(plots, GlobalSettings):
     userFolder = GlobalSettings["userFolder"]
@@ -313,6 +333,22 @@ def MakeSame1D(same1D,GlobalSettings):
         #     # current_hist = df.Histo1D(histInfo, plot["Var"])
         #     # current = current_hist.Integral()
         #     # print(current)
+        
+################ Check bin error propagation ###############################################
+############################################################################################
+        # bins = array.array('d', same1D["VBins"][1])
+        # histInfo = ("name", f"hist_{key}", BinL[0], BinL[1], BinL[2])
+        # varBinInfo = ROOT.RDF.TH1DModel("h_varbins", f"hist_{key}", len(bins) - 1, bins)
+        # histInfoUse = varBinInfo if same1D["VBins"][0] else histInfo
+
+        # # ------------------------------------------------------------------
+        # # 1) check bin errors BEFORE adding spline weights
+        # # ------------------------------------------------------------------
+        # rdf_raw = df.Histo1D(histInfoUse, Var)
+        # hist_raw = rdf_raw.GetValue()
+        # hist_raw.SetDirectory(0)
+        # _print_selected_bins(hist_raw, f"{key} RAW before spline weights")
+        
         if reweight_flag:
             f_flux = ROOT.TFile.Open(rw_file, "READ")
             if not f_flux or f_flux.IsZombie():
@@ -369,12 +405,21 @@ def MakeSame1D(same1D,GlobalSettings):
                 target = bin_integral_unnorm
                 current = df.Sum(weight_col).GetValue()
                 #current = hist.Integral() 
-                print("uncut bin integral")
-                print(current)
+                print(f"\n[{key}] Applying weight normalization factor")
+                print(f"target  = {target:.6e}")
+                print(f"current = {current:.6e}")
                 s = target / current
                 hist.Scale(s)
-                print("uncut scaled bin integral")
+                print("uncut scaled bin integral after weight normalization")
                 print(hist.Integral())  
+                # ------------------------------------------------------------------
+                # 2) Check bin errors AFTER splinning and adding weight normalization
+                # ------------------------------------------------------------------
+            #     hist_weighted = hist.Clone(f"{key}_weighted")
+            #     hist_weighted.SetDirectory(0)
+            #     _print_selected_bins(hist_weighted, f"{key} AFTER normalization factor")
+            # else:
+            #     _print_selected_bins(hist, f"{key} AFTER normalization factor (s=1)")
                 # hist.Scale(s)
                 # print("scale factor integral")
                 # print(hist.Integral())
