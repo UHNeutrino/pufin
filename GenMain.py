@@ -1,5 +1,22 @@
 import os
 import argparse
+import random
+import os
+import pathlib
+import shutil
+import subprocess
+
+# PDGs = {
+#     "1000010010[1.0]": "H1",
+#     "1000060120[1.0]": "C12",
+#     "1000080160[1.0]": "O16",
+#     "1000170350[1.0]": "Cl35",
+#     "1000220480[1.0]": "Ti48",
+#     "12": "NuE",
+#     "-12": "NuEBar",
+#     "14": "NuMu",
+#     "-14": "NuMuBar",
+# }
 
 def directorySetup(Generator, Tune, Events, Target=None, Mode=None):
     OutPath = os.environ.get("PUFIN_OUT")
@@ -27,6 +44,54 @@ def directorySetup(Generator, Tune, Events, Target=None, Mode=None):
     print(f"Outputting to {FilePaths}")
     return FilePaths
 
+def gev_gen_genie(events: int, i: int):
+    """Run one GENIE job and return its output filename."""
+    print(f"Running GENIE job {i} with {events} events...")
+
+    seed = random.randint(10000, 999999)
+    GENIE_XSEC_TUNE = os.environ.get("GENIE_XSEC_TUNE", "")
+    if not GENIE_XSEC_TUNE:
+        raise ValueError("GENIE_XSEC_TUNE is not set")
+    Tune = GENIE_XSEC_TUNE.split("_", 1)[0]
+    
+    out_name = (
+        f"{Generator}{Version}_{Tune}_{Mode}_{flavor_label}_"
+        f"{Erange}_{target_label}_{events}_P{i}.root"
+    )
+
+    exec_gen = f"""
+    gevgen \
+      --tune $GENIE_XSEC_TUNE \
+      -t "{Target}" \
+      -n {events} \
+      -e {Emin},{Emax} \
+      -f {Flux_directory}/full_flat_flux_{Emin}-{Emax}GeV.root,h1 \
+      -p {Flavor} \
+      --event-generator-list {Mode} \
+      --seed {seed} \
+      -o {output_dir}/{out_name} \
+      --cross-sections $GENIE_XSEC_FILE
+    """
+    subprocess.run(exec_gen, shell=True, executable="/bin/bash", check=True)
+
+    return f"{output_dir}/{out_name}"
+
+
+def gen_series(EventsPerJob: int, nJobs: int, output_dir: str):
+    """Generate GENIE files serially and return list of filenames."""
+    output_path = pathlib.Path(output_dir)
+    if output_path.exists():
+        shutil.rmtree(output_path)
+    output_path.mkdir(parents=True)
+
+    out_files = []
+
+    for i in range(nJobs):
+        out_file = gev_gen_genie(EventsPerJob, i)
+        out_files.append(out_file)
+
+    return out_files
+
 def Generate():
     print("! UNDER CONSTRUCTION !")
 
@@ -37,3 +102,41 @@ if __name__ =="__main__":
     parser.add_argument("-b", required=True)
     args = parser.parse_args()
     Generate()
+    
+    Mode = "NC"
+    Target = "1000060120[1.0]"
+    Flavor = "12"
+    target_label = PDGs[Target]
+    flavor_label = PDGs[Flavor]
+    Generator = "Genie"
+    Emin = "0"
+    Emax = "8"
+    Erange = f"{Emin}-{Emax}"
+    nJobs = 2
+    Events = 200
+    EventsPerJob = Events//nJobs
+    Version = "3-6-0"
+    Flux_directory = "/data/t2k-nova/fluxes"
+    output_dir = "/data/t2k-nova/KristenGen/MultiGen"
+    GENIE_XSEC_TUNE = os.environ.get("GENIE_XSEC_TUNE", "")
+    if not GENIE_XSEC_TUNE:
+        raise ValueError("GENIE_XSEC_TUNE is not set")
+    Tune = GENIE_XSEC_TUNE.split("_", 1)[0]
+    outFileName = f"Original_{Generator}{Version}_{Tune}_{Mode}_{flavor_label}_{Erange}_{target_label}"
+    FinaloutFileName = f"{outFileName}_{Events}"
+    
+
+    genie_files = gen_series(EventsPerJob, nJobs, output_dir)
+
+    final_genie = f"{output_dir}/{FinaloutFileName}.root"
+    
+    # hadd_cmd = f"hadd -f -k {final_genie} " + " ".join(genie_files)
+    # print(f"Running: {hadd_cmd}")
+    # subprocess.run(hadd_cmd, shell=True, check=True)
+
+    # flatten_cmd = f"""
+    # source /data/t2k-nova/KristenGen/Setup/setup_N24Genie.sh
+    # nuisflat -i GENIE:{final_genie} -o {output_dir}/Flat_{FinaloutFileName}.root
+    # """
+    # print("Flattening final file...")
+    # subprocess.run(flatten_cmd, shell=True, executable="/bin/bash", check=True)
