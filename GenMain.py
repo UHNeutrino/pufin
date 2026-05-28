@@ -2,11 +2,11 @@ import os
 import argparse
 import ROOT
 import random
-import os
 import pathlib
 import shutil
 import subprocess
 import GlobalV
+import glob
 
 
 # PDGs = {
@@ -404,6 +404,12 @@ if __name__ =="__main__":
     # parser.add_argument("-b", required=True)
     # args = parser.parse_args()
     # Generate()
+    
+    # Tune = "Prod7E"
+    # Targets = ["Carbon", "Hydrogen", "Oxygen", "Titanium"]
+    # Events = 1000
+    # MakeNeutCards(Tune, Targets,Events)
+    # GenNeutXsec(Tune,Targets)
     
     Mode = "NC"
     #Target = "1000060120[1.0]"
