@@ -190,6 +190,60 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
                 else:
                     print(f"Neut Card {CName} exists")
 
+def GenNeutXsec(Tune, Targets, FullCardPath=None):
+    #Grabs every neut card from FullCardPath or naming scheme and then checks for the corespondinig xsec histogram
+    #If the histogram is missing, then it generates them with dumpmtotpauC
+    OutPath = os.environ.get("PUFIN_OUT")
+    user = os.environ.get("USER")
+    tmpdir = f"{OutPath}/{user}_temp_dir"
+    if not os.environ.get("NEUT_VERSION"):
+        raise ValueError("NEUT_VERSION Environment Variable Not Defined")
+    NeutVersion = str(os.environ.get("NEUT_VERSION")).replace(".","-")
+    CardDir = OutPath + "/NEUT/Cards"
+    XsecDir = OutPath + "/NEUT/Xsecs"
+    os.makedirs(XsecDir, exist_ok=True)
+
+    # delete temp dir if it exists from a previous run
+    shutil.rmtree(tmpdir, ignore_errors=True)
+    # create fresh temp dir
+    os.makedirs(tmpdir)
+
+    if FullCardPath:
+        print("Using Single Card Name Given")
+        XsecName = FullCardPath.split("/")[-1].replace("card","root")
+        if "CC" in XsecName:
+            XsecName = XsecName.replace("CC","")
+        if "NC" in XsecName:
+            XsecName = XsecName.replace("NC","")
+        XsecName = XsecName.replace(".root","_XSECHIST.root")
+        XsecPath = XsecDir+"/"+ XsecName
+        # print(XsecName)  
+        if not os.path.exists(XsecPath):
+            # copy file to temp dir with same name
+            shutil.copy(FullCardPath, os.path.join(tmpdir, os.path.basename("neut.card")))
+            # run command in temp dir
+            subprocess.run("dumptotpauC ", cwd=tmpdir, shell=True)
+            shutil.move(f"{tmpdir}/neut_xsecs.root", os.path.join(XsecDir, XsecName))
+        else:
+            print(f"Xsec hists {XsecName} exists")
+
+    else:
+        for Target in Targets:
+            for Flavor in GlobalV.Flavors:
+                CName = f"NEUT{NeutVersion}_{Tune}_CC{Flavor}_{Target}.card"
+                CardPath = CardDir+"/"+CName
+                XsecName = f"NEUT{NeutVersion}_{Tune}_{Flavor}_{Target}_XSECHIST.root"
+                XsecPath = XsecDir+"/"+ XsecName
+                if not os.path.exists(XsecPath):
+                    # copy file to temp dir with same name
+                    shutil.copy(CardPath, os.path.join(tmpdir, os.path.basename("neut.card")))
+                    # run command in temp dir
+                    subprocess.run("dumptotpauC ", cwd=tmpdir, shell=True)
+                    shutil.move(f"{tmpdir}/neut_xsecs.root", os.path.join(XsecDir, XsecName))
+                else:
+                    print(f"Xsec hists {XsecName} exists")
+
+
 
 
 def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, Multi=None):
@@ -209,33 +263,39 @@ if __name__ =="__main__":
     parser.add_argument("-b", required=True)
     args = parser.parse_args()
     Generate()
+    # Tune = "Prod7E"
+    # Targets = ["Carbon", "Hydrogen", "Oxygen", "Titanium"]
+    # Events = 1000
+    # MakeNeutCards(Tune, Targets,Events)
+    # GenNeutXsec(Tune,Targets)
+
     
-    Mode = "NC"
-    Target = "1000060120[1.0]"
-    Flavor = "12"
-    target_label = PDGs[Target]
-    flavor_label = PDGs[Flavor]
-    Generator = "Genie"
-    Emin = "0"
-    Emax = "8"
-    Erange = f"{Emin}-{Emax}"
-    nJobs = 2
-    Events = 200
-    EventsPerJob = Events//nJobs
-    Version = "3-6-0"
-    Flux_directory = "/data/t2k-nova/fluxes"
-    output_dir = "/data/t2k-nova/KristenGen/MultiGen"
-    GENIE_XSEC_TUNE = os.environ.get("GENIE_XSEC_TUNE", "")
-    if not GENIE_XSEC_TUNE:
-        raise ValueError("GENIE_XSEC_TUNE is not set")
-    Tune = GENIE_XSEC_TUNE.split("_", 1)[0]
-    outFileName = f"Original_{Generator}{Version}_{Tune}_{Mode}_{flavor_label}_{Erange}_{target_label}"
-    FinaloutFileName = f"{outFileName}_{Events}"
+    # Mode = "NC"
+    # Target = "1000060120[1.0]"
+    # Flavor = "12"
+    # target_label = PDGs[Target]
+    # flavor_label = PDGs[Flavor]
+    # Generator = "Genie"
+    # Emin = "0"
+    # Emax = "8"
+    # Erange = f"{Emin}-{Emax}"
+    # nJobs = 2
+    # Events = 200
+    # EventsPerJob = Events//nJobs
+    # Version = "3-6-0"
+    # Flux_directory = "/data/t2k-nova/fluxes"
+    # output_dir = "/data/t2k-nova/KristenGen/MultiGen"
+    # GENIE_XSEC_TUNE = os.environ.get("GENIE_XSEC_TUNE", "")
+    # if not GENIE_XSEC_TUNE:
+    #     raise ValueError("GENIE_XSEC_TUNE is not set")
+    # Tune = GENIE_XSEC_TUNE.split("_", 1)[0]
+    # outFileName = f"Original_{Generator}{Version}_{Tune}_{Mode}_{flavor_label}_{Erange}_{target_label}"
+    # FinaloutFileName = f"{outFileName}_{Events}"
     
 
-    genie_files = gen_series(EventsPerJob, nJobs, output_dir)
+    # genie_files = gen_series(EventsPerJob, nJobs, output_dir)
 
-    final_genie = f"{output_dir}/{FinaloutFileName}.root"
+    # final_genie = f"{output_dir}/{FinaloutFileName}.root"
     
     # hadd_cmd = f"hadd -f -k {final_genie} " + " ".join(genie_files)
     # print(f"Running: {hadd_cmd}")

@@ -1,5 +1,7 @@
 # List of Global Variables used elsewhere:
 
+Flavors = ["NuMu","NuMuBar","NuE","NuEBar"]
+
 targetpdg = {
     "Carbon":1000060120,
     "Hydrogen":1000010010,
