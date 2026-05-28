@@ -7,7 +7,6 @@ import pathlib
 import shutil
 import subprocess
 import GlobalV
-import glob
 
 
 # PDGs = {
@@ -110,7 +109,7 @@ def gev_gen_genie(events: int, i: int):
     return f"{output_dir}/{out_name}"
 
 
-def gen_series(EventsPerJob: int, nJobs: int, output_dir: str):
+def gen_series(EventsPerJob: int, nJobs: int, output_dir: str, final_directory: str):
     """Generate GENIE files serially and return list of filenames."""
     output_path = pathlib.Path(output_dir)
     if output_path.exists():
@@ -118,12 +117,83 @@ def gen_series(EventsPerJob: int, nJobs: int, output_dir: str):
     output_path.mkdir(parents=True)
 
     out_files = []
+    
+    GENIE_XSEC_TUNE = os.environ.get("GENIE_XSEC_TUNE", "")
+    if not GENIE_XSEC_TUNE:
+        raise ValueError("GENIE_XSEC_TUNE is not set")
+    Tune = GENIE_XSEC_TUNE.split("_", 1)[0]
 
     for i in range(nJobs):
         out_file = gev_gen_genie(EventsPerJob, i)
         out_files.append(out_file)
+        
 
-    return out_files
+        
+    outFileName = f"Original_{Generator}{Version}_{Tune}_{Mode}_{flavor_label}_{Erange}_{target_label}"
+    FinaloutFileName = f"{outFileName}_{Events}"
+
+    final_genie = f"{output_dir}/{FinaloutFileName}.root"
+
+    hadd_cmd = f'hadd -f -k "{final_genie}" ' + " ".join(f'"{f}"' for f in out_files)
+    print(f"Running: {hadd_cmd}")
+    subprocess.run(hadd_cmd, shell=True, check=True)
+    
+    final_copy = f"{final_dir}/{FinaloutFileName}.root"
+    shutil.copy2(final_genie, final_copy)
+    print(f"Copied final file to {final_copy}")
+    
+    return out_files, final_genie, final_copy
+
+def gen_flatten(final_dir: str):
+    """Prepare and flatten the final GENIE file in final_dir."""
+    final_path = pathlib.Path(final_dir)
+
+    original_files = sorted(final_path.glob("Original_*.root"))
+    if len(original_files) == 0:
+        raise FileNotFoundError(f"No Original_*.root file found in {final_dir}")
+    if len(original_files) > 1:
+        raise ValueError(f"Multiple Original_*.root files found in {final_dir}: {[f.name for f in original_files]}")
+
+    original_file = original_files[0]
+    original_name = original_file.name
+
+    prep_name = original_name.replace("Original_", "Prep_", 1)
+    flat_name = original_name.replace("Original_", "Flat_", 1)
+
+    prep_file = final_path / prep_name
+    flat_file = final_path / flat_name
+
+    prepare_cmd = f"""
+    PrepareGENIE \
+      -i "{original_file}" \
+      -t "{Target}" \
+      -o "{prep_file}" \
+      -f "{Flux_directory}/full_flat_flux_{Emin}-{Emax}GeV.root,h1"
+    """
+    print("Preparing GENIE file...")
+    subprocess.run(prepare_cmd, shell=True, executable="/bin/bash", check=True)
+
+    flatten_cmd = f"""
+    nuisflat \
+      -i "GENIE:{prep_file}" \
+      -o "{flat_file}"
+    """
+    print("Flattening GENIE file...")
+    subprocess.run(flatten_cmd, shell=True, executable="/bin/bash", check=True)
+
+    if prep_file.exists():
+        prep_file.unlink()
+    print(f"Deleted {prep_file}")
+    
+    return str(flat_file)
+
+def find_file_with_prefix(directory: str, prefix: str):
+    matches = sorted(pathlib.Path(directory).glob(f"{prefix}*.root"))
+    if not matches:
+        return None
+    if len(matches) > 1:
+        raise ValueError(f"Multiple {prefix}*.root files found in {directory}: {[m.name for m in matches]}")
+    return matches[0]
 
 def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
     OutPath = os.environ.get("PUFIN_OUT")
@@ -329,3 +399,59 @@ if __name__ =="__main__":
     # """
     # print("Flattening final file...")
     # subprocess.run(flatten_cmd, shell=True, executable="/bin/bash", check=True)
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("-a", required=True)
+    # parser.add_argument("-b", required=True)
+    # args = parser.parse_args()
+    # Generate()
+    
+    Mode = "NC"
+    #Target = "1000060120[1.0]"
+    Flavor = "12"
+    # target_key = "C"
+    # target_info = GlobalV.NovaTargets[target_key]
+    # Target = target_info["pdg"]
+    # target_label = target_info["label"]
+    # target_name = target_info["name"]
+    flavor_label = GlobalV.NuPDGs[int(Flavor)]
+    Generator = "Genie"
+    Emin = "0"
+    Emax = "8"
+    Erange = f"{Emin}-{Emax}"
+    nJobs = 2
+    Events = 200
+    EventsPerJob = Events//nJobs
+    Version = "3-6-0"
+    Flux_directory = "/data/t2k-nova/fluxes"
+    output_dir = "/data/t2k-nova/KristenGen/MultiGen"
+    
+    file_paths, targets = DirectorySetup(Generator, Mode=Mode)
+    
+    for target_name, final_dir in zip(targets, file_paths):
+        for _, info in GlobalV.NovaTargets.items():
+            if info["name"] == target_name:
+                Target = info["pdg"]
+                target_label = info["label"]
+                break
+        else:
+            raise ValueError(f"No target info found for {target_name}")
+        
+        flat_file = find_file_with_prefix(final_dir, "Flat_")
+        original_file = find_file_with_prefix(final_dir, "Original_")
+
+        if flat_file is not None:
+            print(f"Skipping {target_name}: found flat file {flat_file.name}")
+            continue
+
+        if original_file is not None:
+            print(f"Found original file for {target_name}: {original_file.name}")
+            print(f"Flattening only for {target_name}")
+            gen_flatten(final_dir)
+            continue
+
+        print(f"No existing files found for {target_name}")
+        print(f"Generating and flattening for {target_name}")
+    
+        genie_files, final_genie, final_copy = gen_series(EventsPerJob, nJobs, output_dir, final_dir)
+        flat_file = gen_flatten(final_dir)
+
