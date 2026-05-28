@@ -152,7 +152,7 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
                     match Flavor:
                         case "NuMu":
                             CardString = CardString + f"\nEVCT-NEVT {Events}\n"
-                        case "NuMuB":
+                        case "NuMuBar":
                             SpecialEvent = int(Events/10)
                             if SpecialEvent < 2000:
                                 SpecialEvent = 2000
@@ -162,7 +162,7 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
                             if SpecialEvent < 2000:
                                 SpecialEvent = 2000
                             CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
-                        case "NuEB":
+                        case "NuEBar":
                             SpecialEvent = int(Events/100)
                             if SpecialEvent < 2000:
                                 SpecialEvent = 2000
@@ -192,7 +192,7 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
 
 
 
-def Generate(Generator, Tune, Events, Target=None, Mode=None, Multi=None):
+def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, Multi=None):
     # Grab/Make paths for output generated files
     FilePath,Targets = DirectorySetup(Generator)
 
