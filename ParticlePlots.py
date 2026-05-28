@@ -1653,15 +1653,17 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
             xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecscH10000.root"
         elif VersionCode == "R564O":
             xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsO.root"
+        elif VersionCode == "R564Ti":
+            xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsTi.root"
         else:
             raise RuntimeError(f"No Neut xsec Found \'{VersionCode}\'")
         
         #### Making a list of the hist names
         HistnameNuMu = "neut_xsec_numu"
-        if ChannelCode == "cc":
+        if ChannelCode.lower() == "cc":
             HistEnding = ["_ccqe", "_npnh", "_ccppip", "_ccppi0", "_ccnpip", "_ccdif", "_cccoh", "_ccgam", "_ccmpi", "_cceta", "_cck", "_ccdis"]
-        elif ChannelCode == "in":
-            HistEnding = ["tot"]
+        elif ChannelCode.lower() == "in":
+            HistEnding.lower() == ["tot"]
         elif ChannelCode == "nc":
             raise RuntimeError(f"NC UNDER CONSTRUCTION")
         else:
