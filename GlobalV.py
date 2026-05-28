@@ -24,9 +24,9 @@ FGD1 = {
 NeutCardModes = {"CC": "NEUT-CRS 1 1 1 1 1 0 0 0 0  0  0  0  0  1  0  1  0  0  1  0  0  0  1  0  1  0  0  1  1  0\n",
                  "NC": "NEUT-CRS 0 0 0 0 0 1 1 1 1  1  1  1  1  0  1  0  1  1  0  1  1  1  0  1  0  1  1  0  0  1\n"}
 NeutCardFlavors = {"NuMu": "EVCT-IDPT 14 \n",
-                    "NuMuB":"EVCT-IDPT -14 \n",
+                    "NuMuBar":"EVCT-IDPT -14 \n",
                     "NuE": "EVCT-IDPT 12 \n",
-                    "NuEB": "EVCT-IDPT -12 \n"}
+                    "NuEBar": "EVCT-IDPT -12 \n"}
 NeutCardTunes = {
     "Prod7E":"""EVCT-MPOS 1
 EVCT-POS  0. 0. 0.
