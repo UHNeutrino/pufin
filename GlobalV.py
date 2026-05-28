@@ -51,14 +51,38 @@ NEUT-RAND 1""",
     "Nuisance": """"""
 }
 
-GeniePDGs = {
-    "1000010010[1.0]": "H1",
-    "1000060120[1.0]": "C12",
-    "1000080160[1.0]": "O16",
-    "1000170350[1.0]": "Cl35",
-    "1000220480[1.0]": "Ti48",
-    "12": "NuE",
-    "-12": "NuEBar",
-    "14": "NuMu",
-    "-14": "NuMuBar",
+NuPDGs = {
+    12: "NuE",
+    -12: "NuEBar",
+    14: "NuMu",
+    -14: "NuMuBar",
+}
+
+NovaTargets = {
+    "C": {
+        "name": "Carbon",
+        "label": "C12",
+        "pdg": "1000060120[1.0]",
+    },
+    "H": {
+        "name": "Hydrogen",
+        "label": "H1",
+        "pdg": "1000010010[1.0]",
+    },
+    "O": {
+        "name": "Oxygen",
+        "label": "O16",
+        "pdg": "1000080160[1.0]",
+    },
+    "Cl": {
+        "name": "Chlorine",
+        "label": "Cl35",
+        "pdg": "1000170350[1.0]",
+    },
+    "Ti": {
+        "name": "Titanium",
+        "label": "Ti48",
+        "pdg": "1000220480[1.0]",
+    },
+
 }
