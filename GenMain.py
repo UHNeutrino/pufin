@@ -339,13 +339,23 @@ def GenNeutXsec(Tune, Targets, FullCardPath=None):
 
 def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, Multi=None):
     # Grab/Make paths for output generated files
-    FilePath,Targets = DirectorySetup(Generator)
-    if Generator.lower() == "genie":
-        return GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor, Multi)
-    elif Generator.lower() == "neut":
-        raise NotImplementedError("GenerateNeut is not implemented yet")
-    else:
-        raise ValueError("Generator must be 'Genie' or 'Neut'")
+    FilePath,Targets = DirectorySetup(Generator, Target=Target, Mode=Mode)
+    FlatFluxMaker()
+
+    match Generator.lower():
+        case "genie":
+            GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor, Multi)
+        case "neut":
+
+            MakeNeutCards(Tune, Targets, Events, Modes=Mode, Flavors=Flavor)
+            GenNeutXsec(Tune, Targets)
+
+            if Multi:
+                raise NotImplementedError("GenerateNeut is not done yet")
+            
+            raise NotImplementedError("GenerateNeut is not done yet")
+        case _:
+            raise ValueError("Generator must be 'Genie' or 'Neut'")
 
     #Check if FF exist, make them if not
     # FlatFluxMaker()
@@ -355,10 +365,6 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, Multi
 
 
 if __name__ =="__main__":
-    
-#     python GenMain.py \
-#   --generator Genie \
-#   --events 200 
     
     parser = argparse.ArgumentParser()
 

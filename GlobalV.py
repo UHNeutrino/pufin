@@ -9,7 +9,7 @@ targetpdg = {
     "Titanium":10000220480,
     "Chlorine":10000170350
 }
-targetNeut = {
+NeutCardTargets = {
     "Carbon":"NEUT-NUMBNDN 6 \n NEUT-NUMBNDP 6 \n NEUT-NUMATOM 12 \n NEUT-NUMFREP 0 \n",
     "Hydrogen":"NEUT-NUMBNDN 6 \n NEUT-NUMBNDP 6 \n NEUT-NUMATOM 12 \n NEUT-NUMFREP 10000 \n",
     "Oxygen":"NEUT-NUMBNDN 8 \n NEUT-NUMBNDP 8 \n NEUT-NUMATOM 16 \n NEUT-NUMFREP 0 \n",
