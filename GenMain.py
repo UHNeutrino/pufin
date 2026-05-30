@@ -8,14 +8,6 @@ import subprocess
 import GlobalV
 import glob
 
-# # Set PUfIN OUT location
-# export PUFIN_OUT=/data/t2k-nova/PUfINOutputs
-# # Check for Generator Variables
-
-
-# # Setup Python Alisis 
-# alias Gen-Main="python $(realpath ./Gen-Main.py)"
-
 def DirectorySetup(Generator, Target=None, Mode=None):
     OutPath = os.environ.get("PUFIN_OUT")
     Targets = []
@@ -124,7 +116,7 @@ def gen_series(Events: int, output_dir: str, final_directory: str):
         raise ValueError("GENIE_XSEC_TUNE is not set")
     TuneLabel = GENIE_XSEC_TUNE.split("_", 1)[0]
     
-    EventsPerJob = 100
+    EventsPerJob = 50000
     if Events % EventsPerJob != 0:
         raise ValueError(
             f"GENIE Events must be a multiple of {EventsPerJob}. Got {Events}."
@@ -267,13 +259,15 @@ def GenerateGenie(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=N
     if Target is not None:
         Targets = [Target]
         FilePaths, Targets = DirectorySetup(Generator, Target=Target)
+        
+    input_flavor = Flavor
 
     if Mode is None:
         Modes = ["CC", "NC"]
     else:
         Modes = [Mode]
     for Mode in Modes:
-        if Flavor is None:
+        if input_flavor is None:
             if Mode == "NC":
                 Flavors = ["14", "-14"]
             elif Mode == "CC":
@@ -281,7 +275,7 @@ def GenerateGenie(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=N
             else:
                 Flavors = ["12", "-12", "14", "-14"]
         else:
-            Flavors = [str(Flavor)]
+            Flavors = [str(input_flavor)]
     
         allowed_flavors = {"12", "-12", "14", "-14"}
         for flav in Flavors:
@@ -290,8 +284,8 @@ def GenerateGenie(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=N
                     f"Flavor must be one of 12, -12, 14, -14. Got {flav}."
                 )
 
-        for Flavor in Flavors:
-            flavor_label = GlobalV.NuPDGs[int(Flavor)]
+        for flavor in Flavors:
+            flavor_label = GlobalV.NuPDGs[int(flavor)]
 
             for target_name, final_dir in zip(Targets, FilePaths):
                 for _, info in GlobalV.NovaTargets.items():
@@ -312,7 +306,10 @@ def GenerateGenie(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=N
                 for Emin, Emax in energy_ranges:
                     Erange = f"{Emin}-{Emax}GeV"
                     #EventsPerJob = Events // nJobs ###############################################################
-
+                    print(
+                        f"CHECK: target={target_name}, Mode={Mode}, Flavor={Flavor}, "
+                        f"flavor_label={flavor_label}, Erange={Erange}"
+                    )
                     GENIE_VERSION = os.environ.get("GENIE_VERSION", "")
                     if not GENIE_VERSION:
                         raise ValueError("GENIE_VERSION is not set")
@@ -335,11 +332,16 @@ def GenerateGenie(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=N
                     original_file = find_expected_file(final_dir, expected_original)
                     flat_file = find_expected_file(final_dir, expected_flat)
 
+                    print(f"expected_original = {expected_original}")
+                    print(f"expected_flat     = {expected_flat}")
+                    print(f"found original?   = {original_file is not None}")
+                    print(f"found flat?       = {flat_file is not None}")
+
                     globals()["Target"] = TargetPDG
                     globals()["target_label"] = target_label
                     globals()["flavor_label"] = flavor_label
                     globals()["Mode"] = Mode
-                    globals()["Flavor"] = Flavor
+                    globals()["Flavor"] = flavor
                     globals()["Emin"] = Emin
                     globals()["Emax"] = Emax
                     globals()["Erange"] = Erange
@@ -380,10 +382,16 @@ def Generate(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=None, 
 
 
 if __name__ =="__main__":
-    
+# screen 
+# then leave it with ctrl+a+d
+# and reattach it with screen -r <name of screen>
+
+# # Set PUfIN OUT location
+# export PUFIN_OUT=/data/t2k-nova/PUfINOutputs
+
 #     python GenMain.py \
 #   --generator Genie \
-#   --events 200 
+#   --events 100000 
     
     parser = argparse.ArgumentParser()
 
