@@ -214,6 +214,8 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
             for Flavor in Flavors:
                 CNameList = []
                 if (Mode == "NC"):
+                    if (Flavor == "NuE" or Flavor == "NuEBar"):
+                        continue
                     for Name in FlatFluxNames:
                         part = Name.split("_")[2]        # "x-YGeV.root"
                         ErangeNC = part.replace(".root","")
@@ -347,7 +349,7 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, Multi
             GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor, Multi)
         case "neut":
 
-            MakeNeutCards(Tune, Targets, Events, Modes=Mode, Flavors=Flavor)
+            CardNames = MakeNeutCards(Tune, Targets, Events, Modes=Mode, Flavors=Flavor)
             GenNeutXsec(Tune, Targets)
 
             if Multi:
