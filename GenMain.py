@@ -129,7 +129,7 @@ def gen_series(Events: int, output_dir: str, final_directory: str):
         raise ValueError("GENIE_XSEC_TUNE is not set")
     TuneLabel = GENIE_XSEC_TUNE.split("_", 1)[0]
     
-    EventsPerJob = 100
+    EventsPerJob = 50000
     if Events % EventsPerJob != 0:
         raise ValueError(
             f"GENIE Events must be a multiple of {EventsPerJob}. Got {Events}."
@@ -367,6 +367,16 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, Multi
 
 
 if __name__ =="__main__":
+# screen 
+# then leave it with ctrl+a+d
+# and reattach it with screen -r <name of screen>
+
+# # Set PUfIN OUT location
+# export PUFIN_OUT=/data/t2k-nova/PUfINOutputs
+
+#     python GenMain.py \
+#   --generator Genie \
+#   --events 100000 
     
     parser = argparse.ArgumentParser()
 
