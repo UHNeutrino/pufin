@@ -202,7 +202,7 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
     CardPath = OutPath+"/"+"NEUT"+"/"+"Cards"
     os.makedirs(CardPath, exist_ok=True)
     CardNames = []
-    FlatFluxNames = ["flat_flux_0-8GeV.root","flat_flux_8-30GeV.root","flat_flux_30-120GeV.root"]
+    FlatFluxNames = ["flat_flux_0-8GeV.root","flat_flux_8-30GeV.root"]
     Erange = "0-8GeV"
 
     if not Modes:
@@ -219,11 +219,11 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
                     for Name in FlatFluxNames:
                         part = Name.split("_")[2]        # "x-YGeV.root"
                         ErangeNC = part.replace(".root","")
-                        CName0 = f"NEUT{NeutVersion}_{Tune}_{Mode}_{Flavor}_{ErangeNC}_{Target}_{Events}.card"
+                        CName0 = f"NEUT{NeutVersion}_{Tune}_{Mode}_{Flavor}_{ErangeNC}_{Target}_{Events:.0e}.card".replace("+", "")
                         CardNames.append(CName0) #one is to iterate over, one is to save at the end
                         CNameList.append(CName0)
                 else:
-                    CName0 = f"NEUT{NeutVersion}_{Tune}_{Mode}_{Flavor}_{Erange}_{Target}_{Events}.card"
+                    CName0 = f"NEUT{NeutVersion}_{Tune}_{Mode}_{Flavor}_{Erange}_{Target}_{Events:.0e}.card".replace("+", "")
                     CardNames.append(CName0)
                     CNameList.append(CName0)
                 for CName in CNameList:
@@ -237,37 +237,57 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
                         match Flavor:
                             case "NuMu":
                                 CardString = CardString + f"\nEVCT-NEVT {Events}\n"
+                                CardString = CardString + GlobalV.NeutCardModes.get(Mode)
                             case "NuMuBar":
                                 SpecialEvent = int(Events/20)
                                 if SpecialEvent < 2000:
                                     SpecialEvent = 2000
                                 CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
+                                CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
+                                CardString = CardString + GlobalV.AntiNeutCardModes.get(Mode)
                             case "NuE":
                                 SpecialEvent = int(Events/200)
                                 if SpecialEvent < 2000:
                                     SpecialEvent = 2000
                                 CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
+                                CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
+                                CardString = CardString + GlobalV.NeutCardModes.get(Mode)
                             case "NuEBar":
-                                SpecialEvent = int(Events/2000)
+                                SpecialEvent = int(Events/200)
                                 if SpecialEvent < 2000:
                                     SpecialEvent = 2000
                                 CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
+                                CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
+                                CardString = CardString + GlobalV.AntiNeutCardModes.get(Mode)
                             case _:
                                 raise ValueError("UNKNOWN FLAVOR")
-                        CardString = CardString + GlobalV.NeutCardModes.get(Mode)
+                        
                         CardString = CardString + GlobalV.NeutCardFlavors.get(Flavor)
                         CardString = CardString + GlobalV.NeutCardTargets.get(Target)
                         tempErange = CName.split("_")[-3]
+                        low = tempErange.split("-")[0]
                         if (tempErange != "0-8GeV"):
                             print("NOT 0-8GeV")
-                            CardString = CardString.replace("EVCT-FILENM 'full_flat_flux_0-8.0GeV.root'",f"EVCT-FILENM 'full_flat_flux_{tempErange}.root'" )
+                            CardString = CardString.replace("EVCT-FILENM 'flat_flux_0-8GeV.root'",f"EVCT-FILENM 'flat_flux_{tempErange}.root'" )
+                            CardString = CardString.replace("EVCT-HISTNM 'FlatHist'",f"EVCT-HISTNM 'FlatHist_{low}''" )
+                        else:
+                            CardString = CardString.replace("EVCT-HISTNM 'FlatHist'",f"EVCT-HISTNM 'FlatHist_{low}''" )
 
+                            
 
-                        if(NeutVersion == "5-6-4" or NeutVersion == "5-9-0") and Target == "Titanium" and Tune == "Prod7E":
+                        if(NeutVersion == "5-6-4" or NeutVersion == "5-9-0") and Target == "Titanium":
                             # TI is dumb in 5-6-4
-                            print("Special Ti Problem in 5.6.4. and 5.9.0")
-                            CardString = CardString.replace("NEUT-MDL2P2H 2","NEUT-MDL2P2H 1")
-                            CardString = CardString.replace("NEUT-MDLQE 402","NEUT-MDLQE 002")
+                            # print("Special Ti Problem in 5.6.4. and 5.9.0")
+                            if "NEUT-MDLQE 402" in CardString:
+                                CardString = CardString.replace("NEUT-MDLQE 402","NEUT-MDLQE 002")
+                            else:
+                                CardString = CardString + "NEUT-MDLQE 002 \n"
+
+                            if "NEUT-MDL2P2H 2" in CardString:
+                                CardString = CardString.replace("NEUT-MDL2P2H 2","NEUT-MDL2P2H 1")
+                            else:
+                                CardString = CardString + "NEUT-MDL2P2H 1 \n"
+
                         # print(CardString)
                         with open(f, "w") as file:
                             file.write(CardString)
@@ -322,10 +342,12 @@ def GenNeutXsec(Tune, Targets, FullCardPath=None):
     else:
         for Target in Targets:
             for Flavor in GlobalV.Flavors:
+                if Flavor != "NuMu":
+                    continue
                 CName = f"NEUT{NeutVersion}_{Tune}_CC_{Flavor}_0-8GeV_{Target}_*.card"
                 CardPaths = glob.glob(CardDir+"/"+CName)    #Grab any # of events for this card, then grab the first one
                 CardPath = CardPaths[0]
-                XsecName = f"NEUT{NeutVersion}_{Tune}_{Flavor}_{Target}_XSECHIST.root"
+                XsecName = f"NEUT{NeutVersion}_{Tune}_{Target}_XSECHIST.root"
                 XsecPath = XsecDir+"/"+ XsecName
                 if not os.path.exists(XsecPath):
                     # copy file to temp dir with same name
@@ -335,6 +357,86 @@ def GenNeutXsec(Tune, Targets, FullCardPath=None):
                     shutil.move(f"{tmpdir}/neut_xsecs.root", os.path.join(XsecDir, XsecName))
                 else:
                     print(f"Xsec hists {XsecName} exists")
+       
+def GenNeut(CardNames):
+    # Generates for every card given, 
+    OutPath = os.environ.get("PUFIN_OUT")
+    user = os.environ.get("USER")
+    tmpdir = f"{OutPath}/{user}_temp_dir"
+    CardDir = OutPath+"/"+"NEUT"+"/"+"Cards"
+    FluxDir= OutPath+"/"+"FlatFluxes"
+    GenList = []
+    #Copy all Fluxes to tmp dir
+    for flux in os.listdir(FluxDir):
+        FluxPath = os.path.join(FluxDir, flux)
+        if os.path.isfile(FluxPath) and not os.path.exists(tmpdir+"/"+flux):  # skip subdirectories and doesn't double copy
+            shutil.copy(FluxPath, tmpdir)
+
+    for Card in CardNames:
+        Target = Card.split("_")[5]
+        GenDir = OutPath + f"/NEUT/{Target}"
+        # print(Target)
+        GenName = Card.replace("NEUT", "Original_NEUT")
+        GenName = GenName.replace(".card",".root")
+        GenList.append(GenName)
+        f = GenDir + f"/{GenName}"
+        RunBool = not os.path.exists(f)
+        if RunBool == False:
+            RFile = ROOT.TFile(f)
+            if RFile.IsZombie():
+                os.remove(f) #if it failed previously, delete the zombie and regenerate 
+                RunBool = True
+            elif not RFile.Get("fluxhisto"):
+                os.remove(f) #same thing if it is empty
+                RunBool = True
+
+            RFile.Close()
+        if RunBool:
+            exec_string=""
+            exec_string += f"neutroot2 {Card} {GenName}"
+            # copy card to temp dir with same name
+            shutil.copy(CardDir+"/"+Card, os.path.join(tmpdir, os.path.basename(Card)))
+            # run command in temp dir
+            subprocess.run(exec_string, cwd=tmpdir, shell=True)
+            shutil.move(f"{tmpdir}/{GenName}", os.path.join(GenDir, GenName))
+            os.remove(tmpdir+"/"+Card)
+            print(exec_string)
+            print(f"Generated {GenName}")
+        else:
+            print(f"NEUT FILE {GenName} exists and works")
+    return GenList
+
+def FlatNeut(GenList):
+    # Generates for every card given, 
+    OutPath = os.environ.get("PUFIN_OUT")
+    user = os.environ.get("USER")
+    tmpdir = f"{OutPath}/{user}_temp_dir"
+
+    for Gen in GenList:
+        Target = Gen.split("_")[6]
+        GenDir = OutPath + f"/NEUT/{Target}"
+        print(Target)
+        FlatName = Gen.replace("Original", "Flat")
+        f = GenDir + f"/{FlatName}"
+        RunBool = not os.path.exists(f)
+        if RunBool == False:
+            RFile = ROOT.TFile(f)
+            if RFile.IsZombie():
+                os.remove(f) #if it failed previously, delete the zombie and regenerate 
+                RunBool = True
+            elif not RFile.Get("FlatTree_VARS"):
+                os.remove(f) #same thing if it is empty
+                RunBool = True
+            RFile.Close()
+        if RunBool:
+            exec_string=""
+            exec_string += f"nuisflat -i NEUT:{Gen} -o {FlatName}"
+            # run command in Gen dir
+            subprocess.run(exec_string, cwd=GenDir, shell=True)
+            print(exec_string)
+            print(f"Generated {FlatName}")
+        else:
+            print(f"NEUT FILE {FlatName} exists and works")
 
 
 

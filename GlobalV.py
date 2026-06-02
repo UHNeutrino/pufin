@@ -25,6 +25,9 @@ FGD1 = {
 
 NeutCardModes = {"CC": "NEUT-CRS 1 1 1 1 1 0 0 0 0  0  0  0  0  1  0  1  0  0  1  0  0  0  1  0  1  0  0  1  1  0\n",
                  "NC": "NEUT-CRS 0 0 0 0 0 1 1 1 1  1  1  1  1  0  1  0  1  1  0  1  1  1  0  1  0  1  1  0  0  1\n"}
+AntiNeutCardModes = {"CC": "NEUT-CRSB 1 1 1 1 1 0 0 0 0  0  0  0  0  1  0  1  0  0  1  0  0  0  1  0  1  0  0  1  1  0\n",
+                 "NC": "NEUT-CRSB 0 0 0 0 0 1 1 1 1  1  1  1  1  0  1  0  1  1  0  1  1  1  0  1  0  1  1  0  0  1\n"}
+
 NeutCardFlavors = {"NuMu": "EVCT-IDPT 14 \n",
                     "NuMuBar":"EVCT-IDPT -14 \n",
                     "NuE": "EVCT-IDPT 12 \n",
@@ -45,10 +48,22 @@ NEUT-SFCORRNNFRAC 0.3
 NEUT-MDL2P2H 2
 NEUT-RAND 0
 NEUT-QUIET 2
-EVCT-FILENM 'full_flat_flux_0-8.0GeV.root'
+EVCT-FILENM 'flat_flux_0-8GeV.root'
 EVCT-HISTNM 'FlatHist'
 NEUT-RAND 1""",
-    "Nuisance": """"""
+    "Nuis": """EVCT-MPOS 1
+EVCT-POS  0. 0. 0.
+EVCT-MDIR 1
+EVCT-DIR 0. 0. 1.
+EVCT-MPV 3
+EVCT-INMEV 0
+NEUT-MODE -1
+NEUT-MDL2P2H 2
+NEUT-MDLQE 402
+EVCT-FILENM 'flat_flux_0-8GeV.root'
+EVCT-HISTNM 'FlatHist'
+NEUT-RAND 1
+"""
 }
 
 NuPDGs = {
