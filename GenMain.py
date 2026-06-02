@@ -455,9 +455,10 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, Multi
             GenNeutXsec(Tune, Targets)
 
             if Multi:
-                raise NotImplementedError("GenerateNeut is not done yet")
-            
-            raise NotImplementedError("GenerateNeut is not done yet")
+                raise NotImplementedError("GenerateNeut Multi is not done yet")
+            else:
+                GenList = GenNeut(CardNames)
+            FlatNeut(GenList)
         case _:
             raise ValueError("Generator must be 'Genie' or 'Neut'")
 
