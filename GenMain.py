@@ -450,7 +450,8 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, Multi
         case "genie":
             GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor, Multi)
         case "neut":
-
+            if not Tune:
+                raise ValueError("Neut requires a tune")
             CardNames = MakeNeutCards(Tune, Targets, Events, Modes=Mode, Flavors=Flavor)
             GenNeutXsec(Tune, Targets)
 

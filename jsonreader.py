@@ -184,6 +184,8 @@ def MakeStacks(stacks,GlobalSettings):
             df = pp.DefineTKI(df)
         if (GlobalSettings["ThresholdsB"]):
             df = pp.FlagParticleThresholds(df)
+        if (GlobalSettings["KinematicsB"]):
+            df = pp.DefineKinematics(df)
         if reweight_flag:
             df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xspline, areaB = areaB, undoNormB = undoNormB)
             weight_col = "weights"
