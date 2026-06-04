@@ -114,86 +114,6 @@ def gev_gen_genie(events: int, i: int):
 
     return f"{output_dir}/{out_name}"
 
-
-def gen_series(Events: int, output_dir: str, final_directory: str):
-    """Generate GENIE files serially and return list of filenames."""
-    output_path = pathlib.Path(output_dir)
-    if output_path.exists():
-        shutil.rmtree(output_path)
-    output_path.mkdir(parents=True)
-
-    out_files = []
-    
-    GENIE_XSEC_TUNE = os.environ.get("GENIE_XSEC_TUNE", "")
-    if not GENIE_XSEC_TUNE:
-        raise ValueError("GENIE_XSEC_TUNE is not set")
-    TuneLabel = GENIE_XSEC_TUNE.split("_", 1)[0]
-    
-    EventsPerJob = 50000
-    if Events % EventsPerJob != 0:
-        raise ValueError(
-            f"GENIE Events must be a multiple of {EventsPerJob}. Got {Events}."
-        )
-    nJobs = Events//EventsPerJob
-
-    for i in range(nJobs):
-        out_file = gev_gen_genie(EventsPerJob, i)
-        out_files.append(out_file)
-        
-
-    EventsLabel = f"{Events:.0e}".replace("+0", "").replace("+", "")    
-    outFileName = f"Original_{Generator}{Version}_{TuneLabel}_{Mode}_{flavor_label}_{Erange}_{target_label}"
-    FinaloutFileName = f"{outFileName}_{EventsLabel}"
-
-    final_genie = f"{output_dir}/{FinaloutFileName}.root"
-
-    hadd_cmd = f'hadd -f -k "{final_genie}" ' + " ".join(f'"{f}"' for f in out_files)
-    print(f"Running: {hadd_cmd}")
-    subprocess.run(hadd_cmd, shell=True, check=True)
-    
-    final_copy = f"{final_directory}/{FinaloutFileName}.root"
-    shutil.copy2(final_genie, final_copy)
-    print(f"Copied final file to {final_copy}")
-    
-    return out_files, final_genie, final_copy
-
-def gen_flatten(original_file: str):
-    """Prepare and flatten one specific GENIE file."""
-    original_path = pathlib.Path(original_file)
-    if not original_path.exists():
-        raise FileNotFoundError(f"Missing original file: {original_file}")
-
-    final_dir = original_path.parent
-    original_name = original_path.name
-
-    prep_name = original_name.replace("Original_", "Prep_", 1)
-    flat_name = original_name.replace("Original_", "Flat_", 1)
-
-    prep_file = final_dir / prep_name
-    flat_file = final_dir / flat_name
-
-    prepare_cmd = f"""
-    PrepareGENIE \
-      -i "{original_path}" \
-      -t "{Target}" \
-      -o "{prep_file}" \
-      -f "{Flux_directory}/full_flat_flux_{Emin}-{Emax}GeV.root,h1"
-    """
-    print("Preparing GENIE file...")
-    subprocess.run(prepare_cmd, shell=True, executable="/bin/bash", check=True)
-
-    flatten_cmd = f"""
-    nuisflat \
-      -i "GENIE:{prep_file}" \
-      -o "{flat_file}"
-    """
-    print("Flattening GENIE file...")
-    subprocess.run(flatten_cmd, shell=True, executable="/bin/bash", check=True)
-
-    if prep_file.exists():
-        prep_file.unlink()
-    return str(flat_file)
-
 def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
     OutPath = os.environ.get("PUFIN_OUT")
     if not os.environ.get("NEUT_VERSION"):
@@ -357,6 +277,16 @@ def GenNeutXsec(Tune, Targets, FullCardPath=None):
                     shutil.move(f"{tmpdir}/neut_xsecs.root", os.path.join(XsecDir, XsecName))
                 else:
                     print(f"Xsec hists {XsecName} exists")
+
+def FluxToTemp():
+    OutPath = os.environ.get("PUFIN_OUT")
+    user = os.environ.get("USER")
+    tmpdir = f"{OutPath}/{user}_temp_dir"
+    FluxDir= OutPath+"/"+"FlatFluxes"
+    for flux in os.listdir(FluxDir):
+        FluxPath = os.path.join(FluxDir, flux)
+        if os.path.isfile(FluxPath) and not os.path.exists(tmpdir+"/"+flux):  # skip subdirectories and doesn't double copy
+            shutil.copy(FluxPath, tmpdir)
        
 def GenNeut(CardNames):
     # Generates for every card given, 
@@ -367,10 +297,7 @@ def GenNeut(CardNames):
     FluxDir= OutPath+"/"+"FlatFluxes"
     GenList = []
     #Copy all Fluxes to tmp dir
-    for flux in os.listdir(FluxDir):
-        FluxPath = os.path.join(FluxDir, flux)
-        if os.path.isfile(FluxPath) and not os.path.exists(tmpdir+"/"+flux):  # skip subdirectories and doesn't double copy
-            shutil.copy(FluxPath, tmpdir)
+    FluxToTemp()
 
     for Card in CardNames:
         Target = Card.split("_")[5]
@@ -389,7 +316,6 @@ def GenNeut(CardNames):
             elif not RFile.Get("fluxhisto"):
                 os.remove(f) #same thing if it is empty
                 RunBool = True
-
             RFile.Close()
         if RunBool:
             exec_string=""
@@ -406,6 +332,89 @@ def GenNeut(CardNames):
             print(f"NEUT FILE {GenName} exists and works")
     return GenList
 
+def GenNeutFlatSingle(Card, i:int):
+    OutPath = os.environ.get("PUFIN_OUT")
+    user = os.environ.get("USER")
+    tmpdir = f"{OutPath}/{user}_temp_dir"
+    Target = Card.split("_")[5]
+    GenDir = OutPath + f"/NEUT/{Target}"
+    
+
+    GenName = Card.replace("NEUT", "Original_NEUT")
+    GenName = GenName.replace(".card",f"P{i:03}.root") #removes .card, .root gets added later
+    GenList = [GenName]
+    f = GenDir + f"/{GenName}"
+
+    RunBool = not os.path.exists(f)
+    if RunBool == False:
+        RFile = ROOT.TFile(f)
+        if RFile.IsZombie():
+            os.remove(f) #if it failed previously, delete the zombie and regenerate 
+            RunBool = True
+        elif not RFile.Get("fluxhisto"):
+            os.remove(f) #same thing if it is empty
+            RunBool = True
+        RFile.Close()
+
+    if RunBool:
+        exec_string=""
+        exec_string += f"neutroot2 {Card} {GenName}"
+        
+        subprocess.run(exec_string, cwd=tmpdir, shell=True)
+        shutil.move(f"{tmpdir}/{GenName}", os.path.join(GenDir, GenName))
+        # os.remove(tmpdir+"/"+Card)
+        print(exec_string)
+        print(f"Generated {GenName}")
+    else:
+        print("Original File exists")
+    FlatNeut(GenList)
+    return RunBool
+
+
+def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, NodeID):
+    if CPUPercent > 1 and CPUPercent <= 100:
+        CPUPercent /= 100
+    elif CPUPercent > 100 or CPUPercent < 0:
+        raise ValueError("CorePercent must be 0<x leq 1 or 1<x<100")
+    
+    
+    NCores = max(1,int(os.environ.get("SLURM_CPUS_PER_TASK", cpu_count()*CPUPercent)))
+    if NCores>NChunks:
+        NCores = NChunks
+    NNodes = int(os.environ.get("SLURM_NNODES", 1))
+
+    OutPath = os.environ.get("PUFIN_OUT")
+    user = os.environ.get("USER")
+    tmpdir = f"{OutPath}/{user}_temp_dir"
+    GenList = [] #used for flattening later
+
+    SlurmTaskID = os.environ.get("SLURM_ARRAY_TASK_ID")
+    SlurmNtasks = os.environ.get("SLURM_NTASKS")
+    CardNames = CardNames[NodeID::NNodes] #split up card name based on number of nodes
+
+    for Card in CardNames:
+        # Copy Card to temp dir 
+        # Change number of events in card from N to 100,000
+        i_list =[]
+        CardList = []
+        GenName = Card.replace("NEUT", "Original_NEUT")
+        for i in range(0,NChunks):
+            i_list.append(i)
+            CardList.append(Card) #List of the same card (Cores) times
+        # copy the card path for all cores to use
+        CardDir = OutPath+"/"+"NEUT"+"/"+"Cards"
+        shutil.copy(CardDir+"/"+Card, os.path.join(tmpdir, os.path.basename(Card)))
+        # proccessed files list
+        
+        RunList = []
+        with concurrent.futures.ProcessPoolExecutor(max_workers=NCores) as exe: 
+            for result in exe.map(GenNeutFlatSingle, CardList, i_list):
+                RunList.append(result)
+        
+        os.remove(tmpdir+"/"+Card)
+
+    return RunList
+
 def FlatNeut(GenList):
     # Generates for every card given, 
     OutPath = os.environ.get("PUFIN_OUT")
@@ -421,19 +430,27 @@ def FlatNeut(GenList):
         RunBool = not os.path.exists(f)
         if RunBool == False:
             RFile = ROOT.TFile(f)
-            if RFile.IsZombie():
+            if (RFile.IsZombie()) or (not RFile.Get("FlatTree_VARS")):
                 os.remove(f) #if it failed previously, delete the zombie and regenerate 
-                RunBool = True
-            elif not RFile.Get("FlatTree_VARS"):
-                os.remove(f) #same thing if it is empty
                 RunBool = True
             RFile.Close()
         if RunBool:
+            GenPath = f"{GenDir}/{Gen}"
+            print(GenPath)
+            try:
+                Genf = ROOT.TFile(GenPath)
+            except:
+                raise RuntimeError("Cannot open file")
+            
+            if (Genf.IsZombie()) or (not Genf.Get("fluxhisto")):
+                Genf.Close()
+                raise RuntimeError("Generation of file failed, cannot flatten")
+            Genf.Close()
             exec_string=""
             exec_string += f"nuisflat -i NEUT:{Gen} -o {FlatName}"
             # run command in Gen dir
             subprocess.run(exec_string, cwd=GenDir, shell=True)
-            print(exec_string)
+            # print(exec_string)
             print(f"Generated {FlatName}")
         else:
             print(f"NEUT FILE {FlatName} exists and works")
@@ -441,9 +458,13 @@ def FlatNeut(GenList):
 
 
 
-def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, Multi=None):
+def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, CPUPercent=None, NChunks=None):
     # Grab/Make paths for output generated files
-    FilePath,Targets = DirectorySetup(Generator, Target=Target, Mode=Mode)
+    OutPath = os.environ.get("PUFIN_OUT")
+    if OutPath==None:
+        raise ValueError("PUFIN_OUT Needs to be defined!")
+
+    FilePath,Targets = DirectorySetup(Generator, SingleTarget=Target, Mode=Mode)
     FlatFluxMaker()
 
     match Generator.lower():
@@ -455,11 +476,22 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, Multi
             CardNames = MakeNeutCards(Tune, Targets, Events, Modes=Mode, Flavors=Flavor)
             GenNeutXsec(Tune, Targets)
 
-            if Multi:
-                raise NotImplementedError("GenerateNeut Multi is not done yet")
+            if CPUPercent and NChunks:
+                SlurmTaskID = os.environ.get("SLURM_ARRAY_TASK_ID")
+                if SlurmTaskID is not None:
+                    # SLURM is handling the node distribution, just run node-level
+                    if SlurmTaskID==0:
+                        FluxToTemp()
+                    RunList = GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, int(SlurmTaskID))
+                else:
+                    FluxToTemp()
+                    RunList = GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, 0)
+                # raise NotImplementedError("GenerateNeut Multi is not done yet")
+            elif CPUPercent or NChunks:
+                raise ValueError("Need both CPUPercent and NChunk for multi processing")
             else:
                 GenList = GenNeut(CardNames)
-            FlatNeut(GenList)
+                FlatNeut(GenList)
         case _:
             raise ValueError("Generator must be 'Genie' or 'Neut'")
 
@@ -490,7 +522,9 @@ if __name__ =="__main__":
     parser.add_argument("--target", default=None)
     parser.add_argument("--mode", default=None)
     parser.add_argument("--flavor", default=None)
-    parser.add_argument("--multi", default=None)
+    parser.add_argument("--CPUPercent", default=None)
+    parser.add_argument("--NChunks", default=None)
+
 
     args = parser.parse_args()
 
@@ -501,7 +535,9 @@ if __name__ =="__main__":
         Target=args.target,
         Mode=args.mode,
         Flavor=args.flavor,
-        Multi=args.multi,
+        CPUPercent=args.CPUPercent,
+        NChunks=args.NChunks,
+
     )
     
     # Tune = "Prod7E"
