@@ -2,11 +2,12 @@ import os
 import argparse
 import ROOT
 import random
-import pathlib
 import shutil
 import subprocess
 import GlobalV
 import glob
+import concurrent.futures
+from multiprocessing import cpu_count
 
 
 # PDGs = {
@@ -21,7 +22,7 @@ import glob
 #     "-14": "NuMuBar",
 # }
 
-def DirectorySetup(Generator, Target=None, Mode=None):
+def DirectorySetup(Generator, SingleTarget=None, Mode=None):
     OutPath = os.environ.get("PUFIN_OUT")
     Targets = []
     match Generator.lower():
@@ -46,11 +47,11 @@ def DirectorySetup(Generator, Target=None, Mode=None):
     #     FilePaths = [OutPath + "/" + Generator.upper() + "/" + Target + "/"]
     #     Targets = [Target]
         
-    if Target:
+    if SingleTarget:
         OnePath = OutPath + "/" + Generator.upper() + "/" + Target + "/"
         os.makedirs(OnePath, exist_ok=True)
         FilePaths = [OnePath]
-        Targets = [Target]
+        Targets = [SingleTarget]
 
     print(f"Outputting to {FilePaths}")
     return FilePaths, Targets
@@ -371,7 +372,9 @@ def GenNeutFlatSingle(Card, i:int):
     return RunBool
 
 
-def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, NodeID):
+def GenNeutMultiOnNode(CardNames, CPUPercentS, NChunksS, NodeID):
+    CPUPercent = float(CPUPercentS)
+    NChunks = int(NChunksS)
     if CPUPercent > 1 and CPUPercent <= 100:
         CPUPercent /= 100
     elif CPUPercent > 100 or CPUPercent < 0:
@@ -390,6 +393,7 @@ def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, NodeID):
 
     SlurmTaskID = os.environ.get("SLURM_ARRAY_TASK_ID")
     SlurmNtasks = os.environ.get("SLURM_NTASKS")
+
     CardNames = CardNames[NodeID::NNodes] #split up card name based on number of nodes
 
     for Card in CardNames:
