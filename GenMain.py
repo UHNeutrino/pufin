@@ -520,29 +520,50 @@ if __name__ =="__main__":
     
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--generator", required=True)
-    parser.add_argument("--events", required=True, type=int)
-    parser.add_argument("--tune", default=None)
-    parser.add_argument("--target", default=None)
-    parser.add_argument("--mode", default=None)
-    parser.add_argument("--flavor", default=None)
-    parser.add_argument("--CPUPercent", default=None)
-    parser.add_argument("--NChunks", default=None)
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    #If just regular Generating:
+    GenParser = subparsers.add_parser("Gen")
+    GenParser.add_argument("--generator", required=True)
+    GenParser.add_argument("--events", required=True, type=int)
+    GenParser.add_argument("--tune", default=None)
+    GenParser.add_argument("--target", default=None)
+    GenParser.add_argument("--mode", default=None)
+    GenParser.add_argument("--flavor", default=None)
+    GenParser.add_argument("--CPUPercent", default=None)
+    GenParser.add_argument("--NChunks", default=None)
+    #If Being called by GenSubmit on multiple Nodes:
+    NeutMultParser = subparsers.add_parser("NeutMult")
+    GenParser.add_argument("--Cards", required=True)
+    GenParser.add_argument("--CPUPercent", required=True)
+    GenParser.add_argument("--NChunks", required=True)
+    GenParser.add_argument("--NodeID", required=True)
 
+    
+
+
+    
 
     args = parser.parse_args()
+    match args.command:
+        case "Gen":
+            Generate(
+                Generator=args.generator,
+                Events=args.events,
+                Tune=args.tune,
+                Target=args.target,
+                Mode=args.mode,
+                Flavor=args.flavor,
+                CPUPercent=args.CPUPercent,
+                NChunks=args.NChunks,
+            )
+        case "NeutMult":
+            GenNeutMultiOnNode(
+                CardName=args.Cards,
+                CPUPercentS=args.CPUPercent,
+                NChunksS=args.NChunks,
+                NodeID = args.NodeID
+                )
 
-    Generate(
-        Generator=args.generator,
-        Events=args.events,
-        Tune=args.tune,
-        Target=args.target,
-        Mode=args.mode,
-        Flavor=args.flavor,
-        CPUPercent=args.CPUPercent,
-        NChunks=args.NChunks,
-
-    )
     
     # Tune = "Prod7E"
     # Targets = ["Carbon", "Hydrogen", "Oxygen", "Titanium"]
