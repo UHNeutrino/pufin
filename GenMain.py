@@ -7,6 +7,7 @@ import subprocess
 import GlobalV
 import glob
 import concurrent.futures
+import json5
 from multiprocessing import cpu_count
 
 
@@ -161,22 +162,22 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
                                 CardString = CardString + GlobalV.NeutCardModes.get(Mode)
                             case "NuMuBar":
                                 SpecialEvent = int(Events/20)
-                                if SpecialEvent < 2000:
-                                    SpecialEvent = 2000
+                                if SpecialEvent < 1000:
+                                    SpecialEvent = 1000
                                 CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
                                 CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
                                 CardString = CardString + GlobalV.AntiNeutCardModes.get(Mode)
                             case "NuE":
                                 SpecialEvent = int(Events/200)
-                                if SpecialEvent < 2000:
-                                    SpecialEvent = 2000
+                                if SpecialEvent < 1000:
+                                    SpecialEvent = 1000
                                 CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
                                 CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
                                 CardString = CardString + GlobalV.NeutCardModes.get(Mode)
                             case "NuEBar":
                                 SpecialEvent = int(Events/200)
-                                if SpecialEvent < 2000:
-                                    SpecialEvent = 2000
+                                if SpecialEvent < 1000:
+                                    SpecialEvent = 1000
                                 CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
                                 CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
                                 CardString = CardString + GlobalV.AntiNeutCardModes.get(Mode)
@@ -372,9 +373,7 @@ def GenNeutFlatSingle(Card, i:int):
     return RunBool
 
 
-def GenNeutMultiOnNode(CardNames, CPUPercentS, NChunksS, NodeID):
-    CPUPercent = float(CPUPercentS)
-    NChunks = int(NChunksS)
+def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, NodeID,NNodes=None):
     if CPUPercent > 1 and CPUPercent <= 100:
         CPUPercent /= 100
     elif CPUPercent > 100 or CPUPercent < 0:
@@ -384,7 +383,8 @@ def GenNeutMultiOnNode(CardNames, CPUPercentS, NChunksS, NodeID):
     NCores = max(1,int(os.environ.get("SLURM_CPUS_PER_TASK", cpu_count()*CPUPercent)))
     if NCores>NChunks:
         NCores = NChunks
-    NNodes = int(os.environ.get("SLURM_NNODES", 1))
+    if NNodes==None:
+        NNodes = 1
 
     OutPath = os.environ.get("PUFIN_OUT")
     user = os.environ.get("USER")
@@ -397,6 +397,11 @@ def GenNeutMultiOnNode(CardNames, CPUPercentS, NChunksS, NodeID):
     CardNames = CardNames[NodeID::NNodes] #split up card name based on number of nodes
 
     for Card in CardNames:
+        TempChunk = NChunks
+        if "NuMuBar" in Card:
+            TempChunk = int(NChunks/20)
+        elif "NuE" in Card:
+            TempChunk = int(NChunks/200)
         # Copy Card to temp dir 
         # Change number of events in card from N to 100,000
         i_list =[]
@@ -404,14 +409,14 @@ def GenNeutMultiOnNode(CardNames, CPUPercentS, NChunksS, NodeID):
         GenName = Card.replace("NEUT", "Original_NEUT")
         for i in range(0,NChunks):
             i_list.append(i)
-            CardList.append(Card) #List of the same card (Cores) times
+            CardList.append(Card) #List of the same card (Chunks) times
         # copy the card path for all cores to use
         CardDir = OutPath+"/"+"NEUT"+"/"+"Cards"
         shutil.copy(CardDir+"/"+Card, os.path.join(tmpdir, os.path.basename(Card)))
         # proccessed files list
         
         RunList = []
-        with concurrent.futures.ProcessPoolExecutor(max_workers=NCores) as exe: 
+        with concurrent.futures.ProcessPoolExecutor(max_workers=TempChunk) as exe: 
             for result in exe.map(GenNeutFlatSingle, CardList, i_list):
                 RunList.append(result)
         
@@ -529,14 +534,15 @@ if __name__ =="__main__":
     GenParser.add_argument("--target", default=None)
     GenParser.add_argument("--mode", default=None)
     GenParser.add_argument("--flavor", default=None)
-    GenParser.add_argument("--CPUPercent", default=None)
-    GenParser.add_argument("--NChunks", default=None)
+    GenParser.add_argument("--CPUPercent", default=None, type=float)
+    GenParser.add_argument("--NChunks", default=None, type=int)
     #If Being called by GenSubmit on multiple Nodes:
     NeutMultParser = subparsers.add_parser("NeutMult")
-    GenParser.add_argument("--Cards", required=True)
-    GenParser.add_argument("--CPUPercent", required=True)
-    GenParser.add_argument("--NChunks", required=True)
-    GenParser.add_argument("--NodeID", required=True)
+    NeutMultParser.add_argument("--Cards", required=True)
+    NeutMultParser.add_argument("--CPUPercent", required=True)
+    NeutMultParser.add_argument("--NChunks", required=True)
+    NeutMultParser.add_argument("--NodeID", required=True)
+    NeutMultParser.add_argument("--NNodes", required=True)
 
     
 
@@ -553,15 +559,16 @@ if __name__ =="__main__":
                 Target=args.target,
                 Mode=args.mode,
                 Flavor=args.flavor,
-                CPUPercent=args.CPUPercent,
-                NChunks=args.NChunks,
+                CPUPercent=float(args.CPUPercent),
+                NChunks=int(args.NChunks),
             )
         case "NeutMult":
             GenNeutMultiOnNode(
-                CardName=args.Cards,
-                CPUPercentS=args.CPUPercent,
-                NChunksS=args.NChunks,
-                NodeID = args.NodeID
+                CardName=json5.loads(args.Cards),
+                CPUPercentS=float(args.CPUPercent),
+                NChunksS=int(args.NChunks),
+                NodeID = int(args.NodeID),
+                NNodes = int(args.NNodes)
                 )
 
     
