@@ -15,12 +15,13 @@ from multiprocessing import cpu_count
 # Then it runs GenMain->GenNeutMultiOnNode on multiple nodes with the nodeID and NChunks given
 
 
-def NeutRunScript(Generator, Tune, Events, TotalNodes, Target=None, Mode=None, Flavor=None, CPUPercent=None, NChunks=None):
+def NeutRunScript(Generator, Tune, Events, TotalNodes, NChunks, Target=None, Mode=None, Flavor=None, CPUPercent=None):
     FilePath,Targets = GenMain.DirectorySetup(Generator, SingleTarget=Target, Mode=Mode)
     GenMain.FlatFluxMaker()
     CardNames = GenMain.MakeNeutCards(Tune, Targets, Events, Modes=Mode, Flavors=Flavor)
     GenMain.GenNeutXsec(Tune, Targets)
     processes = []
+    CardNames = GenMain.CheckNeutFiles(CardNames,NChunks)
     if CPUPercent > 1 and CPUPercent <= 100:
         CPUPercent /= 100
     elif CPUPercent > 100 or CPUPercent < 0:

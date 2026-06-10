@@ -116,7 +116,7 @@ def gev_gen_genie(events: int, i: int):
 
     return f"{output_dir}/{out_name}"
 
-def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
+def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=None):
     OutPath = os.environ.get("PUFIN_OUT")
     if not os.environ.get("NEUT_VERSION"):
         raise ValueError("NEUT_VERSION Environment Variable Not Defined")
@@ -144,10 +144,12 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
                         CName0 = f"NEUT{NeutVersion}_{Tune}_{Mode}_{Flavor}_{ErangeNC}_{Target}_{Events:.0e}.card".replace("+", "")
                         CardNames.append(CName0) #one is to iterate over, one is to save at the end
                         CNameList.append(CName0)
-                else:
+                elif (Mode == "CC"):
                     CName0 = f"NEUT{NeutVersion}_{Tune}_{Mode}_{Flavor}_{Erange}_{Target}_{Events:.0e}.card".replace("+", "")
                     CardNames.append(CName0)
                     CNameList.append(CName0)
+                else:
+                    raise ValueError(f"Mode {Mode} Does Not Exist!!")
                 for CName in CNameList:
                     f = CardPath + "/" + CName
                     if not os.path.exists(f):
@@ -161,21 +163,21 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
                                 CardString = CardString + f"\nEVCT-NEVT {Events}\n"
                                 CardString = CardString + GlobalV.NeutCardModes.get(Mode)
                             case "NuMuBar":
-                                SpecialEvent = int(Events/20)
+                                SpecialEvent = int(Events/10)
                                 if SpecialEvent < 1000:
                                     SpecialEvent = 1000
                                 CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
                                 CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
                                 CardString = CardString + GlobalV.AntiNeutCardModes.get(Mode)
                             case "NuE":
-                                SpecialEvent = int(Events/200)
+                                SpecialEvent = int(Events/100)
                                 if SpecialEvent < 1000:
                                     SpecialEvent = 1000
                                 CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
                                 CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
                                 CardString = CardString + GlobalV.NeutCardModes.get(Mode)
                             case "NuEBar":
-                                SpecialEvent = int(Events/200)
+                                SpecialEvent = int(Events/100)
                                 if SpecialEvent < 1000:
                                     SpecialEvent = 1000
                                 CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
@@ -334,6 +336,51 @@ def GenNeut(CardNames):
             print(f"NEUT FILE {GenName} exists and works")
     return GenList
 
+def CheckNeutFiles(CardNames, NChunks):
+    # Checks all files
+    OutPath = os.environ.get("PUFIN_OUT")
+    user = os.environ.get("USER")
+    NewCards = []
+    #Copy all Fluxes to tmp dir
+
+    for Card in CardNames:
+        TempChunks = NChunks
+        Target = Card.split("_")[5]
+        Flavor = Card.split("_")[3]
+        GenDir = OutPath + f"/NEUT/{Target}"
+        match Flavor:
+            case "NuMu":
+                TempChunks = NChunks
+            case "NuMuBar":
+                TempChunks = int(NChunks/10)
+            case "NuE":
+                TempChunks = int(NChunks/100)
+            case "NuEBar":
+                TempChunks = int(NChunks/100)
+            case _:
+                raise ValueError(f"No Such Flavor {Flavor}")
+        # print(Target)
+        for i in range(TempChunks):
+            GenName = Card.replace("NEUT", "Original_NEUT")
+            GenName = GenName.replace(".card",f"P{i:03}.root")
+            f = GenDir + f"/{GenName}"
+            RunBool = not os.path.exists(f)
+            if not RunBool:
+                RFile = ROOT.TFile(f)
+                if RFile.IsZombie():
+                    os.remove(f) #if it failed previously, delete the zombie and regenerate 
+                    RunBool = True
+                elif not RFile.Get("fluxhisto"):
+                    os.remove(f) #same thing if it is empty
+                    RunBool = True
+                RFile.Close()
+            if RunBool == True:
+                NewCards.append(Card)
+                break
+
+    return NewCards
+
+
 def GenNeutFlatSingle(Card, i:int):
     OutPath = os.environ.get("PUFIN_OUT")
     user = os.environ.get("USER")
@@ -373,7 +420,7 @@ def GenNeutFlatSingle(Card, i:int):
     return RunBool
 
 
-def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, NodeID,NNodes=None):
+def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, NodeID, NNodes=None):
     if CPUPercent > 1 and CPUPercent <= 100:
         CPUPercent /= 100
     elif CPUPercent > 100 or CPUPercent < 0:
@@ -399,9 +446,11 @@ def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, NodeID,NNodes=None):
     for Card in CardNames:
         TempChunk = NChunks
         if "NuMuBar" in Card:
-            TempChunk = int(NChunks/20)
+            TempChunk = int(NChunks/10)
         elif "NuE" in Card:
-            TempChunk = int(NChunks/200)
+            TempChunk = int(NChunks/100)
+        if TempChunk<1:
+            TempChunk = 1
         # Copy Card to temp dir 
         # Change number of events in card from N to 100,000
         i_list =[]
@@ -512,16 +561,11 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, CPUPe
 
 
 if __name__ =="__main__":
-# screen 
-# then leave it with ctrl+a+d
-# and reattach it with screen -r <name of screen>
-
-# # Set PUfIN OUT location
-# export PUFIN_OUT=/data/t2k-nova/PUfINOutputs
-
-#     python GenMain.py \
-#   --generator Genie \
-#   --events 100000 
+    # # Set PUfIN OUT location
+    # export PUFIN_OUT=/data/t2k-nova/PUfINOutputs
+    #     python GenMain.py \
+    #   --generator Genie \
+    #   --events 100000 
     
     parser = argparse.ArgumentParser()
 
