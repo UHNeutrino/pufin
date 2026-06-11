@@ -441,12 +441,16 @@ def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, NodeID, NNodes=None):
     SlurmTaskID = os.environ.get("SLURM_ARRAY_TASK_ID")
     SlurmNtasks = os.environ.get("SLURM_NTASKS")
 
-    CardNames = CardNames[NodeID::NNodes] #split up card name based on number of nodes
+    # if NCores >= 20:
+    #     print(f"Too many cores {NCores}")
+    #     exit()
+    
 
     for Card in CardNames:
         TempChunk = NChunks
         if "NuMuBar" in Card:
             TempChunk = int(NChunks/10)
+            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>NUMUBAR LESS <<<<<<<<<<<<<<<<<<<<<<<<<<<")
         elif "NuE" in Card:
             TempChunk = int(NChunks/100)
         if TempChunk<1:
@@ -456,16 +460,16 @@ def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, NodeID, NNodes=None):
         i_list =[]
         CardList = []
         GenName = Card.replace("NEUT", "Original_NEUT")
-        for i in range(0,NChunks):
+        for i in range(0,TempChunk):
             i_list.append(i)
             CardList.append(Card) #List of the same card (Chunks) times
         # copy the card path for all cores to use
         CardDir = OutPath+"/"+"NEUT"+"/"+"Cards"
         shutil.copy(CardDir+"/"+Card, os.path.join(tmpdir, os.path.basename(Card)))
         # proccessed files list
-        
+        max
         RunList = []
-        with concurrent.futures.ProcessPoolExecutor(max_workers=TempChunk) as exe: 
+        with concurrent.futures.ProcessPoolExecutor(max_workers=NCores) as exe: 
             for result in exe.map(GenNeutFlatSingle, CardList, i_list):
                 RunList.append(result)
         
@@ -557,7 +561,7 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, CPUPe
     # FlatFluxMaker()
 
 
-    print("! UNDER CONSTRUCTION !")
+    print("NEUT Generation Is Complete")
 
 
 if __name__ =="__main__":
