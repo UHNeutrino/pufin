@@ -1,13 +1,9 @@
-import os
-import argparse
-import ROOT
-import random
-import shutil
-import subprocess
+import os, argparse, ROOT, random, shutil, subprocess
 import GlobalV
 import glob
 import concurrent.futures
 import json5
+import time
 from multiprocessing import cpu_count
 
 
@@ -396,23 +392,34 @@ def GenNeutFlatSingle(Card, i:int):
 
     RunBool = not os.path.exists(f)
     if RunBool == False:
-        RFile = ROOT.TFile(f)
-        if RFile.IsZombie():
-            os.remove(f) #if it failed previously, delete the zombie and regenerate 
+        try:
+            RFile = ROOT.TFile(f)
+            if RFile.IsZombie():
+                os.remove(f) #if it failed previously, delete the zombie and regenerate 
+                RunBool = True
+            elif not RFile.Get("fluxhisto"):
+                os.remove(f) #same thing if it is empty
+                RunBool = True
+            RFile.Close()
+        except:
+            os.remove(f)
             RunBool = True
-        elif not RFile.Get("fluxhisto"):
-            os.remove(f) #same thing if it is empty
-            RunBool = True
-        RFile.Close()
+        
 
     if RunBool:
         exec_string=""
         exec_string += f"neutroot2 {Card} {GenName}"
-        
+
+        if i == 1:
+            start = time.time()
         subprocess.run(exec_string, cwd=tmpdir, shell=True)
         shutil.move(f"{tmpdir}/{GenName}", os.path.join(GenDir, GenName))
         # os.remove(tmpdir+"/"+Card)
-        print(exec_string)
+        # print(exec_string)
+        if i == 1:
+            elapsed = time.time() - start
+            with open("CardTiming.txt", "a") as OutF:
+                OutF.write(f"Card {Card} took {elapsed:.2f} seconds\n")
         print(f"Generated {GenName}")
     else:
         print("Original File exists")
@@ -444,13 +451,11 @@ def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, NodeID, NNodes=None):
     # if NCores >= 20:
     #     print(f"Too many cores {NCores}")
     #     exit()
-    
 
     for Card in CardNames:
         TempChunk = NChunks
         if "NuMuBar" in Card:
             TempChunk = int(NChunks/10)
-            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>NUMUBAR LESS <<<<<<<<<<<<<<<<<<<<<<<<<<<")
         elif "NuE" in Card:
             TempChunk = int(NChunks/100)
         if TempChunk<1:
@@ -461,13 +466,12 @@ def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, NodeID, NNodes=None):
         CardList = []
         GenName = Card.replace("NEUT", "Original_NEUT")
         for i in range(0,TempChunk):
-            i_list.append(i)
+            i_list.append(i+1)
             CardList.append(Card) #List of the same card (Chunks) times
         # copy the card path for all cores to use
         CardDir = OutPath+"/"+"NEUT"+"/"+"Cards"
         shutil.copy(CardDir+"/"+Card, os.path.join(tmpdir, os.path.basename(Card)))
         # proccessed files list
-        max
         RunList = []
         with concurrent.futures.ProcessPoolExecutor(max_workers=NCores) as exe: 
             for result in exe.map(GenNeutFlatSingle, CardList, i_list):
@@ -491,7 +495,11 @@ def FlatNeut(GenList):
         f = GenDir + f"/{FlatName}"
         RunBool = not os.path.exists(f)
         if RunBool == False:
-            RFile = ROOT.TFile(f)
+            try:
+                RFile = ROOT.TFile(f)
+            except:
+                os.remove(f)
+                raise RuntimeError(f"File {f} failed to open, deleted")
             if (RFile.IsZombie()) or (not RFile.Get("FlatTree_VARS")):
                 os.remove(f) #if it failed previously, delete the zombie and regenerate 
                 RunBool = True
