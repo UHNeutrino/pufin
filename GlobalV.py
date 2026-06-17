@@ -2,6 +2,13 @@
 
 Flavors = ["NuMu","NuMuBar","NuE","NuEBar"]
 
+FlavorToNuType = {
+    "NuMu": "numu",
+    "NuMuBar": "numubar",
+    "NuE": "nue",
+    "NuEBar": "nuebar",
+}
+
 targetpdg = {
     "Carbon":1000060120,
     "Hydrogen":1000010010,
