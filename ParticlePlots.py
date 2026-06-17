@@ -1854,11 +1854,15 @@ def get_target_reweight_spec(
     xsec_file: str,
 ):
     _, target_label, target_divisor = _parse_target_token(target)
-
+    
     if nu_type == "numu":
         nu_label = "nu_mu"
+    elif nu_type == "numubar":
+        nu_label = "nu_mu_bar"
     elif nu_type == "nue":
         nu_label = "nu_e"
+    elif nu_type == "nuebar":
+        nu_label = "nu_e_bar"
     else:
         raise ValueError(f"Unsupported nu_type '{nu_type}'")
 
