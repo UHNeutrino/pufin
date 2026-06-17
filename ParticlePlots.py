@@ -2029,9 +2029,6 @@ def defineWeightsSplineStage2(
 
     for i in range(1, hist.GetNbinsX() + 1):
         x = hist.GetBinCenter(i)
-        if x > 8.0:
-            break
-
         y = hist.GetBinContent(i)
         w = hist.GetBinWidth(i)
 
