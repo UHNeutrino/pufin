@@ -1,14 +1,7 @@
 import os
 import argparse
-import ROOT
-import random
-import shutil
-import subprocess
-import GlobalV
-import glob
+import time
 import GenMain
-import json
-import subprocess
 from multiprocessing import cpu_count
 
 # This script runs GenMain->GenNeutCards to get a list of cards
@@ -22,33 +15,60 @@ def NeutRunScript( Tune, Events, TotalNodes, NChunks, Target=None, Mode=None, Fl
     CardNames = GenMain.MakeNeutCards(Tune, Targets, Events, Modes=Mode, Flavors=Flavor)
     GenMain.GenNeutXsec(Tune, Targets)
     processes = []
-    CardNames = GenMain.CheckNeutFiles(CardNames,NChunks)
+    FileNames = []
+    FileNames = GenMain.CheckNeutFiles(CardNames,NChunks)
     if CPUPercent > 1 and CPUPercent <= 100:
         CPUPercent /= 100
     elif CPUPercent > 100 or CPUPercent < 0:
         raise ValueError("CorePercent must be 0<x leq 1 or 1<x<100")
     NCores = max(1,int( cpu_count()*CPUPercent))
-    NodeCards = []
+    NodeFiles = []
     # Sort NuMu to the front so it gets distributed equallyu
-    print(f"Not Sorted {len(CardNames)}")
-    CardNames = sorted(CardNames, key=lambda x: "_NuMu_" not in x)
-    print(f"Total Cards: {CardNames}")
+    print(f"Not Sorted {len(FileNames)}")
+    FileNames = sorted(FileNames, key=lambda x: "_NuMu_" not in x)
+    print(f"Total Files: {len(FileNames)}")
+
+
     for Node in range(0,TotalNodes):
-        NodeCards = CardNames[Node::TotalNodes] #split up card name based on number of nodes
-        print(f"Cards on each Node: {NodeCards}")
+        NodeFiles = FileNames[Node::TotalNodes] #split up card name based on number of nodes
+        SlurmTime = TimeEstimator(NodeFiles)
+        print(f"Files on Node {Node}: {len(NodeFiles)}")
         cmd = f"""
         sbatch \
         --nodes=1 \
         --ntasks-per-node=1  \
         --cpus-per-task={NCores} \
-        --wrap 'python GenMain.py NeutMult --Cards {NodeCards} --NodeID {Node} --CPUPercent {CPUPercent} --NChunks {NChunks} '
+        --time={SlurmTime}
+        --wrap 'python GenMain.py NeutMult --Files "{NodeFiles}" --CPUPercent {CPUPercent} '
         """
-        # print(cmd)
+        print(cmd)
         # p = subprocess.Popen(cmd)   # each cmd is a separate process
         # processes.append(p)
     
     for p in processes:
         p.wait()
+
+def TimeEstimator(Files):
+    # loop through all files and come up with a decent time estimation using linear regressions from trends found in initial testing
+    EventsAndPart = Files[0].split("_")[7]
+    print(EventsAndPart)
+    Events = int(float(EventsAndPart[:-9]))
+    TotalSeconds = 0
+    for file in Files:
+        if "8-30Gev" in file:
+            TotalSeconds += int(Events*0.0135753 + 500)
+        elif "NC" in file:
+            TotalSeconds += int(0.0081201*Events + 120)
+        elif "NuE_" in file:
+            TotalSeconds += 70
+        else:
+            TotalSeconds += int(0.00591132*Events + 100)
+    if TotalSeconds>= 86400:
+        raise ValueError("Allocation exceeding 24hrs, use more cores or less chunks")
+    t = time.gmtime(TotalSeconds)
+    SlurmTime = time.strftime("%H:%M:%S", t)
+    return SlurmTime
+
     
 if __name__ =="__main__":
     parser = argparse.ArgumentParser()

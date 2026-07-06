@@ -336,7 +336,7 @@ def CheckNeutFiles(CardNames, NChunks):
     # Checks all files
     OutPath = os.environ.get("PUFIN_OUT")
     user = os.environ.get("USER")
-    NewCards = []
+    FileNames = []
     #Copy all Fluxes to tmp dir
 
     for Card in CardNames:
@@ -371,10 +371,9 @@ def CheckNeutFiles(CardNames, NChunks):
                     RunBool = True
                 RFile.Close()
             if RunBool == True:
-                NewCards.append(Card)
-                break
+                FileNames.append(GenName)
 
-    return NewCards
+    return FileNames
 
 
 def GenNeutFlatSingle(Card, i:int):
@@ -426,8 +425,53 @@ def GenNeutFlatSingle(Card, i:int):
     FlatNeut(GenList)
     return RunBool
 
+def GenNeutFlatSingleFile(File, Card):
+    OutPath = os.environ.get("PUFIN_OUT")
+    user = os.environ.get("USER")
+    tmpdir = f"{OutPath}/{user}_temp_dir"
+    Target = Card.split("_")[5]
+    GenDir = OutPath + f"/NEUT/{Target}"
 
-def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, NodeID, NNodes=None):
+    GenName = File
+    f = GenDir + f"/{GenName}"
+    CardDir = OutPath+"/"+"NEUT"+"/"+"Cards"
+    shutil.copy(CardDir+"/" + Card, os.path.join(tmpdir, os.path.basename(Card)))
+
+    #Move over fluxes for generation
+    FluxToTemp()
+
+    RunBool = not os.path.exists(f)
+    if RunBool == False:
+        try:
+            RFile = ROOT.TFile(f)
+            if RFile.IsZombie():
+                os.remove(f) #if it failed previously, delete the zombie and regenerate 
+                RunBool = True
+            elif not RFile.Get("fluxhisto"):
+                os.remove(f) #same thing if it is missing fluxhisto
+                RunBool = True
+            RFile.Close()
+        except:
+            os.remove(f)
+            RunBool = True
+    if RunBool:
+        exec_string=""
+        exec_string += f"neutroot2 {Card} {GenName}"
+        subprocess.run(exec_string, cwd=tmpdir, shell=True)
+        shutil.move(f"{tmpdir}/{GenName}", os.path.join(GenDir, GenName))
+        # os.remove(tmpdir+"/"+Card)
+        # print(exec_string)    
+        print(f"Generated {GenName}")
+    else:
+        print("Original File exists")
+    GenList = [GenName]
+    FlatNeut(GenList)
+
+    os.remove(f"{tmpdir}/{Card}")
+
+    return RunBool
+
+def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks):
     if CPUPercent > 1 and CPUPercent <= 100:
         CPUPercent /= 100
     elif CPUPercent > 100 or CPUPercent < 0:
@@ -437,16 +481,10 @@ def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, NodeID, NNodes=None):
     NCores = max(1,int(os.environ.get("SLURM_CPUS_PER_TASK", cpu_count()*CPUPercent)))
     if NCores>NChunks:
         NCores = NChunks
-    if NNodes==None:
-        NNodes = 1
 
     OutPath = os.environ.get("PUFIN_OUT")
     user = os.environ.get("USER")
     tmpdir = f"{OutPath}/{user}_temp_dir"
-    GenList = [] #used for flattening later
-
-    SlurmTaskID = os.environ.get("SLURM_ARRAY_TASK_ID")
-    SlurmNtasks = os.environ.get("SLURM_NTASKS")
 
     # if NCores >= 20:
     #     print(f"Too many cores {NCores}")
@@ -481,8 +519,39 @@ def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, NodeID, NNodes=None):
 
     return RunList
 
+def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
+    if CPUPercent > 1 and CPUPercent <= 100:
+        CPUPercent /= 100
+    elif CPUPercent > 100 or CPUPercent < 0:
+        raise ValueError("CorePercent must be 0<x leq 1 or 1<x<100")
+    
+    MaxCores     = os.cpu_count()
+    NCores = max(1,int(os.environ.get("SLURM_CPUS_PER_TASK", MaxCores*CPUPercent))) #makes the number of core the max between 1, slurm cpu count, and cpupercent*cpu count
+
+    print(f"Number of Cores: {NCores}")
+    
+    CardList = []
+    for File in FileNames:
+        # Copy Card to temp dir 
+        # Change number of events in card from N to 100,000
+        CardName = File[:-9] #removes PXXX.root
+        CardName = CardName + ".card"
+        CardName = CardName.replace("Original_NEUT", "NEUT")
+        CardList.append(CardName) 
+
+    # proccessed files list
+    RunList = []
+    with concurrent.futures.ProcessPoolExecutor(max_workers=NCores) as exe: 
+        for result in exe.map(GenNeutFlatSingleFile, FileNames, CardList):
+            RunList.append(result)
+    print(CardList)
+   
+
+    return RunList
+
+
 def FlatNeut(GenList):
-    # Generates for every card given, 
+    #Flattens for every given generated file
     OutPath = os.environ.get("PUFIN_OUT")
     user = os.environ.get("USER")
     tmpdir = f"{OutPath}/{user}_temp_dir"
@@ -547,19 +616,14 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, CPUPe
             GenNeutXsec(Tune, Targets)
 
             if CPUPercent and NChunks:
-                SlurmTaskID = os.environ.get("SLURM_ARRAY_TASK_ID")
-                if SlurmTaskID is not None:
-                    # SLURM is handling the node distribution, just run node-level
-                    if SlurmTaskID==0:
-                        FluxToTemp()
-                    RunList = GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, int(SlurmTaskID))
-                else:
-                    FluxToTemp()
-                    RunList = GenNeutMultiOnNode(CardNames, CPUPercent, NChunks, 0)
-                # raise NotImplementedError("GenerateNeut Multi is not done yet")
+                # If you want to multiprocess on one node, multiple cores
+                # For Multiple Nodes use GenSubmit  
+                FluxToTemp()
+                RunList = GenNeutMultiOnNode(CardNames, CPUPercent, NChunks)
             elif CPUPercent or NChunks:
                 raise ValueError("Need both CPUPercent and NChunk for multi processing")
             else:
+                # Regular processing, only using one core and one node
                 GenList = GenNeut(CardNames)
                 FlatNeut(GenList)
         case _:
@@ -594,11 +658,8 @@ if __name__ =="__main__":
     GenParser.add_argument("--NChunks", default=None, type=int)
     #If Being called by GenSubmit on multiple Nodes:
     NeutMultParser = subparsers.add_parser("NeutMult")
-    NeutMultParser.add_argument("--Cards", required=True)
+    NeutMultParser.add_argument("--Files", required=True)
     NeutMultParser.add_argument("--CPUPercent", required=True)
-    NeutMultParser.add_argument("--NChunks", required=True)
-    NeutMultParser.add_argument("--NodeID", required=True)
-    NeutMultParser.add_argument("--NNodes", required=True)
 
     
 
@@ -619,12 +680,11 @@ if __name__ =="__main__":
                 NChunks=int(args.NChunks),
             )
         case "NeutMult":
-            GenNeutMultiOnNode(
-                CardName=json5.loads(args.Cards),
-                CPUPercentS=float(args.CPUPercent),
-                NChunksS=int(args.NChunks),
-                NodeID = int(args.NodeID),
-                NNodes = int(args.NNodes)
+            print("LOOK HERE")
+            print(args.Files)
+            GenNeutMultiOnNodeFiles(
+                FileNames=json5.loads(args.Files),
+                CPUPercent=float(args.CPUPercent),
                 )
 
     
