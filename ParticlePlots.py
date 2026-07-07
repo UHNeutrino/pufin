@@ -1854,11 +1854,15 @@ def get_target_reweight_spec(
     xsec_file: str,
 ):
     _, target_label, target_divisor = _parse_target_token(target)
-
+    
     if nu_type == "numu":
         nu_label = "nu_mu"
+    elif nu_type == "numubar":
+        nu_label = "nu_mu_bar"
     elif nu_type == "nue":
         nu_label = "nu_e"
+    elif nu_type == "nuebar":
+        nu_label = "nu_e_bar"
     else:
         raise ValueError(f"Unsupported nu_type '{nu_type}'")
 
@@ -1905,6 +1909,8 @@ def defineWeightsSplineStage2(
     Fscale=1.0,
     areaB=False,
     undoNormB=False,
+    energy_min=None,
+    energy_max=None,
 ):
     import re
 
@@ -1930,7 +1936,7 @@ def defineWeightsSplineStage2(
         else:
             raise ValueError("Histogram has zero integral; cannot normalize.")
 
-    print("original width integral")
+    print("original flux width integral")
     print(hist.Integral("width"))
 
     n_points0 = hist.GetNbinsX()
@@ -2029,9 +2035,10 @@ def defineWeightsSplineStage2(
 
     for i in range(1, hist.GetNbinsX() + 1):
         x = hist.GetBinCenter(i)
-        if x > 8.0:
-            break
-
+        if energy_min is not None and x < energy_min:
+            continue
+        if energy_max is not None and x > energy_max:
+            continue
         y = hist.GetBinContent(i)
         w = hist.GetBinWidth(i)
 
@@ -2053,6 +2060,14 @@ def defineWeightsSplineStage2(
 
         else:
             xsec = 1.0
+        # print(
+        #     f"[XSEC DEBUG] label={label} "
+        #     f"bin={i} E={x:.6f} "
+        #     f"target_divisor={target_divisor:.6f} "
+        #     f"cc_xsec={cc_xsec if cc_xsec is not None else 'NA'} "
+        #     f"nc_xsec={nc_xsec if nc_xsec is not None else 'NA'} "
+        #     f"xsec_used={xsec:.12e}"
+        # )
 
         if undoNormB:
             bin_integral_unnorm += y * w * Fscale * xsec
