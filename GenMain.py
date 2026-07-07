@@ -467,8 +467,6 @@ def GenNeutFlatSingleFile(File, Card):
     GenList = [GenName]
     FlatNeut(GenList)
 
-    os.remove(f"{tmpdir}/{Card}")
-
     return RunBool
 
 def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks):
@@ -545,7 +543,13 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
         for result in exe.map(GenNeutFlatSingleFile, FileNames, CardList):
             RunList.append(result)
     print(CardList)
-   
+
+    OutPath = os.environ.get("PUFIN_OUT")
+    user = os.environ.get("USER")
+    tmpdir = f"{OutPath}/{user}_temp_dir"
+    for Card in CardList:
+        if os.path.exists(f"{tmpdir}/{Card}"):
+            os.remove(f"{tmpdir}/{Card}")
 
     return RunList
 
