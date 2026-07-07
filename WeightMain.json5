@@ -1,0 +1,66 @@
+{
+    "global": {
+      "Save": "PUfINOutputs/Test",
+      // "Save": "PUfINOutputs/Test",
+      "DebugMode": false,
+      "DebugPrint": 0,
+      "EvisB": false,
+      "KinematicsB": false,
+      "TkiB": false,
+      "ThresholdsB": false
+    },
+  
+    "stage2": {
+      "base_dir": "/data/t2k-nova/PUfINOutputs",
+      "generator": "GENIE",
+      "detector": "Nova",
+  
+      "filters": {
+        "interactions": ["CC", "NC"],
+        "flavors": ["NuMu", "NuMuBar", "NuE","NuEBar"],
+        "energy_ranges": ["0-8GeV", "8-30GeV", "30-120GeV"],
+        "targets": ["C12", "H1", "Cl35", "O16", "Ti48"]
+      },
+  
+      "targets_file": "$HOME/t2k-nova/stage2_targetConfigs/TargetWeights_GenieN24_Nova.json5",
+  
+      "reWeight": {
+        "enabled": true,
+        "flux_inputs": {
+          "NuMu": {
+            "rw_file": "/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+            "rw_flux": "numu"
+          },
+          "NuMuBar": {
+            "rw_file": "/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+            "rw_flux": "numubar"
+          },
+          "NuE": {
+            "rw_file": "/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+            "rw_flux": "nue"
+          },
+          "NuEBar": {
+            "rw_file": "/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+            "rw_flux": "nuebar"
+          }
+        },
+        "xspline_mode": "G",
+        "xsec_file": "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
+        "xsec_mode": "auto",
+        "areaB": false,
+        "undoNormB": false
+      },
+  
+      "same1D": {
+        "Cut": "1",
+        "Var": "Enu_true",
+        "AxisInfo": "True E_{#nu}, GeV, Events, , Weighted truth prediction",
+        "Bins": [2400, 0.0, 120.0],
+        "VBins": [false, []],
+        "Name": "test100kAll0-120_v2",
+        "Ext": "png",
+        "Norm": false,
+        "max": -1
+      }
+    }
+  }
