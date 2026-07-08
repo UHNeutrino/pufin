@@ -2,6 +2,12 @@
 
 This repo is for all code related to the Plotting Utility for Interacting Neutrinos (PUfIN) made by Lars Bøe and Kristen Dobbs.
 
+## GenMain.py
+
+Before running this scrip do: 
+source /data/t2k-nova/MainSetup.sh
+to set global variables
+
 ## Setup Functions
 
 
