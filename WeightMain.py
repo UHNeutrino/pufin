@@ -19,6 +19,7 @@ import SetupFunctions as sf
 HOME = os.getenv("HOME", "/home/lboe")
 BASE_OUT = "/data/t2k-nova"
 
+#### Define filename pattern expected for PUfIN ROOT files #####
 FILENAME_RE = re.compile(
     r"^Flat_"
     r"(?P<generator_version>[^_]+)_"
@@ -30,6 +31,7 @@ FILENAME_RE = re.compile(
     r"(?P<events>[^.]+)\.root$"
 )
 
+### Creates a dictionary relating target names (like Carbon) to a label (C12) -> EX: "Carbon": "C12" ####
 TARGET_DIR_TO_LABEL = {
     v["name"]: v["label"] for v in GlobalV.NovaTargets.values()
 }
@@ -39,7 +41,7 @@ def load_json5(path: str | Path) -> dict:
     with open(path, "r") as f:
         return json5.load(f)
 
-
+#### Clean up lists: remove blank entries and strip blank spaces ####
 def normalize_list(values):
     if values is None:
         return None
@@ -48,20 +50,21 @@ def normalize_list(values):
     values = [str(v).strip() for v in values if str(v).strip()]
     return values if values else None
 
-
-def parse_pufin_filename(path: str | Path) -> dict:
-    path = Path(path)
-    match = FILENAME_RE.match(path.name)
+#### Take a ROOT filename/path and turn it into a metadata dictionary ####
+def parse_pufin_filename(path: str | Path) -> dict: # input can be string path or Path object
+    path = Path(path) # converts into a Path object so you can use path.name and path.parent.name 
+    match = FILENAME_RE.match(path.name)  # checks the name of the file to see if it matches the filename pattern
     if not match:
         raise ValueError(f"Unrecognized PUfIN filename: {path.name}")
 
-    meta = match.groupdict()
+    meta = match.groupdict() # Turns all the pieces of the filename into a dictionary
     meta["path"] = str(path)
-    meta["target_dir"] = path.parent.name
-    meta["target_from_dir"] = TARGET_DIR_TO_LABEL.get(path.parent.name, path.parent.name)
+    meta["target_dir"] = path.parent.name # Ex: Carbon
+    meta["target_from_dir"] = TARGET_DIR_TO_LABEL.get(path.parent.name, path.parent.name) # Ex: Carbon -> C12
     return meta
 
 
+#### Looks through generator/target directories, checks that they exist, gets metadata from filenames and returns list of discovered files ####
 def discover_pufin_files(base_dir: str, generator: str) -> list[dict]:
     generator_dir = Path(base_dir) / generator.upper()
     if not generator_dir.is_dir():
@@ -78,7 +81,7 @@ def discover_pufin_files(base_dir: str, generator: str) -> list[dict]:
 
     return discovered
 
-
+#### Gets filters from either command line arguments or config file and returns a dictionary ####
 def get_filters(config_stage2: dict, args) -> dict:
     config_filters = config_stage2.get("filters", {})
 
@@ -94,30 +97,7 @@ def get_filters(config_stage2: dict, args) -> dict:
         "targets": targets,
     }
 
-
-# def matches_filters(meta: dict, filters: dict) -> bool:
-#     if filters["interactions"] and meta["interaction"] not in filters["interactions"]:
-#         return False
-
-#     if filters["energy_ranges"] and meta["energy_range"] not in filters["energy_ranges"]:
-#         return False
-
-#     if filters["targets"] and meta["target"] not in filters["targets"]:
-#         return False
-
-#     if filters["flavors"]:
-#         matched = False
-#         for requested_flavor in filters["flavors"]:
-#             source_flavor = resolve_source_flavor(meta["interaction"], requested_flavor)
-#             if meta["flavor"] == source_flavor:
-#                 matched = True
-#                 break
-#         if not matched:
-#             return False
-
-#     return True
-
-
+#### Groups files together based on requested filters ####
 def group_by_sample_and_target(file_meta: list[dict]) -> list[dict]:
     grouped = {}
     for meta in file_meta:
@@ -143,12 +123,12 @@ def group_by_sample_and_target(file_meta: list[dict]) -> list[dict]:
         )
     return out
 
-def expand_requested_nc_flavors(flavors):
-    if not flavors:
-        return None
-    return list(flavors)
+# def expand_requested_nc_flavors(flavors):
+#     if not flavors:
+#         return None
+#     return list(flavors)
 
-
+#### If requested_flavor = NC NuE(NuEBar), the code uses NC NuMu(NuMuBar) ROOT files and xsec splines since they are the same ####
 def resolve_source_flavor(interaction: str, requested_flavor: str):
     if interaction != "NC":
         return requested_flavor
@@ -164,6 +144,7 @@ def resolve_source_flavor(interaction: str, requested_flavor: str):
 
     raise ValueError(f"Unsupported requested flavor '{requested_flavor}'")
 
+#### Takes discovered files, applies filters, handles NC flavor mapping, and returns final metadata ####
 def build_selected_entries(discovered: list[dict], filters: dict) -> list[dict]:
     requested_flavors = filters["flavors"] or ["NuMu", "NuMuBar", "NuE", "NuEBar"]
 
@@ -177,8 +158,8 @@ def build_selected_entries(discovered: list[dict], filters: dict) -> list[dict]:
             continue
 
         for requested_flavor in requested_flavors:
-            source_flavor = resolve_source_flavor(meta["interaction"], requested_flavor)
-            xsec_flavor = source_flavor
+            source_flavor = resolve_source_flavor(meta["interaction"], requested_flavor) # Identifies the correct file to use for NC Nue(NuEBar)
+            xsec_flavor = source_flavor # Always use the xsec spline that matches the flavor used to generate the file
 
             if meta["flavor"] != source_flavor:
                 continue
