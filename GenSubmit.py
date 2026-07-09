@@ -9,8 +9,11 @@ from multiprocessing import cpu_count
 
 
 def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mode=None, Flavor=None, CPUPercent=None):
+    OutPath = os.environ.get("PUFIN_OUT")
+    if OutPath==None:
+        raise ValueError("PUFIN_OUT Needs to be defined!")
     Generator = "NEUT"
-    PufinOut = "/project/cherdack/t2k-nova/PUfINOutPuts"
+
     FilePath,Targets = GenMain.DirectorySetup(Generator, SingleTarget=Target, Mode=Mode)
     GenMain.FlatFluxMaker()
     CardNames = GenMain.MakeNeutCards(Tune, Targets, Events, Modes=Mode, Flavors=Flavor)
@@ -40,9 +43,9 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         --ntasks-per-node=1  \
         --cpus-per-task={NCores} \
         --time={SlurmTime}
-        --wrap 'apptainer --writable-tmpfs --bind {PufinOut}:/mnt {Container} &&
+        --wrap 'apptainer --writable-tmpfs --bind {OutPath}:/mnt {Container} &&
                 source /opt/SetupAll.sh &&
-                export PUFIN_OUT={PufinOut}
+                export PUFIN_OUT={OutPath}
                 python GenMain.py NeutMult --Files "{NodeFiles}" --CPUPercent {CPUPercent} '
         """
         print(cmd)
@@ -91,10 +94,8 @@ if __name__ =="__main__":
     GenParser.add_argument("--flavor", default=None)
 
     args = parser.parse_args()
-    OutPath = os.environ.get("PUFIN_OUT")
-    if OutPath==None:
-        raise ValueError("PUFIN_OUT Needs to be defined!")
     NeutRunScript(
+                Container=args.container,
                 Events=args.events,
                 Tune=args.tune,
                 TotalNodes = args.total_nodes,
