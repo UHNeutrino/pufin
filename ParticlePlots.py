@@ -1897,7 +1897,8 @@ def get_target_reweight_spec(
     if xspline_mode == "G":
         spec["cc_path"] = f"{nu_label}_{target_label}/tot_cc"
         spec["nc_path"] = f"{nu_label}_{target_label}/tot_nc"
-
+    else:
+        raise ValueError(f"Unsuported xsec spline type {xspline_mode}")
     return spec
 
 def defineWeightsSplineStage2(
