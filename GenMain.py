@@ -22,13 +22,12 @@ from multiprocessing import cpu_count
 def DirectorySetup(Generator, SingleTarget=None, Mode=None):
     OutPath = os.environ.get("PUFIN_OUT")
     Targets = []
-    match Generator.lower():
-        case "neut":
-            Targets = ["Carbon", "Hydrogen", "Oxygen", "Titanium"]
-        case "genie":
-            Targets = ["Carbon", "Hydrogen", "Oxygen", "Titanium", "Chlorine"]
-        case _:
-            raise ValueError("Generator has to be NEUT or GENIE")
+    if Generator.lower() == "neut":
+        Targets = ["Carbon", "Hydrogen", "Oxygen", "Titanium"]
+    elif Generator.lower()=="genie":
+        Targets = ["Carbon", "Hydrogen", "Oxygen", "Titanium", "Chlorine"]
+    else:
+        raise ValueError("Generator has to be NEUT or GENIE")
 
     try:
         open(OutPath+"/"+"test", 'a').close()  # equivalent to touch
@@ -344,33 +343,32 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=No
                         if not GlobalV.NeutCardTunes.get(Tune):
                             raise ValueError(f"Tune {Tune} Does Not Exist")
                         CardString = CardString + GlobalV.NeutCardTunes.get(Tune)
-                        match Flavor:
-                            case "NuMu":
-                                CardString = CardString + f"\nEVCT-NEVT {Events}\n"
-                                CardString = CardString + GlobalV.NeutCardModes.get(Mode)
-                            case "NuMuBar":
-                                SpecialEvent = int(Events/10)
-                                if SpecialEvent < 1000:
-                                    SpecialEvent = 1000
-                                CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
-                                CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
-                                CardString = CardString + GlobalV.AntiNeutCardModes.get(Mode)
-                            case "NuE":
-                                SpecialEvent = int(Events/100)
-                                if SpecialEvent < 1000:
-                                    SpecialEvent = 1000
-                                CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
-                                CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
-                                CardString = CardString + GlobalV.NeutCardModes.get(Mode)
-                            case "NuEBar":
-                                SpecialEvent = int(Events/100)
-                                if SpecialEvent < 1000:
-                                    SpecialEvent = 1000
-                                CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
-                                CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
-                                CardString = CardString + GlobalV.AntiNeutCardModes.get(Mode)
-                            case _:
-                                raise ValueError("UNKNOWN FLAVOR")
+                        if Flavor=="NuMu":
+                            CardString = CardString + f"\nEVCT-NEVT {Events}\n"
+                            CardString = CardString + GlobalV.NeutCardModes.get(Mode)
+                        elif Flavor=="NuMuBar":
+                            SpecialEvent = int(Events/10)
+                            if SpecialEvent < 1000:
+                                SpecialEvent = 1000
+                            CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
+                            CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
+                            CardString = CardString + GlobalV.AntiNeutCardModes.get(Mode)
+                        elif Flavor=="NuE":
+                            SpecialEvent = int(Events/100)
+                            if SpecialEvent < 1000:
+                                SpecialEvent = 1000
+                            CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
+                            CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
+                            CardString = CardString + GlobalV.NeutCardModes.get(Mode)
+                        elif Flavor=="NuEBar":
+                            SpecialEvent = int(Events/100)
+                            if SpecialEvent < 1000:
+                                SpecialEvent = 1000
+                            CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
+                            CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
+                            CardString = CardString + GlobalV.AntiNeutCardModes.get(Mode)
+                        else:
+                            raise ValueError("UNKNOWN FLAVOR")
                         
                         CardString = CardString + GlobalV.NeutCardFlavors.get(Flavor)
                         CardString = CardString + GlobalV.NeutCardTargets.get(Target)
@@ -534,17 +532,16 @@ def CheckNeutFiles(CardNames, NChunks):
         Target = Card.split("_")[5]
         Flavor = Card.split("_")[3]
         GenDir = OutPath + f"/NEUT/{Target}"
-        match Flavor:
-            case "NuMu":
-                TempChunks = NChunks
-            case "NuMuBar":
-                TempChunks = int(NChunks/10)
-            case "NuE":
-                TempChunks = int(NChunks/100)
-            case "NuEBar":
-                TempChunks = int(NChunks/100)
-            case _:
-                raise ValueError(f"No Such Flavor {Flavor}")
+        if Flavor=="NuMu":
+            TempChunks = NChunks
+        elif Flavor=="NuMuBar":
+            TempChunks = int(NChunks/10)
+        elif Flavor=="NuE":
+            TempChunks = int(NChunks/100)
+        elif Flavor=="NuEBar":
+            TempChunks = int(NChunks/100)
+        else:
+            raise ValueError(f"No Such Flavor {Flavor}")
         # print(Target)
         for i in range(TempChunks):
             GenName = Card.replace("NEUT", "Original_NEUT")
@@ -800,29 +797,28 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, CPUPe
     FilePath,Targets = DirectorySetup(Generator, SingleTarget=Target, Mode=Mode)
     FlatFluxMaker()
 
-    match Generator.lower():
-        case "genie":
-            #GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor, Multi)
-            GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor)
-        case "neut":
-            if not Tune:
-                raise ValueError("Neut requires a tune")
-            CardNames = MakeNeutCards(Tune, Targets, Events, Modes=Mode, Flavors=Flavor)
-            GenNeutXsec(Tune, Targets)
+    if Generator.lower()=="genie":
+        #GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor, Multi)
+        GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor)
+    elif Generator.lower()=="neut":
+        if not Tune:
+            raise ValueError("Neut requires a tune")
+        CardNames = MakeNeutCards(Tune, Targets, Events, Modes=Mode, Flavors=Flavor)
+        GenNeutXsec(Tune, Targets)
 
-            if CPUPercent and NChunks:
-                # If you want to multiprocess on one node, multiple cores
-                # For Multiple Nodes use GenSubmit  
-                FluxToTemp()
-                RunList = GenNeutMultiOnNode(CardNames, CPUPercent, NChunks)
-            elif CPUPercent or NChunks:
-                raise ValueError("Need both CPUPercent and NChunk for multi processing")
-            else:
-                # Regular processing, only using one core and one node
-                GenList = GenNeut(CardNames)
-                FlatNeut(GenList)
-        case _:
-            raise ValueError("Generator must be 'Genie' or 'Neut'")
+        if CPUPercent and NChunks:
+            # If you want to multiprocess on one node, multiple cores
+            # For Multiple Nodes use GenSubmit  
+            FluxToTemp()
+            RunList = GenNeutMultiOnNode(CardNames, CPUPercent, NChunks)
+        elif CPUPercent or NChunks:
+            raise ValueError("Need both CPUPercent and NChunk for multi processing")
+        else:
+            # Regular processing, only using one core and one node
+            GenList = GenNeut(CardNames)
+            FlatNeut(GenList)
+    else:
+        raise ValueError("Generator must be 'Genie' or 'Neut'")
 
     #Check if FF exist, make them if not
     # FlatFluxMaker()
@@ -862,27 +858,26 @@ if __name__ =="__main__":
     
 
     args = parser.parse_args()
-    match args.command:
-        case "Gen":
-            Generate(
-                Generator=args.generator,
-                Events=args.events,
-                Tune=args.tune,
-                Target=args.target,
-                Mode=args.mode,
-                Flavor=args.flavor,
-                CPUPercent=float(args.CPUPercent),
-                NChunks=int(args.NChunks),
-                # CPUPercent=args.CPUPercent,
-                # NChunks=args.NChunks,
+    if args.command=="Gen":
+        Generate(
+            Generator=args.generator,
+            Events=args.events,
+            Tune=args.tune,
+            Target=args.target,
+            Mode=args.mode,
+            Flavor=args.flavor,
+            CPUPercent=float(args.CPUPercent),
+            NChunks=int(args.NChunks),
+            # CPUPercent=args.CPUPercent,
+            # NChunks=args.NChunks,
+        )
+    elif args.command=="NeutMult":
+        print("LOOK HERE")
+        print(args.Files)
+        GenNeutMultiOnNodeFiles(
+            FileNames=json5.loads(args.Files),
+            CPUPercent=float(args.CPUPercent),
             )
-        case "NeutMult":
-            print("LOOK HERE")
-            print(args.Files)
-            GenNeutMultiOnNodeFiles(
-                FileNames=json5.loads(args.Files),
-                CPUPercent=float(args.CPUPercent),
-                )
 
     
     # Tune = "Prod7E"
