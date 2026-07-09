@@ -43,9 +43,9 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         --ntasks-per-node=1  \
         --cpus-per-task={NCores} \
         --time={SlurmTime}
-        --wrap ' &&
+        --wrap 'apptainer --writable-tmpfs --bind {OutPath}:/mnt {Container} &&
                 source /opt/SetupAll.sh &&
-                export PUFIN_OUT={OutPath}
+                export PUFIN_OUT={OutPath}  &&
                 python GenMain.py NeutMult --Files "{NodeFiles}" --CPUPercent {CPUPercent} '
         """
         print(cmd)
