@@ -39,7 +39,9 @@ def NeutRunScript( Tune, Events, TotalNodes, NChunks, Target=None, Mode=None, Fl
         --ntasks-per-node=1  \
         --cpus-per-task={NCores} \
         --time={SlurmTime}
-        --wrap 'python GenMain.py NeutMult --Files "{NodeFiles}" --CPUPercent {CPUPercent} '
+        --wrap 'apptainer --tempfs /path/to/container &&
+                source /opt/SetupAll.sh &&
+                python GenMain.py NeutMult --Files "{NodeFiles}" --CPUPercent {CPUPercent} '
         """
         print(cmd)
         # p = subprocess.Popen(cmd)   # each cmd is a separate process

@@ -624,8 +624,7 @@ def GenNeutFlatSingleFile(File, Card):
 
     GenName = File
     f = GenDir + f"/{GenName}"
-    CardDir = OutPath+"/"+"NEUT"+"/"+"Cards"
-    shutil.copy(CardDir+"/" + Card, os.path.join(tmpdir, os.path.basename(Card)))
+    
 
     #Move over fluxes for generation
     FluxToTemp()
@@ -715,18 +714,28 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
     
     MaxCores     = os.cpu_count()
     NCores = max(1,int(os.environ.get("SLURM_CPUS_PER_TASK", MaxCores*CPUPercent))) #makes the number of core the max between 1, slurm cpu count, and cpupercent*cpu count
-
+    JobID = os.environ.get("SLURM_JOB_ID","0")
     print(f"Number of Cores: {NCores}")
-    
     CardList = []
+
+    OutPath = os.environ.get("PUFIN_OUT")
+    user = os.environ.get("USER")
+    tmpdir = f"{OutPath}/{user}_temp_dir"
+    CardDir = f"{OutPath}/NEUT/Cards"
     for File in FileNames:
         # Copy Card to temp dir 
         # Change number of events in card from N to 100,000
         CardName = File[:-9] #removes PXXX.root
         CardName = CardName + ".card"
         CardName = CardName.replace("Original_NEUT", "NEUT")
-        CardList.append(CardName) 
-
+        NodeCard = CardName.replace(".card",f"{JobID}.card")
+        if not os.path.exists(f"{tmpdir}/{NodeCard}"):
+            shutil.copy(f"{CardDir}/{CardName}", os.path.join(tmpdir, os.path.basename(NodeCard)))
+        CardList.append(NodeCard) 
+    
+    # COPY THE CARDS HERE AND NAME THE CARDS PER NODE SO NODES WONT DELETE OTHER CARDS THAT ARE USED
+    
+    
     # proccessed files list
     RunList = []
     with concurrent.futures.ProcessPoolExecutor(max_workers=NCores) as exe: 
@@ -734,9 +743,8 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
             RunList.append(result)
     print(CardList)
 
-    OutPath = os.environ.get("PUFIN_OUT")
-    user = os.environ.get("USER")
-    tmpdir = f"{OutPath}/{user}_temp_dir"
+
+    
     for Card in CardList:
         if os.path.exists(f"{tmpdir}/{Card}"):
             os.remove(f"{tmpdir}/{Card}")
