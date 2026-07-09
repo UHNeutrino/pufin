@@ -1,4 +1,4 @@
-import os, argparse, ROOT, random, shutil, subprocess
+import os, argparse, ROOT, random, shutil, subprocess, pathlib
 import GlobalV
 import glob
 import concurrent.futures
@@ -38,6 +38,7 @@ def DirectorySetup(Generator, SingleTarget=None, Mode=None):
     FilePaths = []
     for target in Targets:
         OnePath = OutPath + "/" + Generator.upper() + "/" + target + "/"
+        #OnePath = OutPath + "/" + Generator.upper() + "/" + SingleTarget + "/"
         FilePaths.append(OnePath)
         os.makedirs(OnePath, exist_ok=True)
     # if Target:
@@ -112,6 +113,195 @@ def gev_gen_genie(events: int, i: int):
 
     return f"{output_dir}/{out_name}"
 
+def gen_series(Events: int, output_dir: str, final_directory: str):
+    """Generate GENIE files serially and return list of filenames."""
+    output_path = pathlib.Path(output_dir)
+    if output_path.exists():
+        shutil.rmtree(output_path)
+    output_path.mkdir(parents=True)
+
+    out_files = []
+    
+    GENIE_XSEC_TUNE = os.environ.get("GENIE_XSEC_TUNE", "")
+    if not GENIE_XSEC_TUNE:
+        raise ValueError("GENIE_XSEC_TUNE is not set")
+    TuneLabel = GENIE_XSEC_TUNE.split("_", 1)[0]
+    
+    EventsPerJob = 100
+    if Events % EventsPerJob != 0:
+        raise ValueError(
+            f"GENIE Events must be a multiple of {EventsPerJob}. Got {Events}."
+        )
+    nJobs = Events//EventsPerJob
+
+    for i in range(nJobs):
+        out_file = gev_gen_genie(EventsPerJob, i)
+        out_files.append(out_file)
+        
+
+    EventsLabel = f"{Events:.0e}".replace("+0", "").replace("+", "")    
+    outFileName = f"Original_{Generator}{Version}_{TuneLabel}_{Mode}_{flavor_label}_{Erange}_{target_label}"
+    FinaloutFileName = f"{outFileName}_{EventsLabel}"
+
+    final_genie = f"{output_dir}/{FinaloutFileName}.root"
+
+    hadd_cmd = f'hadd -f -k "{final_genie}" ' + " ".join(f'"{f}"' for f in out_files)
+    print(f"Running: {hadd_cmd}")
+    subprocess.run(hadd_cmd, shell=True, check=True)
+    
+    final_copy = f"{final_directory}/{FinaloutFileName}.root"
+    shutil.copy2(final_genie, final_copy)
+    print(f"Copied final file to {final_copy}")
+    
+    return out_files, final_genie, final_copy
+
+def gen_flatten(original_file: str):
+    """Prepare and flatten one specific GENIE file."""
+    original_path = pathlib.Path(original_file)
+    if not original_path.exists():
+        raise FileNotFoundError(f"Missing original file: {original_file}")
+
+    final_dir = original_path.parent
+    original_name = original_path.name
+
+    prep_name = original_name.replace("Original_", "Prep_", 1)
+    flat_name = original_name.replace("Original_", "Flat_", 1)
+
+    prep_file = final_dir / prep_name
+    flat_file = final_dir / flat_name
+
+    prepare_cmd = f"""
+    PrepareGENIE \
+      -i "{original_path}" \
+      -t "{Target}" \
+      -o "{prep_file}" \
+      -f "{Flux_directory}/full_flat_flux_{Emin}-{Emax}GeV.root,h1"
+    """
+    print("Preparing GENIE file...")
+    subprocess.run(prepare_cmd, shell=True, executable="/bin/bash", check=True)
+
+    flatten_cmd = f"""
+    nuisflat \
+      -i "GENIE:{prep_file}" \
+      -o "{flat_file}"
+    """
+    print("Flattening GENIE file...")
+    subprocess.run(flatten_cmd, shell=True, executable="/bin/bash", check=True)
+
+    if prep_file.exists():
+        prep_file.unlink()
+    return str(flat_file)
+
+def find_expected_file(directory: str, filename: str):
+    file_path = pathlib.Path(directory) / filename
+    if file_path.exists():
+        return file_path
+    return None
+                    
+def GenerateGenie(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=None, Multi=None):
+    FilePaths, Targets = DirectorySetup(Generator)
+
+    if Target is not None:
+        Targets = [Target]
+        FilePaths, Targets = DirectorySetup(Generator, SingleTarget=Target)
+
+    if Mode is None:
+        Modes = ["CC", "NC"]
+    else:
+        Modes = [Mode]
+    for Mode in Modes:
+        if Flavor is None:
+            if Mode == "NC":
+                Flavors = ["14", "-14"]
+            elif Mode == "CC":
+                Flavors = ["12", "-12", "14", "-14"]
+            else:
+                Flavors = ["12", "-12", "14", "-14"]
+        else:
+            Flavors = [str(Flavor)]
+    
+        allowed_flavors = {"12", "-12", "14", "-14"}
+        for flav in Flavors:
+            if flav not in allowed_flavors:
+                raise ValueError(
+                    f"Flavor must be one of 12, -12, 14, -14. Got {flav}."
+                )
+
+        for Flavor in Flavors:
+            flavor_label = GlobalV.NuPDGs[int(Flavor)]
+
+            for target_name, final_dir in zip(Targets, FilePaths):
+                for _, info in GlobalV.NovaTargets.items():
+                    if info["name"] == target_name:
+                        TargetPDG = info["pdg"]
+                        target_label = info["label"]
+                        break
+                else:
+                    raise ValueError(f"No target info found for {target_name}")
+
+                if Mode == "CC":
+                    energy_ranges = [("0", "8")]
+                elif Mode == "NC":
+                    energy_ranges = [("0", "8"), ("8", "30"), ("30", "120")]
+                else:
+                    raise ValueError(f"Unsupported GENIE mode: {Mode}")
+
+                for Emin, Emax in energy_ranges:
+                    Erange = f"{Emin}-{Emax}GeV"
+                    #EventsPerJob = Events // nJobs ###############################################################
+
+                    GENIE_VERSION = os.environ.get("GENIE_VERSION", "")
+                    if not GENIE_VERSION:
+                        raise ValueError("GENIE_VERSION is not set")
+                    Version = GENIE_VERSION
+
+                    GENIE_XSEC_TUNE = os.environ.get("GENIE_XSEC_TUNE", "")
+                    if Tune is None:
+                        if not GENIE_XSEC_TUNE:
+                            raise ValueError("Tune not provided and GENIE_XSEC_TUNE is not set")
+                        TuneLabel = GENIE_XSEC_TUNE.split("_", 1)[0]
+                    else:
+                        TuneLabel = Tune
+                    EventsLabel = f"{Events:.0e}".replace("+0", "").replace("+", "")
+                    base_name = (
+                        f"{Generator}{Version}_{TuneLabel}_{Mode}_{flavor_label}_{Erange}_{target_label}_{EventsLabel}"
+                    )
+                    expected_original = f"Original_{base_name}.root"
+                    expected_flat = f"Flat_{base_name}.root"
+
+                    original_file = find_expected_file(final_dir, expected_original)
+                    flat_file = find_expected_file(final_dir, expected_flat)
+
+                    globals()["Target"] = TargetPDG
+                    globals()["target_label"] = target_label
+                    globals()["flavor_label"] = flavor_label
+                    globals()["Mode"] = Mode
+                    globals()["Flavor"] = Flavor
+                    globals()["Emin"] = Emin
+                    globals()["Emax"] = Emax
+                    globals()["Erange"] = Erange
+                    globals()["Generator"] = Generator
+                    globals()["Version"] = Version
+                    OutPath = os.environ.get("PUFIN_OUT")
+                    user = os.environ.get("USER")
+                    tmpdir = f"{OutPath}/{user}_temp_dir"
+                    globals()["output_dir"] = tmpdir
+                    globals()["Flux_directory"] = "/data/t2k-nova/fluxes"
+                    globals()["FinaloutFileName"] = f"Original_{base_name}"
+
+                    if flat_file is not None:
+                        print(f"Skipping {target_name} {Mode} {Flavor} {Erange}: found {flat_file.name}")
+                        continue
+
+                    if original_file is not None:
+                        print(f"Flattening existing file: {original_file.name}")
+                        gen_flatten(str(original_file))
+                        continue
+
+                    print(f"Generating {target_name} {Mode} {Flavor} {Erange}")
+                    genie_files, final_genie, final_copy = gen_series(Events, tmpdir, final_dir)
+                    gen_flatten(final_copy)
+                    
 def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=None):
     OutPath = os.environ.get("PUFIN_OUT")
     if not os.environ.get("NEUT_VERSION"):
@@ -598,9 +788,6 @@ def FlatNeut(GenList):
         else:
             print(f"NEUT FILE {FlatName} exists and works")
 
-
-
-
 def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, CPUPercent=None, NChunks=None):
     # Grab/Make paths for output generated files
     OutPath = os.environ.get("PUFIN_OUT")
@@ -612,7 +799,8 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, CPUPe
 
     match Generator.lower():
         case "genie":
-            GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor, Multi)
+            #GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor, Multi)
+            GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor)
         case "neut":
             if not Tune:
                 raise ValueError("Neut requires a tune")
@@ -641,11 +829,11 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, CPUPe
 
 
 if __name__ =="__main__":
-    # # Set PUfIN OUT location
-    # export PUFIN_OUT=/data/t2k-nova/PUfINOutputs
-    #     python GenMain.py \
+
+    #     python GenMain.py Gen \
+    
     #   --generator Genie \
-    #   --events 100000 
+    #   --events 200 
     
     parser = argparse.ArgumentParser()
 
@@ -682,6 +870,8 @@ if __name__ =="__main__":
                 Flavor=args.flavor,
                 CPUPercent=float(args.CPUPercent),
                 NChunks=int(args.NChunks),
+                # CPUPercent=args.CPUPercent,
+                # NChunks=args.NChunks,
             )
         case "NeutMult":
             print("LOOK HERE")
