@@ -383,7 +383,7 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=No
 
                             
 
-                        if(NeutVersion == "5-6-4" or NeutVersion == "5-9-0") and Target == "Titanium":
+                        if Target == "Titanium":
                             # TI is dumb in 5-6-4
                             # print("Special Ti Problem in 5.6.4. and 5.9.0")
                             if "NEUT-MDLQE 402" in CardString:
