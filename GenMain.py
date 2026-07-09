@@ -723,8 +723,7 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
     tmpdir = f"{OutPath}/{user}_temp_dir"
     CardDir = f"{OutPath}/NEUT/Cards"
     for File in FileNames:
-        # Copy Card to temp dir 
-        # Change number of events in card from N to 100,000
+        # COPY THE CARDS HERE AND NAME THE CARDS PER NODE SO NODES WONT DELETE OTHER CARDS THAT ARE USED
         CardName = File[:-9] #removes PXXX.root
         CardName = CardName + ".card"
         CardName = CardName.replace("Original_NEUT", "NEUT")
@@ -732,10 +731,6 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
         if not os.path.exists(f"{tmpdir}/{NodeCard}"):
             shutil.copy(f"{CardDir}/{CardName}", os.path.join(tmpdir, os.path.basename(NodeCard)))
         CardList.append(NodeCard) 
-    
-    # COPY THE CARDS HERE AND NAME THE CARDS PER NODE SO NODES WONT DELETE OTHER CARDS THAT ARE USED
-    
-    
     # proccessed files list
     RunList = []
     with concurrent.futures.ProcessPoolExecutor(max_workers=NCores) as exe: 

@@ -8,8 +8,9 @@ from multiprocessing import cpu_count
 # Then it runs GenMain->GenNeutMultiOnNode on multiple nodes with the nodeID and NChunks given
 
 
-def NeutRunScript( Tune, Events, TotalNodes, NChunks, Target=None, Mode=None, Flavor=None, CPUPercent=None):
+def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mode=None, Flavor=None, CPUPercent=None):
     Generator = "NEUT"
+    PufinOut = "/project/cherdack/t2k-nova/PUfINOutPuts"
     FilePath,Targets = GenMain.DirectorySetup(Generator, SingleTarget=Target, Mode=Mode)
     GenMain.FlatFluxMaker()
     CardNames = GenMain.MakeNeutCards(Tune, Targets, Events, Modes=Mode, Flavors=Flavor)
@@ -39,8 +40,9 @@ def NeutRunScript( Tune, Events, TotalNodes, NChunks, Target=None, Mode=None, Fl
         --ntasks-per-node=1  \
         --cpus-per-task={NCores} \
         --time={SlurmTime}
-        --wrap 'apptainer --tempfs /path/to/container &&
+        --wrap 'apptainer --writable-tmpfs --bind {PufinOut}:/mnt {Container} &&
                 source /opt/SetupAll.sh &&
+                export PUFIN_OUT={PufinOut}
                 python GenMain.py NeutMult --Files "{NodeFiles}" --CPUPercent {CPUPercent} '
         """
         print(cmd)
@@ -78,6 +80,7 @@ if __name__ =="__main__":
     subparsers = parser.add_subparsers(dest="command", required=True)
     #If just regular Generating:
     GenParser = subparsers.add_parser("GenNeut")
+    GenParser.add_argument("--container", required=True, type=str)
     GenParser.add_argument("--events", required=True, type=int)
     GenParser.add_argument("--tune", required=True)
     GenParser.add_argument("--total_nodes", required=True, type=int)
