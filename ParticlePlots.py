@@ -267,6 +267,7 @@ def DefineEvis(df):
     # Evis_2 after the neutrino interaction but BEFORE FSI
     df = df.Define("Evis_2_PFSI", "E_had_PFSI + ELep")
     
+    # E_had3 = kTrueEavail_NT from CAFAna/Vars/TruthVArs.cxx
     # E_had3 = skip bindinos & nucleons + total energy minus proton mass of (Primarily) strange baryons
     # since decays will mostly contain protons 
     # + total energy plus proton mass of (primarily) anti-protons 

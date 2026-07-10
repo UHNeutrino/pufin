@@ -108,3 +108,10 @@ NovaTargets = {
     },
 
 }
+
+GenFlavorScales = {
+    "NuMu": 1.0,
+    "NuMuBar": 0.1,
+    "NuE": 0.01,
+    "NuEBar": 0.01,
+}
