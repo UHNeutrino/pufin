@@ -1179,7 +1179,7 @@ if __name__ =="__main__":
     elif args.command=="NeutXsec":
         GenNeutXsec(
             Tune=args.tune,
-            Targets=args.targets
+            Targets=json5.loads(args.targets)
         )
     elif args.command=="GenieMult":
         GenGenieMultiOnNodeFiles(

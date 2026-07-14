@@ -23,9 +23,9 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         sbatch \\
         --nodes=1 \\
         --ntasks-per-node=1  \\
-        --cpus-per-task={NCores} \\
+        --cpus-per-task=1 \\
         --time=00:05:00 \\
-        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:/{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath}  && python GenMain.py NeutXsec --tune {Tune} --target {Target}'"
+        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:/{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath}  && python GenMain.py NeutXsec --tune {Tune} --target "{Targets}"'"
         """
     print(xseccmd)
     # xp = subprocess.Popen(xseccmd)
