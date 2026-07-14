@@ -1145,12 +1145,13 @@ if __name__ =="__main__":
     GenParser.add_argument("--NChunks", default=None, type=int)
     #If Being called by GenSubmit on multiple Nodes:
     NeutMultParser = subparsers.add_parser("NeutMult")
-    NeutMultParser.add_argument("--tune", required=True)
-    NeutMultParser.add_argument("--targets", required=True)
-    # For Making the Xsecs on a cluster:
-    NeutMultParser = subparsers.add_parser("NeutXsec")
     NeutMultParser.add_argument("--Files", required=True)
     NeutMultParser.add_argument("--CPUPercent", required=True)
+    
+    # For Making the Xsecs on a cluster:
+    NeutXsecParser = subparsers.add_parser("NeutXsec")
+    NeutXsecParser.add_argument("--tune", required=True)
+    NeutXsecParser.add_argument("--targets", required=True)
     
     GenieMultParser = subparsers.add_parser("GenieMult")
     GenieMultParser.add_argument("--Files", required=True)
