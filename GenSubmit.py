@@ -3,6 +3,7 @@ import argparse
 import time
 import GenMain
 import subprocess
+import json5
 from multiprocessing import cpu_count
 
 # This script runs GenMain->GenNeutCards to get a list of cards
@@ -49,12 +50,13 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         NodeFiles = FileNames[Node::TotalNodes] #split up card name based on number of nodes
         SlurmTime = NeutTimeEstimator(NodeFiles)
         print(f"Files on Node {Node}: {len(NodeFiles)}")
+        files_json = json5.dumps(FileNames)
         cmd = f"""sbatch \\
         --nodes=1 \\
         --ntasks-per-node=1 \\
-        --cpus-per-task={NCores} \\
-        --time={SlurmTime} \\
-        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && python GenMain.py NeutMult --Files \\"{NodeFiles}\\" --CPUPercent {CPUPercent}'"
+        --cpus-per-task=48 \\
+        --time=00:03:50 \\
+        --wrap "apptainer exec --writable-tmpfs --bind /project/cherdack/t2k-nova/PUfINOutPuts/:/project/cherdack/t2k-nova/PUfINOutPuts/ /project/cherdack/containers/Generators/NeutGenieWorking.sif bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts/ && python GenMain.py NeutMult --Files \\"{files_json}\\" --CPUPercent {CPUPercent}'"
         """
         print(cmd)
         # p = subprocess.Popen(cmd)   # each cmd is a separate process
