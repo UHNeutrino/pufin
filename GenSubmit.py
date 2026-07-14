@@ -2,6 +2,7 @@ import os
 import argparse
 import time
 import GenMain
+import subprocess
 from multiprocessing import cpu_count
 
 # This script runs GenMain->GenNeutCards to get a list of cards
@@ -17,7 +18,18 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
     FilePath,Targets = GenMain.DirectorySetup(Generator, SingleTarget=Target, Mode=Mode)
     GenMain.FlatFluxMaker()
     CardNames = GenMain.MakeNeutCards(Tune, Targets, Events, Modes=Mode, Flavors=Flavor)
-    GenMain.GenNeutXsec(Tune, Targets)
+    # making an xsec needs to be on a node in the container:
+    xseccmd = f"""
+        sbatch \\
+        --nodes=1 \\
+        --ntasks-per-node=1  \\
+        --cpus-per-task={NCores} \\
+        --time=00:05:00 \\
+        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:/{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath}  && python GenMain.py NeutXsec --tune {Tune} --target {Target}'"
+        """
+    print(xseccmd)
+    # xp = subprocess.Popen(xseccmd)
+
     processes = []
     FileNames = []
     FileNames = GenMain.CheckNeutFiles(CardNames,NChunks)
@@ -35,7 +47,7 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
 
     for Node in range(0,TotalNodes):
         NodeFiles = FileNames[Node::TotalNodes] #split up card name based on number of nodes
-        SlurmTime = TimeEstimator(NodeFiles)
+        SlurmTime = NeutTimeEstimator(NodeFiles)
         print(f"Files on Node {Node}: {len(NodeFiles)}")
         cmd = f"""
         sbatch \\
@@ -43,14 +55,12 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         --ntasks-per-node=1  \\
         --cpus-per-task={NCores} \\
         --time={SlurmTime}
-        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:/mnt {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath}  && python GenMain.py NeutMult --Files "{NodeFiles}" --CPUPercent {CPUPercent} '"
+        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath}  && python GenMain.py NeutMult --Files "{NodeFiles}" --CPUPercent {CPUPercent} '"
         """
         print(cmd)
         # p = subprocess.Popen(cmd)   # each cmd is a separate process
         # processes.append(p)
     
-    for p in processes:
-        p.wait()
         
 def GenieRunScript(Container, Tune, NChunks, TotalNodes, Target=None, Mode=None, Flavor=None, CPUPercent=None):
     OutPath = "/data/t2k-nova/PUfINOutputs/_MultiProcess"
@@ -117,7 +127,7 @@ def GenieRunScript(Container, Tune, NChunks, TotalNodes, Target=None, Mode=None,
     for p in processes:
         p.wait()
 
-def TimeEstimator(Files):
+def NeutTimeEstimator(Files):
     # loop through all files and come up with a decent time estimation using linear regressions from trends found in initial testing
     EventsAndPart = Files[0].split("_")[7]
     print(EventsAndPart)

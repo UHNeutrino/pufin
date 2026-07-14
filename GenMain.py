@@ -1145,16 +1145,16 @@ if __name__ =="__main__":
     GenParser.add_argument("--NChunks", default=None, type=int)
     #If Being called by GenSubmit on multiple Nodes:
     NeutMultParser = subparsers.add_parser("NeutMult")
+    NeutMultParser.add_argument("--tune", required=True)
+    NeutMultParser.add_argument("--targets", required=True)
+    # For Making the Xsecs on a cluster:
+    NeutMultParser = subparsers.add_parser("NeutXsec")
     NeutMultParser.add_argument("--Files", required=True)
     NeutMultParser.add_argument("--CPUPercent", required=True)
     
     GenieMultParser = subparsers.add_parser("GenieMult")
     GenieMultParser.add_argument("--Files", required=True)
     GenieMultParser.add_argument("--CPUPercent", required=True)
-
-    
-
-
     
 
     args = parser.parse_args()
@@ -1172,16 +1172,16 @@ if __name__ =="__main__":
             NChunks=args.NChunks,
         )
     elif args.command=="NeutMult":
-        print("LOOK HERE")
-        print(args.Files)
         GenNeutMultiOnNodeFiles(
             FileNames=json5.loads(args.Files),
             CPUPercent=float(args.CPUPercent),
             )
-        
+    elif args.command=="NeutXsec":
+        GenNeutXsec(
+            Tune=args.tune,
+            Targets=args.targets
+        )
     elif args.command=="GenieMult":
-        print("LOOK HERE GENIE")
-        print(args.Files)
         GenGenieMultiOnNodeFiles(
             FileNames=json5.loads(args.Files),
             CPUPercent=float(args.CPUPercent),
