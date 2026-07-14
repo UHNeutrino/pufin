@@ -54,7 +54,7 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         --ntasks-per-node=1 \\
         --cpus-per-task={NCores} \\
         --time={SlurmTime} \\
-        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c \\"source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && python GenMain.py NeutMult --Files '{NodeFiles}' --CPUPercent {CPUPercent}\\""
+        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && python GenMain.py NeutMult --Files \\"{NodeFiles}\\" --CPUPercent {CPUPercent}'"
         """
         print(cmd)
         # p = subprocess.Popen(cmd)   # each cmd is a separate process
