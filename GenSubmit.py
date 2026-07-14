@@ -50,13 +50,13 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         NodeFiles = FileNames[Node::TotalNodes] #split up card name based on number of nodes
         SlurmTime = NeutTimeEstimator(NodeFiles)
         print(f"Files on Node {Node}: {len(NodeFiles)}")
-        files_json = json5.dumps(NodeFiles)
+        FilesJson = json5.dumps(NodeFiles)
         cmd = f"""sbatch \\
         --nodes=1 \\
         --ntasks-per-node=1 \\
-        --cpus-per-task=48 \\
-        --time=00:03:50 \\
-        --wrap "apptainer exec --writable-tmpfs --bind /project/cherdack/t2k-nova/PUfINOutPuts/:/project/cherdack/t2k-nova/PUfINOutPuts/ /project/cherdack/containers/Generators/NeutGenieWorking.sif bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts/ && python GenMain.py NeutMult --Files \\"{files_json}\\" --CPUPercent {CPUPercent}'"
+        --cpus-per-task={NCores} \\
+        --time={SlurmTime} \\
+        --wrap \\\\"apptainer exec --writable-tmpfs --bind /project/cherdack/t2k-nova/PUfINOutPuts/:/project/cherdack/t2k-nova/PUfINOutPuts/ /project/cherdack/containers/Generators/NeutGenieWorking.sif bash -c \\"source /opt/SetupAll.sh && export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts/ && python GenMain.py NeutMult --Files \\"{FilesJson}\\" --CPUPercent {CPUPercent}\\" \\\\"
         """
         print(cmd)
         # p = subprocess.Popen(cmd)   # each cmd is a separate process

@@ -68,7 +68,7 @@ def FlatFluxMaker():
             low = int(numbers[0])           # "X"
             high = int(numbers[1].split("GeV")[0])  # "Y"
             N = (high-low)*125000
-            hist = ROOT.TH1D("FlatHist", "Flat Flux; Energy (GeV); Neutrinos", N, low, high)
+            hist = ROOT.TH1D(f"FlatHist_{low}", "Flat Flux; Energy (GeV); Neutrinos", N, low, high)
             hist.SetLineWidth(2)
             hist.SetLineColor(804)
             for i in range(N):
