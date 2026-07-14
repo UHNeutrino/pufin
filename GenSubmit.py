@@ -49,13 +49,12 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         NodeFiles = FileNames[Node::TotalNodes] #split up card name based on number of nodes
         SlurmTime = NeutTimeEstimator(NodeFiles)
         print(f"Files on Node {Node}: {len(NodeFiles)}")
-        cmd = f"""
-        sbatch \\
+        cmd = f"""sbatch \\
         --nodes=1 \\
-        --ntasks-per-node=1  \\
+        --ntasks-per-node=1 \\
         --cpus-per-task={NCores} \\
-        --time={SlurmTime}
-        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath}  && python GenMain.py NeutMult --Files "{NodeFiles}" --CPUPercent {CPUPercent} '"
+        --time={SlurmTime} \\
+        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c \\"source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && python GenMain.py NeutMult --Files '{NodeFiles}' --CPUPercent {CPUPercent}\\""
         """
         print(cmd)
         # p = subprocess.Popen(cmd)   # each cmd is a separate process
