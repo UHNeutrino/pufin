@@ -115,3 +115,5 @@ GenFlavorScales = {
     "NuE": 0.01,
     "NuEBar": 0.01,
 }
+
+GenieEventsPerChunk = 100000
