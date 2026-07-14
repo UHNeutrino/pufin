@@ -50,7 +50,7 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         NodeFiles = FileNames[Node::TotalNodes] #split up card name based on number of nodes
         SlurmTime = NeutTimeEstimator(NodeFiles)
         print(f"Files on Node {Node}: {len(NodeFiles)}")
-        files_json = json5.dumps(FileNames)
+        files_json = json5.dumps(NodeFiles)
         cmd = f"""sbatch \\
         --nodes=1 \\
         --ntasks-per-node=1 \\
