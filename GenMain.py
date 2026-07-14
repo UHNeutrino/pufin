@@ -37,7 +37,6 @@ def DirectorySetup(Generator, SingleTarget=None, Mode=None):
     FilePaths = []
     for target in Targets:
         OnePath = OutPath + "/" + Generator.upper() + "/" + target + "/"
-        #OnePath = OutPath + "/" + Generator.upper() + "/" + SingleTarget + "/"
         FilePaths.append(OnePath)
         os.makedirs(OnePath, exist_ok=True)
     # if Target:
@@ -45,7 +44,8 @@ def DirectorySetup(Generator, SingleTarget=None, Mode=None):
     #     Targets = [Target]
         
     if SingleTarget:
-        OnePath = OutPath + "/" + Generator.upper() + "/" + Target + "/"
+        #OnePath = OutPath + "/" + Generator.upper() + "/" + Target + "/"
+        OnePath = OutPath + "/" + Generator.upper() + "/" + SingleTarget + "/"
         os.makedirs(OnePath, exist_ok=True)
         FilePaths = [OnePath]
         Targets = [SingleTarget]
@@ -79,6 +79,254 @@ def FlatFluxMaker():
             print(f"Made Flat Flux: {f}")
         else:
             print(f"Flat Flux {flux} exists")
+            
+def GetGenieFlavorEvents(Events, Flavor):
+    if Flavor not in GlobalV.GenFlavorScales:
+        raise ValueError(f"No GENIE flavor scale defined for {Flavor}")
+
+    FlavorEvents = int(Events * GlobalV.GenFlavorScales[Flavor])
+
+    if FlavorEvents < 100:
+        FlavorEvents = 100
+
+    return FlavorEvents
+
+def CheckGenieFiles(Tune, Targets, Events, Modes=None, Flavors=None):
+    # Checks all expected GENIE multiprocessing files and returns the Original_
+    # filenames that still need to be generated or flattened.
+    #
+    # For multiprocessing, Events is interpreted as the desired NuMu NChunks.
+    # Flavor chunk counts are scaled by GlobalV.GenFlavorScales.
+    # Each GENIE chunk is hard-coded to 100 events for now.
+
+    OutPath = os.environ.get("PUFIN_OUT")
+    if OutPath == None:
+        raise ValueError("PUFIN_OUT Needs to be defined!")
+
+    if not os.environ.get("GENIE_VERSION"):
+        raise ValueError("GENIE_VERSION Environment Variable Not Defined")
+    GenieVersion = os.environ.get("GENIE_VERSION")
+
+    if not Tune:
+        GENIE_XSEC_TUNE = os.environ.get("GENIE_XSEC_TUNE", "")
+        if not GENIE_XSEC_TUNE:
+            raise ValueError("Tune not provided and GENIE_XSEC_TUNE is not set")
+        Tune = GENIE_XSEC_TUNE.split("_", 1)[0]
+
+    EventsPerChunk = GlobalV.GenieEventsPerChunk
+    NuMuNChunks = Events
+    FileNames = []
+
+    if not Modes:
+        Modes = ["NC", "CC"]
+    elif isinstance(Modes, str):
+        Modes = [Modes]
+
+    if not Flavors:
+        Flavors = GlobalV.Flavors
+    elif isinstance(Flavors, str):
+        Flavors = [Flavors]
+
+    for Target in Targets:
+        for Mode in Modes:
+            for Flavor in Flavors:
+
+                # Just like NEUT: no nue/nuebar NC generation
+                if Mode == "NC" and (Flavor == "NuE" or Flavor == "NuEBar"):
+                    continue
+
+                if Flavor not in GlobalV.GenFlavorScales:
+                    raise ValueError(f"No GENIE flavor scale defined for {Flavor}")
+
+                NChunks = int(NuMuNChunks * GlobalV.GenFlavorScales[Flavor])
+
+                if NChunks < 1:
+                    NChunks = 1
+
+                Eranges = ["0-8GeV"]
+                if Mode == "NC":
+                    Eranges = ["0-8GeV", "8-30GeV", "30-120GeV"]
+
+                for Erange in Eranges:
+                    print(
+                        f"GENIE {Mode} {Flavor} {Target} {Erange}: "
+                        f"{NChunks} chunks of {EventsPerChunk} events"
+                    )
+
+                    for i in range(NChunks):
+
+                        GenName = f"Original_GENIE{GenieVersion}_{Tune}_{Mode}_{Flavor}_{Erange}_{Target}_{EventsPerChunk}P{i:03}.root"
+                        GenName = GenName.replace("+", "")
+
+                        FlatName = GenName.replace("Original", "Flat")
+
+                        GenDir = OutPath + f"/GENIE/{Target}"
+                        FlatPath = GenDir + f"/{FlatName}"
+
+                        RunBool = not os.path.exists(FlatPath)
+
+                        if RunBool == False:
+                            try:
+                                RFile = ROOT.TFile(FlatPath)
+                                if RFile.IsZombie():
+                                    os.remove(FlatPath)
+                                    RunBool = True
+                                elif not RFile.Get("FlatTree_VARS"):
+                                    os.remove(FlatPath)
+                                    RunBool = True
+                                RFile.Close()
+                            except:
+                                os.remove(FlatPath)
+                                RunBool = True
+
+                        if RunBool == True:
+                            FileNames.append(GenName)
+
+    return FileNames
+
+def GenGenieFlatSingleFile(File):
+    OutPath = os.environ.get("PUFIN_OUT")
+    if OutPath == None:
+        raise ValueError("PUFIN_OUT Needs to be defined!")
+
+    if not os.environ.get("GENIE_XSEC_TUNE"):
+        raise ValueError("GENIE_XSEC_TUNE Environment Variable Not Defined")
+
+    if not os.environ.get("GENIE_XSEC_FILE"):
+        raise ValueError("GENIE_XSEC_FILE Environment Variable Not Defined")
+
+    GenInfo = File.replace(".root", "").split("_")
+
+    GeneratorVersion = GenInfo[1]   # GENIE3.06.00
+    Tune = GenInfo[2]
+    Mode = GenInfo[3]
+    Flavor = GenInfo[4]
+    Erange = GenInfo[5]
+    Target = GenInfo[6]
+    EventsAndPart = GenInfo[7]
+
+    Events = int(float(EventsAndPart.split("P")[0]))
+
+    Emin = Erange.split("-")[0]
+    Emax = Erange.split("-")[1].replace("GeV", "")
+
+    GenDir = OutPath + f"/GENIE/{Target}"
+    os.makedirs(GenDir, exist_ok=True)
+
+    GenName = File
+    FlatName = GenName.replace("Original", "Flat")
+    PrepName = GenName.replace("Original", "Prep")
+
+    GenPath = GenDir + f"/{GenName}"
+    FlatPath = GenDir + f"/{FlatName}"
+    PrepPath = GenDir + f"/{PrepName}"
+
+    FlavorPDG = None
+    for pdg, label in GlobalV.NuPDGs.items():
+        if label == Flavor:
+            FlavorPDG = str(pdg)
+
+    if FlavorPDG == None:
+        raise ValueError(f"No Such Flavor {Flavor}")
+
+    TargetPDG = None
+    for _, info in GlobalV.NovaTargets.items():
+        if info["name"] == Target:
+            TargetPDG = info["pdg"]
+
+    if TargetPDG == None:
+        raise ValueError(f"No Such Target {Target}")
+
+    Flux = f"/data/t2k-nova/fluxes/full_flat_flux_{Emin}-{Emax}GeV.root,h1"
+
+    RunBool = not os.path.exists(GenPath)
+
+    if RunBool == False:
+        try:
+            RFile = ROOT.TFile(GenPath)
+            if RFile.IsZombie():
+                os.remove(GenPath)
+                RunBool = True
+            elif not RFile.Get("gtree"):
+                os.remove(GenPath)
+                RunBool = True
+            RFile.Close()
+        except:
+            os.remove(GenPath)
+            RunBool = True
+
+    if RunBool:
+        seed = random.randint(10000, 999999)
+
+        exec_string = ""
+        exec_string += f"gevgen "
+        exec_string += f"--tune $GENIE_XSEC_TUNE "
+        exec_string += f"-t \"{TargetPDG}\" "
+        exec_string += f"-n {Events} "
+        exec_string += f"-e {Emin},{Emax} "
+        exec_string += f"-f {Flux} "
+        exec_string += f"-p {FlavorPDG} "
+        exec_string += f"--event-generator-list {Mode} "
+        exec_string += f"--seed {seed} "
+        exec_string += f"-o {GenPath} "
+        exec_string += f"--cross-sections $GENIE_XSEC_FILE"
+
+        subprocess.run(exec_string, shell=True, executable="/bin/bash")
+        print(exec_string)
+        print(f"Generated {GenName}")
+    else:
+        print("Original GENIE File exists")
+
+    FlatBool = not os.path.exists(FlatPath)
+
+    if FlatBool == False:
+        try:
+            RFile = ROOT.TFile(FlatPath)
+            if RFile.IsZombie():
+                os.remove(FlatPath)
+                FlatBool = True
+            elif not RFile.Get("FlatTree_VARS"):
+                os.remove(FlatPath)
+                FlatBool = True
+            RFile.Close()
+        except:
+            os.remove(FlatPath)
+            FlatBool = True
+
+    if FlatBool:
+        try:
+            Genf = ROOT.TFile(GenPath)
+        except:
+            raise RuntimeError("Cannot open GENIE file")
+
+        if Genf.IsZombie() or not Genf.Get("gtree"):
+            Genf.Close()
+            raise RuntimeError("Generation of GENIE file failed, cannot flatten")
+        Genf.Close()
+
+        exec_string = ""
+        exec_string += f"PrepareGENIE "
+        exec_string += f"-i {GenPath} "
+        exec_string += f"-t \"{TargetPDG}\" "
+        exec_string += f"-o {PrepPath} "
+        exec_string += f"-f {Flux}"
+
+        subprocess.run(exec_string, shell=True, executable="/bin/bash")
+        print(exec_string)
+
+        exec_string = ""
+        exec_string += f"nuisflat -i GENIE:{PrepPath} -o {FlatPath}"
+
+        subprocess.run(exec_string, shell=True, executable="/bin/bash")
+        print(exec_string)
+        print(f"Generated {FlatName}")
+
+        if os.path.exists(PrepPath):
+            os.remove(PrepPath)
+    else:
+        print(f"GENIE FILE {FlatName} exists and works")
+
+    return RunBool
             
 def gev_gen_genie(events: int, i: int):
     """Run one GENIE job and return its output filename."""
@@ -261,7 +509,14 @@ def GenerateGenie(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=N
                         TuneLabel = GENIE_XSEC_TUNE.split("_", 1)[0]
                     else:
                         TuneLabel = Tune
-                    EventsLabel = f"{Events:.0e}".replace("+0", "").replace("+", "")
+                        
+                    # EventsLabel = f"{Events:.0e}".replace("+0", "").replace("+", "")
+                    # base_name = (
+                    #     f"{Generator}{Version}_{TuneLabel}_{Mode}_{flavor_label}_{Erange}_{target_label}_{EventsLabel}"
+                    # )
+                    
+                    FlavorEvents = GetGenieFlavorEvents(Events, flavor_label)
+                    EventsLabel = f"{FlavorEvents:.0e}".replace("+0", "").replace("+", "")
                     base_name = (
                         f"{Generator}{Version}_{TuneLabel}_{Mode}_{flavor_label}_{Erange}_{target_label}_{EventsLabel}"
                     )
@@ -297,9 +552,41 @@ def GenerateGenie(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=N
                         gen_flatten(str(original_file))
                         continue
 
-                    print(f"Generating {target_name} {Mode} {Flavor} {Erange}")
-                    genie_files, final_genie, final_copy = gen_series(Events, tmpdir, final_dir)
+                    # print(f"Generating {target_name} {Mode} {Flavor} {Erange}")
+                    # genie_files, final_genie, final_copy = gen_series(Events, tmpdir, final_dir)
+                    # gen_flatten(final_copy)
+                    
+                    FlavorEvents = GetGenieFlavorEvents(Events, flavor_label)
+
+                    print(f"Generating {target_name} {Mode} {Flavor} {Erange} with {FlavorEvents} events")
+                    genie_files, final_genie, final_copy = gen_series(FlavorEvents, tmpdir, final_dir)
                     gen_flatten(final_copy)
+                    
+def GenGenieMultiOnNodeFiles(FileNames, CPUPercent):
+    if CPUPercent > 1 and CPUPercent <= 100:
+        CPUPercent /= 100
+    elif CPUPercent > 100 or CPUPercent <= 0:
+        raise ValueError("CorePercent must be 0<x leq 1 or 1<x<100")
+
+    MaxCores = os.cpu_count()
+    NCores = max(1, int(os.environ.get("SLURM_CPUS_PER_TASK", MaxCores*CPUPercent)))
+    
+    if len(FileNames) == 0:
+        print("No GENIE files need to be generated.")
+        return []
+
+    if NCores > len(FileNames):
+        NCores = len(FileNames)
+
+    print(f"Number of Cores: {NCores}")
+
+    RunList = []
+
+    with concurrent.futures.ProcessPoolExecutor(max_workers=NCores) as exe:
+        for result in exe.map(GenGenieFlatSingleFile, FileNames):
+            RunList.append(result)
+
+    return RunList
                     
 def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=None):
     OutPath = os.environ.get("PUFIN_OUT")
@@ -797,9 +1084,23 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, CPUPe
     FilePath,Targets = DirectorySetup(Generator, SingleTarget=Target, Mode=Mode)
     FlatFluxMaker()
 
+    # if Generator.lower()=="genie":
+    #     #GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor, Multi)
+    #     GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor)
     if Generator.lower()=="genie":
-        #GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor, Multi)
-        GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor)
+        if CPUPercent and NChunks:
+            FileNames = CheckGenieFiles(
+                Tune=Tune,
+                Targets=Targets,
+                Events=NChunks,   # multiprocessing interpretation: NuMu NChunks
+                Modes=Mode,
+                Flavors=Flavor,
+            )
+            RunList = GenGenieMultiOnNodeFiles(FileNames, CPUPercent)
+        elif CPUPercent or NChunks:
+            raise ValueError("Need both CPUPercent and NChunk for multi processing")
+        else:
+            GenerateGenie(Generator, Events, Tune, Target, Mode, Flavor)
     elif Generator.lower()=="neut":
         if not Tune:
             raise ValueError("Neut requires a tune")
@@ -828,11 +1129,6 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, CPUPe
 
 
 if __name__ =="__main__":
-
-    #     python GenMain.py Gen \
-    
-    #   --generator Genie \
-    #   --events 200 
     
     parser = argparse.ArgumentParser()
 
@@ -851,6 +1147,10 @@ if __name__ =="__main__":
     NeutMultParser = subparsers.add_parser("NeutMult")
     NeutMultParser.add_argument("--Files", required=True)
     NeutMultParser.add_argument("--CPUPercent", required=True)
+    
+    GenieMultParser = subparsers.add_parser("GenieMult")
+    GenieMultParser.add_argument("--Files", required=True)
+    GenieMultParser.add_argument("--CPUPercent", required=True)
 
     
 
@@ -866,10 +1166,10 @@ if __name__ =="__main__":
             Target=args.target,
             Mode=args.mode,
             Flavor=args.flavor,
-            CPUPercent=float(args.CPUPercent),
-            NChunks=int(args.NChunks),
-            # CPUPercent=args.CPUPercent,
-            # NChunks=args.NChunks,
+            # CPUPercent=float(args.CPUPercent),
+            # NChunks=int(args.NChunks),
+            CPUPercent=args.CPUPercent,
+            NChunks=args.NChunks,
         )
     elif args.command=="NeutMult":
         print("LOOK HERE")
@@ -878,6 +1178,14 @@ if __name__ =="__main__":
             FileNames=json5.loads(args.Files),
             CPUPercent=float(args.CPUPercent),
             )
+        
+    elif args.command=="GenieMult":
+        print("LOOK HERE GENIE")
+        print(args.Files)
+        GenGenieMultiOnNodeFiles(
+            FileNames=json5.loads(args.Files),
+            CPUPercent=float(args.CPUPercent),
+        )
 
     
     # Tune = "Prod7E"
@@ -885,5 +1193,23 @@ if __name__ =="__main__":
     # Events = 1000
     # MakeNeutCards(Tune, Targets,Events)
     # GenNeutXsec(Tune,Targets)
+    
+    # source /data/t2k-nova/MainSetup.sh
+    # export PUFIN_OUT=/data/t2k-nova/PUfINOutputs/_MultiProcess
+    # python GenMain.py Gen \
+
+    ## For Series:
+    # --generator Genie \
+    # --events 200 
+        
+    ## For Multi-core: (remember events = nChuncks for NuMu)
+    # python GenMain.py Gen \
+    #   --generator Genie \
+    #   --events 50000 \
+    #   --target Carbon \
+    #   --mode CC \
+    #   --flavor NuMu \
+    #   --CPUPercent 50 \
+    #   --NChunks 5
     
    
