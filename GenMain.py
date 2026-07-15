@@ -752,6 +752,8 @@ def GenNeutXsec(Tune, Targets, FullCardPath=None):
                     shutil.move(f"{tmpdir}/neut_xsecs.root", os.path.join(XsecDir, XsecName))
                 else:
                     print(f"Xsec hists {XsecName} exists")
+    
+    print("Finished making/finding Neut Xsecs")
 
 def FluxToTemp():
     OutPath = os.environ.get("PUFIN_OUT")
