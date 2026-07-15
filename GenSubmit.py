@@ -58,7 +58,7 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         --cpus-per-task={NCores} \\
         --time={SlurmTime} \\
         --job-name=NEUTGeneration{Node}of{TotalNodes}{DateStr}
-        --wrap "apptainer exec --writable-tmpfs --bind /project/cherdack/t2k-nova/PUfINOutPuts/:/project/cherdack/t2k-nova/PUfINOutPuts/ /project/cherdack/containers/Generators/NeutGenieWorking.sif bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts/ && python GenMain.py NeutMult --Files {FilesFormated} --CPUPercent {CPUPercent}' "
+        --wrap "apptainer exec --writable-tmpfs --bind /project/cherdack/t2k-nova/PUfINOutPuts/:/project/cherdack/t2k-nova/PUfINOutPuts/ /project/cherdack/containers/Generators/NeutGenieWorking.sif bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts/ && echo {len(NodeFiles)} Files in {SlurmTime} Time && python GenMain.py NeutMult --Files {FilesFormated} --CPUPercent {CPUPercent}' "
         """
         # print(cmd)
         p = subprocess.Popen(cmd)   # each cmd is a separate process
