@@ -11,6 +11,7 @@ from multiprocessing import cpu_count
 
 
 def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mode=None, Flavor=None, CPUPercent=None):
+    DateStr = time.strftime("%Y-%m-%d")
     OutPath = os.environ.get("PUFIN_OUT")
     if OutPath==None:
         raise ValueError("PUFIN_OUT Needs to be defined!")
@@ -51,7 +52,6 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         FilesFormated = ""
         for file in NodeFiles:
             FilesFormated += file + " "
-        DateStr = time.strftime("%Y-%m-%d")
         cmd = f"""sbatch \\
         --nodes=1 \\
         --ntasks-per-node=1 \\
