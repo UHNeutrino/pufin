@@ -28,7 +28,7 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         --cpus-per-task=1 \\
         --time=00:05:00 \\
         --job-name=NeutXsecGeneration{DateStr}\\
-        --output=NeutXsecGeneration{DateStr}\\
+        --output=NeutXsecGeneration{DateStr}.out\\
         --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c \\"source /opt/SetupAll.sh && export PUFIN_OUT={OutPath}  && python GenMain.py NeutXsec --tune {Tune} --target \\\\\\"{Targets}\\\\\\" \\" "
         """
     print("Running xsec generation")
@@ -60,7 +60,7 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         --cpus-per-task={NCores} \\
         --time={SlurmTime} \\
         --job-name=NEUTGeneration{Node}of{TotalNodes}{DateStr}\\
-        --output=NEUTGeneration{Node}of{TotalNodes}{DateStr}\\
+        --output=NEUTGeneration{Node}of{TotalNodes}{DateStr}.out\\
         --wrap "apptainer exec --writable-tmpfs --bind /project/cherdack/t2k-nova/PUfINOutPuts/:/project/cherdack/t2k-nova/PUfINOutPuts/ /project/cherdack/containers/Generators/NeutGenieWorking.sif bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts/ && echo {len(NodeFiles)} Files in {SlurmTime} Time && python GenMain.py NeutMult --Files {FilesFormated} --CPUPercent {CPUPercent}' "
         """
         # print(cmd)
