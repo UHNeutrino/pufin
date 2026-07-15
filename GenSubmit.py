@@ -150,7 +150,7 @@ def NeutTimeEstimator(Files, NCores):
         else:
             TotalSeconds += int(0.00591132*Events + 100)
     # add time for flattening ~3 min each:
-    TotalSeconds += Files*180
+    TotalSeconds += len(Files)*180
     
     TotalSeconds = TotalSeconds/NCores
     if TotalSeconds>= 86400:
