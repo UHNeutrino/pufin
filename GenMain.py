@@ -831,7 +831,7 @@ def CheckNeutFiles(CardNames, NChunks):
             raise ValueError(f"No Such Flavor {Flavor}")
         # print(Target)
         for i in range(TempChunks):
-            GenName = Card.replace("NEUT", "Original_NEUT")
+            GenName = Card.replace("NEUT", "Flat_NEUT")
             GenName = GenName.replace(".card",f"P{i:03}.root")
             f = GenDir + f"/{GenName}"
             RunBool = not os.path.exists(f)

@@ -149,6 +149,9 @@ def NeutTimeEstimator(Files, NCores):
             TotalSeconds += 70
         else:
             TotalSeconds += int(0.00591132*Events + 100)
+    # add time for flattening ~3 min each:
+    TotalSeconds += Files*180
+    
     TotalSeconds = TotalSeconds/NCores
     if TotalSeconds>= 86400:
         raise ValueError("Allocation exceeding 24hrs, use more cores or less chunks")
