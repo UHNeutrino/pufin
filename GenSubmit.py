@@ -66,7 +66,7 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         # print(cmd)
         print(f"Sending Job to Node {Node} of {TotalNodes}\n  Estimated time: {SlurmTime}")
         result = subprocess.Popen(cmd, shell=True)   # each cmd is a separate process
-        time.sleep(10)
+        time.sleep(2)
     
         
 def GenieRunScript(Container, Tune, NChunks, TotalNodes, Target=None, Mode=None, Flavor=None, CPUPercent=None):
