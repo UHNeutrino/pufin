@@ -30,7 +30,8 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         --job-name=NeutXsecGeneration{DateStr}
         --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c \\"source /opt/SetupAll.sh && export PUFIN_OUT={OutPath}  && python GenMain.py NeutXsec --tune {Tune} --target \\\\\\"{Targets}\\\\\\" \\" "
         """
-    result = subprocess.run(xseccmd, shell=True)
+    print("Running xsec generation")
+    result = subprocess.Popen(xseccmd, shell=True)
 
     processes = []
     FileNames = []
@@ -61,6 +62,8 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         --wrap "apptainer exec --writable-tmpfs --bind /project/cherdack/t2k-nova/PUfINOutPuts/:/project/cherdack/t2k-nova/PUfINOutPuts/ /project/cherdack/containers/Generators/NeutGenieWorking.sif bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts/ && echo {len(NodeFiles)} Files in {SlurmTime} Time && python GenMain.py NeutMult --Files {FilesFormated} --CPUPercent {CPUPercent}' "
         """
         # print(cmd)
+        print(f"Sending Job to Node {Node} of {TotalNodes}\n  Estimated time: {SlurmTime}")
+
         result = subprocess.run(cmd, shell=True)   # each cmd is a separate process
     
         
