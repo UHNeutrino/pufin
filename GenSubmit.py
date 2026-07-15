@@ -26,10 +26,10 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         --ntasks-per-node=1  \\
         --cpus-per-task=1 \\
         --time=00:05:00 \\
+        --job-name=NeutXsecGeneration{DateStr}
         --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c \\"source /opt/SetupAll.sh && export PUFIN_OUT={OutPath}  && python GenMain.py NeutXsec --tune {Tune} --target \\\\\\"{Targets}\\\\\\" \\" "
         """
-    print(xseccmd)
-    # xp = subprocess.Popen(xseccmd)
+    xp = subprocess.Popen(xseccmd)
 
     processes = []
     FileNames = []
@@ -40,29 +40,28 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         raise ValueError("CorePercent must be 0<x leq 1 or 1<x<100")
     NCores = max(1,int( cpu_count()*CPUPercent))
     NodeFiles = []
-    # Sort NuMu to the front so it gets distributed equallyu
-    print(f"Not Sorted {len(FileNames)}")
+    # Sort NuMu to the front so it gets distributed equally
     FileNames = sorted(FileNames, key=lambda x: "_NuMu_" not in x)
-    print(f"Total Files: {len(FileNames)}")
 
 
     for Node in range(0,TotalNodes):
         NodeFiles = FileNames[Node::TotalNodes] #split up card name based on number of nodes
-        SlurmTime = NeutTimeEstimator(NodeFiles)
+        SlurmTime = NeutTimeEstimator(NodeFiles, NCores)
         print(f"Files on Node {Node}: {len(NodeFiles)}")
         FilesFormated = ""
         for file in NodeFiles:
             FilesFormated += file + " "
+        DateStr = time.strftime("%Y-%m-%d")
         cmd = f"""sbatch \\
         --nodes=1 \\
         --ntasks-per-node=1 \\
         --cpus-per-task={NCores} \\
         --time={SlurmTime} \\
+        --job-name=NEUTGeneration{Node}of{TotalNodes}{DateStr}
         --wrap "apptainer exec --writable-tmpfs --bind /project/cherdack/t2k-nova/PUfINOutPuts/:/project/cherdack/t2k-nova/PUfINOutPuts/ /project/cherdack/containers/Generators/NeutGenieWorking.sif bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts/ && python GenMain.py NeutMult --Files {FilesFormated} --CPUPercent {CPUPercent}' "
         """
-        print(cmd)
-        # p = subprocess.Popen(cmd)   # each cmd is a separate process
-        # processes.append(p)
+        # print(cmd)
+        p = subprocess.Popen(cmd)   # each cmd is a separate process
     
         
 def GenieRunScript(Container, Tune, NChunks, TotalNodes, Target=None, Mode=None, Flavor=None, CPUPercent=None):
@@ -130,7 +129,7 @@ def GenieRunScript(Container, Tune, NChunks, TotalNodes, Target=None, Mode=None,
     for p in processes:
         p.wait()
 
-def NeutTimeEstimator(Files):
+def NeutTimeEstimator(Files, NCores):
     # loop through all files and come up with a decent time estimation using linear regressions from trends found in initial testing
     EventsAndPart = Files[0].split("_")[7]
     print(EventsAndPart)
@@ -145,6 +144,7 @@ def NeutTimeEstimator(Files):
             TotalSeconds += 70
         else:
             TotalSeconds += int(0.00591132*Events + 100)
+    TotalSeconds = TotalSeconds/NCores
     if TotalSeconds>= 86400:
         raise ValueError("Allocation exceeding 24hrs, use more cores or less chunks")
     t = time.gmtime(TotalSeconds)

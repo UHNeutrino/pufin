@@ -1021,13 +1021,14 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
     with concurrent.futures.ProcessPoolExecutor(max_workers=NCores) as exe: 
         for result in exe.map(GenNeutFlatSingleFile, FileNames, CardList):
             RunList.append(result)
-    print(CardList)
 
 
     
     for Card in CardList:
         if os.path.exists(f"{tmpdir}/{Card}"):
             os.remove(f"{tmpdir}/{Card}")
+
+    print("FILE GENERATION ON NODE FINISHED, BYE BYE")
 
     return RunList
 
