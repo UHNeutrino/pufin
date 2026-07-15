@@ -47,7 +47,7 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
     FileNames = sorted(FileNames, key=lambda x: "_NuMu_" not in x)
 
 
-    for Node in range(0,TotalNodes+1):
+    for Node in range(0,TotalNodes):
         NodeFiles = FileNames[Node::TotalNodes] #split up card name based on number of nodes
         SlurmTime = NeutTimeEstimator(NodeFiles, NCores)
         print(f"Files on Node {Node}: {len(NodeFiles)}")
