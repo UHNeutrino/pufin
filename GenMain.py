@@ -833,6 +833,7 @@ def CheckNeutFiles(CardNames, NChunks):
         for i in range(TempChunks):
             GenName = Card.replace("NEUT", "Flat_NEUT")
             GenName = GenName.replace(".card",f"P{i:03}.root")
+            OriginName = GenName.replace("Flat","Original")
             f = GenDir + f"/{GenName}"
             RunBool = not os.path.exists(f)
             if not RunBool:
@@ -845,7 +846,7 @@ def CheckNeutFiles(CardNames, NChunks):
                     RunBool = True
                 RFile.Close()
             if RunBool == True:
-                FileNames.append(GenName)
+                FileNames.append(OriginName)
 
     return FileNames
 
@@ -904,7 +905,7 @@ def GenNeutFlatSingleFile(File, Card):
     user = os.environ.get("USER")
     tmpdir = f"{OutPath}/{user}_temp_dir"
     Target = Card.split("_")[5]
-    GenDir = OutPath + f"/NEUT/{Target}"
+    GenDir = OutPath + f"NEUT/{Target}"
 
     GenName = File
     f = GenDir + f"/{GenName}"
