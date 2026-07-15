@@ -991,6 +991,7 @@ def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks):
     return RunList
 
 def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
+    #THIS SHOULD NOT BE RUN ON ITS OWN, ONLY CALLED BY GENSUBMIT.PY
     if CPUPercent > 1 and CPUPercent <= 100:
         CPUPercent /= 100
     elif CPUPercent > 100 or CPUPercent < 0:
@@ -1145,7 +1146,7 @@ if __name__ =="__main__":
     GenParser.add_argument("--NChunks", default=None, type=int)
     #If Being called by GenSubmit on multiple Nodes:
     NeutMultParser = subparsers.add_parser("NeutMult")
-    NeutMultParser.add_argument("--Files", required=True)
+    NeutMultParser.add_argument("--Files",  nargs="+", required=True)
     NeutMultParser.add_argument("--CPUPercent", required=True)
     
     # For Making the Xsecs on a cluster:
@@ -1154,7 +1155,7 @@ if __name__ =="__main__":
     NeutXsecParser.add_argument("--targets", required=True)
     
     GenieMultParser = subparsers.add_parser("GenieMult")
-    GenieMultParser.add_argument("--Files", required=True)
+    GenieMultParser.add_argument("--Files", nargs="+", required=True)
     GenieMultParser.add_argument("--CPUPercent", required=True)
     
 
@@ -1174,7 +1175,7 @@ if __name__ =="__main__":
         )
     elif args.command=="NeutMult":
         GenNeutMultiOnNodeFiles(
-            FileNames=json5.loads(args.Files),
+            FileNames= args.Files,
             CPUPercent=float(args.CPUPercent),
             )
     elif args.command=="NeutXsec":
