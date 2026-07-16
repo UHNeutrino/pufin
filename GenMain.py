@@ -935,7 +935,7 @@ def GenNeutFlatSingleFile(File, Card):
         exec_string=""
         exec_string += f"neutroot2 {Card} {GenName}"
         print(f">>>>>>>>>>>>>>>>>>>>Running Genertation of {GenName} now")
-        subprocess.run(exec_string, cwd=tmpdir)
+        subprocess.run(exec_string.split(), cwd=tmpdir)
         shutil.move(f"{tmpdir}/{GenName}", os.path.join(GenDir, GenName))   
         print(f"Generated {GenName}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     else:
