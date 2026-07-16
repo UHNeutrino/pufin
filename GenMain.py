@@ -908,7 +908,7 @@ def GenNeutFlatSingleFile(File, Card):
     user = os.environ.get("USER")
     tmpdir = f"{OutPath}/{user}_temp_dir"
     Target = Card.split("_")[5]
-    GenDir = OutPath + f"NEUT/{Target}"
+    GenDir = OutPath + f"/NEUT/{Target}"
 
     GenName = File
     f = GenDir + f"/{GenName}"
