@@ -934,15 +934,21 @@ def GenNeutFlatSingleFile(File, Card):
     if RunBool:
         exec_string=""
         exec_string += f"neutroot2 {Card} {GenName}"
-        print(f">>>>>>>>>>>>>>>>>>>>Running Genertation of {GenName} now")
+        shutil.copy(f"{tmpdir}/empty_text.txt", f"{tmpdir}/{GenName}.text")
+        #print(f">>>>>>>>>>>>>>>>>>>>Running Genertation of {GenName} now")
+        with open(f"{tmpdir}/{GenName}.text") as output_text:
+            output_text.write(f">>>>>>>Running Generation of {GenName} now...\n")
         subprocess.run(exec_string.split(), cwd=tmpdir)
+        with open(f"{tmpdir}/{GenName}.text") as output_text:
+            output_text.write(f"Generate {GenName}<<<<<<<<<<<<<\n")
         shutil.move(f"{tmpdir}/{GenName}", os.path.join(GenDir, GenName))   
-        print(f"Generated {GenName}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+        #print(f"Generated {GenName}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     else:
         print("Original File exists")
     GenList = [GenName]
     FlatNeut(GenList)
-
+    with open(f"{tmpdir}/{GenName}.text") as output_text:
+        output_text.write(f">>>>>>>{GenName} Flattened<<<<<<<<<<<\n")
     return RunBool
 
 def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks):
