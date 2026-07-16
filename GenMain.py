@@ -5,6 +5,7 @@ import concurrent.futures
 import json5
 import time
 from multiprocessing import cpu_count
+import multiprocessing as mp
 
 
 # PDGs = {
@@ -933,11 +934,10 @@ def GenNeutFlatSingleFile(File, Card):
     if RunBool:
         exec_string=""
         exec_string += f"neutroot2 {Card} {GenName}"
+        print(f">>>>>>>>>>>>>>>>>>>>Running Genertation of {GenName} now")
         subprocess.run(exec_string, cwd=tmpdir, shell=True)
-        shutil.move(f"{tmpdir}/{GenName}", os.path.join(GenDir, GenName))
-        # os.remove(tmpdir+"/"+Card)
-        # print(exec_string)    
-        print(f"Generated {GenName}")
+        shutil.move(f"{tmpdir}/{GenName}", os.path.join(GenDir, GenName))   
+        print(f"Generated {GenName}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     else:
         print("Original File exists")
     GenList = [GenName]
@@ -1021,7 +1021,8 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
         CardList.append(NodeCard) 
     # proccessed files list
     RunList = []
-    with concurrent.futures.ProcessPoolExecutor(max_workers=NCores) as exe: 
+    ctx = mp.get_context("spawn") #This should help with a slurm multiprocessing bug?
+    with concurrent.futures.ProcessPoolExecutor(max_workers=NCores, mp_context=ctx) as exe: 
         for result in exe.map(GenNeutFlatSingleFile, FileNames, CardList):
             RunList.append(result)
 
