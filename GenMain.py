@@ -712,7 +712,7 @@ def GenNeutXsec(Tune, Targets, FullCardPath=None):
     os.makedirs(XsecDir, exist_ok=True)
 
     # delete temp dir if it exists from a previous run
-    shutil.rmtree(tmpdir, ignore_errors=True)
+    # shutil.rmtree(tmpdir, ignore_errors=True)
     # create fresh temp dir
     os.makedirs(tmpdir)
 
