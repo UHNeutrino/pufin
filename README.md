@@ -2,13 +2,18 @@
 
 This repo is for all code related to the Plotting Utility for Interacting Neutrinos (PUfIN) made by Lars Bøe and Kristen Dobbs.
 
+## Helpful External Resources
++ Find or generate color schemes using ROOT's [TColor Class Reference](https://root.cern.ch/doc/v636/classTColor.html).
+
++ Identify interaction mode number codes using [*(link coming soon)*]().
+
 ## GenMain.py
 
-Before running this scrip do: 
+Before running this script do: 
+```
 source /data/t2k-nova/MainSetup.sh
+```
 to set global variables
-
-
 
 ## Setup for plotting with ```main.py```
 After installing PUfIN using:
@@ -44,7 +49,7 @@ git clone https://github.com/UHNeutrino/PUfIN/
     ```
     HOME = os.getenv("HOME", "/home/username")
     ```
-  + In ```main.json5```, edit ```"global"``` to change the folder you want your plot(s) to be saved to from as
+  + In ```main.json5```, edit ```"global"``` to change the folder you want your plot(s) to be saved to
     ```
     "Save": "My_Folder",
     ```
