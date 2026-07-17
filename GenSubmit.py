@@ -81,10 +81,9 @@ def GenieRunScript(Container, Tune, NChunks, TotalNodes, Target=None, Mode=None,
     FilePath, Targets = GenMain.DirectorySetup(Generator, SingleTarget=Target, Mode=Mode)
     GenMain.FlatFluxMaker()
 
-    FileNames = GenMain.CheckGenieFiles(
-        Tune=Tune,
+    FileNames = CheckGenieFiles(
         Targets=Targets,
-        Events=NChunks,   # For multiprocessing, this means NuMu NChunks
+        Events=NChunks,
         Modes=Mode,
         Flavors=Flavor,
     )
