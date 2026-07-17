@@ -3,12 +3,12 @@
 This repo is for all code related to the Plotting Utility for Interacting Neutrinos (PUfIN) made by Lars Bøe and Kristen Dobbs.
 
 ## Useful Resources
-+ Find or generate color schemes using ROOT's [TColor Class Reference](https://root.cern.ch/doc/v636/classTColor.html).
++ Find or generate color schemes using ROOT's [TColor Class Reference](https://root.cern.ch/doc/v636/classTColor.html)
 
-+ Identify [Nuisance interaction mode codes](https://nuisance.hepforge.org/tutorials/interaction_modes.html).
++ Identify [Nuisance interaction mode codes](https://nuisance.hepforge.org/tutorials/interaction_modes.html)
   > Note: [Nuisance HEPForge](https://nuisance.hepforge.org/) uses a bot defender. If the site fails to load, consider trying the following:
-  + Make sure JavaScript is enabled for the site on your browser, disable VPNs, AdBlockers, or any extensions that could make your traffic appear bot-like
-  + Alternatively, just reference this internal text document [*(will input soon)*]()
+  + Just reference this [internal document](https://github.com/UHNeutrino/PUfIN/InteractionModes.md) containing interaction mode numbers
+  + To access HEPForge, make sure JavaScript is enabled for the site on your browser and disable VPNs, AdBlockers, or any extensions that could make your traffic appear bot-like
 
 ## GenMain.py
 
