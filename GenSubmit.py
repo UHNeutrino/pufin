@@ -69,7 +69,7 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         time.sleep(2)
     
         
-def GenieRunScript(Container, Tune, NChunks, TotalNodes, Target=None, Mode=None, Flavor=None, CPUPercent=None):
+def GenieRunScript(Container, NChunks, TotalNodes, Target=None, Mode=None, Flavor=None, CPUPercent=None):
     OutPath = "/data/t2k-nova/PUfINOutputs/_MultiProcess"
     os.makedirs(OutPath, exist_ok=True)
 
@@ -81,7 +81,7 @@ def GenieRunScript(Container, Tune, NChunks, TotalNodes, Target=None, Mode=None,
     FilePath, Targets = GenMain.DirectorySetup(Generator, SingleTarget=Target, Mode=Mode)
     GenMain.FlatFluxMaker()
 
-    FileNames = CheckGenieFiles(
+    FileNames = GenMain.CheckGenieFiles(
         Targets=Targets,
         Events=NChunks,
         Modes=Mode,
@@ -177,7 +177,6 @@ if __name__ =="__main__":
     
     GenieParser = subparsers.add_parser("GenGenie")
     GenieParser.add_argument("--container", required=True, type=str)
-    GenieParser.add_argument("--tune", default=None)
     GenieParser.add_argument("--total_nodes", required=True, type=int)
     GenieParser.add_argument("--cpu_percent", required=True, type=float)
     GenieParser.add_argument("--nchunks", required=True, type=int)
@@ -203,7 +202,6 @@ if __name__ =="__main__":
     elif args.command == "GenGenie":
         GenieRunScript(
         Container=args.container,
-        Tune=args.tune,
         NChunks=args.nchunks,
         TotalNodes=args.total_nodes,
         Target=args.target,
@@ -216,7 +214,6 @@ if __name__ =="__main__":
 # export PUFIN_OUT=/data/t2k-nova/PUfINOutputs/_MultiProcess
 # python GenSubmit.py GenGenie \
 #   --container /path/to/container.sif \
-#   --tune N24 \
 #   --total_nodes 2 \
 #   --cpu_percent 75 \
 #   --nchunks 10 \
