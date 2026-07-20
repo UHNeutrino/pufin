@@ -129,6 +129,15 @@ def CheckGenieFiles(Targets, Events, Modes=None, Flavors=None):
         Flavors = [Flavors]
 
     for Target in Targets:
+        TargetLabel = None
+
+        for _, info in GlobalV.NovaTargets.items():
+            if info["name"] == Target:
+                TargetLabel = info["label"]
+                break
+
+        if TargetLabel is None:
+            raise ValueError(f"No target label found for {Target}")
         for Mode in Modes:
             for Flavor in Flavors:
 
@@ -156,7 +165,7 @@ def CheckGenieFiles(Targets, Events, Modes=None, Flavors=None):
 
                     for i in range(NChunks):
 
-                        GenName = f"Original_GENIE{GenieVersion}_{Tune}_{Mode}_{Flavor}_{Erange}_{Target}_{EventsPerChunk}P{i:03}.root"
+                        GenName = f"Original_GENIE{GenieVersion}_{Tune}_{Mode}_{Flavor}_{Erange}_{TargetLabel}_{EventsPerChunk}P{i:03}.root"
                         GenName = GenName.replace("+", "")
 
                         FlatName = GenName.replace("Original", "Flat")
@@ -195,7 +204,7 @@ def GenGenieFlatSingleFile(File):
 
     if not os.environ.get("GENIE_XSEC_FILE"):
         raise ValueError("GENIE_XSEC_FILE Environment Variable Not Defined")
-
+    
     GenInfo = File.replace(".root", "").split("_")
 
     GeneratorVersion = GenInfo[1]   # GENIE3.06.00
@@ -203,15 +212,27 @@ def GenGenieFlatSingleFile(File):
     Mode = GenInfo[3]
     Flavor = GenInfo[4]
     Erange = GenInfo[5]
-    Target = GenInfo[6]
+    TargetLabel = GenInfo[6]
     EventsAndPart = GenInfo[7]
+
+    TargetName = None
+    TargetPDG = None
+
+    for _, info in GlobalV.NovaTargets.items():
+        if info["label"] == TargetLabel:
+            TargetName = info["name"]
+            TargetPDG = info["pdg"]
+            break
+
+    if TargetName is None or TargetPDG is None:
+        raise ValueError(f"No target information found for label {TargetLabel}")
 
     Events = int(float(EventsAndPart.split("P")[0]))
 
     Emin = Erange.split("-")[0]
     Emax = Erange.split("-")[1].replace("GeV", "")
 
-    GenDir = OutPath + f"/GENIE/{Target}"
+    GenDir = OutPath + f"/GENIE/{TargetName}"
     os.makedirs(GenDir, exist_ok=True)
 
     GenName = File
@@ -229,14 +250,6 @@ def GenGenieFlatSingleFile(File):
 
     if FlavorPDG == None:
         raise ValueError(f"No Such Flavor {Flavor}")
-
-    TargetPDG = None
-    for _, info in GlobalV.NovaTargets.items():
-        if info["name"] == Target:
-            TargetPDG = info["pdg"]
-
-    if TargetPDG == None:
-        raise ValueError(f"No Such Target {Target}")
 
     Flux = f"/data/t2k-nova/fluxes/full_flat_flux_{Emin}-{Emax}GeV.root,h1"
 
@@ -1121,7 +1134,7 @@ def FlatNeut(GenList):
         else:
             print(f"NEUT FILE {FlatName} exists and works")
 
-def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, CPUPercent=None, NChunks=None):
+def Generate(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=None, CPUPercent=None, NChunks=None):
     # Grab/Make paths for output generated files
     OutPath = os.environ.get("PUFIN_OUT")
     if OutPath==None:
@@ -1172,7 +1185,7 @@ def Generate(Generator, Tune, Events, Target=None, Mode=None, Flavor=None, CPUPe
     # FlatFluxMaker()
 
 
-    print("NEUT Generation Is Complete")
+    print(f"{Generator.upper()} Generation Is Complete")
 
 
 if __name__ =="__main__":
@@ -1231,7 +1244,7 @@ if __name__ =="__main__":
         )
     elif args.command=="GenieMult":
         GenGenieMultiOnNodeFiles(
-            FileNames=json5.loads(args.Files),
+            FileNames=args.Files,
             CPUPercent=float(args.CPUPercent),
         )
 
@@ -1249,7 +1262,7 @@ if __name__ =="__main__":
     # For Series:
     # python GenMain.py Gen \
     # --generator Genie \
-    # --events 200 
+    # --events 400 
         
     ## For Multi-core: (remember events = nChuncks for NuMu)
     # python GenMain.py Gen \
