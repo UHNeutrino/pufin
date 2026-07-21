@@ -4,6 +4,9 @@ This repo is for all code related to the Plotting Utility for Interacting Neutri
 
 ## Useful Resources
 + Find or generate color schemes using ROOT's [TColor Class Reference](https://root.cern.ch/doc/v636/classTColor.html)
+  
++ Set other line attributes by referencing ROOT's [TAttLine Class Reference](https://root.cern.ch/doc/v630/classTAttLine.html)
+  > At the moment, only Line Style ("Style") and Line Color ("Color") are supported in PUfIN
 
 + Identify [Nuisance interaction mode codes](https://nuisance.hepforge.org/tutorials/interaction_modes.html)
   > Note: [Nuisance HEPForge](https://nuisance.hepforge.org/) uses a bot defender. If the site fails to load, consider trying the following:
