@@ -878,9 +878,21 @@ def FlagParticleThresholds(df):
     df = df.Define("flagT2KProtonP", f"(PProton > 0.450)") # value from T2K technote
     df = df.Define("flagT2KPionPlusP", f"(PPionMax > 0.05)") # Michelle Tracking
     df = df.Define("flagT2KCosLep", f"(CosLep > 0.2)") # T2K technote 199 for a 1Pi+ analysis
+    df = df.Define("flagIcarusBnbMuonP_Aspirational", f"(PLep > 0.085)") # from Dan
+    df = df.Define("flagIcarusBnbMuonP_Conservative", f"(PLep > 0.115)") # from Dan
+    df = df.Define("flagIcarusBnbProtonP_Aspirational", f"(PProton > 0.310)") # from Dan
+    df = df.Define("flagIcarusBnbProtonP_Conservative", f"(PProton > 0.445)") # from Dan
+    df = df.Define("flagIcarusBnbPionPlusP_Aspirational", f"(PPionMax > .095)") # from Dan
+    df = df.Define("flagIcarusBnbPionPlusP_Conservative", f"(PPionMax > .170)") # from Dan
+    df = df.Define("flagIcarusBnbPion_KE_Aspirational", f"(PionMax_KE > .030)") # from Dan
+    df = df.Define("flagIcarusBnbPion_KE_Conservative", f"(PionMax_KE > .080)") # from Dan
     df = df.Define("flagT2KALL", f"(flagT2KMuonP && flagT2KProtonP && flagT2KPionPlusP && flagT2KCosLep)")
     df = df.Define("flagNovaALL", f"(flagNovaMuonP && flagNovaProtonP && flagNovaPionPlusP && flagNovaPion_KE && flagNovaCosPion)")
+    df = df.Define("flagIcarusBnbALL_Aspirational", f"(flagIcarusBnbMuonP_Aspirational && flagIcarusBnbProtonP_Aspirational && flagIcarusBnbPionPlusP_Aspirational)")
 
+
+    return df
+    df = df.Define("flagIcarusBnbALL_Conservative", f"(flagIcarusBnbMuonP_Conservative && flagIcarusBnbProtonP_Conservative && flagIcarusBnbPionPlusP_Conservative)")
 
     return df
 
