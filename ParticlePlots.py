@@ -889,9 +889,6 @@ def FlagParticleThresholds(df):
     df = df.Define("flagT2KALL", f"(flagT2KMuonP && flagT2KProtonP && flagT2KPionPlusP && flagT2KCosLep)")
     df = df.Define("flagNovaALL", f"(flagNovaMuonP && flagNovaProtonP && flagNovaPionPlusP && flagNovaPion_KE && flagNovaCosPion)")
     df = df.Define("flagIcarusBnbALL_Aspirational", f"(flagIcarusBnbMuonP_Aspirational && flagIcarusBnbProtonP_Aspirational && flagIcarusBnbPionPlusP_Aspirational)")
-
-
-    return df
     df = df.Define("flagIcarusBnbALL_Conservative", f"(flagIcarusBnbMuonP_Conservative && flagIcarusBnbProtonP_Conservative && flagIcarusBnbPionPlusP_Conservative)")
 
     return df
