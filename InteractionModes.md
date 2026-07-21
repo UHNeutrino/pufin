@@ -1,3 +1,10 @@
+# Quick Reference
+
++ RES *(neutrino mode CC1pi resonant events)*:  
+  ```
+  Mode == 11 && Mode == 12 && Mode == 13
+  ```
+
 # NEUTRINO MODES
 
 ## CHARGED CURRENT
