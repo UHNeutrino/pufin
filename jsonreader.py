@@ -429,8 +429,8 @@ def MakeSame1D(same1D,GlobalSettings):
                 # print(hist.Integral("width"))
             
                     
-        if Thresholds:
-            df = pp.FlagParticleThresholds(df)    
+        # if Thresholds:
+        #     df = pp.FlagParticleThresholds(df)    
         if same1D.get("Cut"):
             df_cut = df.Filter(same1D["Cut"])
         else:
