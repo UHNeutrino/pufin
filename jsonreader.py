@@ -34,7 +34,6 @@ HOME = os.getenv("HOME", "/home/lboe")
 #             f"content = {val:14.6e}  error = {err:14.6e}"
 #         )
 
-
 def MakePlots(plots, GlobalSettings):
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder+ f'/*{plots["Gen"]}*{plots["Flux"]}*.root')
@@ -180,12 +179,12 @@ def MakeStacks(stacks,GlobalSettings):
         colors = []
         if(GlobalSettings["EvisB"]):
             df = pp.DefineEvis(df)
+        if (GlobalSettings["KinematicsB"]):
+            df = pp.DefineKinematics(df)
         if(GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
         if (GlobalSettings["ThresholdsB"]):
             df = pp.FlagParticleThresholds(df)
-        if (GlobalSettings["KinematicsB"]):
-            df = pp.DefineKinematics(df)
         if reweight_flag:
             df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xspline, areaB = areaB, undoNormB = undoNormB)
             weight_col = "weights"
@@ -198,8 +197,8 @@ def MakeStacks(stacks,GlobalSettings):
             cuts.append(cut)
             Legend.append(name)
         histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
-        for num in stacks["Colors"].split(","):
-            colors.append(int(num))
+        for color_spec in stacks["Colors"].split(","):
+            colors.append(sf.parse_color(color_spec))
         
         stack, histlist = pp.PlotStackedEventCuts(df, stacks["Var1"], histInfo, cuts, colors, weights= weight_col)
         save_L = GlobalSettings["Save"] + "/" + stacks["Name"] + "." +stacks["Ext"]
@@ -219,6 +218,10 @@ def MakeOverlap(overlap,GlobalSettings):
         # df = pp.CreateDataFrame(file_path, overlap["Cut"])
         df = pp.CreateDataFrame(file_path, cut = "None")
         reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = overlap["reWeight"]
+        weight_col = ""
+        if reweight_flag:
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale=Fscale, xspline=xspline, areaB=areaB, undoNormB=undoNormB)
+            weight_col = "weights"
         BinL = overlap["Bins"]
         AxisInfo = []
         cuts = []
@@ -226,6 +229,8 @@ def MakeOverlap(overlap,GlobalSettings):
         colors = []
         if(GlobalSettings["EvisB"]):
             df = pp.DefineEvis(df)
+        if (GlobalSettings["KinematicsB"]):
+            df = pp.DefineKinematics(df)
         if(GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
         if (GlobalSettings["ThresholdsB"]):
@@ -241,8 +246,10 @@ def MakeOverlap(overlap,GlobalSettings):
             cuts.append(cut)
             Legend.append(name)
         histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
-        for num in overlap["Colors"].split(","):
-            colors.append(int(num))
+        # for num in overlap["Colors"].split(","):
+        #     colors.append(int(num))
+        for color_spec in overlap["Colors"].split(","):
+            colors.append(sf.parse_color(color_spec))
         
         histlist = pp.overlapPlots(df, overlap["Var1"], histInfo, cuts, colors, weights= weight_col)
         save_L = GlobalSettings["Save"] + "/" + overlap["Name"] + "." +overlap["Ext"]
@@ -466,7 +473,8 @@ def MakeSame1D(same1D,GlobalSettings):
             hist.GetXaxis().SetLabelOffset(999) # hide x axis labels
             top_histo = False
             
-        color = getattr(ROOT, color_str.split("+")[0]) + int(color_str.split("+")[1]) if "+" in color_str else getattr(ROOT, color_str)
+        #color = getattr(ROOT, color_str.split("+")[0]) + int(color_str.split("+")[1]) if "+" in color_str else getattr(ROOT, color_str)
+        color = sf.parse_color(plot["Color"])
         hist.SetLineColor(color)
         hist.SetLineWidth(1)
         # if (histCounter == 0):
@@ -780,8 +788,10 @@ def MakeContour(Contour,GlobalSettings):
                 cuts.append(cut)
                 Legend.append(name)
 
-        for num in Contour["Colors"].split(","):
-            colors.append(int(num))
+        # for num in Contour["Colors"].split(","):
+        #     colors.append(int(num))
+        for color_spec in Contour["Colors"].split(","):
+            colors.append(sf.parse_color(color_spec))
         histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
         print(AxisInfo)
         histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts, Contour["TotalPercents"])
@@ -803,6 +813,7 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
         #df = pp.CreateDataFrame(file_path, Contour["Cut"])
+        #df = pp.CreateDataFrame(file_path, cut="None")
         df = ROOT.RDataFrame(GlobalSettings["treeName"],file_path)
         BinL = ContourStyle["Bins"]
         AxisInfo = []
@@ -833,17 +844,24 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         for cut1, info1 in ContourStyle["ColorCuts"].items():
             for cut2, info2 in ContourStyle["StyleCuts"].items():
                 cuts.append(cut1+" && "+cut2)
-                name1, color = info1.split(",")
-                name2, style = info2.split(",")
-                colors.append(int(color))
+                # name1, color = info1.split(",")
+                # name2, style = info2.split(",")
+                # colors.append(int(color))
+                
+                name1, color = [x.strip() for x in info1.split(",", 1)]
+                name2, style = [x.strip() for x in info2.split(",", 1)]
+                colors.append(sf.parse_color(color))
                 styles.append(int(style))
     
         for cut1, info1 in ContourStyle["ColorCuts"].items():
-                name1, color = info1.split(",")
-                ColorLabels.update({name1:int(color)})
+                # name1, color = info1.split(",")
+                # ColorLabels.update({name1:int(color)})
+                name1, color = [x.strip() for x in info1.split(",", 1)]
+                ColorLabels.update({name1: sf.parse_color(color)})
         for cut2, info2 in ContourStyle["StyleCuts"].items():
-                name2, style = info2.split(",")
-                StyleLabels.update({name2:int(style)})
+                # name2, style = info2.split(",")
+                name2, style = [x.strip() for x in info2.split(",", 1)]
+                StyleLabels.update({name2: int(style)})
 
 
         print(f"cuts {cuts}")

@@ -126,3 +126,62 @@ def modeDic():
              26 : "NEU,(N OR P) --> LEPTON-,(N OR P),MESONS"}
 
     return CCmodes
+
+def parse_color(color_spec):
+    color_spec = color_spec.strip()
+
+    custom_colors = {
+        # ROOT Petroff / Preferred 6-color scheme
+        "kP6Blue":   "#5790fc",
+        "kP6Yellow": "#f89c20",
+        "kP6Red":    "#e42536",
+        "kP6Grape":  "#964a8b",
+        "kP6Gray":   "#9c9ca1",
+        "kP6Violet": "#7a21dd",
+
+        # ROOT Petroff / Preferred 8-color scheme
+        "kP8Blue":   "#1845fb",
+        "kP8Orange": "#ff5e02",
+        "kP8Red":    "#c91f16",
+        "kP8Pink":   "#c849a9",
+        "kP8Green":  "#adad7d",
+        "kP8Cyan":   "#86c8dd",
+        "kP8Azure":  "#578dff",
+        "kP8Gray":   "#656364",
+
+        # ROOT Petroff / Preferred 10-color scheme
+        "kP10Blue":   "#3f90da",
+        "kP10Yellow": "#ffa90e",
+        "kP10Red":    "#bd1f01",
+        "kP10Gray":   "#94a4a2",
+        "kP10Violet": "#832db6",
+        "kP10Brown":  "#a96b59",
+        "kP10Orange": "#e76300",
+        "kP10Green":  "#b9ac70",
+        "kP10Ash":    "#717581",
+        "kP10Cyan":   "#92dadd",
+
+        # Optional extra ROOT named colors from the same block
+        "kGrape": "#6f2da8",
+        "kBrown": "#a52a2a",
+        "kAsh":   "#b2beb5",
+    }
+
+    if color_spec in custom_colors:
+        return ROOT.TColor.GetColor(custom_colors[color_spec])
+
+    if color_spec.startswith("#"):
+        return ROOT.TColor.GetColor(color_spec)
+
+    if hasattr(ROOT, color_spec):
+        return int(getattr(ROOT, color_spec))
+
+    if "+" in color_spec:
+        base, offset = color_spec.split("+", 1)
+        return int(getattr(ROOT, base)) + int(offset)
+
+    if "-" in color_spec and color_spec.startswith("k"):
+        base, offset = color_spec.split("-", 1)
+        return int(getattr(ROOT, base)) - int(offset)
+
+    return int(color_spec)
