@@ -1080,6 +1080,19 @@ def PlotStackedEventCuts(df, x, histInfo, cuts, colors, weights=""):
 
 def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path, Normalize = 0):
     canvas = ROOT.TCanvas("canvas", "Canvas for Stacked Histograms", 1000, 600)
+    
+    if Normalize:
+        total = 0.0
+        for hist in histlist:
+            total += hist.Integral()
+
+        if total > 0:
+            for hist in histlist:
+                hist.Scale(1.0 / total)
+
+        stack = ROOT.THStack("stack_norm", "")
+        for hist in histlist:
+            stack.Add(hist)
 
     stack.Draw("HIST")  # "HIST" option tells ROOT to draw the histograms
     stack.GetXaxis().SetTitle(AxisInfo[0]+ " " + AxisInfo[1])
@@ -1089,11 +1102,11 @@ def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path, Normalize = 0)
     # Add legend
     legend = ROOT.TLegend(0.7, 0.7, 0.9, 0.9)  # Define legend position
     for i in range(len(Legend)-1, -1, -1):
-        if Normalize==1:
-            # scale = 1/(histlist[i].Integral())
-            # print(scale)
-            # histlist[i].Scale(scale)
-            print("Normalize doesn't work")
+        # if Normalize==1:
+        #     # scale = 1/(histlist[i].Integral())
+        #     # print(scale)
+        #     # histlist[i].Scale(scale)
+        #     print("Normalize doesn't work")
         legend.AddEntry(histlist[i], f"{Legend[i]}", "f")
     legend.Draw()
 
@@ -1528,10 +1541,13 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
 
     if Gen_code == "G":
         pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root"
+        #pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/AR2320i00000-k250-e1000/data/xsec_graphs.root"
         #pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/N1810j00000-k250-e1000-resfixfix/data/xsec_graphs.root"
         #pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/G1810j00000-k250-e1000/data/xsec_graphs.root"
         CCpath = "nu_mu_C12/tot_cc"
         NCpath = "nu_mu_C12/tot_nc"
+        # CCpath = "nu_mu_Ar40/tot_cc"
+        # NCpath = "nu_mu_Ar40/tot_nc"
         # CCpath = "nu_mu_H1/tot_cc"
         # NCpath = "nu_mu_H1/tot_nc"
         # CCpath = "nu_mu_Cl35/tot_cc"
