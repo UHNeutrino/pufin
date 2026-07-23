@@ -1,3 +1,98 @@
+# Quick Reference
+
+
+<table>
+<tr>
+<td valign="top">
+<!-- Opens Inline Tables -->
+
+<!-- Left Table -->
+<table>
+  <tr>
+    <b> &nbsp; Momentum </b>
+  </tr>
+ <tr>
+    <td><b>Variable</b></td>
+    <td><b>Key</b></td>
+ </tr>
+ <tr>
+    <td> q<sub>0</sub> </td>
+    <td>q0</td>
+ </tr>
+ <tr>
+    <td> q<sub>3</sub> </td>
+    <td> q3 </td>
+ </tr>
+ <tr>
+    <td> Q<sup>2</sup> </td>
+    <td> Q2 </td>
+ </tr>
+</table>
+
+</td>
+<td valign="top">
+
+<!-- Center Table -->
+<table>
+  <tr>
+    <b> &nbsp; Heading 2 </b>
+  </tr>
+ <tr>
+    <td><b>Variable</b></td>
+    <td><b>Key</b></td>
+ </tr>
+ <tr>
+    <td>Lorem ipsum ...</td>
+    <td>Lorem ipsum ...</td>
+ </tr>
+ <tr>
+    <td>Lorem ipsum ...</td>
+    <td>Lorem ipsum ...</td>
+ </tr>
+ <tr>
+    <td>Lorem ipsum ...</td>
+    <td>Lorem ipsum ...</td>
+ </tr>
+</table>
+
+</td>
+<td valign="top">
+
+<!-- Right Table -->
+<table>
+  <tr>
+    <b> &nbsp; Heading 3 </b>
+  </tr>
+ <tr>
+    <td><b>Variable</b></td>
+    <td><b>Key</b></td>
+ </tr>
+ <tr>
+    <td>Lorem ipsum ...</td>
+    <td>Lorem ipsum ...</td>
+ </tr>
+ <tr>
+    <td>Lorem ipsum ...</td>
+    <td>Lorem ipsum ...</td>
+ </tr>
+ <tr>
+    <td>Lorem ipsum ...</td>
+    <td>Lorem ipsum ...</td>
+ </tr>
+</table>
+
+<!-- Close Inline Table -->
+</td>
+</tr>
+</table>
+
+
+
++ RES *(neutrino mode CC1pi resonant events)*:  
+  ```
+  Mode == 11 && Mode == 12 && Mode == 13
+  ```
+
 # NEUTRINO MODES
 
 ## CHARGED CURRENT
