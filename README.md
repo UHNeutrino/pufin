@@ -8,10 +8,9 @@ This repo is for all code related to the Plotting Utility for Interacting Neutri
 + Set other line attributes by referencing ROOT's [TAttLine Class Reference](https://root.cern.ch/doc/v630/classTAttLine.html)
   > At the moment, only Line Style ("Style") and Line Color ("Color") are supported in PUfIN
 
-+ Identify [Nuisance interaction mode codes](https://nuisance.hepforge.org/tutorials/interaction_modes.html)
-  > Note: [Nuisance HEPForge](https://nuisance.hepforge.org/) uses a bot defender. If the site fails to load, consider trying the following:
-  + Just reference this [internal document](https://github.com/UHNeutrino/PUfIN/InteractionModes.md) containing interaction mode numbers
-  + To access HEPForge, make sure JavaScript is enabled for the site on your browser and disable VPNs, AdBlockers, or any extensions that could make your traffic appear bot-like
++ Identify Nuisance interaction mode codes with [Nuisance HEPForge](https://nuisance.hepforge.org/tutorials/interaction_modes.html) or this [internal document](https://github.com/UHNeutrino/PUfIN/InteractionModes.md) 
+
++ Review git commands with this [cheat sheet](https://education.github.com/git-cheat-sheet-education.pdf)
 
 ## GenMain.py
 
