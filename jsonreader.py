@@ -747,8 +747,20 @@ def MakeContour(Contour,GlobalSettings):
             df = pp.FlagParticleThresholds(df)
         if Contour.get("Cut"):
             df = df.Filter(Contour["Cut"])
-        if(Contour["reWeight"][0]):
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, Contour["reWeight"][1], Contour["reWeight"][2], Fscale = Contour["reWeight"][3], areaB = Contour["reWeight"][4], undoNormB = Contour["reWeight"][5])
+        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = Contour["reWeight"]
+
+        if reweight_flag:
+            df, bin_integral_unnorm = pp.defineWeightsSpline(
+                df,
+                rw_file,
+                rw_flux,
+                Fscale=Fscale,
+                xspline=xspline,
+                areaB=areaB,
+                undoNormB=undoNormB,
+            )
+        # if(Contour["reWeight"][0]):
+        #     df, bin_integral_unnorm = pp.defineWeightsSpline(df, Contour["reWeight"][1], Contour["reWeight"][2], Fscale = Contour["reWeight"][3], areaB = Contour["reWeight"][4], undoNormB = Contour["reWeight"][5])
         for word in Contour["AxisInfo"].split(','):
                 AxisInfo.append(word)
         if Contour["AutoQuant"][0]:
@@ -845,8 +857,20 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
             df = pp.FlagParticleThresholds(df)
         if ContourStyle.get("Cut"):
             df = df.Filter(ContourStyle["Cut"])
-        if(ContourStyle["reWeight"][0]):
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, ContourStyle["reWeight"][1], ContourStyle["reWeight"][2], Fscale = ContourStyle["reWeight"][3], areaB = ContourStyle["reWeight"][4], undoNormB = ContourStyle["reWeight"][5])
+        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = ContourStyle["reWeight"]
+
+        if reweight_flag:
+            df, bin_integral_unnorm = pp.defineWeightsSpline(
+                df,
+                rw_file,
+                rw_flux,
+                Fscale=Fscale,
+                xspline=xspline,
+                areaB=areaB,
+                undoNormB=undoNormB,
+            )
+        # if(ContourStyle["reWeight"][0]):
+        #     df, bin_integral_unnorm = pp.defineWeightsSpline(df, ContourStyle["reWeight"][1], ContourStyle["reWeight"][2], Fscale = ContourStyle["reWeight"][3], areaB = ContourStyle["reWeight"][4], undoNormB = ContourStyle["reWeight"][5])
         for word in ContourStyle["AxisInfo"].split(','):
                 AxisInfo.append(word)
 
