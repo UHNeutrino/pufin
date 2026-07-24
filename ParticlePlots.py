@@ -938,9 +938,16 @@ def Savehist(hist, AxisInfo, save_location, filename, ext, max = 0, Normalize = 
         c.SetLogz()
 
     c.SaveAs(f"{HOME}/{save_location}/{filename}.{ext}")
+    root_file = ROOT.TFile(
+        f"{HOME}/{save_location}/{filename}.root",
+        "RECREATE",
+    )
+    hist.Write("hist")
+    c.Write("canvas")
+    root_file.Close()
     
 
-def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, max=None, Normalize=0):
+def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, ext, max=None, Normalize=0):
     """Saves multiple 1D histograms on the same canvas."""
 
     xvar = AxisInfo[0]
@@ -991,7 +998,16 @@ def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, max=Non
 
     SF.formatTcanvasSame(c)  # Format the canvas based on the first histogram
     legend.Draw("SAME") #draw legend.
-    c.SaveAs(f"{HOME}/{save_location}/{filename}.png")
+    c.SaveAs(f"{HOME}/{save_location}/{filename}.{ext}")
+    root_file = ROOT.TFile(
+        f"{HOME}/{save_location}/{filename}.root",
+        "RECREATE",
+    )
+    hist1.Write("hist1")
+    hist2.Write("hist2")
+    hist3.Write("hist3")
+    c.Write("canvas")
+    root_file.Close()
     
 def Savehist2DWithProfile(hist1, prof1, AxisInfo, save_location, filename, ext,
                           max=0, Normalize=False, logz=False, diagonal=False, 
@@ -1038,6 +1054,19 @@ def Savehist2DWithProfile(hist1, prof1, AxisInfo, save_location, filename, ext,
         
 
     c.SaveAs(f"{HOME}/{save_location}/{filename}.{ext}")
+    root_path = f"{HOME}/{save_location}/{filename}.root"
+    root_file = ROOT.TFile(root_path, "RECREATE")
+
+    h1.Write("hist2d")
+
+    if prof1:
+        prof1.Write("profile_x")
+
+    if diagonal:
+        diag.Write("diagonal")
+
+    c.Write("canvas")
+    root_file.Close()
 
 
 def PlotStackedEventModes(df, x, histInfo, modes, colors):
@@ -1111,6 +1140,17 @@ def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path, Normalize = 0)
     legend.Draw()
 
     canvas.SaveAs(f"{HOME}/{save_path}")
+    root_path = os.path.splitext(f"{HOME}/{save_path}")[0] + ".root"
+
+    root_file = ROOT.TFile(root_path, "RECREATE")
+
+    stack.Write("stack")
+
+    for i, hist in enumerate(histlist):
+        hist.Write(f"hist_{i}")
+
+    canvas.Write("canvas")
+    root_file.Close()
 
 def PlotContEventCuts(df, x, y, histInfo, cuts, percents):
     histlist = []
@@ -1285,6 +1325,17 @@ def SaveContHist(histlist, AxisInfo, Legend, colors, percents, save_path, logz):
     # latex.DrawLatex(0.9, 0.35, f"Events = {histlist[0].Integral():.1f}")
 
     canvas.SaveAs(f"{HOME}/{save_path}")
+    root_path = os.path.splitext(f"{HOME}/{save_path}")[0] + ".root"
+
+    root_file = ROOT.TFile(root_path, "RECREATE")
+
+    histlist[0].Write("base_hist")
+
+    for i, hist in enumerate(histlist[1:], start=1):
+        hist.Write(f"contour_hist_{i}")
+
+    canvas.Write("canvas")
+    root_file.Close()
 
 def SaveContHistStyles(histlist, AxisInfo, colors, styles, Clabels, Slabels, save_path, logz):
     # stupid crap at the begining to get a proper legend
@@ -1378,6 +1429,17 @@ def SaveContHistStyles(histlist, AxisInfo, colors, styles, Clabels, Slabels, sav
     # latex.DrawLatex(0.9, 0.35, f"Events = {histlist[0].Integral():.1f}")
 
     canvas.SaveAs(f"{HOME}/{save_path}")
+    root_path = os.path.splitext(f"{HOME}/{save_path}")[0] + ".root"
+
+    root_file = ROOT.TFile(root_path, "RECREATE")
+
+    histlist[0].Write("base_hist")
+
+    for i, hist in enumerate(histlist[1:], start=1):
+        hist.Write(f"contour_hist_{i}")
+
+    canvas.Write("canvas")
+    root_file.Close()
 
 
 def DrawXLines(hist, x_bins, y_max):
@@ -2240,6 +2302,16 @@ def SaveOverlapPlot(histlist, AxisInfo, Legend, save_path, hist_max=None, Normal
 
     # saves hist to a specific directory 
     c.SaveAs(f"{HOME}/{save_path}")
+    root_path = os.path.splitext(f"{HOME}/{save_path}")[0] + ".root"
+
+    root_file = ROOT.TFile(root_path, "RECREATE")
+
+    for i, hist_result in enumerate(histlist):
+        hist = hist_result.GetPtr()
+        hist.Write(f"hist_{i}")
+
+    c.Write("canvas")
+    root_file.Close()
     
 def HistoErrorBars(hist):
     """

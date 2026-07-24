@@ -553,29 +553,39 @@ def MakeSame1D(same1D,GlobalSettings):
         line.Draw("SAME")
 
 
-    outname = f"{HOME}/{GlobalSettings['Save']}/{same1D['Name']}.{same1D['Ext']}"
+    #outname = f"{HOME}/{GlobalSettings['Save']}/{same1D['Name']}.{same1D['Ext']}"
+    base_name = f"{GlobalSettings['Save']}/{same1D['Name']}"
+    root_outname = f"{HOME}/{base_name}.root"
+    image_outname = f"{HOME}/{base_name}.{same1D['Ext']}"
+    
+    # Always save the ROOT file.
+    f_out = ROOT.TFile(root_outname, "RECREATE")
+    if not f_out or f_out.IsZombie():
+        raise RuntimeError(f"Could not create ROOT file: {root_outname}")
 
-    if same1D["Ext"] == "root":
-        f_out = ROOT.TFile(outname, "RECREATE")
 
-        # write the plotted hists (and ratio if you made one)
-        for k, h in hist_dict.items():
-            # make sure it survives file close / isn’t tied to a canvas
-            h_out = h.Clone(f"h_{k}")
-            h_out.SetDirectory(0)
-            f_out.cd()
-            h_out.Write()
+    # write the plotted hists (and ratio if you made one)
+    for k, h in hist_dict.items():
+        # make sure it survives file close / isn’t tied to a canvas
+        h_out = h.Clone(f"h_{k}")
+        h_out.SetDirectory(0)
+        f_out.cd()
+        h_out.Write()
 
-        # optional: if you created a ratio hist named h_ratio, write it too
-        if Add_Ratio and 'h_ratio' in locals():
-            r_out = h_ratio.Clone("h_ratio")
-            r_out.SetDirectory(0)
-            f_out.cd()
-            r_out.Write()
+    # optional: if you created a ratio hist named h_ratio, write it too
+    if Add_Ratio and 'h_ratio' in locals():
+        r_out = h_ratio.Clone("h_ratio")
+        r_out.SetDirectory(0)
+        f_out.cd()
+        r_out.Write("h_ratio")
+        
+    f_out.cd()
+    c.Write("canvas")
+    f_out.Close()
 
-        f_out.Close()
-    else:
-        c.SaveAs(outname)
+    c.SaveAs(image_outname)
+    print(f"Saved {root_outname}")
+    print(f"Saved {image_outname}") 
 
 def MakeQuantiles(quantiles, GlobalSettings):
     file_name = input("Give Root File name: ")
