@@ -321,8 +321,6 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict, args):
     var_name = same1d["Var"]
 
     reweight_flag = reweight_cfg.get("enabled", False)
-    # rw_file = reweight_cfg.get("rw_file", "")
-    # rw_flux = reweight_cfg.get("rw_flux", "")
     xspline_mode = reweight_cfg["xspline_mode"]
     xsec_file = reweight_cfg["xsec_file"]
     xsec_mode_cfg = reweight_cfg["xsec_mode"]
@@ -345,10 +343,7 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict, args):
             raise ValueError(f"Missing target weight factor for '{target}'")
 
         target_weight_factor = float(target_weight_factors[target])
-        # print(f"\nTarget {target}")
-        # print(f"  target_weight_factor = {target_weight_factor:.18e}")
-
-        # target_hist = None
+        
         # === TCHAIN CHANGE ===
         # These values are shared by every file in this group.
         
@@ -383,27 +378,6 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict, args):
         print(f"  chain entries        = {chain_entries}")
         if chain.GetNtrees() == 0 or chain_entries == 0:
             raise RuntimeError(f"Empty TChain for {interaction} {requested_flavor} {energy_range} {target}")
-            # interaction = meta["interaction"]
-            # source_flavor = meta["source_flavor"]
-            # requested_flavor = meta["requested_flavor"]
-            # flux_cfg = reweight_cfg["flux_inputs"][requested_flavor]
-            # rw_file = flux_cfg["rw_file"]
-            # rw_flux = flux_cfg["rw_flux"]
-            # xsec_flavor = meta["xsec_flavor"]
-            # energy_range = meta["energy_range"]
-            # energy_min, energy_max = parse_energy_range_window(energy_range)
-            # print(f"    energy window   = [{energy_min}, {energy_max}] GeV")
-
-            # print(f"  file: {file_path}")
-            # print(f"    sample = {interaction} {requested_flavor} {energy_range}")
-            # print(f"    source_flavor  = {source_flavor}")
-            # print(f"    requested_flavor = {requested_flavor}")
-            # print(f"    xsec_flavor    = {xsec_flavor}")
-            # print(f"    rw_file        = {rw_file}")
-            # print(f"    rw_flux        = {rw_flux}")
-            # print(f"    energy window  = [{energy_min}, {energy_max}] GeV")
-
-        # df = pp.CreateDataFrame(file_path, cut="None")
         df = pp.CreateDataFrame(chain, cut="None")
         df = apply_global_definitions(df, global_settings)
 
@@ -465,11 +439,6 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict, args):
             rdf_hist = df_cut.Histo1D(hist_model, var_name, weight_col)
         else:
             rdf_hist = df_cut.Histo1D(hist_model, var_name)
-
-        # hist = rdf_hist.GetValue().Clone()
-        # hist.SetDirectory(0)
-
-        # raw_integral = hist.Integral()
         
         target_hist = rdf_hist.GetValue().Clone(f"h_{hist_key}_{energy_range}")
         target_hist.SetDirectory(0)
@@ -477,22 +446,10 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict, args):
         raw_integral = target_hist.Integral()
         if reweight_flag:
             print(f"    cut weighted histogram integral before s = {raw_integral}")
-            # hist.Scale(scale_factor)
             target_hist.Scale(scale_factor)
             print(f"    cut weighted histogram integral after s = {target_hist.Integral()}")
         else:
             print(f"    raw histogram integral = {raw_integral}")
-
-    #     if target_hist is None:
-    #         target_hist = hist.Clone(f"h_{hist_key}")
-    #         target_hist.SetDirectory(0)
-    #     else:
-    #         target_hist.Add(hist)
-
-    #     print(f"    running target integral ({target}) = {target_hist.Integral()}")
-
-    # if target_hist is None:
-    #     continue
     
         if hist_key not in component_hists:
             component_hists[hist_key] = target_hist.Clone(f"h_{hist_key}")
@@ -514,8 +471,6 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict, args):
         raise RuntimeError("No histograms were created")
 
     print("\n========== FINAL SUMMARY ==========")
-    # for target in sorted(component_hists):
-    #     print(f"  {target}: {component_hists[target].Integral()}")
     for hist_key in sorted(component_hists):
         print(f"  {hist_key}: {component_hists[hist_key].Integral()}")
     print(f"  TOTAL: {total_hist.Integral()}")
