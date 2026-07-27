@@ -136,7 +136,6 @@ def GenieRunScript(Container, NChunks, TotalNodes, Target=None, Mode=None, Flavo
 def NeutTimeEstimator(Files, NCores):
     # loop through all files and come up with a decent time estimation using linear regressions from trends found in initial testing
     EventsAndPart = Files[0].split("_")[7]
-    print(EventsAndPart)
     Events = int(float(EventsAndPart[:-9]))
     TotalSeconds = 0
     for file in Files:
