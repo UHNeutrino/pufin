@@ -40,9 +40,6 @@ def DirectorySetup(Generator, SingleTarget=None, Mode=None):
         OnePath = OutPath + "/" + Generator.upper() + "/" + target + "/"
         FilePaths.append(OnePath)
         os.makedirs(OnePath, exist_ok=True)
-    # if Target:
-    #     FilePaths = [OutPath + "/" + Generator.upper() + "/" + Target + "/"]
-    #     Targets = [Target]
         
     if SingleTarget:
         #OnePath = OutPath + "/" + Generator.upper() + "/" + Target + "/"
@@ -654,6 +651,7 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=No
     for Target in Targets:
         for Mode in Modes:
             for Flavor in Flavors:
+                TargetLabel = GlobalV.NeutTargetLabels.get(Target)
                 CNameList = []
                 if (Mode == "NC"):
                     if (Flavor == "NuE" or Flavor == "NuEBar"):
@@ -661,11 +659,11 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=No
                     for Name in FlatFluxNames:
                         part = Name.split("_")[2]        # "x-YGeV.root"
                         ErangeNC = part.replace(".root","")
-                        CName0 = f"NEUT{NeutVersion}_{Tune}_{Mode}_{Flavor}_{ErangeNC}_{Target}_{Events:.0e}.card".replace("+", "")
+                        CName0 = f"NEUT{NeutVersion}_{Tune}_{Mode}_{Flavor}_{ErangeNC}_{TargetLabel}_{Events:.0e}.card".replace("+", "")
                         CardNames.append(CName0) #one is to iterate over, one is to save at the end
                         CNameList.append(CName0)
                 elif (Mode == "CC"):
-                    CName0 = f"NEUT{NeutVersion}_{Tune}_{Mode}_{Flavor}_{Erange}_{Target}_{Events:.0e}.card".replace("+", "")
+                    CName0 = f"NEUT{NeutVersion}_{Tune}_{Mode}_{Flavor}_{Erange}_{TargetLabel}_{Events:.0e}.card".replace("+", "")
                     CardNames.append(CName0)
                     CNameList.append(CName0)
                 else:
@@ -719,8 +717,7 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=No
                             
 
                         if Target == "Titanium":
-                            # TI is dumb in 5-6-4
-                            # print("Special Ti Problem in 5.6.4. and 5.9.0")
+                            # This is here because Neut can't generate titanium with certain QE models
                             if "NEUT-MDLQE 402" in CardString:
                                 CardString = CardString.replace("NEUT-MDLQE 402","NEUT-MDLQE 002")
                             else:
@@ -731,15 +728,8 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=No
                             else:
                                 CardString = CardString + "NEUT-MDL2P2H 1 \n"
 
-                        # print(CardString)
                         with open(f, "w") as file:
                             file.write(CardString)
-                        # print("Mode")
-                        # print(GlobalV.NeutCardModes.get(Mode))
-                        # print("Nu Type")
-                        # print(GlobalV.NeutCardFlavors.get(Flavor))
-                        # print("Target")
-                        # print(GlobalV.NeutCardTargets.get(Target))  
                         print(f"Made Neut Card: {f}")
                     else:
                         print(f"Neut Card {CName} exists")
@@ -761,7 +751,8 @@ def GenNeutXsec(Tune, Targets, FullCardPath=None):
     # delete temp dir if it exists from a previous run
     # shutil.rmtree(tmpdir, ignore_errors=True)
     # create fresh temp dir
-    os.makedirs(tmpdir)
+    if not os.path.exists(tmpdir):
+        os.makedirs(tmpdir)
 
     if FullCardPath:
         print("Using Single Card Name Given")
@@ -785,12 +776,13 @@ def GenNeutXsec(Tune, Targets, FullCardPath=None):
     else:
         for Target in Targets:
             for Flavor in GlobalV.Flavors:
+                TargetLabel = GlobalV.NeutTargetLabels.get(Target)
                 if Flavor != "NuMu":
                     continue
-                CName = f"NEUT{NeutVersion}_{Tune}_CC_{Flavor}_0-8GeV_{Target}_*.card"
+                CName = f"NEUT{NeutVersion}_{Tune}_CC_{Flavor}_0-8GeV_{TargetLabel}_*.card"
                 CardPaths = glob.glob(CardDir+"/"+CName)    #Grab any # of events for this card, then grab the first one
                 CardPath = CardPaths[0]
-                XsecName = f"NEUT{NeutVersion}_{Tune}_{Target}_XSECHIST.root"
+                XsecName = f"NEUT{NeutVersion}_{Tune}_{TargetLabel}_XSECHIST.root"
                 XsecPath = XsecDir+"/"+ XsecName
                 if not os.path.exists(XsecPath):
                     # copy file to temp dir with same name
@@ -825,7 +817,8 @@ def GenNeut(CardNames):
     FluxToTemp()
 
     for Card in CardNames:
-        Target = Card.split("_")[5]
+        TargetLabel = Card.split("_")[5]
+        Target = GlobalV.NeutLabelTargets.get(TargetLabel)
         GenDir = OutPath + f"/NEUT/{Target}"
         # print(Target)
         GenName = Card.replace("NEUT", "Original_NEUT")
@@ -866,7 +859,8 @@ def CheckNeutFiles(CardNames, NChunks):
 
     for Card in CardNames:
         TempChunks = NChunks
-        Target = Card.split("_")[5]
+        TargetLabel = Card.split("_")[5]
+        Target = GlobalV.NeutLabelTargets.get(TargetLabel)
         Flavor = Card.split("_")[3]
         GenDir = OutPath + f"/NEUT/{Target}"
         if Flavor=="NuMu":
@@ -905,7 +899,8 @@ def GenNeutFlatSingle(Card, i:int):
     OutPath = os.environ.get("PUFIN_OUT")
     user = os.environ.get("USER")
     tmpdir = f"{OutPath}/{user}_temp_dir"
-    Target = Card.split("_")[5]
+    TargetLabel = Card.split("_")[5]
+    Target = GlobalV.NeutLabelTargets.get(TargetLabel)
     GenDir = OutPath + f"/NEUT/{Target}"
     
 
@@ -954,7 +949,8 @@ def GenNeutFlatSingleFile(File, Card):
     OutPath = os.environ.get("PUFIN_OUT")
     user = os.environ.get("USER")
     tmpdir = f"{OutPath}/{user}_temp_dir"
-    Target = Card.split("_")[5]
+    TargetLabel = Card.split("_")[5]
+    Target = GlobalV.NeutLabelTargets.get(TargetLabel)
     GenDir = OutPath + f"/NEUT/{Target}"
 
     GenName = File
@@ -1097,7 +1093,8 @@ def FlatNeut(GenList):
     tmpdir = f"{OutPath}/{user}_temp_dir"
 
     for Gen in GenList:
-        Target = Gen.split("_")[6]
+        TargetLabel = Card.split("_")[5]
+        Target = GlobalV.NeutLabelTargets.get(TargetLabel)
         GenDir = OutPath + f"/NEUT/{Target}"
         print(Target)
         FlatName = Gen.replace("Original", "Flat")

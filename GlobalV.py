@@ -16,6 +16,18 @@ targetpdg = {
     "Titanium":10000220480,
     "Chlorine":10000170350
 }
+NeutTargetLabels = {
+    "Carbon":"C12",
+    "Hydrogen":"H1",
+    "Oxygen":"O16",
+    "Titanium":"Ti48"
+}
+NeutLabelTargets ={
+    "C12":"Carbon",
+    "H1":"Hydrogen",
+    "O16":"Oxygen",
+    "Ti48":"Titanium"
+}
 NeutCardTargets = {
     "Carbon":"NEUT-NUMBNDN 6 \n NEUT-NUMBNDP 6 \n NEUT-NUMATOM 12 \n NEUT-NUMFREP 0 \n",
     "Hydrogen":"NEUT-NUMBNDN 6 \n NEUT-NUMBNDP 6 \n NEUT-NUMATOM 12 \n NEUT-NUMFREP 10000 \n",
