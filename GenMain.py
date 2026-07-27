@@ -1093,7 +1093,7 @@ def FlatNeut(GenList):
     tmpdir = f"{OutPath}/{user}_temp_dir"
 
     for Gen in GenList:
-        TargetLabel = Card.split("_")[5]
+        TargetLabel = Gen.split("_")[5]
         Target = GlobalV.NeutLabelTargets.get(TargetLabel)
         GenDir = OutPath + f"/NEUT/{Target}"
         print(Target)
