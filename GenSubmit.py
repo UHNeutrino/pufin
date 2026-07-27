@@ -59,8 +59,8 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         --ntasks-per-node=1 \\
         --cpus-per-task={NCores} \\
         --time={SlurmTime} \\
-        --job-name=NEUTGeneration{Node}of{TotalNodes}{DateStr}\\
-        --output=NEUTGeneration{Node}of{TotalNodes}{DateStr}.out\\
+        --job-name=NEUTGeneration_{Node}of{TotalNodes}_{DateStr}\\
+        --output=NEUTGeneration_{Node}of{TotalNodes}_{DateStr}.out\\
         --wrap "apptainer exec --writable-tmpfs --bind {OutPath}/:{OutPath}/ {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && echo {len(NodeFiles)} Files in {SlurmTime} && python GenMain.py NeutMult --Files {FilesFormated} --CPUPercent {CPUPercent}' "
         """
         # print(cmd)
@@ -151,7 +151,7 @@ def NeutTimeEstimator(Files, NCores):
     # add time for flattening ~3 min each:
     TotalSeconds += len(Files)*180
     
-    TotalSeconds = int(TotalSeconds/(NCores/3))
+    TotalSeconds = int(TotalSeconds/(NCores/2))
     if TotalSeconds>= 86400:
         raise ValueError("Allocation exceeding 24hrs, use more cores or less chunks")
     t = time.gmtime(TotalSeconds)
