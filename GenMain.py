@@ -1,9 +1,8 @@
-import os, argparse, ROOT, random, shutil, subprocess, pathlib
+import os, argparse, ROOT, random, shutil, subprocess, pathlib, random, time
 import GlobalV
 import glob
 import concurrent.futures
 import json5
-import time
 from multiprocessing import cpu_count
 import multiprocessing as mp
 
@@ -955,6 +954,9 @@ def GenNeutFlatSingleFile(File, Card):
 
     GenName = File
     f = GenDir + f"/{GenName}"
+    # wait time to hopefully not overload the memeory in a node
+    waitTime = random.randrange(0,5)
+    time.sleep(waitTime)
     
 
     #Move over fluxes for generation
