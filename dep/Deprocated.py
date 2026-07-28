@@ -514,7 +514,140 @@ class FluxObject:
         c.SaveAs(f"{path}/{name}.png")
         print(f"Histogram png saved to {path}/{name}.png")
 
+
+
+# Plot quantiles from json reader:
+def MakeQuantiles(quantiles, GlobalSettings):
+    file_name = input("Give Root File name: ")
+    file_path1 = f"/data/t2k-nova/FlatTrees/{file_name}"
+    #treeName = "FlatTree_VARS"
+    df1 = pp.CreateDataFrame(file_path1, cut ="None")
+    if(GlobalSettings["EvisB"]):
+        df1 = pp.DefineEvis(df1)  
+    if (GlobalSettings["KinematicsB"]):
+        df1 = pp.DefineKinematics(df1)
+    if (GlobalSettings["TkiB"]):
+        df1 = pp.DefineTKI(df1)
+    if (GlobalSettings["ThresholdsB"]):
+        df1 = pp.FlagParticleThresholds(df1)
+    if quantiles.get("Cut"):
+        df1 = df1.Filter(quantiles["Cut"])
+    # df1 = ROOT.RDataFrame(treeName,file_path1)
+    # df1 = df1.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+    # df1 = pp.DefineKinematics(df1)
+    # df1 = pp.DefineTKI(df1)
+
+    Weight = False
+    Flux =""
+    
+    if quantiles["reWeight"][0]:
+        Weight = True
+        Flux_parts = quantiles["reWeight"][1].split("/")
+        if "NOvA" in Flux_parts[4]:
+            Flux = "NOvA"
+        else:
+            Flux = "T2K"
+        df1, bin_integral_unnorm = pp.defineWeightsSpline(df1, quantiles["reWeight"][1], quantiles["reWeight"][2], "flux1")
         
+    df_filtered = df1.Filter(quantiles["cut"])
+    
+    # Run selected plot
+    if quantiles["plot_type"] == "segments":
+        pq.PlotSegments(
+            file_path1, 
+            quantiles["custom_quantiles"],
+            quantiles["consistent_quantiles"],
+            quantiles["x1"], 
+            quantiles["y1"], 
+            quantiles["x2"], 
+            quantiles["y2"], 
+            quantiles["xLabel"], 
+            quantiles["yLabel"], 
+            quantiles["mode_title"], 
+            quantiles["mode_label"],
+            quantiles["max_energy"],
+            quantiles["AutoTitleB"],
+            quantiles["Title"],
+            quantiles["AutoNameB"],
+            quantiles["SaveName"],
+            GlobalSettings["Save"],
+            quantiles["Ext"],
+            max = quantiles["zmax"], 
+            min = quantiles["zmin"],
+            df=df_filtered, 
+            Weight=Weight,
+            Flux=Flux, 
+            scale=quantiles["logz"], 
+            frequency=quantiles["zaxis"], 
+            Normalize=quantiles["Norm"])
+    #elif quantiles["plot_type"] == "grid":
+        #pq.PlotGrid(file_path1, x1, y1, x2, y2, xLabel, yLabel, mode_title, mode_label, max_energy, df=df_filtered, scale=logz, frequency=zaxis, Normalize=Norm)
+    elif quantiles["plot_type"] == "compare":
+        file_name2 = input("Give Root File name: ")
+        file_path2 = f"/data/t2k-nova/FlatTrees/{file_name2}"
+        #treeName = "FlatTree_VARS"
+        df1b = pp.CreateDataFrame(file_path2, cut ="None")
+        if(GlobalSettings["EvisB"]):
+            df1b = pp.DefineEvis(df1b)  
+        if (GlobalSettings["KinematicsB"]):
+            df1b = pp.DefineKinematics(df1b)
+        if (GlobalSettings["TkiB"]):
+            df1b = pp.DefineTKI(df1b)
+        if (GlobalSettings["ThresholdsB"]):
+            df1b = pp.FlagParticleThresholds(df1b)
+        if quantiles.get("Cut"):
+            df1b = df1b.Filter(quantiles["Cut"])
+    
+        # df1b = ROOT.RDataFrame(treeName,file_path2)
+        # df1b = df1b.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+        # df1b = pp.DefineKinematics(df1b)
+        # df1b = pp.DefineTKI(df1b)
+
+        Flux2 =""
+        if quantiles["reWeight2"][0]:
+            Weight = True
+            Flux_parts2 = quantiles["reWeight2"][1].split("/")
+            if "NOvA" in Flux_parts2[4]:
+                Flux2 = "NOvA"
+            else:
+                Flux2 = "T2K"
+            df1b, bin_integral_unnorm = pp.defineWeightsSpline(df1b, quantiles["reWeight2"][1], quantiles["reWeight2"][2], "flux2")
+        
+        df_filtered2 = df1b.Filter(quantiles["cut"])
+        pq.PlotCompare(
+            file_path1,
+            file_path2,
+            quantiles["custom_quantiles"],
+            quantiles["consistent_quantiles"],
+            quantiles["x1"], 
+            quantiles["y1"], 
+            quantiles["x2"], 
+            quantiles["y2"], 
+            quantiles["xLabel"], 
+            quantiles["yLabel"], 
+            quantiles["mode_title"], 
+            quantiles["mode_label"],
+            quantiles["max_energy"],
+            quantiles["AutoTitleB"],
+            quantiles["Title"],
+            quantiles["AutoNameB"],
+            quantiles["SaveName"],
+            GlobalSettings["Save"],
+            quantiles["Ext"],
+            max = quantiles["zmax"], 
+            min = quantiles["zmin"],
+            df=df_filtered, 
+            df2=df_filtered2, 
+            Weight=Weight,
+            Flux=Flux,
+            Flux2=Flux2, 
+            scale=quantiles["logz"], 
+            frequency=quantiles["zaxis"], 
+            Normalize=quantiles["Norm"],
+            Compare_type=quantiles["compare_type"])
+    else:
+        print("Invalid plot_type in config_PlotQuantiles.json5. Use 'segments', 'grid' or 'ratio'.")
+
         
 ###################### 0PI Observables:
 # import ROOT
