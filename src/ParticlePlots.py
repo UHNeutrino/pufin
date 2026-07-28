@@ -1567,38 +1567,15 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
         spline_width_integral0 += spline0.Eval(x) * w
     print("spline width-integral0 (hist-like) =", spline_width_integral0)
     
-    ########## Code for showing un-normalized spline/shape ############################################
-    ##################################################################################################
-   
-    # graph1 = ROOT.TGraph(n_points0)
-    # for i in range(1, n_points0 + 1):
-    #     x = hist.GetBinCenter(i)
-    #     w = hist.GetBinWidth(i)
-    #     #print(w)
-    #     y = spline0.Eval(x)
-    #     # print(f"i: {i} x: {x} y: {y} ")
-    #     if (Fscale != 1 or undoNormB):
-    #         if undoNormB:
-    #             new_y = y * (w) * Fscale
-    #             # print("undo norm histogram")
-    #             # print(f"y: {y} Width: {w} New Y: {new_y}")
-    #         else:
-    #             new_y = y * Fscale
-    #         y = new_y
-    #     graph1.SetPoint(i - 1, x, y)
-        
-        
-    # # Unique spline and function names
-    # spline_name1 = f"g_fluxSpline_1{label}"
-    # func_name1 = f"get_flux_weight_1{label}"
-    # spline1 = ROOT.TSpline3(spline_name1, graph1)
-    ##########################################################################################
-    ##########################################################################################
-    
     # ABSOLUTE SCALE: Convert bin normalized histo to "per-bin" contents and apply Fscale
-    Gen_code = xspline[0]
-    VersionCode = xspline.replace(Gen_code,"")
-    Genie_code = xspline if xspline.startswith("Genie") else ""
+    if xspline:
+        Gen_code = xspline[0]
+        VersionCode = xspline.replace(Gen_code,"")
+        Genie_code = xspline if xspline.startswith("Genie") else ""
+    else:
+        Gen_code = "X"
+        VersionCode = "X"
+        Genie_code = ""
     if Gen_code == "N" and VersionCode[0]=="R":
         ChannelCode = VersionCode[-2] + VersionCode[-1]
         VersionCode = VersionCode.replace(ChannelCode,"")
@@ -1814,6 +1791,8 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
         # exit()
         ##############
     
+    elif Gen_code == "X":
+        print("using no xsec rw")
     else:
         raise Exception("No Matching Generator code")
 
@@ -1873,24 +1852,15 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
             xsec = neut_spline.Eval(x)
             xsec *= 1e38
             if xsecTester<10:
-                print("xsec")
-                print(xsec)
-                print("X")
-                print(x)
-                print("i")
-                print(i)
-                
                 xsecTester += 1
             if xsec < 0: xsec = 0.0
+
+        elif Gen_code == "X":
+            xsec = 1
             
         else:
             raise Exception("No Matching Generator code")
         
-       
-        
-
-
-
         if undoNormB == True:
             bin_integral_unnorm += y * w * Fscale * xsec  # multiply each bin by its width, then Fscale
             #bin_integral_unnorm += y * y_xsec * w * Fscale
@@ -1917,17 +1887,17 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
     #PULL OUT FLUX SPLINE TO LOOK AT ################
     # Create a TF1 using your declared C++ function
     # Replace E_min, E_max with your energy range
-    print(type(getattr(ROOT, spline_name0)))
-    tf1 = getattr(ROOT, spline_name0)
+    # print(type(getattr(ROOT, spline_name0)))
+    # tf1 = getattr(ROOT, spline_name0)
 
 
-    # Style it
-    tf1.SetLineColor(ROOT.kBlue)
-    tf1.SetLineWidth(2)
-    tf1.SetTitle("21bv2 Spline ;E_{#nu} [GeV]; Flux Weight")
-    f_out = ROOT.TFile("23bv2spline.root", "RECREATE")
-    tf1.Write()
-    f_out.Close()
+    # # Style it
+    # tf1.SetLineColor(ROOT.kBlue)
+    # tf1.SetLineWidth(2)
+    # tf1.SetTitle("21bv2 Spline ;E_{#nu} [GeV]; Flux Weight")
+    # f_out = ROOT.TFile("23bv2spline.root", "RECREATE")
+    # tf1.Write()
+    # f_out.Close()
 
     # Draw
     # canvas = ROOT.TCanvas("c", "Spline", 800, 600)
