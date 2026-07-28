@@ -16,7 +16,8 @@
       "detector": "Nova",
   
       "filters": {
-        "interactions": ["CC", "NC"],
+        // "interactions": ["CC", "NC"],
+        "interactions": ["CC"],
         "flavors": ["NuMu", "NuMuBar", "NuE","NuEBar"],
         "energy_ranges": ["0-8GeV", "8-30GeV", "30-120GeV"],
         "targets": ["C12", "H1", "Cl35", "O16", "Ti48"]
