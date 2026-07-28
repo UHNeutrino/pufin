@@ -250,21 +250,10 @@ def save_outputs(total_hist, component_hists, same1d, global_settings):
 
     root_path = os.path.join(save_dir, f"{base_name}.root")
     fout = ROOT.TFile(root_path, "RECREATE")
-
-    for key, hist in component_hists.items():
-        h_out = hist.Clone(f"h_{key}")
-        h_out.SetDirectory(0)
-        h_out.Write()
-
-    h_total = total_hist.Clone("h_total")
-    h_total.SetDirectory(0)
-    h_total.Write()
-    fout.Close()
-
-    print(f"Saved {root_path}")
-
+    
     img_ext = same1d.get("Ext", "png")
     pp.HOME = BASE_OUT
+    
     pp.Savehist(
         total_hist,
         axis_info,
@@ -278,6 +267,38 @@ def save_outputs(total_hist, component_hists, same1d, global_settings):
 
     img_path = os.path.join(save_dir, f"{base_name}.{img_ext}")
     print(f"Saved {img_path}")
+    
+    # Write the ROOT file last so Savehist cannot overwrite it.
+    root_path = os.path.join(save_dir, f"{base_name}.root")
+    fout = ROOT.TFile(root_path, "RECREATE")
+
+    for key, hist in component_hists.items():
+        h_out = hist.Clone(f"h_{key}")
+        h_out.SetDirectory(0)
+        h_out.Write()
+
+    h_total = total_hist.Clone("h_total")
+    h_total.SetDirectory(0)
+    h_total.Write()
+    fout.Close()
+
+    print(f"Saved {root_path}")
+
+    # img_ext = same1d.get("Ext", "png")
+    # pp.HOME = BASE_OUT
+    # pp.Savehist(
+    #     total_hist,
+    #     axis_info,
+    #     global_settings["Save"],
+    #     base_name,
+    #     img_ext,
+    #     max=same1d.get("max", -1),
+    #     Normalize=same1d.get("Norm", False),
+    #     logz=False,
+    # )
+
+    # img_path = os.path.join(save_dir, f"{base_name}.{img_ext}")
+    # print(f"Saved {img_path}")
     return total_hist
 
 def calculate_target_weight_factors(
