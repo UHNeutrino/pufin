@@ -592,14 +592,25 @@ def GenGenieMultiOnNodeFiles(FileNames, CPUPercent):
     if CPUPercent > 1 and CPUPercent <= 100:
         CPUPercent /= 100
     elif CPUPercent > 100 or CPUPercent <= 0:
-        raise ValueError("CorePercent must be 0<x leq 1 or 1<x<100")
+        raise ValueError(
+            "CorePercent must be 0<x leq 1 or 1<x<=100"
+        )
 
-    MaxCores = os.cpu_count()
-    NCores = max(1, int(os.environ.get("SLURM_CPUS_PER_TASK", MaxCores*CPUPercent)))
-    
     if len(FileNames) == 0:
         print("No GENIE files need to be generated.")
         return []
+
+    MaxCores = os.cpu_count() or 1
+
+    NCores = max(
+        1,
+        int(
+            os.environ.get(
+                "SLURM_CPUS_PER_TASK",
+                MaxCores * CPUPercent,
+            )
+        ),
+    )
 
     if NCores > len(FileNames):
         NCores = len(FileNames)
@@ -608,8 +619,13 @@ def GenGenieMultiOnNodeFiles(FileNames, CPUPercent):
 
     RunList = []
 
-    with concurrent.futures.ProcessPoolExecutor(max_workers=NCores) as exe:
-        for result in exe.map(GenGenieFlatSingleFile, FileNames):
+    with concurrent.futures.ProcessPoolExecutor(
+        max_workers=NCores
+    ) as exe:
+        for result in exe.map(
+            GenGenieFlatSingleFile,
+            FileNames,
+        ):
             RunList.append(result)
 
     return RunList
@@ -1119,7 +1135,7 @@ if __name__ =="__main__":
     # GenNeutXsec(Tune,Targets)
     
     # source /data/t2k-nova/MainSetup.sh
-    # export PUFIN_OUT=/data/t2k-nova/PUfINOutputs/Test
+    # export PUFIN_OUT=/data/t2k-nova/PUfINOutputs/_MultiProcess
 
 
     # For Series:
@@ -1130,11 +1146,11 @@ if __name__ =="__main__":
     ## For Multi-core: (remember events = nChuncks for NuMu)
     # python GenMain.py Gen \
     #   --generator Genie \
-    #   --events 50000 \
-    #   --target Carbon \
+    #   --events 1000000 \
+    #   --target Chlorine \
     #   --mode CC \
     #   --flavor NuMu \
     #   --CPUPercent 50 \
-    #   --NChunks 5
+    #   --NChunks 10
     
    

@@ -884,6 +884,8 @@ def FlagParticleThresholds(df):
     df = df.Define("flagIcarusBnbProtonP_Conservative", f"(PProton > 0.445)") # from Dan
     df = df.Define("flagIcarusBnbPionPlusP_Aspirational", f"(PPionMax > .095)") # from Dan
     df = df.Define("flagIcarusBnbPionPlusP_Conservative", f"(PPionMax > .170)") # from Dan
+    df = df.Define("flagIcarusBnbZeroPiAboveThreshold_Conservative", f"(PPionMax < .170)") # from Dan
+    df = df.Define("flagIcarusBnbPiBelowThreshold_Conservative", f"(0 < PPionMax < .170)") # from Dan
     df = df.Define("flagIcarusBnbPion_KE_Aspirational", f"(PionMax_KE > .030)") # from Dan
     df = df.Define("flagIcarusBnbPion_KE_Conservative", f"(PionMax_KE > .080)") # from Dan
     df = df.Define("flagT2KALL", f"(flagT2KMuonP && flagT2KProtonP && flagT2KPionPlusP && flagT2KCosLep)")

@@ -13,8 +13,9 @@ targetpdg = {
     "Carbon":1000060120,
     "Hydrogen":1000010010,
     "Oxygen":1000080160,
-    "Titanium":10000220480,
-    "Chlorine":10000170350
+    "Titanium":1000220480,
+    "Chlorine":1000170350,
+    "Argon":1000180400,
 }
 NeutTargetLabels = {
     "Carbon":"C12",
@@ -117,6 +118,11 @@ NovaTargets = {
         "name": "Titanium",
         "label": "Ti48",
         "pdg": "1000220480[1.0]",
+    },
+    "Ar": {
+        "name": "Argon",
+        "label": "Ar40",
+        "pdg": "1000180400[1.0]",
     },
 
 }
