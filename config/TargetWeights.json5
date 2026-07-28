@@ -1,0 +1,47 @@
+// {
+
+//   "target_weight_factors": {
+//     "C12": 2.767318539009614e-11,
+//     "H1": 4.46142e-12,
+//     "Cl35": 6.703989e-12,
+//     "Ti48": 1.3429908e-12,
+//     "O16": 1.242722569e-12,
+//     "Ar40": 1
+//   }
+
+// }
+
+{
+  "Nova": {
+    "exp_pot": 26.6e20,
+    "flux_pot": 2.49216e21,
+    "fv_nucleon_targets": 3.89137e31,
+    "xsec_units": 1e-38,
+    "flux_gev_norm": 1,
+    "flux_cm_conv": 1e-4,
+
+    "target_percent": {
+      "C12": 0.666271,
+      "H1": 0.107415,
+      "Cl35": 0.161408,
+      "Ti48": 0.0323344,
+      "O16": 0.0299203
+    }
+  },
+
+  "T2K": {
+    "exp_pot": 19.7e20,
+    "flux_pot": 1e21,
+    "fv_nucleon_targets": 5.5e29, // taking off panel and half of the last paned for fdg1
+    "xsec_units": 1e-38,
+    "flux_gev_norm": 0.05,
+    "flux_cm_conv": 1,
+
+    "target_percent": {
+      "C12": 0.8537,
+      "H1": 0.07503,
+      "Ti48": 0.01632,
+      "O16": 0.04472
+    }
+  }
+}
