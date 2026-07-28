@@ -894,56 +894,6 @@ def CheckNeutFiles(CardNames, NChunks):
     return FileNames
 
 
-def GenNeutFlatSingle(Card, i:int):
-    OutPath = os.environ.get("PUFIN_OUT")
-    user = os.environ.get("USER")
-    tmpdir = f"{OutPath}/{user}_temp_dir"
-    TargetLabel = Card.split("_")[5]
-    Target = GlobalV.NeutLabelTargets.get(TargetLabel)
-    GenDir = OutPath + f"/NEUT/{Target}"
-    
-
-    GenName = Card.replace("NEUT", "Original_NEUT")
-    GenName = GenName.replace(".card",f"P{i:03}.root") #removes .card, .root gets added later
-    GenList = [GenName]
-    f = GenDir + f"/{GenName}"
-
-    RunBool = not os.path.exists(f)
-    if RunBool == False:
-        try:
-            RFile = ROOT.TFile(f)
-            if RFile.IsZombie():
-                os.remove(f) #if it failed previously, delete the zombie and regenerate 
-                RunBool = True
-            elif not RFile.Get("fluxhisto"):
-                os.remove(f) #same thing if it is empty
-                RunBool = True
-            RFile.Close()
-        except:
-            os.remove(f)
-            RunBool = True
-        
-
-    if RunBool:
-        exec_string=""
-        exec_string += f"neutroot2 {Card} {GenName}"
-
-        if i == 1:
-            start = time.time()
-        subprocess.run(exec_string, cwd=tmpdir, shell=True)
-        shutil.move(f"{tmpdir}/{GenName}", os.path.join(GenDir, GenName))
-        # os.remove(tmpdir+"/"+Card)
-        # print(exec_string)
-        if i == 1:
-            elapsed = time.time() - start
-            with open("CardTiming.txt", "a") as OutF:
-                OutF.write(f"Card {Card} took {elapsed:.2f} seconds\n")
-        print(f"Generated {GenName}")
-    else:
-        print("Original File exists")
-    FlatNeut(GenList)
-    return RunBool
-
 def GenNeutFlatSingleFile(File, Card):
     OutPath = os.environ.get("PUFIN_OUT")
     user = os.environ.get("USER")
@@ -996,54 +946,6 @@ def GenNeutFlatSingleFile(File, Card):
     output_text.close()
     return RunBool
 
-def GenNeutMultiOnNode(CardNames, CPUPercent, NChunks):
-    if CPUPercent > 1 and CPUPercent <= 100:
-        CPUPercent /= 100
-    elif CPUPercent > 100 or CPUPercent < 0:
-        raise ValueError("CorePercent must be 0<x leq 1 or 1<x<100")
-    
-    
-    NCores = max(1,int(os.environ.get("SLURM_CPUS_PER_TASK", cpu_count()*CPUPercent)))
-    if NCores>NChunks:
-        NCores = NChunks
-
-    OutPath = os.environ.get("PUFIN_OUT")
-    user = os.environ.get("USER")
-    tmpdir = f"{OutPath}/{user}_temp_dir"
-
-    # if NCores >= 20:
-    #     print(f"Too many cores {NCores}")
-    #     exit()
-
-    for Card in CardNames:
-        TempChunk = NChunks
-        if "NuMuBar" in Card:
-            TempChunk = int(NChunks/10)
-        elif "NuE" in Card:
-            TempChunk = int(NChunks/100)
-        if TempChunk<1:
-            TempChunk = 1
-        # Copy Card to temp dir 
-        # Change number of events in card from N to 100,000
-        i_list =[]
-        CardList = []
-        GenName = Card.replace("NEUT", "Original_NEUT")
-        for i in range(0,TempChunk):
-            i_list.append(i+1)
-            CardList.append(Card) #List of the same card (Chunks) times
-        # copy the card path for all cores to use
-        CardDir = OutPath+"/"+"NEUT"+"/"+"Cards"
-        shutil.copy(CardDir+"/"+Card, os.path.join(tmpdir, os.path.basename(Card)))
-        # proccessed files list
-        RunList = []
-        with concurrent.futures.ProcessPoolExecutor(max_workers=NCores) as exe: 
-            for result in exe.map(GenNeutFlatSingle, CardList, i_list):
-                RunList.append(result)
-        
-        os.remove(tmpdir+"/"+Card)
-
-    return RunList
-
 def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
     #THIS SHOULD NOT BE RUN ON ITS OWN, ONLY CALLED BY GENSUBMIT.PY
     if CPUPercent > 1 and CPUPercent <= 100:
@@ -1095,10 +997,11 @@ def FlatNeut(GenList):
     tmpdir = f"{OutPath}/{user}_temp_dir"
 
     for Gen in GenList:
-        TargetLabel = Gen.split("_")[5]
+        TargetLabel = Gen.split("_")[6]
         Target = GlobalV.NeutLabelTargets.get(TargetLabel)
         GenDir = OutPath + f"/NEUT/{Target}"
-        print(Target)
+        print(f"Target label: {TargetLabel}")
+        print(f"Target: {Target}")
         FlatName = Gen.replace("Original", "Flat")
         f = GenDir + f"/{FlatName}"
         RunBool = not os.path.exists(f)
