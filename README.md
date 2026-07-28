@@ -2,23 +2,32 @@
 
 This repo is for all code related to the Plotting Utility for Interacting Neutrinos (PUfIN) made by Lars Bøe and Kristen Dobbs.
 
-## Useful Resources
+<details open>
+
+<summary> <b>
+  Useful Resources 
+</b> </summary>
+
 + Find or generate color schemes using ROOT's [TColor Class Reference](https://root.cern.ch/doc/v636/classTColor.html)
   
 + Set other line attributes by referencing ROOT's [TAttLine Class Reference](https://root.cern.ch/doc/v630/classTAttLine.html)
-  > At the moment, only Line Style ("Style") and Line Color ("Color") are supported in PUfIN
+  > Check [src/jsonreader.py](https://github.com/UHNeutrino/pufin/blob/main/src/jsonreader.py) for attribute support in each PUfIN plotting type
 
 + Identify Nuisance interaction mode codes with [Nuisance HEPForge](https://nuisance.hepforge.org/tutorials/interaction_modes.html) or this [internal document](https://github.com/UHNeutrino/PUfIN/InteractionModes.md) 
 
 + Review git commands with this [cheat sheet](https://education.github.com/git-cheat-sheet-education.pdf)
 
+</details>
+
+
 ## GenMain.py
 
-Before running this script do: 
+Before running this script, set global variables with: 
 ```
 source /data/t2k-nova/MainSetup.sh
 ```
-to set global variables
+> *UH SSH only*
+<!-- Universal setup script coming soon? -->
 
 ## Setup for plotting with ```main.py```
 After installing PUfIN using:
@@ -45,7 +54,7 @@ git clone https://github.com/UHNeutrino/PUfIN/
 
 + [Create a virtual environment in VSCode](https://code.visualstudio.com/docs/python/environments) that uses the Python version specified above and pip install dependencies within it using
   ```
-  (.venv) [username@uhneutrino:~]$ pip install json5 numpy
+  (.venv) [username@domain:~]$ pip install json5 numpy
   ```
   + To point the interpreter in VSCode to the venv you just created, navigate to the Command Palette using ```Ctrl + Shift + P```, type and select ```Python: Select Interpreter```, and enter or select ```your_venv_folder/bin/python```
 
