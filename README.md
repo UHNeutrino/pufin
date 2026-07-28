@@ -63,26 +63,4 @@ git clone https://github.com/UHNeutrino/PUfIN/
     Leaving this field blank will save plots to your home directory.
    
 
-To create plots, edit and activate (by setting ```"Bool": true```) ONE of the plotting modes within ```main.json5```, then run ```main.py```
-
-  
-## Setup Functions
-
-
-
-## ParticlePlots
-
-This script takes flat tree data from particle generators and plots different values from them. The files in question need to be named in the following way:
-
-`Flat_<ParticleGenerator>_<EnergyLevel>_<numberofevents>.root`
-
-Currently it can create a 2D Histogram of 2P2H events and 1Pi resonance events.
-
-
-
-## PlotQuantiles
-
-
-
-
-
+To create plots, edit and activate (by setting ```"Bool": true```) ONE of the plotting modes within ```config/PlotMain.json5```, then run ```PlotMain.py```
