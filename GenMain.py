@@ -3,24 +3,13 @@ import GlobalV
 import glob
 import concurrent.futures
 import json5
-from multiprocessing import cpu_count
 import multiprocessing as mp
 
-
-# PDGs = {
-#     "1000010010[1.0]": "H1",
-#     "1000060120[1.0]": "C12",
-#     "1000080160[1.0]": "O16",
-#     "1000170350[1.0]": "Cl35",
-#     "1000220480[1.0]": "Ti48",
-#     "12": "NuE",
-#     "-12": "NuEBar",
-#     "14": "NuMu",
-#     "-14": "NuMuBar",
-# }
+OutPath = os.environ.get("PUFIN_OUT")
+user = os.environ.get("USER")
+tmpdir = f"{OutPath}/{user}_temp_dir"
 
 def DirectorySetup(Generator, SingleTarget=None, Mode=None):
-    OutPath = os.environ.get("PUFIN_OUT")
     Targets = []
     if Generator.lower() == "neut":
         Targets = ["Carbon", "Hydrogen", "Oxygen", "Titanium"]
@@ -51,7 +40,6 @@ def DirectorySetup(Generator, SingleTarget=None, Mode=None):
     return FilePaths, Targets
 
 def FlatFluxMaker():
-    OutPath = os.environ.get("PUFIN_OUT")
     FluxPath = OutPath+"/"+"FlatFluxes"
     os.makedirs(FluxPath, exist_ok=True)
     FlatFluxNames = ["flat_flux_0-8GeV.root","flat_flux_8-30GeV.root","flat_flux_30-120GeV.root"]
@@ -95,8 +83,6 @@ def CheckGenieFiles(Targets, Events, Modes=None, Flavors=None):
     # For multiprocessing, Events is interpreted as the desired NuMu NChunks.
     # Flavor chunk counts are scaled by GlobalV.GenFlavorScales.
     # Events per GENIE chunk are set by GlobalV.GenieEventsPerChunk.
-
-    OutPath = os.environ.get("PUFIN_OUT")
     if OutPath == None:
         raise ValueError("PUFIN_OUT Needs to be defined!")
 
@@ -191,7 +177,6 @@ def CheckGenieFiles(Targets, Events, Modes=None, Flavors=None):
     return FileNames
 
 def GenGenieFlatSingleFile(File):
-    OutPath = os.environ.get("PUFIN_OUT")
     if OutPath == None:
         raise ValueError("PUFIN_OUT Needs to be defined!")
 
@@ -563,9 +548,6 @@ def GenerateGenie(Generator, Events, Target=None, Mode=None, Flavor=None, Multi=
 
                     original_file = find_expected_file(final_dir, expected_original)
                     flat_file = find_expected_file(final_dir, expected_flat)
-                    OutPath = os.environ.get("PUFIN_OUT")
-                    user = os.environ.get("USER")
-                    tmpdir = f"{OutPath}/{user}_temp_dir"
 
                     job = {
                         "Generator": Generator,
@@ -633,7 +615,6 @@ def GenGenieMultiOnNodeFiles(FileNames, CPUPercent):
     return RunList
                     
 def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=None):
-    OutPath = os.environ.get("PUFIN_OUT")
     if not os.environ.get("NEUT_VERSION"):
         raise ValueError("NEUT_VERSION Environment Variable Not Defined")
     NeutVersion = str(os.environ.get("NEUT_VERSION")).replace(".","-")
@@ -737,9 +718,6 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=No
 def GenNeutXsec(Tune, Targets, FullCardPath=None):
     #Grabs every neut card from FullCardPath or naming scheme and then checks for the corespondinig xsec histogram
     #If the histogram is missing, then it generates them with dumpmtotpauC
-    OutPath = os.environ.get("PUFIN_OUT")
-    user = os.environ.get("USER")
-    tmpdir = f"{OutPath}/{user}_temp_dir"
     if not os.environ.get("NEUT_VERSION"):
         raise ValueError("NEUT_VERSION Environment Variable Not Defined")
     NeutVersion = str(os.environ.get("NEUT_VERSION")).replace(".","-")
@@ -795,9 +773,6 @@ def GenNeutXsec(Tune, Targets, FullCardPath=None):
     print("Finished making/finding Neut Xsecs")
 
 def FluxToTemp():
-    OutPath = os.environ.get("PUFIN_OUT")
-    user = os.environ.get("USER")
-    tmpdir = f"{OutPath}/{user}_temp_dir"
     FluxDir= OutPath+"/"+"FlatFluxes"
     for flux in os.listdir(FluxDir):
         FluxPath = os.path.join(FluxDir, flux)
@@ -806,11 +781,7 @@ def FluxToTemp():
        
 def GenNeut(CardNames):
     # Generates for every card given, 
-    OutPath = os.environ.get("PUFIN_OUT")
-    user = os.environ.get("USER")
-    tmpdir = f"{OutPath}/{user}_temp_dir"
     CardDir = OutPath+"/"+"NEUT"+"/"+"Cards"
-    FluxDir= OutPath+"/"+"FlatFluxes"
     GenList = []
     #Copy all Fluxes to tmp dir
     FluxToTemp()
@@ -851,8 +822,6 @@ def GenNeut(CardNames):
 
 def CheckNeutFiles(CardNames, NChunks):
     # Checks all files
-    OutPath = os.environ.get("PUFIN_OUT")
-    user = os.environ.get("USER")
     FileNames = []
     #Copy all Fluxes to tmp dir
 
@@ -895,9 +864,6 @@ def CheckNeutFiles(CardNames, NChunks):
 
 
 def GenNeutFlatSingleFile(File, Card):
-    OutPath = os.environ.get("PUFIN_OUT")
-    user = os.environ.get("USER")
-    tmpdir = f"{OutPath}/{user}_temp_dir"
     TargetLabel = Card.split("_")[5]
     Target = GlobalV.NeutLabelTargets.get(TargetLabel)
     GenDir = OutPath + f"/NEUT/{Target}"
@@ -959,9 +925,6 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
     print(f"Number of Cores: {NCores}")
     CardList = []
 
-    OutPath = os.environ.get("PUFIN_OUT")
-    user = os.environ.get("USER")
-    tmpdir = f"{OutPath}/{user}_temp_dir"
     CardDir = f"{OutPath}/NEUT/Cards"
     for File in FileNames:
         # COPY THE CARDS HERE AND NAME THE CARDS PER NODE SO NODES WONT DELETE OTHER CARDS THAT ARE USED
@@ -992,9 +955,6 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
 
 def FlatNeut(GenList):
     #Flattens for every given generated file
-    OutPath = os.environ.get("PUFIN_OUT")
-    user = os.environ.get("USER")
-    tmpdir = f"{OutPath}/{user}_temp_dir"
 
     for Gen in GenList:
         TargetLabel = Gen.split("_")[6]
@@ -1038,7 +998,7 @@ def FlatNeut(GenList):
 
 def Generate(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=None, CPUPercent=None, NChunks=None):
     # Grab/Make paths for output generated files
-    OutPath = os.environ.get("PUFIN_OUT")
+
     if OutPath==None:
         raise ValueError("PUFIN_OUT Needs to be defined!")
 
@@ -1073,7 +1033,8 @@ def Generate(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=None, 
             # If you want to multiprocess on one node, multiple cores
             # For Multiple Nodes use GenSubmit  
             FluxToTemp()
-            RunList = GenNeutMultiOnNode(CardNames, CPUPercent, NChunks)
+            FileNames = CheckNeutFiles(CardNames, NChunks) 
+            RunList = GenNeutMultiOnNodeFiles(FileNames, CPUPercent)
         elif CPUPercent or NChunks:
             raise ValueError("Need both CPUPercent and NChunk for multi processing")
         else:
