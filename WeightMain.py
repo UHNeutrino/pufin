@@ -2,16 +2,14 @@
 
 from __future__ import annotations
 
-import argparse, array, json5, os, re, ROOT
+import array, json5, os, re, ROOT
 from pathlib import Path
 
 import src.GlobalV as GlobalV
 import src.ParticlePlots as pp
 import src.SetupFunctions as sf
 
-
-HOME = os.getenv("HOME", "/home/lboe")
-BASE_OUT = "/data/t2k-nova"
+CONFIG_FILE = "config/WeightMain.json5"
 
 #### Define filename pattern expected for PUfIN ROOT files #####
 FILENAME_RE = re.compile(
@@ -76,19 +74,14 @@ def discover_pufin_files(base_dir: str, generator: str) -> list[dict]:
     return discovered
 
 #### Gets filters from either command line arguments or config file and returns a dictionary ####
-def get_filters(config_stage2: dict, args) -> dict:
+def get_filters(config_stage2: dict) -> dict:
     config_filters = config_stage2.get("filters", {})
 
-    interactions = normalize_list(args.interaction) or normalize_list(config_filters.get("interactions"))
-    flavors = normalize_list(args.flavor) or normalize_list(config_filters.get("flavors"))
-    energy_ranges = normalize_list(args.energy_range) or normalize_list(config_filters.get("energy_ranges"))
-    targets = normalize_list(args.target) or normalize_list(config_filters.get("targets"))
-
     return {
-        "interactions": interactions,
-        "flavors": flavors,
-        "energy_ranges": energy_ranges,
-        "targets": targets,
+        "interactions": normalize_list(config_filters.get("interactions")),
+        "flavors": normalize_list(config_filters.get("flavors")),
+        "energy_ranges": normalize_list(config_filters.get("energy_ranges")),
+        "targets": normalize_list(config_filters.get("targets")),
     }
 
 #### Groups files together based on requested filters ####
@@ -242,7 +235,8 @@ def format_total_hist(total_hist, same1d: dict):
 
 
 def save_outputs(total_hist, component_hists, same1d, global_settings):
-    save_dir = os.path.join(BASE_OUT, global_settings["Save"])
+    base_out = global_settings["BaseOut"]
+    save_dir = os.path.join(base_out,global_settings["Save"])
     os.makedirs(save_dir, exist_ok=True)
 
     base_name = same1d["Name"]
@@ -252,7 +246,7 @@ def save_outputs(total_hist, component_hists, same1d, global_settings):
     fout = ROOT.TFile(root_path, "RECREATE")
     
     img_ext = same1d.get("Ext", "png")
-    pp.HOME = BASE_OUT
+    pp.HOME = base_out
     
     pp.Savehist(
         total_hist,
@@ -381,13 +375,11 @@ def calculate_target_weight_factors(
     return target_weight_factors
 
 
-def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict, args):
+def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict):
     discovered = discover_pufin_files(
-        base_dir=args.base_dir or stage2["base_dir"],
-        generator=args.generator or stage2["generator"],
-    )
+        base_dir=stage2["base_dir"],generator=stage2["generator"],)
 
-    filters = get_filters(stage2, args)
+    filters = get_filters(stage2)
     selected = build_selected_entries(discovered, filters)
     grouped = group_by_sample_and_target(selected)
 
@@ -426,7 +418,7 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict, args):
     areaB = reweight_cfg.get("areaB", False)
     undoNormB = reweight_cfg.get("undoNormB", False)
 
-    generator = args.generator or stage2["generator"]
+    generator = stage2["generator"]
 
     print("\n========== WEIGHTING ==========")
 
@@ -578,21 +570,6 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict, args):
     return total_hist
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="PUfIN stage-2 weighting driver")
-
-    parser.add_argument("--config", default="config/WeightMain.json5")
-    parser.add_argument("--base-dir", default=None)
-    parser.add_argument("--generator", default=None)
-    parser.add_argument("--detector", default=None)
-
-    parser.add_argument("--interaction", nargs="+", default=None)
-    parser.add_argument("--flavor", nargs="+", default=None)
-    parser.add_argument("--energy-range", nargs="+", default=None)
-    parser.add_argument("--target", nargs="+", default=None)
-
-    return parser.parse_args()
-
 def parse_energy_range_window(energy_range: str):
     token = energy_range.replace("GeV", "")
     low_str, high_str = token.split("-")
@@ -600,14 +577,13 @@ def parse_energy_range_window(energy_range: str):
 
 
 def main():
-    args = parse_args()
     sf.setupRoot()
 
-    config = load_json5(args.config)
+    config = load_json5(CONFIG_FILE)
     global_settings = config["global"]
     stage2 = config["stage2"]
 
-    make_fullmc_weighted_same1d(stage2, global_settings, args)
+    make_fullmc_weighted_same1d(stage2, global_settings)
 
 
 if __name__ == "__main__":

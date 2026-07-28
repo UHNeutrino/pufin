@@ -1,6 +1,7 @@
 {
     "global": {
-      "Save": "PUfINOutputs/Test",
+      "BaseOut": "/data/t2k-nova",
+      "Save": "PUfINOutputs/WeightOutputs",
       // "Save": "PUfINOutputs/Test",
       "DebugMode": false,
       "DebugPrint": 0,
@@ -18,12 +19,15 @@
       "filters": {
         // "interactions": ["CC", "NC"],
         "interactions": ["CC"],
-        "flavors": ["NuMu", "NuMuBar", "NuE","NuEBar"],
-        "energy_ranges": ["0-8GeV", "8-30GeV", "30-120GeV"],
+        // "flavors": ["NuMu", "NuMuBar", "NuE","NuEBar"],
+        "flavors": ["NuMu"],
+        // "energy_ranges": ["0-8GeV", "8-30GeV", "30-120GeV"],
+        "energy_ranges": ["0-8GeV"],
         "targets": ["C12", "H1", "Cl35", "O16", "Ti48"]
+        // "targets": ["C12"]
       },
   
-      "targets_file": "$HOME/t2k-nova/stage2_targetConfigs/TargetWeights_GenieN24_Nova.json5",
+      "targets_file": "./config/TargetWeights.json5",
   
       "reWeight": {
         "enabled": true,
@@ -56,9 +60,9 @@
         "Cut": "1",
         "Var": "Enu_true",
         "AxisInfo": "True E_{#nu}, GeV, Events, , Weighted truth prediction",
-        "Bins": [2400, 0.0, 120.0],
+        "Bins": [160, 0.0, 8.0],
         "VBins": [false, []],
-        "Name": "test100kAll0-120_v2",
+        "Name": "test100ccnumu_autoWF_v3",
         "Ext": "png",
         "Norm": false,
         "max": -1
