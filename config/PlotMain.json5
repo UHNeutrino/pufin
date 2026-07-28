@@ -12,7 +12,20 @@
             "ThresholdsB": false,
             "Ext": "root",
             "DebugPrint":0,
-            "DebugMode":false
+            "DebugMode":false,
+            "FluxReweight":{
+                "FluxPath":"",
+                "FluxHistogram":"",
+                "Detector":"",
+                "Target":"",
+                "XsecType":"N",
+                "XsecPath":"",
+                "XsecHist":"",
+                "NucleonsPerTarget":1,
+                "AreaNormFlag":false,
+                "UndoFluxNormFlag":true,
+                "Fscale":1 //temporary
+            }
 
         },
     "plots":
@@ -99,22 +112,23 @@
             "RatioRange": [0, 1.5],           
             "Plots": [
             {
-                //"Key": "N2420i0211b",
                 "Key": "GenieN24",
                 "File": "GenieN24_CC_numu_onC12_flatf_1e7",
-                //"File": "Flat_N2420i0211bghep_flatflux_1e7",
-                //"Cut": "flagCCINC == true && Mode == 1",
                 "Label": "CC on Carbon",
                 "Color": "kBlack",
-                //"reWeight":[true, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_finebins.root","enu_nd5_23a_untuned_numu", 2.79276e-7, "N", false, true],
-                //"reWeight":[true, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfx_numu.root","numu", 1, false, false], //boolian to start, file location, scaling factor (put 1 for nothing), area norm bool, multiply by bin with bool
-                //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 8410, "G", false, true],
-                //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 103465.75, "G", false, true],
-               // "reWeight":[true, "/data/t2k-nova/fluxes/Extracted/ExtractedProd6OnC_TravisFlux_Ratio.root","h1", 1.244873749e-11, "G", false, false], // this was for Travis Flux
-                "reWeight":[true, "/data/t2k-nova/fluxes/NOvAFluxProd6_50files.root","cafanauniq0", 2.767318539009614e-11, "G", false, false], // on Carbon with 2.49e21 flux POT
-                //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 1, "", false, true],
-                //"reWeight":[true, "/data/t2k-nova/fluxes/FHC_Flux_NOvA_ND_2017.root","flux_numu", 243932, false, true],
-                //"reWeight":[true, "/data/t2k-nova/fluxes/NOvAFlux.root","cafanauniq0", 8.8e-10, false, false],
+                "FluxReweight":{
+                    "FluxPath":"",
+                    "FluxHistogram":"",
+                    "Detector":"",
+                    "Target":"",
+                    "XsecType":"N",
+                    "XsecPath":"",
+                    "XsecHist":"",
+                    "NucleonsPerTarget":1,
+                    "AreaNormFlag":false,
+                    "UndoFluxNormFlag":true,
+                    "Fscale":1 //temporary
+                },
                 "Var": "Enu_true"
                 },
                 {
@@ -173,40 +187,4 @@
             "Name": "ContourStyleAreaRW",
             "Ext": "png"
         },
-    "quantiles":
-        {
-            "Bool": false,
-            "reWeight": [false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"], // "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"
-            "reWeight2":[true,  "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"], // "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"
-            "Spline":true,
-            "custom_quantiles": true,
-            "consistent_quantiles": [0, 0.8, 1.6, 2.4, 8, 20], // Pi Abs[0, 0.5, 0.7, 0.8, 1.0, 8], // 2P2H [0, 0.3, 0.5, 0.7, 1.0, 8], // QE [0, 0.3, 0.45, 0.7, 2.1, 8],
-            "x1": "q3", 
-            "y1": "q0", 
-
-            "y2": "CosLep",
-            "x2": "PLep",
-            "xLabel": "#mu",
-            "yLabel": "Cos #theta",
-
-            "cut": "flagCC0pi == 1 && Mode ==1", //(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)",
-            "mode_label": "CCPi0&QE",
-            "mode_title": "QE",
-            "max_energy": 8,
-
-            "zaxis": true,
-            "Norm": true,
-            "zmax": 16, // Choose max value integer (w/out quotation marks) or "None" (use quotation marks)
-            "zmin": 0, // has to be symmetric with zmax for difference plots
-            "logz": false,
-            "plot_type": "compare",  // "grid", "segments" or "compare"
-            "compare_type": "Ratio", // "Difference" or "Ratio"
-            "Save": "t2k-nova/plots_quantiles/QE/constant_quantiles/normalized",
-            "AutoNameB": false,
-            "SaveName": "Ratio_max",
-            "AutoTitleB": true,
-            "Title": "Lalala",
-            "Ext": "png"
-        },
-    
 }

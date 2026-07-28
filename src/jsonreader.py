@@ -1,5 +1,6 @@
 import ROOT
 import os
+import json5
 import datetime
 import src.ParticlePlots as pp 
 import src.SetupFunctions as sf
@@ -8,8 +9,27 @@ import array
 
 HOME = os.getenv("HOME", "/home/lboe")
 
+def GrabFluxReWeights(GlobalSettings):
+    frwDict = GlobalSettings.get("FluxReweight")
+
+    if frwDict:
+        reweight_flag = True
+        rw_file = frwDict.get("FluxPath")
+        rw_flux = frwDict.get("FluxHistogram")
+        Fscale = frwDict.get("Fscale")
+        xsectype = frwDict.get("XsecType")
+        areaB = frwDict.get("AreaNormFlag")
+        undoNormB = frwDict.get("UndoFluxNormFlag")
+
+        detector = frwDict.get("Detector")
+        target = frwDict.get("Target")
+        xsecpath = frwDict.get("XsecPath")
+        xsechist = frwDict.get("XsecHist")
+        nucpert = frwDict.get("NucleonsPerTarget")
+    return reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB
 
 def MakePlots(plots, GlobalSettings):
+    reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder+ f'/*{plots["Gen"]}*{plots["Flux"]}*.root')
     if root_files == []:
@@ -26,7 +46,6 @@ def MakePlots(plots, GlobalSettings):
         AxisInfo = []
         #df = pp.CreateDataFrame(file_path, plots["Cut"])
         df = pp.CreateDataFrame(file_path, cut ="None")
-        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = plots["reWeight"]
         Vbins = array.array('d',plots["VBins"][1])
         varBinInfo = ROOT.RDF.TH1DModel("h_varbins","h", len(Vbins) - 1, Vbins)
 
@@ -40,7 +59,7 @@ def MakePlots(plots, GlobalSettings):
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xspline, areaB = areaB, undoNormB = undoNormB)
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xsectype, areaB = areaB, undoNormB = undoNormB)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -49,7 +68,7 @@ def MakePlots(plots, GlobalSettings):
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
             if plots["VBins"][0]:
                 histInfo = varBinInfo
-            if(plots["reWeight"][0]):
+            if reweight_flag:
                 hist = df.Histo1D(histInfo,plots["Var1"],"weights")
             else:
                 hist = df.Histo1D(histInfo,plots["Var1"])
@@ -57,7 +76,7 @@ def MakePlots(plots, GlobalSettings):
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
             if plots["VBins"][0]:
                 histInfo = varBinInfo
-            if(plots["reWeight"][0]):
+            if(reweight_flag):
                 hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"],"weights")
             else:
                 hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"])
@@ -134,6 +153,7 @@ def MakePlots(plots, GlobalSettings):
                 
 
 def MakeStacks(stacks,GlobalSettings):
+    reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder+ f'/*{stacks["Gen"]}*{stacks["Flux"]}*.root')
     if root_files == []:
@@ -146,7 +166,6 @@ def MakeStacks(stacks,GlobalSettings):
         #df = pp.CreateDataFrame(file_path, stacks["Cut"])
         df = pp.CreateDataFrame(file_path, cut="None")
         weight_col = ""
-        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = stacks["reWeight"]
         BinL = stacks["Bins"]
         AxisInfo = []
         cuts = []
@@ -161,7 +180,7 @@ def MakeStacks(stacks,GlobalSettings):
         if (GlobalSettings["ThresholdsB"]):
             df = pp.FlagParticleThresholds(df)
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xspline, areaB = areaB, undoNormB = undoNormB)
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xsectype, areaB = areaB, undoNormB = undoNormB)
             weight_col = "weights"
 
         if stacks.get("Cut"):
@@ -181,6 +200,7 @@ def MakeStacks(stacks,GlobalSettings):
 
 
 def MakeOverlap(overlap,GlobalSettings):
+    reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder + f'/*{overlap["Gen"]}*{overlap["Flux"]}*.root')
     if root_files == []:
@@ -192,10 +212,9 @@ def MakeOverlap(overlap,GlobalSettings):
         flux = file_name.split('_')[2]
         # df = pp.CreateDataFrame(file_path, overlap["Cut"])
         df = pp.CreateDataFrame(file_path, cut = "None")
-        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = overlap["reWeight"]
         weight_col = ""
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale=Fscale, xspline=xspline, areaB=areaB, undoNormB=undoNormB)
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale=Fscale, xspline=xsectype, areaB=areaB, undoNormB=undoNormB)
             weight_col = "weights"
         BinL = overlap["Bins"]
         AxisInfo = []
@@ -211,7 +230,7 @@ def MakeOverlap(overlap,GlobalSettings):
         if (GlobalSettings["ThresholdsB"]):
             df = pp.FlagParticleThresholds(df)
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xspline, areaB = areaB, undoNormB = undoNormB)
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xsectype, areaB = areaB, undoNormB = undoNormB)
             weight_col = "weights"
         if overlap.get("Cut"):
             df = df.Filter(overlap["Cut"])
@@ -278,7 +297,8 @@ def MakeSame1D(same1D,GlobalSettings):
         key = plot["Key"]
         color_str = plot["Color"]
         label = plot["Label"]
-        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = plot["reWeight"]
+
+        reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(plot)
         Var = plot["Var"]
         hist_order.append(key)
 
@@ -351,7 +371,7 @@ def MakeSame1D(same1D,GlobalSettings):
 
         if reweight_flag:
             print(f"UNDONORM : {undoNormB}")
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xspline, areaB = areaB, undoNormB = undoNormB)
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xsectype, areaB = areaB, undoNormB = undoNormB)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -564,6 +584,7 @@ def MakeSame1D(same1D,GlobalSettings):
     
 
 def MakeContour(Contour,GlobalSettings):
+    reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder + f'/*{Contour["Gen"]}*{Contour["Flux"]}*.root')
     if root_files == []:
@@ -591,7 +612,6 @@ def MakeContour(Contour,GlobalSettings):
             df = pp.FlagParticleThresholds(df)
         if Contour.get("Cut"):
             df = df.Filter(Contour["Cut"])
-        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = Contour["reWeight"]
 
         if reweight_flag:
             df, bin_integral_unnorm = pp.defineWeightsSpline(
@@ -599,12 +619,10 @@ def MakeContour(Contour,GlobalSettings):
                 rw_file,
                 rw_flux,
                 Fscale=Fscale,
-                xspline=xspline,
+                xspline=xsectype,
                 areaB=areaB,
                 undoNormB=undoNormB,
             )
-        # if(Contour["reWeight"][0]):
-        #     df, bin_integral_unnorm = pp.defineWeightsSpline(df, Contour["reWeight"][1], Contour["reWeight"][2], Fscale = Contour["reWeight"][3], areaB = Contour["reWeight"][4], undoNormB = Contour["reWeight"][5])
         for word in Contour["AxisInfo"].split(','):
                 AxisInfo.append(word)
         if Contour["AutoQuant"][0]:
@@ -669,6 +687,7 @@ def MakeContour(Contour,GlobalSettings):
 
 
 def MakeContourStyle(ContourStyle,GlobalSettings):
+    reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder + f'/*{ContourStyle["Gen"]}*{ContourStyle["Flux"]}*.root')
     if root_files == []:
@@ -701,7 +720,6 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
             df = pp.FlagParticleThresholds(df)
         if ContourStyle.get("Cut"):
             df = df.Filter(ContourStyle["Cut"])
-        reweight_flag, rw_file, rw_flux, Fscale, xspline, areaB, undoNormB = ContourStyle["reWeight"]
 
         if reweight_flag:
             df, bin_integral_unnorm = pp.defineWeightsSpline(
@@ -709,12 +727,10 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
                 rw_file,
                 rw_flux,
                 Fscale=Fscale,
-                xspline=xspline,
+                xspline=xsectype,
                 areaB=areaB,
                 undoNormB=undoNormB,
             )
-        # if(ContourStyle["reWeight"][0]):
-        #     df, bin_integral_unnorm = pp.defineWeightsSpline(df, ContourStyle["reWeight"][1], ContourStyle["reWeight"][2], Fscale = ContourStyle["reWeight"][3], areaB = ContourStyle["reWeight"][4], undoNormB = ContourStyle["reWeight"][5])
         for word in ContourStyle["AxisInfo"].split(','):
                 AxisInfo.append(word)
 

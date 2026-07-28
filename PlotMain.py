@@ -1,14 +1,26 @@
 import json5
 import os
+import sys
 import src.jsonreader as jsr
 import src.SetupFunctions as sf
 
 HOME = os.getenv("HOME", "/home/lboe")
 sf.setupRoot
 script_path = os.path.realpath(__file__)
+
+if sys.argv[1]:
+    Jsonfile = sys.argv[1]
+else:
+    Jsonfile = "PlotMain.json5"
+    print("Defaulting to PlotMain.json5")
+
+
 script_dir = script_path.replace("PlotMain.py","")
-f = open(f'{script_dir}/config/PlotMain.json5')
+f = open(f'{script_dir}config/{Jsonfile}')
 data = json5.load(f)
+
+if not data.get("global"):
+    raise ValueError(f"global dictionary not present in {script_dir}config/{Jsonfile}")
 
 GlobalSettings = data.get("global")
 if GlobalSettings["DebugMode"]:
@@ -72,17 +84,17 @@ if GlobalSettings["DebugMode"]:
         print("Quantiles Failed")
     print("DEBUG OVER")
 else:
-    if plots["Bool"]:
+    if plots:
         jsr.MakePlots(plots,GlobalSettings)
-    if stacks["Bool"]:
+    if stacks:
         jsr.MakeStacks(stacks,GlobalSettings)
-    if overlap["Bool"]:
+    if overlap:
         jsr.MakeOverlap(overlap,GlobalSettings)
-    if same1D["Bool"]:
+    if same1D:
         jsr.MakeSame1D(same1D,GlobalSettings)
-    if Contour["Bool"]:
+    if Contour:
         jsr.MakeContour(Contour,GlobalSettings)
-    if ContourStyle["Bool"]:
+    if ContourStyle:
         jsr.MakeContourStyle(ContourStyle,GlobalSettings)
-    if quantiles["Bool"]:
+    if quantiles:
         jsr.MakeQuantiles(same1D,GlobalSettings)
