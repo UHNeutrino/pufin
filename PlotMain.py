@@ -6,15 +6,13 @@ import src.SetupFunctions as sf
 HOME = os.getenv("HOME", "/home/lboe")
 sf.setupRoot
 script_path = os.path.realpath(__file__)
-# print(script_path)
 script_dir = script_path.replace("PlotMain.py","")
-print(script_dir)
-f = open(f'{script_dir}PlotMain.json5')
+f = open(f'{script_dir}/config/PlotMain.json5')
 data = json5.load(f)
 
 GlobalSettings = data.get("global")
 if GlobalSettings["DebugMode"]:
-    fD = open(f'{script_dir}debug.json5')
+    fD = open(f'{script_dir}/config/debug.json5')
     data = json5.load(fD)
     print("ACTIVATING DEBUG MODE")
     GlobalSettings["Save"] = script_dir + "DebugPlots"

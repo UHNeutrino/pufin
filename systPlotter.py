@@ -2,9 +2,8 @@ import json5
 import ROOT
 import os
 import datetime
-import ParticlePlots as pp 
-import SetupFunctions as sf
-import PlotQuantiles as pq
+import src.ParticlePlots as pp 
+import src.SetupFunctions as sf
 import glob
 import array
 
@@ -12,7 +11,9 @@ import array
 HOME = os.getenv("HOME", "/home/lboe")
 sf.setupRoot
 userFolder = f"/data/t2k-nova/FlatTrees"
-f = open(f'{HOME}/t2k-nova/sysMain.json5')
+script_path = os.path.realpath(__file__)
+script_dir = script_path.replace("systPlotter.py","")
+f = open(f'{script_dir}/config/sysMain.json5')
 data = json5.load(f)
 
 plots = data.get("plots")

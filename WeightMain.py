@@ -477,7 +477,7 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict, args):
 def parse_args():
     parser = argparse.ArgumentParser(description="PUfIN stage-2 weighting driver")
 
-    parser.add_argument("--config", default="WeightMain.json5")
+    parser.add_argument("--config", default="config/WeightMain.json5")
     parser.add_argument("--base-dir", default=None)
     parser.add_argument("--generator", default=None)
     parser.add_argument("--detector", default=None)
