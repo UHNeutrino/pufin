@@ -2,18 +2,12 @@
 
 from __future__ import annotations
 
-import argparse
-import array
-import json5
-import os
-import re
+import argparse, array, json5, os, re, ROOT
 from pathlib import Path
 
-import ROOT
-
-import GlobalV
-import ParticlePlots as pp
-import SetupFunctions as sf
+import src.GlobalV as GlobalV
+import src.ParticlePlots as pp
+import src.SetupFunctions as sf
 
 
 HOME = os.getenv("HOME", "/home/lboe")
