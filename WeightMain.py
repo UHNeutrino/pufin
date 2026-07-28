@@ -280,6 +280,101 @@ def save_outputs(total_hist, component_hists, same1d, global_settings):
     print(f"Saved {img_path}")
     return total_hist
 
+def calculate_target_weight_factors(
+    targets_cfg: dict,
+    detector: str,
+) -> dict:
+    """
+    Calculate the target normalization factor for every target
+    configured for a detector.
+
+    factor =
+        exp_pot
+        * fv_nucleon_targets
+        * target_percent
+        * xsec_units
+        * flux_cm_conv
+        / flux_pot
+        / flux_gev_norm
+    """
+
+    if detector not in targets_cfg:
+        available = sorted(targets_cfg.keys())
+        raise ValueError(f"Detector configuration '{detector}' was not found. Available configurations: {available}")
+
+    detector_cfg = targets_cfg[detector]
+
+    required_fields = [
+        "exp_pot",
+        "flux_pot",
+        "fv_nucleon_targets",
+        "xsec_units",
+        "flux_gev_norm",
+        "flux_cm_conv",
+        "target_percent",
+    ]
+
+    missing_fields = [
+        field
+        for field in required_fields
+        if field not in detector_cfg
+    ]
+
+    if missing_fields:
+        raise ValueError(
+            f"Configuration '{detector}' is missing fields: "
+            f"{missing_fields}"
+        )
+    
+    for field in required_fields[:-1]:
+        if detector_cfg[field] is None:
+            raise ValueError(
+                f"Configuration '{detector}' field "
+                f"'{field}' has not been assigned"
+            )
+
+    exp_pot = float(detector_cfg["exp_pot"])
+    flux_pot = float(detector_cfg["flux_pot"])
+    fv_nucleon_targets = float(detector_cfg["fv_nucleon_targets"])
+    xsec_units = float(detector_cfg["xsec_units"])
+    flux_gev_norm = float(detector_cfg["flux_gev_norm"])
+    flux_cm_conv = float(detector_cfg["flux_cm_conv"])
+
+    if flux_pot == 0:
+        raise ValueError(f"Configuration '{detector}' has flux_pot = 0")
+
+    if flux_gev_norm == 0:
+        raise ValueError(f"Configuration '{detector}' has flux_gev_norm = 0")
+
+    target_percents = detector_cfg["target_percent"]
+
+    if not isinstance(target_percents, dict):
+        raise TypeError(f"Configuration '{detector}' field 'target_percent' must be a dictionary")
+
+    if not target_percents:
+        raise ValueError(f"Configuration '{detector}' has no target percentages")
+
+    common_factor = (
+        exp_pot
+        * fv_nucleon_targets
+        * xsec_units
+        * flux_cm_conv
+        / flux_pot
+        / flux_gev_norm
+    )
+
+    target_weight_factors = {}
+
+    for target, percent in target_percents.items():
+        target_percent = float(percent)
+
+        if target_percent < 0:
+            raise ValueError(f"Target percentage for '{target}' cannot be negative")
+
+        target_weight_factors[target] = (common_factor * target_percent)
+
+    return target_weight_factors
+
 
 def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict, args):
     discovered = discover_pufin_files(
@@ -295,14 +390,19 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict, args):
         raise RuntimeError("No PUfIN files matched the requested selection")
 
     print_discovery_summary(grouped)
-
-    targets_file = os.path.expandvars(stage2["targets_file"])
+    targets_file = os.path.expanduser(os.path.expandvars(stage2["targets_file"]))
     targets_cfg = load_json5(targets_file)
+
+    detector = stage2["detector"]
+
+    target_weight_factors = calculate_target_weight_factors(
+        targets_cfg=targets_cfg,
+        detector=detector,
+    )
     
-    
-    target_weight_factors = targets_cfg.get("target_weight_factors", {})
-    if not target_weight_factors:
-        raise ValueError("targets file is missing 'target_weight_factors'")
+    print(f"\nUsing target normalization configuration: {detector}")
+    for target_name, factor in target_weight_factors.items():
+        print(f"  {target_name}: {factor:.18e}")
 
     same1d = stage2["same1D"]
     reweight_cfg = stage2["reWeight"]
@@ -321,7 +421,6 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict, args):
     areaB = reweight_cfg.get("areaB", False)
     undoNormB = reweight_cfg.get("undoNormB", False)
 
-    detector = args.detector or stage2["detector"]
     generator = args.generator or stage2["generator"]
 
     print("\n========== WEIGHTING ==========")
