@@ -1,15 +1,22 @@
 # Quick Reference
 
+> *...references under construction...*
+
+<details>
+
+<summary> <b>
+  Variable Keys
+</b> </summary>
 
 <table>
 <tr>
-<td valign="top">
 <!-- Opens Inline Tables -->
 
 <!-- Left Table -->
+<td valign="top">
 <table>
   <tr>
-    <b> &nbsp; Momentum </b>
+    <b> &nbsp; Heading 1 </b>
   </tr>
  <tr>
     <td><b>Variable</b></td>
@@ -30,9 +37,9 @@
 </table>
 
 </td>
-<td valign="top">
 
 <!-- Center Table -->
+<td valign="top">
 <table>
   <tr>
     <b> &nbsp; Heading 2 </b>
@@ -56,9 +63,9 @@
 </table>
 
 </td>
-<td valign="top">
 
 <!-- Right Table -->
+<td valign="top">
 <table>
   <tr>
     <b> &nbsp; Heading 3 </b>
@@ -80,18 +87,27 @@
     <td>Lorem ipsum ...</td>
  </tr>
 </table>
-
-<!-- Close Inline Table -->
 </td>
+
+<!-- Closes Inline Table -->
 </tr>
 </table>
 
+</details>
 
+
+<!-- Frequent Modes Dropdown -->
+<details>
+
+<summary> <b>
+  Frequently Used Modes
+</b> </summary>
 
 + RES *(neutrino mode CC1pi resonant events)*:  
   ```
   Mode == 11 && Mode == 12 && Mode == 13
   ```
+</details>
 
 # NEUTRINO MODES
 
