@@ -11,25 +11,63 @@ HOME = os.getenv("HOME", "/home/lboe")
 
 def GrabFluxReWeights(GlobalSettings):
     frwDict = GlobalSettings.get("FluxReweight")
+    
+    if not frwDict:
+        return [False, "", "", 1, "X", False, False, "", "", "", "", "", "", "", 1]
 
-    if frwDict:
-        reweight_flag = True
-        rw_file = frwDict.get("FluxPath")
-        rw_flux = frwDict.get("FluxHistogram")
-        Fscale = frwDict.get("Fscale")
-        xsectype = frwDict.get("XsecType")
-        areaB = frwDict.get("AreaNormFlag")
-        undoNormB = frwDict.get("UndoFluxNormFlag")
-
-        detector = frwDict.get("Detector")
-        target = frwDict.get("Target")
-        xsecpath = frwDict.get("XsecPath")
-        xsechist = frwDict.get("XsecHist")
-        nucpert = frwDict.get("NucleonsPerTarget")
-    return reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB
+    reweight_flag = True
+    rw_file = frwDict.get("FluxPath")
+    rw_flux = frwDict.get("FluxHistogram")
+    Fscale = frwDict.get("Fscale")
+    xsectype = frwDict.get("XsecType")
+    areaB = frwDict.get("AreaNormFlag")
+    undoNormB = frwDict.get("UndoFluxNormFlag")
+    xsecmode = frwDict.get("XsecMode")
+    flavor = frwDict.get("Flavor")
+    detector = frwDict.get("Detector")
+    target = frwDict.get("Target")
+    xsecpath = frwDict.get("XsecPath")
+    xsechist = frwDict.get("XsecHist")
+    nucpert = frwDict.get("NucleonsPerTarget")
+    
+    reweight_cfg = [
+        reweight_flag,
+        rw_file,
+        rw_flux,
+        Fscale,
+        xsectype,
+        areaB,
+        undoNormB,
+        xsecmode,
+        flavor,
+        detector,
+        target,
+        xsecpath,
+        xsechist,
+        nucpert,
+    ]
+    
+    return reweight_cfg
 
 def MakePlots(plots, GlobalSettings):
-    reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
+    reweight_cfg = GrabFluxReWeights(GlobalSettings)
+    (
+        reweight_flag,
+        rw_file,
+        rw_flux,
+        Fscale,
+        xsectype,
+        areaB,
+        undoNormB,
+        xsecmode,
+        flavor,
+        detector,
+        target,
+        xsecpath,
+        xsechist,
+        nucpert,
+    ) = reweight_cfg
+    
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder+ f'/*{plots["Gen"]}*{plots["Description"]}*.root')
     if root_files == []:
@@ -59,7 +97,7 @@ def MakePlots(plots, GlobalSettings):
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xsectype, areaB = areaB, undoNormB = undoNormB)
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -89,9 +127,9 @@ def MakePlots(plots, GlobalSettings):
         ################################################################
         #Histogram scaling for event rates
         if (Fscale != 1 or undoNormB) and weight_col:
-            target = bin_integral_unnorm
+            target_integral = bin_integral_unnorm
             current = hist.Integral() 
-            s = target / current
+            s = target_integral / current
             hist.Scale(s)
             if GlobalSettings["DebugPrint"] != 0:  
                 print("uncut bin integral")
@@ -406,13 +444,13 @@ def MakeSame1D(same1D,GlobalSettings):
         
         if reweight_flag:
             if (Fscale != 1 or undoNormB):
-                target = bin_integral_unnorm
+                target_integral = bin_integral_unnorm
                 current = df.Sum(weight_col).GetValue()
                 #current = hist.Integral() 
                 print(f"\n[{key}] Applying weight normalization factor")
-                print(f"target  = {target:.6e}")
+                print(f"target integral = {target:.6e}")
                 print(f"current = {current:.6e}")
-                s = target / current
+                s = target_integral / current
                 hist.Scale(s)
                 print("uncut scaled bin integral after weight normalization")
                 print(hist.Integral())  

@@ -1531,8 +1531,27 @@ def make_xsec_hist_like_flux(h_flux, g_cc, g_nc, name="h_xsec"):
     h_xsec.SetDirectory(0)
     return h_xsec    
 
-def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline = "", areaB = False, undoNormB = False):
-    flux_file = ROOT.TFile.Open(rwRootFile)
+# def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline = "", areaB = False, undoNormB = False):
+def defineWeightsSpline(df, reweight_cfg, label=""):
+    # Unpack the reweight_cfg list
+    (
+        reweight_flag,
+        rwRootFile,
+        histName,
+        Fscale,
+        xsectype,
+        areaB,
+        undoNormB,
+        xsecmode,
+        flavor,
+        detector,
+        target,
+        xsecpath,
+        xsechist,
+        nucpert,
+    ) = reweight_cfg
+    
+    flux_file = ROOT.TFile.Open(rwRootFile, "READ")
     hist = flux_file.Get(histName)  
     print(histName)
     hist.SetDirectory(0)  
@@ -1568,30 +1587,30 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
     print("spline width-integral0 (hist-like) =", spline_width_integral0)
     
     # ABSOLUTE SCALE: Convert bin normalized histo to "per-bin" contents and apply Fscale
-    if xspline:
-        Gen_code = xspline[0]
-        VersionCode = xspline.replace(Gen_code,"")
-        Genie_code = xspline if xspline.startswith("Genie") else ""
-    else:
-        Gen_code = "X"
-        VersionCode = "X"
-        Genie_code = ""
-    if Gen_code == "N" and VersionCode[0]=="R":
-        ChannelCode = VersionCode[-2] + VersionCode[-1]
-        VersionCode = VersionCode.replace(ChannelCode,"")
+    # if xspline:
+    #     Gen_code = xspline[0]
+    #     VersionCode = xspline.replace(Gen_code,"")
+    #     Genie_code = xspline if xspline.startswith("Genie") else ""
+    # else:
+    #     Gen_code = "X"
+    #     VersionCode = "X"
+    #     Genie_code = ""
+    # if Gen_code == "N" and VersionCode[0]=="R":
+    #     ChannelCode = VersionCode[-2] + VersionCode[-1]
+    #     VersionCode = VersionCode.replace(ChannelCode,"")
     # print(Gen_code)
     # print(VersionCode)
     # print(xspline)
     # exit()
 
-    if Genie_code == "GenieN24C":
-        pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root"
-        #pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/AR2320i00000-k250-e1000/data/xsec_graphs.root"
-        #pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/N1810j00000-k250-e1000-resfixfix/data/xsec_graphs.root"
-        #pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/G1810j00000-k250-e1000/data/xsec_graphs.root"
-        CCpath = "nu_mu_C12/tot_cc"
-        NCpath = "nu_mu_C12/tot_nc"
-        target_nucleons = 12
+    if xsectype == "G":
+        pathx = xsecpath
+        # CCpath = "nu_mu_C12/tot_cc"
+        # NCpath = "nu_mu_C12/tot_nc"
+        CCpath = f"{flavor}_{target}/tot_cc"
+        NCpath = f"{flavor}_{target}/tot_nc"
+        # target_nucleons = 12
+        
         # CCpath = "nu_mu_Ar40/tot_cc"
         # NCpath = "nu_mu_Ar40/tot_nc"
         # CCpath = "nu_mu_H1/tot_cc"
@@ -1648,29 +1667,30 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
         g_nc = g_nc.Clone("g_nc")
         fx.Close()
         
-    elif Genie_code == "GenieAr23Ar":
-        pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/AR2320i00000-k250-e1000/data/xsec_graphs.root"
-        CCpath = "nu_mu_Ar40/tot_cc"
-        NCpath = "nu_mu_Ar40/tot_nc"
-        target_nucleons = 40
+    # elif Genie_code == "GenieAr23Ar":
+    #     pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/AR2320i00000-k250-e1000/data/xsec_graphs.root"
+    #     CCpath = "nu_mu_Ar40/tot_cc"
+    #     NCpath = "nu_mu_Ar40/tot_nc"
+    #     target_nucleons = 40
 
-        fx = ROOT.TFile.Open(pathx, "READ")
-        if not fx or fx.IsZombie():
-            raise RuntimeError(f"Could not open xsec file: {pathx}")
+    #     fx = ROOT.TFile.Open(pathx, "READ")
+    #     if not fx or fx.IsZombie():
+    #         raise RuntimeError(f"Could not open xsec file: {pathx}")
 
-        g_cc = fx.Get(CCpath)
-        g_nc = fx.Get(NCpath)
-        if not g_cc or not g_nc:
-            fx.ls()
-            raise RuntimeError(f"Missing graph(s): CC={CCpath} NC={NCpath}")
+    #     g_cc = fx.Get(CCpath)
+    #     g_nc = fx.Get(NCpath)
+    #     if not g_cc or not g_nc:
+    #         fx.ls()
+    #         raise RuntimeError(f"Missing graph(s): CC={CCpath} NC={NCpath}")
 
-        # Optional: detach so closing file won’t kill them
-        g_cc = g_cc.Clone("g_cc")
-        g_nc = g_nc.Clone("g_nc")
-        fx.Close()
+    #     # Optional: detach so closing file won’t kill them
+    #     g_cc = g_cc.Clone("g_cc")
+    #     g_nc = g_nc.Clone("g_nc")
+    #     fx.Close()
 
     
-    elif Gen_code == "N" and VersionCode[0]=="T":
+    # elif Gen_code == "N" and VersionCode[0]=="T":
+    elif xsectype == "N":
         if VersionCode == "T564C":
             pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Carbontotpau.tbl"
             #NEUT5_6_4totpau.tbl
@@ -1738,7 +1758,8 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
         # Make spline
         neut_spline = ROOT.TSpline3("neut_spline", g)
         # print(str(neut_spline.Eval(1)))
-    elif Gen_code == "N" and VersionCode[0]=="R":
+    # elif Gen_code == "N" and VersionCode[0]=="R":
+    elif xsectype == "N":
         xs, ys = [], []
         if VersionCode == "R564C":
             xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root"
@@ -1791,7 +1812,7 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
         # exit()
         ##############
     
-    elif Gen_code == "X":
+    elif xsectype == "X":
         print("using no xsec rw")
     else:
         raise Exception("No Matching Generator code")
@@ -1814,7 +1835,8 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
         ########################################################################
         
         # evaluate CC/NC xsecs at this energy
-        if Genie_code in {"GenieN24C", "GenieAr23Ar"}:
+        # if Genie_code in {"GenieN24C", "GenieAr23Ar"}:
+        if xsectype == "G":
             CCxsec = float(g_cc.Eval(x))
             NCxsec = float(g_nc.Eval(x))
             # CC_n_xsec = float(g_cc_n.Eval(x))
@@ -1841,21 +1863,26 @@ def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline 
             # if CC_qel_n_xsec < 0: CC_qel_n_xsec = 0.0
             # if NC_n_xsec < 0: NC_n_xsec = 0.0
             # if NC_p_xsec < 0: NC_p_xsec = 0.0
-
-            #xsec = (CCxsec + NCxsec) / target_nucleons
-            xsec = CCxsec / target_nucleons
+            if xsecmode == "CC":
+                xsec = CCxsec / nucpert
+            elif xsecmode == "NC":
+                xsec = NCxsec / nucpert
+            elif xsecmode == "total":
+                xsec = (CCxsec + NCxsec) / nucpert
+            else:
+                raise ValueError("XsecMode must be either 'CC', 'NC' or 'total'")
             #xsec = CCxsec/12 
             #xsec = (CC_coh_xsec/12) + (CC_dis_xsec/12) + (CC_res_p_xsec/12) + (CC_res_n_xsec/12) + (CC_mec_xsec/12) + (CC_qel_n_xsec/12)
             #xsec = (CC_n_xsec/12) + (CC_p_xsec/12) + (CC_coh_xsec/12) + (CC_mec_xsec/12)
             #xsec = (CC_n_xsec/12) + (CC_p_xsec/12) + (NC_n_xsec/12) + (NC_p_xsec/12)
-        elif Gen_code == "N":
+        elif xsectype == "N":
             xsec = neut_spline.Eval(x)
             xsec *= 1e38
             if xsecTester<10:
                 xsecTester += 1
             if xsec < 0: xsec = 0.0
 
-        elif Gen_code == "X":
+        elif xsectype == "X":
             xsec = 1
             
         else:
