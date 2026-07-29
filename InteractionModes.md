@@ -3,7 +3,7 @@
 > *...references under construction...*
 
 <!-- Variable Keys Dropdown -->
-<details open>
+<details>
 
 <summary> <b>
   Variable Keys
@@ -90,17 +90,30 @@
   ```
 </details>
 
-# NEUTRINO MODES
+# Interaction Modes
 
-## CHARGED CURRENT
+## NEUTRINO MODES
+---
+### Charged Current
 
-### ELASTIC
+<!-- ########## -->
+<details>
+<summary> <b>
+ELASTIC
+</b> </summary>
+
 ```
      1 : NEU,N --> LEPTON-,P
      2 : NEU,N+X --> LEPTON-,P+X  (X=(N or P))
 ```
+</details>
 
-### SINGLE PI FROM DELTA RESONANCE
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE PI FROM DELTA RESONANCE
+</b> </summary>
+  
 ```
     11 : NEU,P --> LEPTON-,P,PI+
     12 : NEU,N --> LEPTON-,P,PI0
@@ -109,42 +122,89 @@
     15 : NEU,P --> LEPTON-,P,PI+  ( diffractive )
     16 : NEU,O(16) --> LEPTON-,O(16),PI+
 ```
+</details>
 
-### SINGLE GAMMA FROM DELTA RESONANCE
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE GAMMA FROM DELTA RESONANCE
+</b> </summary>
+
 ```
     17 : NEU,N --> LEPTON-,P,GAMMA
 ```
+</details>
 
-### SINGLE K : STRANGENESS VIOLATED MODE
+
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE K : STRANGENESS VIOLATED MODE
+</b> </summary>
+
 ```
     18 : NEU,N --> LEPTON-,N,K+
     19 : NEU,N --> LEPTON-,P,K0
     20 : NEU,N --> LEPTON-,P,K+
 ```
+</details>
 
-### MULTI PI (1.3 < W < 2.0 GeV)
+
+<!-- ########## -->
+<details>
+<summary> <b>
+MULTI PI (1.3 < W < 2.0 GeV)
+</b> </summary>
+
 ```
     21 : NEU,(N OR P) --> LEPTON-,(N OR P),MULTI PI
 ```
+</details>
 
-### SINGLE ETA FROM DELTA RESONANCE
+
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE ETA FROM DELTA RESONANCE
+</b> </summary>
+
 ```
     22 : NEU,N --> LEPTON-,P,ETA0
 ```
+</details>
 
-### SINGLE K FROM DELTA RESONANCE
+
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE K FROM DELTA RESONANCE
+</b> </summary>
+
 ```
     23 : NEU,N --> LEPTON-,LAMBDA,K+
 ```
+</details>
 
-### DEEP INELASTIC (2.0 GeV < W, JET set)
+<!-- ########## -->
+<details>
+<summary> <b>
+DEEP INELASTIC (2.0 GeV < W, JET set)
+</b> </summary>
+
 ```
     26 : NEU,(N OR P) --> LEPTON-,(N OR P),MESONS
 ```
+</details>
 
-## NEUTRAL CURRENT
+---
+### Neutral Current
 
-### SINGLE PI FROM DELTA RESONANCE
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE PI FROM DELTA RESONANCE
+</b> </summary>
+
 ```
     31 : NEU,N --> NEU,N,PI0
     32 : NEU,P --> NEU,P,PI0
@@ -154,52 +214,110 @@
     35 : NEU,P --> NEU,P,PI0 ( diffractive )
     36 : NEU,O(16) --> NEU,O(16),PI0
 ```
+</details>
 
-### SINGLE GAMMA FROM DELTA RESONANCE
+
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE GAMMA FROM DELTA RESONANCE
+</b> </summary>
+
 ```
     38 : NEU,N --> NEU,N,GAMMA
     39 : NEU,P --> NEU,P,GAMMA
 ```
+</details>
 
-### MULTI PI (1.3 GeV < W < 2.0 GeV)
+
+<!-- ########## -->
+<details>
+<summary> <b>
+MULTI PI (1.3 GeV < W < 2.0 GeV)
+</b> </summary>
+
 ```
     41 : NEU,(N OR P) --> NEU,(N OR P),MULTI PI
 ```
+</details>
 
-### SINGLE ETA FROM DELTA RESONANCE
+
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE ETA FROM DELTA RESONANCE
+</b> </summary>
+
 ```
     42 : NEU,N --> NEU,N,ETA0
     43 : NEU,P --> NEU,P,ETA0
 ```
+</details>
 
-### SINGLE K FROM DELTA RESONANCE
+
+
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE K FROM DELTA RESONANCE
+</b> </summary>
+
 ```
     44 : NEU,N --> NEU,LAMBDA,K0
     45 : NEU,P --> NEU,LAMBDA,K+
 ```
+</details>
 
-### DEEP INELASTIC (2.0 GeV < W, JET set)
+
+<!-- ########## -->
+<details>
+<summary> <b>
+DEEP INELASTIC (2.0 GeV < W, JET set)
+</b> </summary>
+
 ```
     46 : NEU,(N OR P) --> NEU,(N OR P),MESONS
 ```
+</details>
 
-### ELASTIC
+
+
+<!-- ########## -->
+<details>
+<summary> <b>
+ELASTIC
+</b> </summary>
+
 ```
     51 : NEU,P --> NEU,P
     52 : NEU,N --> NEU,N
 ```
+</details>
 
-# ANTI NEUTRINO MODES
 
-## CHARGED CURRENT
+## ANTI NEUTRINO MODES
+---
+### Charged Current
 
-### ELASTIC
+<!-- ########## -->
+<details>
+<summary> <b>
+ELASTIC
+</b> </summary>
+
 ```
     -1 : NEUBAR,P --> LEPTON+,N
     -2 : NEU,P+X  --> LEPTON-,N+X  (X=(N or P))
 ```
+</details>
 
-### SINGLE PI FROM DELTA RESONANCE
+
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE PI FROM DELTA RESONANCE
+</b> </summary>
+
 ```
    -11 : NEUBAR,N --> LEPTON+,N,PI-
    -12 : NEUBAR,P --> LEPTON+,N,PI0
@@ -208,35 +326,80 @@
    -15 : NEUBAR,P --> LEPTON+,P,PI-  ( diffractive )
    -16 : NEUBAR,O(16) --> LEPTON+,O(16),PI-
 ```
+</details>
+ 
 
-### SINGLE GAMMA FROM DELTA RESONANCE
+
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE GAMMA FROM DELTA RESONANCE
+</b> </summary>
+
 ```
    -17 : NEUBAR,P --> LEPTON+,N,GAMMA
 ```
+</details>
 
-### MULTI PI (W > 1.4 GeV)
+
+
+<!-- ########## -->
+<details>
+<summary> <b>
+MULTI PI (W > 1.4 GeV)
+</b> </summary>
+
 ```
    -21 : NEUBAR,(N OR P) --> LEPTON+,(N OR P),MULTI PI
 ```
+</details>
 
-### SINGLE ETA FROM DELTA RESONANCE
+
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE ETA FROM DELTA RESONANCE
+</b> </summary>
+
 ```
    -22 : NEUBAR,P --> LEPTON+,N,ETA0
 ```
+</details>
 
-### SINGLE K FROM DELTA RESONANCE
+
+
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE K FROM DELTA RESONANCE
+</b> </summary>
+
 ```
    -23 : NEUBAR,P --> LEPTON+,LAMBDA,K0
 ```
+</details>
 
-### DEEP INELASTIC (2.0 GeV < W, JET set)
+
+<!-- ########## -->
+<details>
+<summary> <b>
+DEEP INELASTIC (2.0 GeV < W, JET set)
+</b> </summary>
+
 ```
    -26 : NEUBAR,(N OR P) --> LEPTON+,(N OR P),MESONS
 ```
+</details>
 
-## NEUTRAL CURRENT
+---
+### Neutral Current
 
-### SINGLE PI FROM DELTA RESONANCE
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE PI FROM DELTA RESONANCE
+</b> </summary>
+
 ```
    -31 : NEUBAR,N --> NEUBAR,N,PI0
    -32 : NEUBAR,P --> NEUBAR,P,PI0
@@ -246,37 +409,88 @@
    -35 : NEUBAR,P --> LEPTON+,P,PI0  ( diffractive )
    -36 : NEUBAR,O(16) --> NEUBAR,O(16),PI0
 ```
+</details>
 
-### SINGLE GAMMA FROM DELTA RESONANCE
+
+
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE GAMMA FROM DELTA RESONANCE
+</b> </summary>
+
 ```
    -38 : NEUBAR,N --> NEUBAR,N,GAMMA
    -39 : NEUBAR,P --> NEUBAR,P,GAMMA
 ```
+</details>
 
-### MULTI PI (W > 1.4 GeV)
+
+
+<!-- ########## -->
+<details>
+<summary> <b>
+ MULTI PI (W > 1.4 GeV)
+</b> </summary>
+
 ```
    -41 : NEUBAR,(N OR P) --> NEUBAR,(N OR P),MULTI PI
 ```
+</details>
 
-### SINGLE ETA FROM DELTA RESONANCE
+
+
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE ETA FROM DELTA RESONANCE
+</b> </summary>
+
 ```
    -42 : NEUBAR,N --> NEUBAR,N,ETA0
    -43 : NEUBAR,P --> NEUBAR,P,ETA0
 ```
+</details>
 
-### SINGLE K FROM DELTA RESONANCE
+
+
+<!-- ########## -->
+<details>
+<summary> <b>
+SINGLE K FROM DELTA RESONANCE
+</b> </summary>
+
 ```
    -44 : NEUBAR,N --> NEUBAR,LAMBDA,K0
    -45 : NEUBAR,P --> NEUBAR,LAMBDA,K+
 ```
+</details>
 
-### DEEP INELASTIC (2.0 GeV < W, JET set)
+
+
+<!-- ########## -->
+<details>
+<summary> <b>
+DEEP INELASTIC (2.0 GeV < W, JET set)
+</b> </summary>
+
 ```
    -46 : NEUBAR,(N OR P) --> NEUBAR,(N OR P),MESONS
 ```
+</details>
 
-### ELASTIC
+
+
+<!-- ########## -->
+<details>
+<summary> <b>
+ELASTIC
+</b> </summary>
+
 ```
    -51 : NEUBAR,P --> NEUBAR,P
    -52 : NEUBAR,N --> NEUBAR,N
 ```
+</details>
+
+
