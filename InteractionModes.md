@@ -2,90 +2,61 @@
 
 > *...references under construction...*
 
-<details>
+<!-- Variable Keys Dropdown -->
+<details open>
 
 <summary> <b>
   Variable Keys
 </b> </summary>
 
+<!-- Opens Inline Tables -->
 <table>
 <tr>
-<!-- Opens Inline Tables -->
-
+  
 <!-- Left Table -->
 <td valign="top">
 <table>
-  <tr>
-    <b> &nbsp; Heading 1 </b>
-  </tr>
- <tr>
-    <td><b>Variable</b></td>
-    <td><b>Key</b></td>
- </tr>
- <tr>
-    <td> q<sub>0</sub> </td>
-    <td>q0</td>
- </tr>
- <tr>
-    <td> q<sub>3</sub> </td>
-    <td> q3 </td>
- </tr>
- <tr>
-    <td> Q<sup>2</sup> </td>
-    <td> Q2 </td>
- </tr>
+ <tr> <h2> &nbsp; Heading 1 </h2> </tr>
+ <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+ <tr> <td> q<sub>0</sub> </td>   <td>q0</td>         </tr>
+ <tr> <td> q<sub>3</sub> </td>   <td> q3 </td>       </tr>
+ <tr> <td> Q<sup>2</sup> </td>   <td> Q2 </td>       </tr>
 </table>
-
 </td>
-
+  
 <!-- Center Table -->
 <td valign="top">
 <table>
-  <tr>
-    <b> &nbsp; Heading 2 </b>
-  </tr>
- <tr>
-    <td><b>Variable</b></td>
-    <td><b>Key</b></td>
- </tr>
- <tr>
-    <td>Lorem ipsum ...</td>
-    <td>Lorem ipsum ...</td>
- </tr>
- <tr>
-    <td>Lorem ipsum ...</td>
-    <td>Lorem ipsum ...</td>
- </tr>
- <tr>
-    <td>Lorem ipsum ...</td>
-    <td>Lorem ipsum ...</td>
- </tr>
+  <tr> <h2> &nbsp; Heading 2 </h2> </tr>
+  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
 </table>
-
 </td>
 
 <!-- Right Table -->
 <td valign="top">
 <table>
-  <tr>
-    <b> &nbsp; Heading 3 </b>
-  </tr>
- <tr>
-    <td><b>Variable</b></td>
-    <td><b>Key</b></td>
- </tr>
- <tr>
-    <td>Lorem ipsum ...</td>
-    <td>Lorem ipsum ...</td>
- </tr>
- <tr>
-    <td>Lorem ipsum ...</td>
-    <td>Lorem ipsum ...</td>
- </tr>
- <tr>
-    <td>Lorem ipsum ...</td>
-    <td>Lorem ipsum ...</td>
- </tr>
+  <tr> <h2> &nbsp; Flags & Modes </h2> </tr>
+  <p> note: <small> NC = Neutral Current, CC = Charged Current </small></p>
+  
+  <tr><td><b>Variable:</b></td>   <td><b>Key:</b></td> </tr>
+  <tr> <td> Flag all CC interactions </td>   <td> flagCCINC </td> </tr>
+  <tr> <td> '' all NC '' </td>   <td> flagNCINC </td> </tr>
+  <tr> <td> '' CC Quasi Elastic '' </td>   <td> flagCCQE </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagCC0pi </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagCCQELike </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNCEL </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNC0pi </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagCCcoh </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNCcoh </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagCC1pip </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNC1pip </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagCC1pim </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNC1pim </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagCC1pi0 </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNC1pi0 </td> </tr>
+  <tr> <td> Interaction Modes (see below) </td>   <td> Mode</td> </tr>
 </table>
 </td>
 
@@ -93,6 +64,16 @@
 </tr>
 </table>
 
+</details>
+
+<!-- Extended Variables Dropdown -->
+<details>
+<summary> <b>
+  Extended Variable Descriptions
+</b> </summary>
+
+>This is empty right now :)
+  
 </details>
 
 
