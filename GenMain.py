@@ -863,6 +863,52 @@ def CheckNeutFiles(CardNames, NChunks):
 
     return FileNames
 
+def GenNeutSingleFile(File):
+    TempString = File[:-9]
+    TempString = TempString + ".card"
+    Card = TempString.replace("Original_", "")
+    TargetLabel = Card.split("_")[5]
+    Target = GlobalV.NeutLabelTargets.get(TargetLabel)
+    GenDir = OutPath + f"/NEUT/{Target}"
+    GenName = File
+    f = GenDir + f"/{GenName}"
+    # wait time to hopefully not overload the memeory in a node
+    waitTime = random.randrange(0,5)
+    time.sleep(waitTime)
+    
+    #Move over fluxes for generation
+    FluxToTemp()
+
+    RunBool = not os.path.exists(f)
+    if RunBool == False:
+        try:
+            RFile = ROOT.TFile(f)
+            if RFile.IsZombie():
+                os.remove(f) #if it failed previously, delete the zombie and regenerate 
+                RunBool = True
+            elif not RFile.Get("fluxhisto"):
+                os.remove(f) #same thing if it is missing fluxhisto
+                RunBool = True
+            RFile.Close()
+        except:
+            os.remove(f)
+            RunBool = True
+    output_text = open(f"{tmpdir}/{GenName}.text", "w")
+    if RunBool:
+        exec_string=""
+        exec_string += f"neutroot2 {Card} {GenName}"
+        #print(f">>>>>>>>>>>>>>>>>>>>Running Genertation of {GenName} now")
+        output_text.write(f">>>>>>>Running Generation of {GenName} again...\n")
+        output_text.flush()
+        subprocess.run(exec_string.split(), cwd=tmpdir)
+        output_text.write(f"Generated {GenName}<<<<<<<<<<<<<\n")
+        output_text.flush()
+        shutil.move(f"{tmpdir}/{GenName}", os.path.join(GenDir, GenName))   
+        #print(f"Generated {GenName}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+    else:
+        print("Original File exists")
+    return RunBool
+
 
 def GenNeutFlatSingleFile(File, Card):
     TargetLabel = Card.split("_")[5]
@@ -872,7 +918,7 @@ def GenNeutFlatSingleFile(File, Card):
     GenName = File
     f = GenDir + f"/{GenName}"
     # wait time to hopefully not overload the memeory in a node
-    waitTime = random.randrange(0,5)
+    waitTime = random.randrange(0,10)
     time.sleep(waitTime)
     
 
@@ -956,7 +1002,6 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
 
 def FlatNeut(GenList):
     #Flattens for every given generated file
-
     for Gen in GenList:
         TargetLabel = Gen.split("_")[6]
         Target = GlobalV.NeutLabelTargets.get(TargetLabel)
@@ -986,7 +1031,16 @@ def FlatNeut(GenList):
             
             if (Genf.IsZombie()) or (not Genf.Get("fluxhisto")):
                 Genf.Close()
-                raise RuntimeError("Generation of file failed, cannot flatten")
+                os.remove(f)
+                GenNeutSingleFile(Gen)  #Try to regenerate once if it failed before
+                try:
+                    Genf = ROOT.TFile(GenPath)
+                except:
+                    raise RuntimeError("Cannot open file")
+                if (Genf.IsZombie()) or (not Genf.Get("fluxhisto")):
+                    raise RuntimeError("Generation of file failed twice. Cannot Flatten")
+                else:
+                    print("Regenerated, ready to flatten now")
             Genf.Close()
             exec_string=""
             exec_string += f"nuisflat -i NEUT:{Gen} -o {FlatName}"
