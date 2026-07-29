@@ -29,7 +29,7 @@ source /data/t2k-nova/MainSetup.sh
 > *UH SSH only*
 <!-- Universal setup script coming soon? -->
 
-## Setup for plotting with ```main.py```
+## Setup for ```PlotMain.py```
 After installing PUfIN using:
 ```
 git clone https://github.com/UHNeutrino/PUfIN/
@@ -56,7 +56,7 @@ git clone https://github.com/UHNeutrino/PUfIN/
   ```
   (.venv) [username@domain:~]$ pip install json5 numpy
   ```
-  + To point the interpreter in VSCode to the venv you just created, navigate to the Command Palette using ```Ctrl + Shift + P```, type and select ```Python: Select Interpreter```, and enter or select ```your_venv_folder/bin/python```
+  + To point the interpreter in VSCode to the venv you just created, navigate to the Command Palette using <kbd> Ctrl </kbd> + <kbd> Shift </kbd> + <kbd> P </kbd> , type and select ```Python: Select Interpreter```, and enter or select ```your_venv_folder/bin/python```
 
 + Change user specific file paths (optional)
   + In ```jsonreader.py``` and ```main.py``` change the home directory to 
@@ -73,3 +73,5 @@ git clone https://github.com/UHNeutrino/PUfIN/
    
 
 To create plots, edit and activate (by setting ```"Bool": true```) ONE of the plotting modes within ```config/PlotMain.json5```, then run ```PlotMain.py```
+> Above plotting method is outdated
+<!-- Add new plotting method/config management instructions -->
