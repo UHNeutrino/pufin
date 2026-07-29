@@ -763,7 +763,6 @@ def GenNeut(CardNames):
         TargetLabel = Card.split("_")[5]
         Target = GlobalV.NeutLabelTargets.get(TargetLabel)
         GenDir = OutPath + f"/NEUT/{Target}"
-        # print(Target)
         GenName = Card.replace("NEUT", "Original_NEUT")
         GenName = GenName.replace(".card",".root")
         GenList.append(GenName)
@@ -818,7 +817,6 @@ def CheckNeutFiles(CardNames, NChunks):
         if TempChunks < 1:
             TempChunks = 1
         
-        # print(Target)
         for i in range(TempChunks):
             GenName = Card.replace("NEUT", "Flat_NEUT")
             GenName = GenName.replace(".card",f"P{i:03}.root")
@@ -975,7 +973,7 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
         if os.path.exists(f"{tmpdir}/{Card}"):
             os.remove(f"{tmpdir}/{Card}")
 
-    print("FILE GENERATION ON NODE FINISHED, BYE BYE")
+    print("---------------------------FILE GENERATION ON NODE FINISHED, BYE BYE----------------------------------")
 
     return RunList
 
@@ -986,8 +984,6 @@ def FlatNeut(GenList):
         TargetLabel = Gen.split("_")[6]
         Target = GlobalV.NeutLabelTargets.get(TargetLabel)
         GenDir = OutPath + f"/NEUT/{Target}"
-        print(f"Target label: {TargetLabel}")
-        print(f"Target: {Target}")
         FlatName = Gen.replace("Original", "Flat")
         f = GenDir + f"/{FlatName}"
         RunBool = not os.path.exists(f)
@@ -1001,14 +997,9 @@ def FlatNeut(GenList):
                 os.remove(f)
                 print("file messed up, deleted")
                 RunBool = True
-                # raise RuntimeError("Flattening bc of OSError")
             if not RunBool and ((not RFile) or (not RFile.Get("FlatTree_VARS")) or  (RFile.IsZombie())):
                 if RFile:
                     RFile.Close()
-                # if (not RFile.Get("FlatTree_VARS")):
-                #     raise RuntimeError("Flattening bc of Flattree Vars")
-                # elif (RFile.IsZombie()):
-                #     raise RuntimeError("Flattening bc of Zombie")
                 os.remove(f) #if it failed previously, delete the zombie and regenerate 
                 RunBool = True
             else:
@@ -1038,7 +1029,6 @@ def FlatNeut(GenList):
             exec_string += f"nuisflat -i NEUT:{Gen} -o {FlatName}"
             # run command in Gen dir
             subprocess.run(exec_string, cwd=GenDir, shell=True)
-            # print(exec_string)
             print(f"Generated {FlatName}")
         else:
             print(f"NEUT FILE {FlatName} exists and works")
