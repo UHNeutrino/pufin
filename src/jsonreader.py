@@ -31,9 +31,9 @@ def GrabFluxReWeights(GlobalSettings):
 def MakePlots(plots, GlobalSettings):
     reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
     userFolder = GlobalSettings["userFolder"]
-    root_files = glob.glob( userFolder+ f'/*{plots["Gen"]}*{plots["Flux"]}*.root')
+    root_files = glob.glob( userFolder+ f'/*{plots["Gen"]}*{plots["Description"]}*.root')
     if root_files == []:
-        printMsg =  "NO such root files:"+f'/*{plots["Gen"]}*{plots["Flux"]}*.root'
+        printMsg =  "NO such root files:"+f'/*{plots["Gen"]}*{plots["Description"]}*.root'
         print(printMsg)
 
     for file_path in root_files:
@@ -155,7 +155,7 @@ def MakePlots(plots, GlobalSettings):
 def MakeStacks(stacks,GlobalSettings):
     reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
     userFolder = GlobalSettings["userFolder"]
-    root_files = glob.glob( userFolder+ f'/*{stacks["Gen"]}*{stacks["Flux"]}*.root')
+    root_files = glob.glob( userFolder+ f'/*{stacks["Gen"]}*{stacks["Description"]}*.root')
     if root_files == []:
         print("NO such root files")
 
@@ -202,7 +202,7 @@ def MakeStacks(stacks,GlobalSettings):
 def MakeOverlap(overlap,GlobalSettings):
     reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
     userFolder = GlobalSettings["userFolder"]
-    root_files = glob.glob( userFolder + f'/*{overlap["Gen"]}*{overlap["Flux"]}*.root')
+    root_files = glob.glob( userFolder + f'/*{overlap["Gen"]}*{overlap["Description"]}*.root')
     if root_files == []:
         print("NO such root files")
         
@@ -586,7 +586,7 @@ def MakeSame1D(same1D,GlobalSettings):
 def MakeContour(Contour,GlobalSettings):
     reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
     userFolder = GlobalSettings["userFolder"]
-    root_files = glob.glob( userFolder + f'/*{Contour["Gen"]}*{Contour["Flux"]}*.root')
+    root_files = glob.glob( userFolder + f'/*{Contour["Gen"]}*{Contour["Description"]}*.root')
     if root_files == []:
         print("NO such root files")
 
@@ -689,7 +689,7 @@ def MakeContour(Contour,GlobalSettings):
 def MakeContourStyle(ContourStyle,GlobalSettings):
     reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
     userFolder = GlobalSettings["userFolder"]
-    root_files = glob.glob( userFolder + f'/*{ContourStyle["Gen"]}*{ContourStyle["Flux"]}*.root')
+    root_files = glob.glob( userFolder + f'/*{ContourStyle["Gen"]}*{ContourStyle["Description"]}*.root')
     if root_files == []:
         print("NO such root files")
 

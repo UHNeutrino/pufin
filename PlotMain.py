@@ -75,13 +75,6 @@ if GlobalSettings["DebugMode"]:
         jsr.MakeContourStyle(ContourStyle,GlobalSettings)
     except:
         print("Contour Style Failed")
-
-    print("Starting Quantiles")
-
-    try:
-        jsr.MakeQuantiles(same1D,GlobalSettings)
-    except:
-        print("Quantiles Failed")
     print("DEBUG OVER")
 else:
     if plots:

@@ -36,7 +36,7 @@
             "reWeight":[true, "/data/t2k-nova/fluxes/21bv2/run4/nd5_tuned21bv2_13anom_run4_numode_fine.root","enu_nd5_21b_real_numu", 9.870e-9, "NR564TiCC", false, true],
             // "reWeight":[true, "/data/t2k-nova/fluxes/Extracted/ExtractedProd6NumuOnC_TravisFlux_Ratio.root","h2", 1.244873749e-11, "G", false, false],
             "Gen":"NEUT5.6.4",
-            "Flux":"FFCConTi7ECard",
+            "Description":"FFCConTi7ECard",
             "Type":"1D",
             // Specify the cut for the dataframe. For no cuts, type ""
             "Cut": "",
@@ -58,7 +58,7 @@
             "Bool":false,
             "reWeight":[false, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 1, "", true, false],
             "Gen":"NEUT5.6.4",
-            "Flux":"FFCH7ECard",
+            "Description":"FFCH7ECard",
             "Type":"1D", //Only 1D works
             "Cut": "flagCCINC == true && tgt == 1000010010", // For no cuts, type ""
             "Var1": "Enu_true",
@@ -78,7 +78,7 @@
             "Bool": false,
             "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 1, "", true, false],
             "Gen":"NEUT5.9",
-            "Flux":"flatf_1e7",
+            "Description":"flatf_1e7",
             "Type":"1D",
             "Cut": "", // For no cuts, type ""
             "Var1": "Enu_true",
@@ -155,7 +155,7 @@
             "Bool": false,
             "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 2.75e-7, "N", false, true],
             "Gen":"Flat_NEUT5.9",
-            "Flux":"flatf_1e7",
+            "Description":"flatf_1e7",
             "Cut": "", // For no cuts, type ""
             "Var1":"q0",
             "Var2":"q3",
@@ -174,7 +174,7 @@
             "Bool": false,
             "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 2.75e-7, "N", false, true],
             "Gen":"Flat_NEUT5.9",
-            "Flux":"flatf_1e7",
+            "Description":"flatf_1e7",
             "Cut": "", // For no cuts, type "", this is the inital cut that applies to all events
             "Var1":"q0",
             "Var2":"q3",
