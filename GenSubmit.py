@@ -46,6 +46,8 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
     # Sort NuMu to the front so it gets distributed equally
     FileNames = sorted(FileNames, key=lambda x: "_NuMu_" not in x)
 
+    if len(FileNames) < TotalNodes:
+        TotalNodes = len(FileNames)
 
     for Node in range(0,TotalNodes):
         NodeFiles = FileNames[Node::TotalNodes] #split up card name based on number of nodes
