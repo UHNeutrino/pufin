@@ -657,33 +657,8 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=No
                         if not GlobalV.NeutCardTunes.get(Tune):
                             raise ValueError(f"Tune {Tune} Does Not Exist")
                         CardString = CardString + GlobalV.NeutCardTunes.get(Tune)
-                        if Flavor=="NuMu":
-                            CardString = CardString + f"\nEVCT-NEVT {Events}\n"
-                            CardString = CardString + GlobalV.NeutCardModes.get(Mode)
-                        elif Flavor=="NuMuBar":
-                            SpecialEvent = int(Events/10)
-                            if SpecialEvent < 1000:
-                                SpecialEvent = 1000
-                            CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
-                            CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
-                            CardString = CardString + GlobalV.AntiNeutCardModes.get(Mode)
-                        elif Flavor=="NuE":
-                            SpecialEvent = int(Events/100)
-                            if SpecialEvent < 1000:
-                                SpecialEvent = 1000
-                            CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
-                            CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
-                            CardString = CardString + GlobalV.NeutCardModes.get(Mode)
-                        elif Flavor=="NuEBar":
-                            SpecialEvent = int(Events/100)
-                            if SpecialEvent < 1000:
-                                SpecialEvent = 1000
-                            CardString = CardString + f"\nEVCT-NEVT {SpecialEvent}\n"
-                            CName = CName.replace(f"{Events:.0e}",f"{SpecialEvent:.0e}").replace("+", "")
-                            CardString = CardString + GlobalV.AntiNeutCardModes.get(Mode)
-                        else:
-                            raise ValueError("UNKNOWN FLAVOR")
-                        
+                        CardString = CardString + f"\nEVCT-NEVT {Events}\n"
+                        CardString = CardString + GlobalV.NeutCardModes.get(Mode)
                         CardString = CardString + GlobalV.NeutCardFlavors.get(Flavor)
                         CardString = CardString + GlobalV.NeutCardTargets.get(Target)
                         tempErange = CName.split("_")[-3]
@@ -694,9 +669,6 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=No
                             CardString = CardString.replace("EVCT-HISTNM 'FlatHist'",f"EVCT-HISTNM 'FlatHist_{low}''" )
                         else:
                             CardString = CardString.replace("EVCT-HISTNM 'FlatHist'",f"EVCT-HISTNM 'FlatHist_{low}''" )
-
-                            
-
                         if Target == "Titanium":
                             # This is here because Neut can't generate titanium with certain QE models
                             if "NEUT-MDLQE 402" in CardString:
@@ -842,6 +814,10 @@ def CheckNeutFiles(CardNames, NChunks):
             TempChunks = int(NChunks/100)
         else:
             raise ValueError(f"No Such Flavor {Flavor}")
+        
+        if TempChunks < 1:
+            TempChunks = 1
+        
         # print(Target)
         for i in range(TempChunks):
             GenName = Card.replace("NEUT", "Flat_NEUT")
@@ -859,7 +835,7 @@ def CheckNeutFiles(CardNames, NChunks):
                 if not RunBool and ((not RFile) or RFile.IsZombie()):
                     os.remove(f) #if it failed previously, delete the zombie and regenerate 
                     RunBool = True
-                elif not RFile.Get("fluxhisto") and not RunBool:
+                elif not RFile.Get("FlatTree_VARS") and not RunBool:
                     os.remove(f) #same thing if it is empty
                     RunBool = True
                 RFile.Close()
@@ -965,7 +941,6 @@ def GenNeutFlatSingleFile(File, Card):
     return RunBool
 
 def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
-    #THIS SHOULD NOT BE RUN ON ITS OWN, ONLY CALLED BY GENSUBMIT.PY
     if CPUPercent > 1 and CPUPercent <= 100:
         CPUPercent /= 100
     elif CPUPercent > 100 or CPUPercent < 0:
@@ -1016,6 +991,9 @@ def FlatNeut(GenList):
         FlatName = Gen.replace("Original", "Flat")
         f = GenDir + f"/{FlatName}"
         RunBool = not os.path.exists(f)
+        # if RunBool:
+        #     raise RuntimeError(f"Flattening None exist {f}??")
+
         if RunBool == False:
             try:
                 RFile = ROOT.TFile.Open(f)
@@ -1023,9 +1001,14 @@ def FlatNeut(GenList):
                 os.remove(f)
                 print("file messed up, deleted")
                 RunBool = True
+                # raise RuntimeError("Flattening bc of OSError")
             if not RunBool and ((not RFile) or (not RFile.Get("FlatTree_VARS")) or  (RFile.IsZombie())):
                 if RFile:
                     RFile.Close()
+                # if (not RFile.Get("FlatTree_VARS")):
+                #     raise RuntimeError("Flattening bc of Flattree Vars")
+                # elif (RFile.IsZombie()):
+                #     raise RuntimeError("Flattening bc of Zombie")
                 os.remove(f) #if it failed previously, delete the zombie and regenerate 
                 RunBool = True
             else:
