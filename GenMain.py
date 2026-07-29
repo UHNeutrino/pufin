@@ -850,11 +850,16 @@ def CheckNeutFiles(CardNames, NChunks):
             f = GenDir + f"/{GenName}"
             RunBool = not os.path.exists(f)
             if not RunBool:
-                RFile = ROOT.TFile(f)
-                if RFile.IsZombie():
+                try:
+                    RFile = ROOT.TFile.Open(f)
+                except OSError:
+                    os.remove(f)
+                    print("file messed up, deleted")
+                    RunBool = True
+                if not RunBool and ((not RFile) or RFile.IsZombie()):
                     os.remove(f) #if it failed previously, delete the zombie and regenerate 
                     RunBool = True
-                elif not RFile.Get("fluxhisto"):
+                elif not RFile.Get("fluxhisto") and not RunBool:
                     os.remove(f) #same thing if it is empty
                     RunBool = True
                 RFile.Close()
@@ -1013,14 +1018,18 @@ def FlatNeut(GenList):
         RunBool = not os.path.exists(f)
         if RunBool == False:
             try:
-                RFile = ROOT.TFile(f)
-            except:
+                RFile = ROOT.TFile.Open(f)
+            except OSError:
                 os.remove(f)
-                raise RuntimeError(f"File {f} failed to open, deleted")
-            if (RFile.IsZombie()) or (not RFile.Get("FlatTree_VARS")):
+                print("file messed up, deleted")
+                RunBool = True
+            if not RunBool and ((not RFile) or (not RFile.Get("FlatTree_VARS")) or  (RFile.IsZombie())):
+                if RFile:
+                    RFile.Close()
                 os.remove(f) #if it failed previously, delete the zombie and regenerate 
                 RunBool = True
-            RFile.Close()
+            else:
+                print(f"Flat Tree exists and works {f}")
         if RunBool:
             GenPath = f"{GenDir}/{Gen}"
             print(GenPath)
@@ -1088,7 +1097,7 @@ def Generate(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=None, 
             # If you want to multiprocess on one node, multiple cores
             # For Multiple Nodes use GenSubmit  
             FluxToTemp()
-            FileNames = CheckNeutFiles(CardNames, NChunks) 
+            FileNames = CheckNeutFiles(CardNames, NChunks)
             RunList = GenNeutMultiOnNodeFiles(FileNames, CPUPercent)
         elif CPUPercent or NChunks:
             raise ValueError("Need both CPUPercent and NChunk for multi processing")
