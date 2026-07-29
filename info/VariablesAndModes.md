@@ -56,7 +56,9 @@
   <tr> <td>Lorem ipsum ...</td>   <td> flagNC1pim </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagCC1pi0 </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagNC1pi0 </td> </tr>
-  <tr> <td> Interaction Modes (see below) </td>   <td> Mode</td> </tr>
+  <tr> <td> Interaction Modes 
+    <a href="https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md">(see below)</a> 
+  </td>   <td> Mode</td> </tr>
 </table>
 </td>
 
