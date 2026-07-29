@@ -1071,6 +1071,9 @@ def Generate(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=None, 
             # For Multiple Nodes use GenSubmit  
             FluxToTemp()
             FileNames = CheckNeutFiles(CardNames, NChunks)
+            if len(FileNames) == 0:
+                    print("Already done (─ ‿ ─)")
+                    exit() 
             RunList = GenNeutMultiOnNodeFiles(FileNames, CPUPercent)
         elif CPUPercent or NChunks:
             raise ValueError("Need both CPUPercent and NChunk for multi processing")

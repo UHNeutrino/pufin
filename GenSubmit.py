@@ -37,6 +37,11 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
     processes = []
     FileNames = []
     FileNames = GenMain.CheckNeutFiles(CardNames,NChunks)
+
+    if len(FileNames) == 0:
+        print("Already done (─ ‿ ─)")
+        exit() 
+
     if CPUPercent > 1 and CPUPercent <= 100:
         CPUPercent /= 100
     elif CPUPercent > 100 or CPUPercent < 0:
