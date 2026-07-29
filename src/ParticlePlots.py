@@ -1609,7 +1609,6 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         # NCpath = "nu_mu_C12/tot_nc"
         CCpath = f"{flavor}_{target}/tot_cc"
         NCpath = f"{flavor}_{target}/tot_nc"
-        # target_nucleons = 12
         
         # CCpath = "nu_mu_Ar40/tot_cc"
         # NCpath = "nu_mu_Ar40/tot_nc"
@@ -1667,155 +1666,163 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         g_nc = g_nc.Clone("g_nc")
         fx.Close()
         
-    # elif Genie_code == "GenieAr23Ar":
-    #     pathx = "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/AR2320i00000-k250-e1000/data/xsec_graphs.root"
-    #     CCpath = "nu_mu_Ar40/tot_cc"
-    #     NCpath = "nu_mu_Ar40/tot_nc"
-    #     target_nucleons = 40
-
-    #     fx = ROOT.TFile.Open(pathx, "READ")
-    #     if not fx or fx.IsZombie():
-    #         raise RuntimeError(f"Could not open xsec file: {pathx}")
-
-    #     g_cc = fx.Get(CCpath)
-    #     g_nc = fx.Get(NCpath)
-    #     if not g_cc or not g_nc:
-    #         fx.ls()
-    #         raise RuntimeError(f"Missing graph(s): CC={CCpath} NC={NCpath}")
-
-    #     # Optional: detach so closing file won’t kill them
-    #     g_cc = g_cc.Clone("g_cc")
-    #     g_nc = g_nc.Clone("g_nc")
-    #     fx.Close()
-
-    
-    # elif Gen_code == "N" and VersionCode[0]=="T":
-    elif xsectype == "N":
-        if VersionCode == "T564C":
-            pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Carbontotpau.tbl"
-            #NEUT5_6_4totpau.tbl
-            xs, ys = [], []
-        elif VersionCode == "T564CBase":
-            pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Carbontotpau_base.tbl"
-            #NEUT5_6_4totpau.tbl
-            xs, ys = [], []
-        elif VersionCode == "T564H":
-            pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Hydrototpau.tbl"
-            #NEUT5_6_4totpau.tbl
-            xs, ys = [], []
-        elif VersionCode == "T564CH":
-            pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4HydroCarbontotpau.tbl"
-            #NEUT5_6_4totpau.tbl
-            xs, ys = [], []
-        elif VersionCode == "T564O":
-            pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Oxytotpau.tbl"
-            #NEUT5_6_4totpau.tbl
-            xs, ys = [], []
-        elif VersionCode == "T564O":
-            pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Oxytotpau_base.tbl"
-            #NEUT5_6_4totpau.tbl
-            xs, ys = [], []
-            
-        elif VersionCode == "T590":
-            pathx = "/data/t2k-nova/xsec-splines/NEUT5_9_0totpau.tbl"
-            #NEUT5_9_0totpau.tbl
-            xs, ys = [], []
-        else:
-            raise Exception("No Neut Version/Target Found")
-        
-        with open(pathx, "r") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-
-                # Skip header lines (e.g., starts with "Energy")
-                if line.lower().startswith("energy"):
-                    continue
-
-                parts = line.split()
-                # Expect: Energy numu numubar nue nuebar electron
-                if len(parts) < 2:
-                    continue
-
-                try:
-                    E = float(parts[0])
-                    numu = float(parts[1])
-                except ValueError:
-                    continue
-
-                xs.append(E)
-                ys.append(numu)
-
-        if len(xs) < 4:
-            raise RuntimeError(f"Not enough points to make a TSpline3 (got {len(xs)})")
-
-        # Build TGraph
-        g = ROOT.TGraph(len(xs))
-        for i, (x, y) in enumerate(zip(xs, ys)):
-            g.SetPoint(i, x, y)
-
-        # Make spline
-        neut_spline = ROOT.TSpline3("neut_spline", g)
-        # print(str(neut_spline.Eval(1)))
-    # elif Gen_code == "N" and VersionCode[0]=="R":
     elif xsectype == "N":
         xs, ys = [], []
-        if VersionCode == "R564C":
-            xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root"
-        elif VersionCode == "R564cH10000":
-            xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecscH10000.root"
-        elif VersionCode == "R564O":
-            xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsO.root"
-        elif VersionCode == "R564Ti":
-            xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsTi.root"
-        else:
-            raise RuntimeError(f"No Neut xsec Found \'{VersionCode}\'")
-        
-        #### Making a list of the hist names
-        HistnameNuMu = "neut_xsec_numu"
-        if ChannelCode.lower() == "cc":
-            HistEnding = ["_ccqe", "_npnh", "_ccppip", "_ccppi0", "_ccnpip", "_ccdif", "_cccoh", "_ccgam", "_ccmpi", "_cceta", "_cck", "_ccdis"]
-        elif ChannelCode.lower() == "in":
-            HistEnding.lower() == ["tot"]
-        elif ChannelCode == "nc":
-            raise RuntimeError(f"NC UNDER CONSTRUCTION")
-        else:
-            raise RuntimeError(f"No Channel found \'{ChannelCode}\'")
-        HistNameList = []
-        for i in range(len(HistEnding)):
-            HistNameList.append(HistnameNuMu + HistEnding[i])
-        ### Grabbing all the relevent xsec TH1Ds within the xsec.root file and adding them together
-        xsecTFile = ROOT.TFile(xpath)
-        for i in range(0,len(HistNameList)):
-            xsecHist = xsecTFile.Get(HistNameList[i])
-            # print(f"Got {HistNameList[i]}")
-            for j in range(1, xsecHist.GetNbinsX()+1):
-                if i == 0:
-                    xs.append(xsecHist.GetBinCenter(j))
-                    ys.append(0)
-                ys[j-1] += xsecHist.GetBinContent(j)
+
+        xsecTFile = ROOT.TFile.Open(xsecpath, "READ")
+        if not xsecTFile or xsecTFile.IsZombie():
+            raise RuntimeError(f"Could not open NEUT xsec file: {xsecpath}")
+
+        xsecHist = xsecTFile.Get(xsechist)
+        if not xsecHist:
+            xsecTFile.ls()
+            raise RuntimeError(f"Could not find NEUT xsec histogram: {xsechist}")
+
+        for i in range(1, xsecHist.GetNbinsX() + 1):
+            xs.append(xsecHist.GetBinCenter(i))
+            ys.append(xsecHist.GetBinContent(i))
+
         xsecTFile.Close()
-        # Build TGraph
-        g = ROOT.TGraph(len(xs))
+
+        neut_spline = ROOT.TGraph(len(xs))
         for i, (x, y) in enumerate(zip(xs, ys)):
-            g.SetPoint(i, x, y)
-        # Make spline
-        # neut_spline = ROOT.TSpline3("neut_spline", g)
-        neut_spline = g
-        print(str(g.Eval(3)))
-        print(str(neut_spline.Eval(3)))
-        ##### SAVE xecSPLINE #############################
-        # f_out = ROOT.TFile("23bv2spline.root", "RECREATE")
-        # neut_spline.Write()
-        # f_out.Close()
-        # exit()
-        ##############
-    
+            neut_spline.SetPoint(i, x, y)
+
+        print(f"Using NEUT xsec histogram: {xsechist}")
+        print(f"NEUT xsec at 3 GeV: {neut_spline.Eval(3)}")
+        
     elif xsectype == "X":
         print("using no xsec rw")
     else:
         raise Exception("No Matching Generator code")
+    
+    # elif Gen_code == "N" and VersionCode[0]=="T":
+        # pathx = xsecpath
+        # if VersionCode == "T564C":
+        #     pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Carbontotpau.tbl"
+        #     #NEUT5_6_4totpau.tbl
+        #     xs, ys = [], []
+        # elif VersionCode == "T564CBase":
+        #     pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Carbontotpau_base.tbl"
+        #     #NEUT5_6_4totpau.tbl
+        #     xs, ys = [], []
+        # elif VersionCode == "T564H":
+        #     pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Hydrototpau.tbl"
+        #     #NEUT5_6_4totpau.tbl
+        #     xs, ys = [], []
+        # elif VersionCode == "T564CH":
+        #     pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4HydroCarbontotpau.tbl"
+        #     #NEUT5_6_4totpau.tbl
+        #     xs, ys = [], []
+        # elif VersionCode == "T564O":
+        #     pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Oxytotpau.tbl"
+        #     #NEUT5_6_4totpau.tbl
+        #     xs, ys = [], []
+        # elif VersionCode == "T564O":
+        #     pathx = "/data/t2k-nova/xsec-splines/NEUT5_6_4Oxytotpau_base.tbl"
+        #     #NEUT5_6_4totpau.tbl
+        #     xs, ys = [], []
+            
+        # elif VersionCode == "T590":
+        #     pathx = "/data/t2k-nova/xsec-splines/NEUT5_9_0totpau.tbl"
+        #     #NEUT5_9_0totpau.tbl
+        #     xs, ys = [], []
+        # else:
+        #     raise Exception("No Neut Version/Target Found")
+        
+        # with open(pathx, "r") as f:
+        #     for line in f:
+        #         line = line.strip()
+        #         if not line:
+        #             continue
+
+        #         # Skip header lines (e.g., starts with "Energy")
+        #         if line.lower().startswith("energy"):
+        #             continue
+
+        #         parts = line.split()
+        #         # Expect: Energy numu numubar nue nuebar electron
+        #         if len(parts) < 2:
+        #             continue
+
+        #         try:
+        #             E = float(parts[0])
+        #             numu = float(parts[1])
+        #         except ValueError:
+        #             continue
+
+        #         xs.append(E)
+        #         ys.append(numu)
+
+        # if len(xs) < 4:
+        #     raise RuntimeError(f"Not enough points to make a TSpline3 (got {len(xs)})")
+
+        # # Build TGraph
+        # g = ROOT.TGraph(len(xs))
+        # for i, (x, y) in enumerate(zip(xs, ys)):
+        #     g.SetPoint(i, x, y)
+
+        # # Make spline
+        # neut_spline = ROOT.TSpline3("neut_spline", g)
+        # print(str(neut_spline.Eval(1)))
+    # elif Gen_code == "N" and VersionCode[0]=="R":
+        # if VersionCode == "R564C":
+        #     xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root"
+        # elif VersionCode == "R564cH10000":
+        #     xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecscH10000.root"
+        # elif VersionCode == "R564O":
+        #     xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsO.root"
+        # elif VersionCode == "R564Ti":
+        #     xpath = "/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsTi.root"
+        # else:
+        #     raise RuntimeError(f"No Neut xsec Found \'{VersionCode}\'")
+        
+        # #### Making a list of the hist names
+        # HistnameNuMu = "neut_xsec_numu"
+        # if ChannelCode.lower() == "cc":
+        #     HistEnding = ["_ccqe", "_npnh", "_ccppip", "_ccppi0", "_ccnpip", "_ccdif", "_cccoh", "_ccgam", "_ccmpi", "_cceta", "_cck", "_ccdis"]
+        # elif ChannelCode.lower() == "in":
+        #     HistEnding.lower() == ["tot"]
+        # elif ChannelCode == "nc":
+        #     raise RuntimeError(f"NC UNDER CONSTRUCTION")
+        # else:
+        #     raise RuntimeError(f"No Channel found \'{ChannelCode}\'")
+        
+        
+        # HistNameList = []
+        # for i in range(len(HistEnding)):
+        #     HistNameList.append(HistnameNuMu + HistEnding[i])
+        # ### Grabbing all the relevent xsec TH1Ds within the xsec.root file and adding them together
+        # xsecTFile = ROOT.TFile(xpath)
+        # for i in range(0,len(HistNameList)):
+        #     xsecHist = xsecTFile.Get(HistNameList[i])
+        #     # print(f"Got {HistNameList[i]}")
+        #     for j in range(1, xsecHist.GetNbinsX()+1):
+        #         if i == 0:
+        #             xs.append(xsecHist.GetBinCenter(j))
+        #             ys.append(0)
+        #         ys[j-1] += xsecHist.GetBinContent(j)
+        # xsecTFile.Close()
+        # # Build TGraph
+        # g = ROOT.TGraph(len(xs))
+        # for i, (x, y) in enumerate(zip(xs, ys)):
+        #     g.SetPoint(i, x, y)
+        # # Make spline
+        # # neut_spline = ROOT.TSpline3("neut_spline", g)
+        # neut_spline = g
+        # print(str(g.Eval(3)))
+        # print(str(neut_spline.Eval(3)))
+        # ##### SAVE xecSPLINE #############################
+        # # f_out = ROOT.TFile("23bv2spline.root", "RECREATE")
+        # # neut_spline.Write()
+        # # f_out.Close()
+        # # exit()
+        # ##############
+    
+    # elif xsectype == "X":
+    #     print("using no xsec rw")
+    # else:
+    #     raise Exception("No Matching Generator code")
 
 
     ##########################################################################

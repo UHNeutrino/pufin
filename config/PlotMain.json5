@@ -14,33 +14,44 @@
             "DebugPrint":0,
             "DebugMode":false,
             "FluxReweight":{
-                "FluxPath":"",
-                "FluxHistogram":"",
+                // "FluxPath":"/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+                "FluxPath": "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root",
+                // "FluxHistogram":"numu",
+                "FluxHistogram": "enu_nd5_13a_real_numu",
                 "AreaNormFlag":false,
 // -------------------- Edit below for re-weighting flux --------------------------- //
-                "Detector":"",
-                "Target":"",
-                "XsecType":"",
-                "XsecMode":"",
-                "Flavor": "",
-                "XsecPath":"",
-                "XsecHist":"",
-                "NucleonsPerTarget":1,
+                "XsecType":"N",
                 "UndoFluxNormFlag":true,
-                "Fscale":1 //temporary
+                "TargetWeightsFile": "./config/TargetWeights.json5",
+                "Detector":"T2K",
+                "Target":"C12",
+                "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
+                // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
+                // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/AR2320i00000-k250-e1000/data/xsec_graphs.root"
+                // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/N1810j00000-k250-e1000-resfixfix/data/xsec_graphs.root"
+                // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/G1810j00000-k250-e1000/data/xsec_graphs.root"
+
+                // -------- Used Only by Genie --------- //
+                "XsecMode": "total",
+                "Flavor": "nu_mu",
+                "NucleonsPerTarget":12,
+                
+                // -------- Used Only by NEUT ---------- // 
+                "XsecHist":"neut_xsec_numu_tot"
+                //"Fscale": 2.767318539009614e-11//temporary
             }
 
         },
     "plots":
         {
             "Gen":"NEUT5.6.4",
-            "Description":"FFCConTi7ECard",
+            "Description":"flatf_1e7",
             "Type":"1D",
             // Specify the cut for the dataframe. For no cuts, type ""
-            "Cut": "",
+            "Cut": "flagCCINC == true",
             "Var1": "Enu_true",
             "Var2": "",
-            "AxisInfo":"#nu Energy, GeV, Interactions,  , UHMC CC Ti Spectrum",
+            "AxisInfo":"#nu Energy, GeV, Interactions,  , UHMC Spectrum",
             "Bins": [160, 0, 8], // [60,-2.0,1.0,80,0,180],
             "VBins":[false,[0.0, 0.1, 0.2, 0.34, 0.4, 0.5, 0.6, 0.70, 0.8, 0.9, 1.0, 1.1, 1.200, 1.3, 1.40, 1.5, 1.6, 1.7, 1.8, 1.91, 2.0, 2.1, 2.2, 2.3, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.5, 5.0, 6.0, 7.0, 8.0] ],
             "Name": "UHMC_FFCConTi7ECard_FixedPercent",
@@ -50,7 +61,7 @@
             "logz": false,
             "profileX": false, // only works with 2D
             "diagonal": false // only works with profileX=true
-        },
+        }
     // "stacks":
     //     {
     //         "Bool":false,

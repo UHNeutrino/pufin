@@ -13,22 +13,24 @@ def GrabFluxReWeights(GlobalSettings):
     frwDict = GlobalSettings.get("FluxReweight")
     
     if not frwDict:
-        return [False, "", "", 1, "X", False, False, "", "", "", "", "", "", "", 1]
+        return [False, "", "", 1, "X", False, False, "", "", "", "", "", "", 1]
 
     reweight_flag = True
     rw_file = frwDict.get("FluxPath")
     rw_flux = frwDict.get("FluxHistogram")
-    Fscale = frwDict.get("Fscale")
+    targets_file = frwDict.get("TargetWeightsFile")
+    detector = frwDict.get("Detector")
+    target = frwDict.get("Target")
+    Fscale = CalculateTargetWeightFactor(targets_file, detector, target)
     xsectype = frwDict.get("XsecType")
     areaB = frwDict.get("AreaNormFlag")
     undoNormB = frwDict.get("UndoFluxNormFlag")
     xsecmode = frwDict.get("XsecMode")
     flavor = frwDict.get("Flavor")
-    detector = frwDict.get("Detector")
-    target = frwDict.get("Target")
     xsecpath = frwDict.get("XsecPath")
     xsechist = frwDict.get("XsecHist")
     nucpert = frwDict.get("NucleonsPerTarget")
+    # Fscale = frwDict.get("Fscale")
     
     reweight_cfg = [
         reweight_flag,
@@ -46,8 +48,71 @@ def GrabFluxReWeights(GlobalSettings):
         xsechist,
         nucpert,
     ]
-    
+    print(f"Using Fscale for {detector} {target}: {Fscale:.18e}")
     return reweight_cfg
+
+def CalculateTargetWeightFactor(targets_file, detector, target):
+    with open(targets_file, "r") as f:
+        targets_cfg = json5.load(f)
+
+    if detector not in targets_cfg:
+        available = sorted(targets_cfg.keys())
+        raise ValueError(f"Detector '{detector}' not found. Available detectors: {available}")
+
+    detector_cfg = targets_cfg[detector]
+
+    required_fields = [
+        "exp_pot",
+        "flux_pot",
+        "fv_nucleon_targets",
+        "xsec_units",
+        "flux_gev_norm",
+        "flux_cm_conv",
+        "target_percent",
+    ]
+
+    missing_fields = [field for field in required_fields if field not in detector_cfg]
+    if missing_fields:
+        raise ValueError(f"Configuration '{detector}' is missing fields: {missing_fields}")
+
+    for field in required_fields[:-1]:
+        if detector_cfg[field] is None:
+            raise ValueError(f"Configuration '{detector}' field '{field}' has not been assigned")
+
+    target_percents = detector_cfg["target_percent"]
+
+    if target not in target_percents:
+        available = sorted(target_percents.keys())
+        raise ValueError(f"Target '{target}' not found for detector '{detector}'. Available targets: {available}")
+
+    exp_pot = float(detector_cfg["exp_pot"])
+    flux_pot = float(detector_cfg["flux_pot"])
+    fv_nucleon_targets = float(detector_cfg["fv_nucleon_targets"])
+    xsec_units = float(detector_cfg["xsec_units"])
+    flux_gev_norm = float(detector_cfg["flux_gev_norm"])
+    flux_cm_conv = float(detector_cfg["flux_cm_conv"])
+    target_percent = float(target_percents[target])
+
+    if flux_pot == 0:
+        raise ValueError(f"Configuration '{detector}' has flux_pot = 0")
+
+    if flux_gev_norm == 0:
+        raise ValueError(f"Configuration '{detector}' has flux_gev_norm = 0")
+
+    if target_percent < 0:
+        raise ValueError(f"Target percentage for '{target}' cannot be negative")
+
+    Fscale = (
+        exp_pot
+        * fv_nucleon_targets
+        * target_percent
+        * xsec_units
+        * flux_cm_conv
+        / flux_pot
+        / flux_gev_norm
+    )
+
+    return Fscale
 
 def MakePlots(plots, GlobalSettings):
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
