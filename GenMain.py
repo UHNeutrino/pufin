@@ -872,16 +872,11 @@ def GenNeutSingleFile(File):
         except:
             os.remove(f)
             RunBool = True
-    output_text = open(f"{tmpdir}/{GenName}.text", "w")
     if RunBool:
         exec_string=""
         exec_string += f"neutroot2 {Card} {GenName}"
         #print(f">>>>>>>>>>>>>>>>>>>>Running Genertation of {GenName} now")
-        output_text.write(f">>>>>>>Running Generation of {GenName} again...\n")
-        output_text.flush()
         subprocess.run(exec_string.split(), cwd=tmpdir)
-        output_text.write(f"Generated {GenName}<<<<<<<<<<<<<\n")
-        output_text.flush()
         shutil.move(f"{tmpdir}/{GenName}", os.path.join(GenDir, GenName))   
         #print(f"Generated {GenName}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     else:
@@ -985,25 +980,25 @@ def FlatNeut(GenList):
         Target = GlobalV.NeutLabelTargets.get(TargetLabel)
         GenDir = OutPath + f"/NEUT/{Target}"
         FlatName = Gen.replace("Original", "Flat")
-        f = GenDir + f"/{FlatName}"
-        RunBool = not os.path.exists(f)
+        Flattenedf = GenDir + f"/{FlatName}"
+        RunBool = not os.path.exists(Flattenedf)
         # if RunBool:
         #     raise RuntimeError(f"Flattening None exist {f}??")
 
         if RunBool == False:
             try:
-                RFile = ROOT.TFile.Open(f)
+                RFile = ROOT.TFile.Open(Flattenedf)
             except OSError:
-                os.remove(f)
+                os.remove(Flattenedf)
                 print("file messed up, deleted")
                 RunBool = True
             if not RunBool and ((not RFile) or (not RFile.Get("FlatTree_VARS")) or  (RFile.IsZombie())):
                 if RFile:
                     RFile.Close()
-                os.remove(f) #if it failed previously, delete the zombie and regenerate 
+                os.remove(Flattenedf) #if it failed previously, delete the zombie and regenerate 
                 RunBool = True
             else:
-                print(f"Flat Tree exists and works {f}")
+                print(f"Flat Tree exists and works {Flattenedf}")
         if RunBool:
             GenPath = f"{GenDir}/{Gen}"
             print(GenPath)
@@ -1014,7 +1009,7 @@ def FlatNeut(GenList):
             
             if (Genf.IsZombie()) or (not Genf.Get("fluxhisto")):
                 Genf.Close()
-                os.remove(f)
+                os.remove(Genf)
                 GenNeutSingleFile(Gen)  #Try to regenerate once if it failed before
                 try:
                     Genf = ROOT.TFile(GenPath)
