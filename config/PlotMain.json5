@@ -15,21 +15,22 @@
             "DebugMode":false,
             "FluxReweight":{
                 // "FluxPath":"/data/t2k-nova/fluxes/NOvAFluxProd6.root",
-                "FluxPath": "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root",
                 // "FluxHistogram":"numu",
+                "FluxPath": "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root",
                 "FluxHistogram": "enu_nd5_13a_real_numu",
-                "AreaNormFlag":false,
-// -------------------- Edit below for re-weighting flux --------------------------- //
-                "XsecType":"N",
-                "UndoFluxNormFlag":true,
+                "AreaNormFlag":true,
+                //-----------------------------------------------------------------------------------//
+                // --------------------- Edit below only for re-weighting flux --------------------- //
+                //-----------------------------------------------------------------------------------//
+
+                "XsecType":"N", // G for Genie or N for Neut
+                "UndoFluxNormFlag":false,
                 "TargetWeightsFile": "./config/TargetWeights.json5",
-                "Detector":"T2K",
+                "Detector":"T2K", // T2K or Nova
                 "Target":"C12",
                 "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
                 // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
                 // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/AR2320i00000-k250-e1000/data/xsec_graphs.root"
-                // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/N1810j00000-k250-e1000-resfixfix/data/xsec_graphs.root"
-                // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_00_06/NULL/G1810j00000-k250-e1000/data/xsec_graphs.root"
 
                 // -------- Used Only by Genie --------- //
                 "XsecMode": "total",
