@@ -1557,12 +1557,12 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
     hist.SetDirectory(0)  
     flux_file.Close()
 
-    if (areaB):
-        integral1 = hist.Integral("width")  # Use "width" to integrate over bin widths (important for variable bins)
-        if integral1 > 0:
-            hist.Scale(1.0 / integral1)
-        else:
-            raise ValueError("Histogram has zero integral; cannot normalize.")
+    # if (areaB):
+    #     integral1 = hist.Integral("width")  # Use "width" to integrate over bin widths (important for variable bins)
+    #     if integral1 > 0:
+    #         hist.Scale(1.0 / integral1)
+    #     else:
+    #         raise ValueError("Histogram has zero integral; cannot normalize.")
     print("original width integral")
     print(hist.Integral("width"))
 
