@@ -2,14 +2,20 @@
 
 from __future__ import annotations
 
-import array, json5, os, re, ROOT
+import array, json5, os, re, ROOT, sys
 from pathlib import Path
 
 import src.GlobalV as GlobalV
 import src.ParticlePlots as pp
 import src.SetupFunctions as sf
 
-CONFIG_FILE = "config/WeightMain.json5"
+
+if sys.argv[1]:
+    CONFIG_FILE = f"./config/{sys.argv[1]}.json5"
+else:
+    CONFIG_FILE = "./config/WeightMain.json5"
+    print("Defaulting to WeightMain.json5")
+
 
 #### Define filename pattern expected for PUfIN ROOT files #####
 FILENAME_RE = re.compile(
@@ -419,6 +425,8 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict):
     undoNormB = reweight_cfg.get("undoNormB", False)
 
     generator = stage2["generator"]
+    version = stage2["version"]
+    tune = stage2["tune"]
 
     print("\n========== WEIGHTING ==========")
 
@@ -488,6 +496,8 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict):
                 interaction=interaction,
                 nu_type=nu_type,
                 detector=detector,
+                version=version,
+                tune=tune,
                 xsec_mode=effective_xsec_mode,
                 xspline_mode=xspline_mode,
                 xsec_file=xsec_file,

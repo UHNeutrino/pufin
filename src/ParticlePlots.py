@@ -1965,6 +1965,8 @@ def _parse_target_token(target: str):
 
 def get_target_reweight_spec(
     generator: str,
+    tune: str,
+    version: str,
     target: str,
     interaction: str,
     nu_type: str,
@@ -2002,6 +2004,8 @@ def get_target_reweight_spec(
 
     spec = {
         "generator": generator,
+        "tune": tune,
+        "version": version,
         "target": target,
         "interaction": interaction,
         "nu_type": nu_type,
@@ -2017,6 +2021,8 @@ def get_target_reweight_spec(
     if xspline_mode == "G":
         spec["cc_path"] = f"{nu_label}_{target_label}/tot_cc"
         spec["nc_path"] = f"{nu_label}_{target_label}/tot_nc"
+    elif xspline_mode == "N":
+        print("Using NEUT, cc_path and nc_path are not defined?")
     else:
         raise ValueError(f"Unsuported xsec spline type {xspline_mode}")
     return spec
@@ -2108,8 +2114,13 @@ def defineWeightsSplineStage2(
         fx.Close()
 
     elif xspline_mode == "N":
-        pathx = spec["xsec_file"]
-        xs, ys = [], []
+        OutPath = os.environ.get("PUFIN_OUT")
+        if OutPath == None:
+            raise EnvironmentError("PUFIN_OUT Must be defined to reweight NEUT")
+
+        version, tune, target = spec["version"], spec["tune"], spec["target"]
+
+        pathx = f"{OutPath}/NEUT/Xsecs/NEUT{version}_{tune}_{target}_XSECHIST.root"
 
         nu_type = spec["nu_type"]
         column_map = {
@@ -2122,35 +2133,18 @@ def defineWeightsSplineStage2(
             raise ValueError(f"Unsupported nu_type for N spline: {nu_type}")
         value_col = column_map[nu_type]
 
-        with open(pathx, "r") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                if line.lower().startswith("energy"):
-                    continue
+        print(pathx)
 
-                parts = line.split()
-                if len(parts) <= value_col:
-                    continue
+        xsecTFile = ROOT.TFile.Open(pathx, "READ")
+        if not xsecTFile or xsecTFile.IsZombie():
+            raise RuntimeError(f"Could not open NEUT xsec file: {pathx}")
+        xsecTFile.Close()
 
-                try:
-                    E = float(parts[0])
-                    yval = float(parts[value_col])
-                except ValueError:
-                    continue
-
-                xs.append(E)
-                ys.append(yval)
-
-        if len(xs) < 4:
-            raise RuntimeError(f"Not enough points to make a TSpline3 (got {len(xs)})")
-
-        g = ROOT.TGraph(len(xs))
-        for i, (x, y) in enumerate(zip(xs, ys)):
-            g.SetPoint(i, x, y)
-
-        neut_spline = ROOT.TSpline3(f"neut_spline_{safe_label}", g)
+        neut_graph = MakeNeutXsecGraph(pathx, spec["interaction"])
+        interaction = spec["interaction"]
+        neut_spline = ROOT.TSpline3(f"neut_spline_{safe_label}", neut_graph)
+        print(f"Using NEUT xsec histogram for {interaction}")
+        print(f"NEUT xsec at 3 GeV: {neut_spline.Eval(3)}")
 
     bin_integral_unnorm = 0.0
 
@@ -2209,6 +2203,43 @@ def defineWeightsSplineStage2(
 
     df = df.Define("weights", f"{func_name0}(Enu_true)")
     return df, bin_integral_unnorm
+
+def MakeNeutXsecGraph(XsecPath, InteractionMode):
+    xs, ys = [], []
+    
+    #### Making a list of the hist names
+    HistnameNuMu = "neut_xsec_numu"
+    if InteractionMode.lower() == "cc":
+        HistEnding = ["_ccqe", "_npnh", "_ccppip", "_ccppi0", "_ccnpip", "_ccdif", "_cccoh", "_ccgam", "_ccmpi", "_cceta", "_cck", "_ccdis"]
+    elif InteractionMode.lower() == "in":
+        HistEnding.lower() == ["tot"]
+    elif InteractionMode == "nc":
+        raise RuntimeError(f"NC UNDER CONSTRUCTION")
+    else:
+        raise RuntimeError(f"No Channel found \'{InteractionMode}\'")
+    
+    
+    HistNameList = []
+    for i in range(len(HistEnding)):
+        HistNameList.append(HistnameNuMu + HistEnding[i])
+    ### Grabbing all the relevent xsec TH1Ds within the xsec.root file and adding them together
+    xsecTFile = ROOT.TFile(XsecPath)
+    for i in range(0,len(HistNameList)):
+        xsecHist = xsecTFile.Get(HistNameList[i])
+        # print(f"Got {HistNameList[i]}")
+        for j in range(1, xsecHist.GetNbinsX()+1):
+            if i == 0:
+                xs.append(xsecHist.GetBinCenter(j))
+                ys.append(0)
+            ys[j-1] += xsecHist.GetBinContent(j)
+    xsecTFile.Close()
+    # Build TGraph
+    g = ROOT.TGraph(len(xs))
+    for i, (x, y) in enumerate(zip(xs, ys)):
+        g.SetPoint(i, x, y)
+
+    print(str(g.Eval(3)))
+    return g
 
 
 def defineSplineTest(df, rwRootFile, histName):
