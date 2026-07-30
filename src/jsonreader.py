@@ -21,7 +21,6 @@ def GrabFluxReWeights(GlobalSettings):
     targets_file = frwDict.get("TargetWeightsFile")
     detector = frwDict.get("Detector")
     target = frwDict.get("Target")
-    Fscale = CalculateTargetWeightFactor(targets_file, detector, target)
     xsectype = frwDict.get("XsecType")
     areaB = frwDict.get("AreaNormFlag")
     undoNormB = frwDict.get("UndoFluxNormFlag")
@@ -30,6 +29,11 @@ def GrabFluxReWeights(GlobalSettings):
     xsecpath = frwDict.get("XsecPath")
     xsechist = frwDict.get("XsecHist")
     nucpert = frwDict.get("NucleonsPerTarget")
+
+    if areaB:
+        Fscale = 1
+    else:
+        Fscale = CalculateTargetWeightFactor(targets_file, detector, target)
     # Fscale = frwDict.get("Fscale")
     
     reweight_cfg = [
@@ -191,7 +195,7 @@ def MakePlots(plots, GlobalSettings):
 
         ################################################################
         #Histogram scaling for event rates
-        if (Fscale != 1 or undoNormB) and weight_col:
+        if not areaB and weight_col:
             target_integral = bin_integral_unnorm
             current = hist.Integral() 
             s = target_integral / current
@@ -228,7 +232,12 @@ def MakePlots(plots, GlobalSettings):
         hist_cut.SetDirectory(0)
         
         # Scale cut histogram by the same global factor s
-        if (Fscale != 1 or undoNormB) and weight_col:
+        if areaB:
+            area_integral = hist_cut.Integral()
+            if area_integral <= 0:
+                raise RuntimeError("Cut weighted histogram has zero area")
+            hist_cut.Scale(1.0 / area_integral)
+        elif weight_col:
             hist_cut.Scale(s)
         if GlobalSettings["DebugPrint"] != 0:
             print("scaled bin integral (cut hist)")
@@ -256,7 +265,23 @@ def MakePlots(plots, GlobalSettings):
                 
 
 def MakeStacks(stacks,GlobalSettings):
-    reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
+    reweight_cfg = GrabFluxReWeights(GlobalSettings)
+    (
+        reweight_flag,
+        rw_file,
+        rw_flux,
+        Fscale,
+        xsectype,
+        areaB,
+        undoNormB,
+        xsecmode,
+        flavor,
+        detector,
+        target,
+        xsecpath,
+        xsechist,
+        nucpert,
+    ) = reweight_cfg
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder+ f'/*{stacks["Gen"]}*{stacks["Description"]}*.root')
     if root_files == []:
@@ -280,12 +305,11 @@ def MakeStacks(stacks,GlobalSettings):
             df = pp.DefineKinematics(df)
         if(GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
+        if reweight_flag:
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
+            weight_col = "weights"
         if (GlobalSettings["ThresholdsB"]):
             df = pp.FlagParticleThresholds(df)
-        if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xsectype, areaB = areaB, undoNormB = undoNormB)
-            weight_col = "weights"
-
         if stacks.get("Cut"):
             df = df.Filter(stacks["Cut"])
         for word in stacks["AxisInfo"].split(','):
@@ -298,12 +322,49 @@ def MakeStacks(stacks,GlobalSettings):
             colors.append(sf.parse_color(color_spec))
         
         stack, histlist = pp.PlotStackedEventCuts(df, stacks["Var1"], histInfo, cuts, colors, weights= weight_col)
+        
+        if areaB:
+            total_integral = sum(hist.Integral() for hist in histlist)
+
+            if total_integral <= 0:
+                raise RuntimeError("Stacked weighted histograms have zero area")
+
+            for hist in histlist:
+                hist.Scale(1.0 / total_integral)
+                
+        elif weight_col:
+            current = df.Sum(weight_col).GetValue()
+
+            if current <= 0:
+                raise RuntimeError("Weighted dataframe sum is non-positive")
+
+            s = bin_integral_unnorm / current
+
+            for hist in histlist:
+                hist.Scale(s)
+        
         save_L = GlobalSettings["Save"] + "/" + stacks["Name"] + "." +stacks["Ext"]
         pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L, Normalize=stacks["Norm"])
 
 
 def MakeOverlap(overlap,GlobalSettings):
-    reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
+    reweight_cfg = GrabFluxReWeights(GlobalSettings)
+    (
+        reweight_flag,
+        rw_file,
+        rw_flux,
+        Fscale,
+        xsectype,
+        areaB,
+        undoNormB,
+        xsecmode,
+        flavor,
+        detector,
+        target,
+        xsecpath,
+        xsechist,
+        nucpert,
+    ) = reweight_cfg
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder + f'/*{overlap["Gen"]}*{overlap["Description"]}*.root')
     if root_files == []:
@@ -317,7 +378,7 @@ def MakeOverlap(overlap,GlobalSettings):
         df = pp.CreateDataFrame(file_path, cut = "None")
         weight_col = ""
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale=Fscale, xspline=xsectype, areaB=areaB, undoNormB=undoNormB)
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
         BinL = overlap["Bins"]
         AxisInfo = []
@@ -332,9 +393,6 @@ def MakeOverlap(overlap,GlobalSettings):
             df = pp.DefineTKI(df)
         if (GlobalSettings["ThresholdsB"]):
             df = pp.FlagParticleThresholds(df)
-        if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xsectype, areaB = areaB, undoNormB = undoNormB)
-            weight_col = "weights"
         if overlap.get("Cut"):
             df = df.Filter(overlap["Cut"])
         for word in overlap["AxisInfo"].split(','):
@@ -349,6 +407,25 @@ def MakeOverlap(overlap,GlobalSettings):
             colors.append(sf.parse_color(color_spec))
         
         histlist = pp.overlapPlots(df, overlap["Var1"], histInfo, cuts, colors, weights= weight_col)
+        if areaB:
+            for hist in histlist:
+                area_integral = hist.Integral()
+
+                if area_integral <= 0:
+                    raise RuntimeError("Overlap weighted histogram has zero area")
+
+                hist.Scale(1.0 / area_integral)
+
+        elif weight_col:
+            current = df.Sum(weight_col).GetValue()
+
+            if current <= 0:
+                raise RuntimeError("Weighted dataframe sum is non-positive")
+
+            s = bin_integral_unnorm / current
+
+            for hist in histlist:
+                hist.Scale(s)
         save_L = GlobalSettings["Save"] + "/" + overlap["Name"] + "." +overlap["Ext"]
         pp.SaveOverlapPlot(histlist, AxisInfo, Legend,save_L, Normalize=overlap["Norm"])
         
@@ -401,7 +478,24 @@ def MakeSame1D(same1D,GlobalSettings):
         color_str = plot["Color"]
         label = plot["Label"]
 
-        reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(plot)
+        # reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(plot)
+        reweight_cfg = GrabFluxReWeights(plot)
+        (
+            reweight_flag,
+            rw_file,
+            rw_flux,
+            Fscale,
+            xsectype,
+            areaB,
+            undoNormB,
+            xsecmode,
+            flavor,
+            detector,
+            target,
+            xsecpath,
+            xsechist,
+            nucpert,
+        ) = reweight_cfg
         Var = plot["Var"]
         hist_order.append(key)
 
@@ -474,7 +568,7 @@ def MakeSame1D(same1D,GlobalSettings):
 
         if reweight_flag:
             print(f"UNDONORM : {undoNormB}")
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, rw_file, rw_flux, Fscale = Fscale, xspline = xsectype, areaB = areaB, undoNormB = undoNormB)
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -513,7 +607,7 @@ def MakeSame1D(same1D,GlobalSettings):
                 current = df.Sum(weight_col).GetValue()
                 #current = hist.Integral() 
                 print(f"\n[{key}] Applying weight normalization factor")
-                print(f"target integral = {target:.6e}")
+                print(f"target integral = {target_integral:.6e}")
                 print(f"current = {current:.6e}")
                 s = target_integral / current
                 hist.Scale(s)
@@ -687,7 +781,23 @@ def MakeSame1D(same1D,GlobalSettings):
     
 
 def MakeContour(Contour,GlobalSettings):
-    reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
+    reweight_cfg = GrabFluxReWeights(GlobalSettings)
+    (
+        reweight_flag,
+        rw_file,
+        rw_flux,
+        Fscale,
+        xsectype,
+        areaB,
+        undoNormB,
+        xsecmode,
+        flavor,
+        detector,
+        target,
+        xsecpath,
+        xsechist,
+        nucpert,
+    ) = reweight_cfg
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder + f'/*{Contour["Gen"]}*{Contour["Description"]}*.root')
     if root_files == []:
@@ -711,21 +821,47 @@ def MakeContour(Contour,GlobalSettings):
             df = pp.DefineKinematics(df)
         if (GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
-        if (GlobalSettings["ThresholdsB"]):
+        # if (GlobalSettings["ThresholdsB"]):
+        #     df = pp.FlagParticleThresholds(df)
+        # if Contour.get("Cut"):
+        #     df = df.Filter(Contour["Cut"])
+
+        if reweight_flag:
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
+            weight_col = "weights"
+        else:
+            weight_col = ""
+
+        # Calculate normalization before applying the contour selection
+        if reweight_flag and not areaB:
+            target_integral = bin_integral_unnorm
+            current = df.Sum(weight_col).GetValue()
+
+            if current <= 0:
+                raise RuntimeError("Uncut weighted dataframe sum is non-positive")
+
+            s = target_integral / current
+
+            print("Contour normalization:")
+            print(f"target integral = {target_integral:.6e}")
+            print(f"current integral = {current:.6e}")
+            print(f"scale factor = {s:.6e}")
+
+            df = df.Redefine("weights", f"weights * {s}")
+
+        elif reweight_flag and areaB:
+            current = df.Sum(weight_col).GetValue()
+
+            if current <= 0:
+                raise RuntimeError("Uncut weighted dataframe sum is non-positive")
+
+            df = df.Redefine("weights", f"weights / {current}")
+
+        if GlobalSettings["ThresholdsB"]:
             df = pp.FlagParticleThresholds(df)
         if Contour.get("Cut"):
             df = df.Filter(Contour["Cut"])
-
-        if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(
-                df,
-                rw_file,
-                rw_flux,
-                Fscale=Fscale,
-                xspline=xsectype,
-                areaB=areaB,
-                undoNormB=undoNormB,
-            )
+    
         for word in Contour["AxisInfo"].split(','):
                 AxisInfo.append(word)
         if Contour["AutoQuant"][0]:
@@ -790,7 +926,23 @@ def MakeContour(Contour,GlobalSettings):
 
 
 def MakeContourStyle(ContourStyle,GlobalSettings):
-    reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(GlobalSettings)
+    reweight_cfg = GrabFluxReWeights(GlobalSettings)
+    (
+        reweight_flag,
+        rw_file,
+        rw_flux,
+        Fscale,
+        xsectype,
+        areaB,
+        undoNormB,
+        xsecmode,
+        flavor,
+        detector,
+        target,
+        xsecpath,
+        xsechist,
+        nucpert,
+    ) = reweight_cfg
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder + f'/*{ContourStyle["Gen"]}*{ContourStyle["Description"]}*.root')
     if root_files == []:
@@ -819,21 +971,40 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
             df = pp.DefineKinematics(df)
         if (GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
-        if (GlobalSettings["ThresholdsB"]):
+        if reweight_flag:
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
+            weight_col = "weights"
+        else:
+            weight_col = ""
+
+        if reweight_flag and not areaB:
+            target_integral = bin_integral_unnorm
+            current = df.Sum(weight_col).GetValue()
+
+            if current <= 0:
+                raise RuntimeError("Uncut weighted dataframe sum is non-positive")
+
+            s = target_integral / current
+            df = df.Redefine("weights", f"weights * {s}")
+
+            print("ContourStyle normalization:")
+            print(f"target integral = {target_integral:.6e}")
+            print(f"current integral = {current:.6e}")
+            print(f"scale factor = {s:.6e}")
+
+        elif reweight_flag and areaB:
+            current = df.Sum(weight_col).GetValue()
+
+            if current <= 0:
+                raise RuntimeError("Uncut weighted dataframe sum is non-positive")
+
+            df = df.Redefine("weights", f"weights / {current}")
+
+        if GlobalSettings["ThresholdsB"]:
             df = pp.FlagParticleThresholds(df)
+
         if ContourStyle.get("Cut"):
             df = df.Filter(ContourStyle["Cut"])
-
-        if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(
-                df,
-                rw_file,
-                rw_flux,
-                Fscale=Fscale,
-                xspline=xsectype,
-                areaB=areaB,
-                undoNormB=undoNormB,
-            )
         for word in ContourStyle["AxisInfo"].split(','):
                 AxisInfo.append(word)
 

@@ -45,19 +45,19 @@
         },
     "plots":
         {
-            "Gen":"NEUT5.6.4",
+            "Gen":"NEUT5.9",
             "Description":"flatf_1e7",
             "Type":"1D",
             // Specify the cut for the dataframe. For no cuts, type ""
             "Cut": "flagCCINC == true",
             "Var1": "Enu_true",
             "Var2": "",
-            "AxisInfo":"#nu Energy, GeV, Interactions,  , UHMC Spectrum",
+            "AxisInfo":"#nu Energy, GeV, Interactions,  , UHMC ",
             "Bins": [160, 0, 8], // [60,-2.0,1.0,80,0,180],
             "VBins":[false,[0.0, 0.1, 0.2, 0.34, 0.4, 0.5, 0.6, 0.70, 0.8, 0.9, 1.0, 1.1, 1.200, 1.3, 1.40, 1.5, 1.6, 1.7, 1.8, 1.91, 2.0, 2.1, 2.2, 2.3, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.5, 5.0, 6.0, 7.0, 8.0] ],
-            "Name": "UHMC_FFCConTi7ECard_FixedPercent",
-            "Ext": "root",
-            "Norm": true,
+            "Name": "TestNorm",
+            "Ext": "png",
+            "Norm": false,
             "max": -1, 
             "logz": false,
             "profileX": false, // only works with 2D
@@ -65,28 +65,24 @@
         }
     // "stacks":
     //     {
-    //         "Bool":false,
-    //         "reWeight":[false, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 1, "", true, false],
-    //         "Gen":"NEUT5.6.4",
-    //         "Description":"FFCH7ECard",
+    //         "Gen":"NEUT5.9",
+    //         "Description":"flatf_1e7",
     //         "Type":"1D", //Only 1D works
-    //         "Cut": "flagCCINC == true && tgt == 1000010010", // For no cuts, type ""
+    //         "Cut": "flagCCINC == true", // For no cuts, type ""
     //         "Var1": "Enu_true",
     //         "StackCuts":{"Mode == 1": "QE", "Mode == 2":"2p2h", "( Mode ==  12 || Mode == 13 || Mode == 14 )":"Neutron Resonance", "(Mode == 11 )":"Proton Resonance","( Mode == 15 )":"Diffractive Channel", "Mode == 16":"Coherent Scatter", "!(Mode==1 || Mode == 2 ||  Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 11 || Mode == 15 || Mode == 16) && flagCCINC == true":"Other"}, //, "Mode == 26":"DIS"},
     //         "Colors":"600, 416, 880, 800, 802, 920, 1",
     //         "AxisInfo":"#nu Energy, GeV, Unscaled Interactions, , Hydrogen in CH Stacked CC events",
     //         "Bins": [160, 0, 8], 
-    //         "Name": "HinCHStackedWOther",
+    //         "Name": "TestStacks_v2",
     //         "Ext": "png",
     //         // THE FOLLOWING IS NOT WORKING
     //         "Norm": false,
     //         "max": 7000, 
     //         "logz": false
-    //     },
+    //     }
     //  "overlap":
     //     {
-    //         "Bool": false,
-    //         "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 1, "", true, false],
     //         "Gen":"NEUT5.9",
     //         "Description":"flatf_1e7",
     //         "Type":"1D",
@@ -96,15 +92,14 @@
     //         "Colors":"632, 416, 880, 800",
     //         "AxisInfo":"Enu_true, GeV, counts, , Stacks Test",
     //         "Bins": [160, 0, 8], 
-    //         "Name": "OverlapAreaRW",
+    //         "Name": "TestOverlap_v2",
     //         "Ext": "png",
-    //         "Norm": false,
+    //         "Norm": true,
     //         "max": 0, 
     //         "logz": false
-    //     },
+    //     }
     // "1DSame":
     //     {
-    //         "Bool": false,
     //         "Cut": "flagCCINC == true",
     //         "AxisInfo": "True E_{#nu}, GeV, Interactions, , ",// @ NOvA 1 Pion Q2 & W cuts", //Q2
     //         //"AxisInfo": "#deltaP_{T}, GeV/c, Frequency, , QE Delta PT x & y for Leading Proton", //PLep
@@ -162,8 +157,6 @@
     //     },
     // "Contour":
     //     {
-    //         "Bool": false,
-    //         "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 2.75e-7, "N", false, true],
     //         "Gen":"Flat_NEUT5.9",
     //         "Description":"flatf_1e7",
     //         "Cut": "", // For no cuts, type ""
@@ -176,13 +169,11 @@
     //         "AxisInfo":"q0, (GeV), q3, (GeV), Contour Test",
     //         "Bins":[100,0,5,100,0,5],
     //         "logz":true,
-    //         "Name": "ContourFlat",
+    //         "Name": "TestContour",
     //         "Ext": "png"
-    //     },
+    //     }
     // "ContourStyle":
     //     {
-    //         "Bool": false,
-    //         "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 2.75e-7, "N", false, true],
     //         "Gen":"Flat_NEUT5.9",
     //         "Description":"flatf_1e7",
     //         "Cut": "", // For no cuts, type "", this is the inital cut that applies to all events
@@ -194,7 +185,7 @@
     //         "AxisInfo":"q0, (GeV/c), q3, (GeV), Cont Style Test",
     //         "Bins":[100,0,5,100,0,5],
     //         "logz":true,
-    //         "Name": "ContourStyleAreaRW",
+    //         "Name": "TestContourStyle",
     //         "Ext": "png"
-    //     },
+    //     }
 }
