@@ -77,7 +77,6 @@
     //         "Name": "TestStacks_v2",
     //         "Ext": "png",
     //         // THE FOLLOWING IS NOT WORKING
-    //         "Norm": false,
     //         "max": 7000, 
     //         "logz": false
     //     }
@@ -94,7 +93,6 @@
     //         "Bins": [160, 0, 8], 
     //         "Name": "TestOverlap_v2",
     //         "Ext": "png",
-    //         "Norm": true,
     //         "max": 0, 
     //         "logz": false
     //     }

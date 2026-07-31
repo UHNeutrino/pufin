@@ -325,13 +325,17 @@ def MakeStacks(stacks,GlobalSettings):
         
         if areaB:
             total_integral = sum(hist.Integral() for hist in histlist)
-
+            
             if total_integral <= 0:
                 raise RuntimeError("Stacked weighted histograms have zero area")
-
+            
             for hist in histlist:
                 hist.Scale(1.0 / total_integral)
+                print(f"hist integral = {hist.Integral()}")
                 
+            print("Total stack integral after normalization:",
+                sum(hist.Integral() for hist in histlist))
+            
         elif weight_col:
             current = df.Sum(weight_col).GetValue()
 
@@ -341,10 +345,16 @@ def MakeStacks(stacks,GlobalSettings):
             s = bin_integral_unnorm / current
 
             for hist in histlist:
-                hist.Scale(s)
+                hist.Scale(s)   
         
-        save_L = GlobalSettings["Save"] + "/" + stacks["Name"] + "." +stacks["Ext"]
-        pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L, Normalize=False)
+        # Rebuild the stack from the scaled histograms
+        stack = ROOT.THStack("stack_scaled", "")
+        for hist in histlist:
+            stack.Add(hist)      
+
+        save_L = GlobalSettings["Save"] + "/" + stacks["Name"] + "." + stacks["Ext"]
+
+        pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L)
 
 
 def MakeOverlap(overlap,GlobalSettings):
