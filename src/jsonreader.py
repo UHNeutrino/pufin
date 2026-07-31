@@ -259,9 +259,9 @@ def MakePlots(plots, GlobalSettings):
             fileN = plots["Name"]
             fileN = fileN.replace(" ", "-")
             if (plots["profileX"]): 
-                pp.Savehist2DWithProfile(hist, p1,AxisInfo,GlobalSettings["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"], diagonal=plots["diagonal"]) 
+                pp.Savehist2DWithProfile(hist, p1,AxisInfo,GlobalSettings["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=False, logz = plots["logz"], diagonal=plots["diagonal"]) 
             else:
-                pp.Savehist(hist,AxisInfo,GlobalSettings["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=plots["Norm"], logz = plots["logz"])
+                pp.Savehist(hist,AxisInfo,GlobalSettings["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=False, logz = plots["logz"])
                 
 
 def MakeStacks(stacks,GlobalSettings):
@@ -418,13 +418,18 @@ def MakeOverlap(overlap,GlobalSettings):
         
         histlist = pp.overlapPlots(df, overlap["Var1"], histInfo, cuts, colors, weights= weight_col)
         if areaB:
+            total_integral = sum(hist.Integral() for hist in histlist)
+
+            if total_integral <= 0:
+                raise RuntimeError("Overlap weighted histograms have zero total area")
+
             for hist in histlist:
-                area_integral = hist.Integral()
+                hist.Scale(1.0 / total_integral)
 
-                if area_integral <= 0:
-                    raise RuntimeError("Overlap weighted histogram has zero area")
-
-                hist.Scale(1.0 / area_integral)
+            print(
+                "Total overlap integral after normalization:",
+                sum(hist.Integral() for hist in histlist),
+            )
 
         elif weight_col:
             current = df.Sum(weight_col).GetValue()
@@ -437,7 +442,7 @@ def MakeOverlap(overlap,GlobalSettings):
             for hist in histlist:
                 hist.Scale(s)
         save_L = GlobalSettings["Save"] + "/" + overlap["Name"] + "." +overlap["Ext"]
-        pp.SaveOverlapPlot(histlist, AxisInfo, Legend,save_L, Normalize=overlap["Norm"])
+        pp.SaveOverlapPlot(histlist, AxisInfo, Legend,save_L, Normalize=False)
         
 def MakeSame1D(same1D,GlobalSettings):
     userFolder = GlobalSettings["userFolder"]
