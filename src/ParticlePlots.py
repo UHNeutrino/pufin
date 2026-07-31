@@ -1526,7 +1526,6 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         undoNormB,
         xsecmode,
         flavor,
-        detector,
         target,
         xsecpath,
         xsechist,
@@ -1866,7 +1865,6 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
             #xsec = (CC_n_xsec/12) + (CC_p_xsec/12) + (NC_n_xsec/12) + (NC_p_xsec/12)
         elif xsectype == "N":
             xsec = neut_spline.Eval(x)
-            xsec *= 1e38
             if xsecTester<10:
                 xsecTester += 1
             if xsec < 0: xsec = 0.0

@@ -46,7 +46,6 @@ def GrabFluxReWeights(GlobalSettings):
         undoNormB,
         xsecmode,
         flavor,
-        detector,
         target,
         xsecpath,
         xsechist,
@@ -130,7 +129,6 @@ def MakePlots(plots, GlobalSettings):
         undoNormB,
         xsecmode,
         flavor,
-        detector,
         target,
         xsecpath,
         xsechist,
@@ -197,7 +195,7 @@ def MakePlots(plots, GlobalSettings):
         #Histogram scaling for event rates
         if not areaB and weight_col:
             target_integral = bin_integral_unnorm
-            current = hist.Integral() 
+            current = df.Sum(weight_col).GetValue()
             s = target_integral / current
             hist.Scale(s)
             if GlobalSettings["DebugPrint"] != 0:  
@@ -276,7 +274,6 @@ def MakeStacks(stacks,GlobalSettings):
         undoNormB,
         xsecmode,
         flavor,
-        detector,
         target,
         xsecpath,
         xsechist,
@@ -308,6 +305,25 @@ def MakeStacks(stacks,GlobalSettings):
         if reweight_flag:
             df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
+        else:
+            weight_col = ""
+
+        if reweight_flag and not areaB:
+            target_integral = bin_integral_unnorm
+            current = df.Sum(weight_col).GetValue()
+
+            if current <= 0:
+                raise RuntimeError(
+                    "Uncut weighted dataframe sum is non-positive"
+                )
+
+            s = target_integral / current
+
+            print("Stack normalization:")
+            print(f"target integral = {target_integral:.6e}")
+            print(f"current integral = {current:.6e}")
+            print(f"scale factor = {s:.6e}")
+            
         if (GlobalSettings["ThresholdsB"]):
             df = pp.FlagParticleThresholds(df)
         if stacks.get("Cut"):
@@ -337,13 +353,6 @@ def MakeStacks(stacks,GlobalSettings):
                 sum(hist.Integral() for hist in histlist))
             
         elif weight_col:
-            current = df.Sum(weight_col).GetValue()
-
-            if current <= 0:
-                raise RuntimeError("Weighted dataframe sum is non-positive")
-
-            s = bin_integral_unnorm / current
-
             for hist in histlist:
                 hist.Scale(s)   
         
@@ -369,7 +378,6 @@ def MakeOverlap(overlap,GlobalSettings):
         undoNormB,
         xsecmode,
         flavor,
-        detector,
         target,
         xsecpath,
         xsechist,
@@ -388,8 +396,27 @@ def MakeOverlap(overlap,GlobalSettings):
         df = pp.CreateDataFrame(file_path, cut = "None")
         weight_col = ""
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
+            df, bin_integral_unnorm = pp.defineWeightsSpline(df,reweight_cfg)
             weight_col = "weights"
+        else:
+            weight_col = ""
+
+        if reweight_flag and not areaB:
+            target_integral = bin_integral_unnorm
+            current = df.Sum(weight_col).GetValue()
+
+            if current <= 0:
+                raise RuntimeError(
+                    "Uncut weighted dataframe sum is non-positive"
+                )
+
+            s = target_integral / current
+
+            print("Overlap normalization:")
+            print(f"target integral = {target_integral:.6e}")
+            print(f"current integral = {current:.6e}")
+            print(f"scale factor = {s:.6e}")
+            
         BinL = overlap["Bins"]
         AxisInfo = []
         cuts = []
@@ -432,13 +459,6 @@ def MakeOverlap(overlap,GlobalSettings):
             )
 
         elif weight_col:
-            current = df.Sum(weight_col).GetValue()
-
-            if current <= 0:
-                raise RuntimeError("Weighted dataframe sum is non-positive")
-
-            s = bin_integral_unnorm / current
-
             for hist in histlist:
                 hist.Scale(s)
         save_L = GlobalSettings["Save"] + "/" + overlap["Name"] + "." +overlap["Ext"]
@@ -504,7 +524,6 @@ def MakeSame1D(same1D,GlobalSettings):
             undoNormB,
             xsecmode,
             flavor,
-            detector,
             target,
             xsecpath,
             xsechist,
@@ -618,7 +637,7 @@ def MakeSame1D(same1D,GlobalSettings):
         if reweight_flag and not areaB:
             target_integral = bin_integral_unnorm
             current = df.Sum(weight_col).GetValue()
-            #current = hist.Integral() 
+            # current = hist.Integral() 
             print(f"\n[{key}] Applying weight normalization factor")
             print(f"target integral = {target_integral:.6e}")
             print(f"current = {current:.6e}")
@@ -874,7 +893,6 @@ def MakeContour(Contour,GlobalSettings):
         undoNormB,
         xsecmode,
         flavor,
-        detector,
         target,
         xsecpath,
         xsechist,
@@ -1019,7 +1037,6 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         undoNormB,
         xsecmode,
         flavor,
-        detector,
         target,
         xsecpath,
         xsechist,
