@@ -969,9 +969,9 @@ def MakeContour(Contour,GlobalSettings):
             target_events_per_section = total_events / Contour["AutoQuant"][4]
 
             for i in range(1, Contour["AutoQuant"][4]):  # Divide into i sections
-                target = i * target_events_per_section
+                target_events = i * target_events_per_section
                 # Find the first bin index where the cumulative event count exceeds the target
-                bin_idx = min(range(len(cumulative_events)), key=lambda idx: abs(cumulative_events[idx] - target))
+                bin_idx = min(range(len(cumulative_events)), key=lambda idx: abs(cumulative_events[idx] - target_events))
                 x_bin_edge = cuthist.GetXaxis().GetBinLowEdge(bin_idx)
                 x_bins.append(x_bin_edge)
             # Add the final bin edge to ensure full coverage
