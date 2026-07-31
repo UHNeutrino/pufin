@@ -3,7 +3,7 @@
 > *...references under construction...*
 
 <!-- Variable Keys Dropdown -->
-<details open>
+<details>
 
 <summary> <b>
   Variable Keys
@@ -36,11 +36,11 @@
 <!-- Table 2 -->
 <td valign="top">
 <table>
-  <tr> <h2> Miscellaneous </h2> </tr>
+  <tr> <h2> Invariant Mass, Position, & Misc. </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
 
   <tr> <td> W (invariant mass) </td>   <td> W </td> </tr>
-  <tr> <td> W (as predicted by GENIE?) </td>   <td> W_genie </td> </tr>
+  <tr> <td> W as predicted by GENIE (?) </td>   <td> W_genie </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
@@ -53,9 +53,8 @@
 <td valign="top">
 <table>
   <tr> <h2> Flags & Modes </h2> </tr>
-  <p> note: <small> NC = Neutral Current, CC = Charged Current </small></p>
-  
   <tr><td><b>Variable:</b></td>   <td><b>Key:</b></td> </tr>
+  
   <tr> <td> Flag all CC interactions </td>   <td> flagCCINC </td> </tr>
   <tr> <td> '' all NC '' </td>   <td> flagNCINC </td> </tr>
   <tr> <td> '' CC Quasi Elastic '' </td>   <td> flagCCQE </td> </tr>
@@ -93,6 +92,33 @@
 
 </details>
 
+
+<!-- Abbreviations Dropdown -->
+<details>
+<summary> <b>
+  Table of Abbreviations
+</b> </summary>
+
+<table>
+  <!-- <tr> <h2> Header </h2> </tr> -->
+  <tr> <td><b> Abbreviation: </b></td>   <td><b> Meaning: </b></td> </tr>
+  
+  <tr> <td> NC </td>   <td> Neutral Current </td> </tr>
+  <tr> <td> CC </td>   <td> Charged Current</td> </tr>
+  <tr> <td> QE </td>   <td> Quasi-elastic </td> </tr>
+  <tr> <td> EL </td>   <td> Elastic (?) </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <!-- will alphabetize or categorize when I'm "done" -->
+</table>
+  
+</details>
+
+
 <!-- Extended Variables Dropdown -->
 <details>
 <summary> <b>
@@ -103,6 +129,9 @@
   
 </details>
 
+
+
+# Interaction Modes
 
 <!-- Frequent Modes Dropdown -->
 <details>
@@ -117,7 +146,6 @@
   ```
 </details>
 
-# Interaction Modes
 
 ## NEUTRINO MODES
 ---
