@@ -477,7 +477,6 @@ def MakeSame1D(same1D,GlobalSettings):
     legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79) ## most plots
     # legend = ROOT.TLegend(0.3, 0.6, 0.59, 0.79) ## better for cos theta plots
     
-    norm = same1D.get("Norm")
     logy = same1D.get("logy")
     kin = GlobalSettings.get("KinematicsB", False)
     Evis = GlobalSettings.get("EvisB", False)
@@ -592,13 +591,13 @@ def MakeSame1D(same1D,GlobalSettings):
             
         bins = array.array('d',same1D["VBins"][1])
 
-        histInfoScale = ("h_scale", f"hist_{key}", 160, 0, 8)
-        histInfo = ("name", f"hist_{key}", BinL[0], BinL[1], BinL[2])
+        histInfoScale = (f"h_scale_{key}", f"hist_{key}", 160, 0, 8)
+        histInfo = (f"h_{key}", f"hist_{key}", BinL[0], BinL[1], BinL[2])
         # print("bins")
         # print(bins)
         # print("nbins")
         # print(len(bins) - 1)
-        varBinInfo = ROOT.RDF.TH1DModel("h_varbins", f"hist_{key}", len(bins) - 1, bins)
+        varBinInfo = ROOT.RDF.TH1DModel(f"h_varbins_{key}", f"hist_{key}", len(bins) - 1, bins)
 
         if same1D["VBins"][0]:
             histInfo = varBinInfo
@@ -611,23 +610,22 @@ def MakeSame1D(same1D,GlobalSettings):
         hist_rdfs.append(rdf_hist)  # Keep RDF object alive
         hist = rdf_hist.GetValue()
         pp.HistoErrorBars(hist)
-        if norm and hist.Integral() != 0:
-            hist.Scale(1.0 / hist.Integral())
 
         #hist = rdf_hist.GetValue()
         
-        if reweight_flag:
-            if (Fscale != 1 or undoNormB):
-                target_integral = bin_integral_unnorm
-                current = df.Sum(weight_col).GetValue()
-                #current = hist.Integral() 
-                print(f"\n[{key}] Applying weight normalization factor")
-                print(f"target integral = {target_integral:.6e}")
-                print(f"current = {current:.6e}")
-                s = target_integral / current
-                hist.Scale(s)
-                print("uncut scaled bin integral after weight normalization")
-                print(hist.Integral())  
+        # if reweight_flag:
+            # if (Fscale != 1 or undoNormB):
+        if reweight_flag and not areaB:
+            target_integral = bin_integral_unnorm
+            current = df.Sum(weight_col).GetValue()
+            #current = hist.Integral() 
+            print(f"\n[{key}] Applying weight normalization factor")
+            print(f"target integral = {target_integral:.6e}")
+            print(f"current = {current:.6e}")
+            s = target_integral / current
+            hist.Scale(s)
+            print("uncut scaled bin integral after weight normalization")
+            print(hist.Integral())  
                 # ------------------------------------------------------------------
                 # 2) Check bin errors AFTER splinning and adding weight normalization
                 # ------------------------------------------------------------------
@@ -651,6 +649,9 @@ def MakeSame1D(same1D,GlobalSettings):
             df_cut = df
         # df_cut = df  # uncomment if trying to scale using a specific interaction cross section 
         
+        if plot.get("Cut"):
+            df_cut = df_cut.Filter(plot["Cut"])
+        
         # Build the CUT histogram, still using weights if you have them
         if weight_col:
             rdf_cut = df_cut.Histo1D(histInfo, plot["Var"], weight_col)
@@ -661,41 +662,107 @@ def MakeSame1D(same1D,GlobalSettings):
         hist_cut.SetDirectory(0)
         
         # Scale cut histogram by the same global factor s
-        if reweight_flag:
-            if Fscale != 1 or undoNormB:
-                hist_cut.Scale(s)
+        # if reweight_flag:
+        #     if Fscale != 1 or undoNormB:
+        #         hist_cut.Scale(s)
+        
+        if areaB:
+            area_integral = hist_cut.Integral()
+
+            if area_integral <= 0:
+                raise RuntimeError(
+                    f"{key} final weighted histogram has zero integral"
+                )
+
+            hist_cut.Scale(1.0 / area_integral)
+
+            print(
+                f"[{key}] separately area-normalized integral = "
+                f"{hist_cut.Integral()}"
+            )
+
+        elif reweight_flag:
+            hist_cut.Scale(s)
+
+            print(
+                f"[{key}] event-rate-scaled cut integral = "
+                f"{hist_cut.Integral():.6e}"
+            )
             
         print("scaled bin integral (cut hist)")
         print(hist_cut.Integral())
         # print("scaled width integral (cut hist)")
         # print(hist_cut.Integral("width"))
             
+        # pp.HistoErrorBars(hist_cut)    - Do we add error bars on cut histogram or uncut?
         #hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
         hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
         
-        if Add_Ratio and top_histo:
-            hist.GetXaxis().SetLabelSize(0)     # hide numbers
-            hist.GetXaxis().SetTitleSize(0)     # hide title
-            hist.GetXaxis().SetTickLength(0)    # hide ticks
-            hist.GetXaxis().SetLabelOffset(999) # hide x axis labels
-            top_histo = False
+        # if Add_Ratio and top_histo:
+            # hist.GetXaxis().SetLabelSize(0)     # hide numbers
+            # hist.GetXaxis().SetTitleSize(0)     # hide title
+            # hist.GetXaxis().SetTickLength(0)    # hide ticks
+            # hist.GetXaxis().SetLabelOffset(999) # hide x axis labels
+            # top_histo = False
             
         #color = getattr(ROOT, color_str.split("+")[0]) + int(color_str.split("+")[1]) if "+" in color_str else getattr(ROOT, color_str)
         color = sf.parse_color(plot["Color"])
         hist.SetLineColor(color)
         hist.SetLineWidth(1)
+        
+        hist_dict[key] = hist
+        legend.AddEntry(hist, label, "l")
+        histCounter += 1
         # if (histCounter == 0):
         #     hist.SetLineWidth(2)
         # ^This could be better
 
-        if same1D["ErrorBars"]:
-            draw_opt = "HIST E1" if len(hist_dict) == 0 else "HIST E1 SAME"
+        highest_max = max(hist.GetMaximum() for hist in hist_dict.values())
+
+        if same1D["max"] > 0:
+            plot_max = same1D["max"]
         else:
-            draw_opt = "HIST" if len(hist_dict) == 0 else "HIST SAME"
-        hist.Draw(draw_opt)
-        legend.AddEntry(hist, label, "l")
-        hist_dict[key] = hist
-        histCounter += 1
+            plot_max = highest_max * 1.15
+
+        print(f"Highest histogram maximum = {highest_max}")
+        print(f"Common plotted maximum = {plot_max}")
+        
+        if Add_Ratio:
+            topPad.cd()
+        else:
+            c.cd()
+
+        first_hist = True
+
+        for key in hist_order:
+            if key not in hist_dict:
+                continue
+
+            hist = hist_dict[key]
+            hist.SetMaximum(plot_max)
+
+            if first_hist and Add_Ratio:
+                hist.GetXaxis().SetLabelSize(0)     # hide numbers
+                hist.GetXaxis().SetTitleSize(0)     # hide title
+                hist.GetXaxis().SetTickLength(0)    # hide ticks
+                hist.GetXaxis().SetLabelOffset(999) # hide x axis labels
+
+
+            if same1D["ErrorBars"]:
+                draw_opt = "HIST E1" if first_hist else "HIST E1 SAME"
+            else:
+                draw_opt = "HIST" if first_hist else "HIST SAME"
+
+            hist.Draw(draw_opt)
+            first_hist = False
+        # if same1D["ErrorBars"]:
+        #     draw_opt = "HIST E1" if len(hist_dict) == 0 else "HIST E1 SAME"
+        # else:
+        #     draw_opt = "HIST" if len(hist_dict) == 0 else "HIST SAME"
+        # hist.Draw(draw_opt)
+        # legend.AddEntry(hist, label, "l")
+        # hist_dict[key] = hist
+        # histCounter += 1
     if logy:
         c.SetLogy()
         if Add_Ratio:
