@@ -344,7 +344,7 @@ def MakeStacks(stacks,GlobalSettings):
                 hist.Scale(s)
         
         save_L = GlobalSettings["Save"] + "/" + stacks["Name"] + "." +stacks["Ext"]
-        pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L, Normalize=stacks["Norm"])
+        pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L, Normalize=False)
 
 
 def MakeOverlap(overlap,GlobalSettings):
