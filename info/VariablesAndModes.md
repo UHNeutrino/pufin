@@ -3,7 +3,7 @@
 > *...references under construction...*
 
 <!-- Variable Keys Dropdown -->
-<details>
+<details open>
 
 <summary> <b>
   Variable Keys
@@ -16,28 +16,43 @@
 <!-- Left Table -->
 <td valign="top">
 <table>
- <tr> <h2> &nbsp; Heading 1 </h2> </tr>
+ <tr> <h2> Energy, Transfer, & Momentum </h2> </tr>
  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
- <tr> <td> q<sub>0</sub> </td>   <td>q0</td>         </tr>
- <tr> <td> q<sub>3</sub> </td>   <td> q3 </td>       </tr>
- <tr> <td> Q<sup>2</sup> </td>   <td> Q2 </td>       </tr>
+  
+  <tr> <td> True E<sub>&#957;</sub> (neutrino energy) </td>   <td> Enu_true </td> </tr>
+  <tr> <td> E<sub>&#957;</sub> for QE interactions (?) </td>   <td> Enu_QE </td> </tr>
+  <tr> <td> (incoming/outgoing/on impact?) lepton energy </td>   <td> ELep </td> </tr>
+  <tr> <td> E<sub>miss</sub> (missing energy) </td>   <td> Emiss </td> </tr>
+  <tr> <td> E<sub>miss</sub> pre-FSI </td>   <td> Emiss_preFSI </td> </tr>
+  
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td> q<sub>0</sub> (energy transfer) </td>   <td>q0</td>         </tr>
+  <tr> <td> q<sub>3</sub> (3-momentum transfer) </td>   <td> q3 </td>       </tr>
+  <tr> <td> Q<sup>2</sup> (collision hardness) </td>   <td> Q2 </td>       </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
 </table>
 </td>
   
-<!-- Center Table -->
+<!-- Table 2 -->
 <td valign="top">
 <table>
-  <tr> <h2> &nbsp; Heading 2 </h2> </tr>
+  <tr> <h2> Miscellaneous </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+
+  <tr> <td> W (invariant mass) </td>   <td> W </td> </tr>
+  <tr> <td> W (as predicted by GENIE?) </td>   <td> W_genie </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
 </table>
 </td>
 
-<!-- Right Table -->
+<!-- Table 3 -->
 <td valign="top">
 <table>
-  <tr> <h2> &nbsp; Flags & Modes </h2> </tr>
+  <tr> <h2> Flags & Modes </h2> </tr>
   <p> note: <small> NC = Neutral Current, CC = Charged Current </small></p>
   
   <tr><td><b>Variable:</b></td>   <td><b>Key:</b></td> </tr>
@@ -57,8 +72,18 @@
   <tr> <td>Lorem ipsum ...</td>   <td> flagCC1pi0 </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagNC1pi0 </td> </tr>
   <tr> <td> Interaction Modes 
-    <a href="https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md">(see below)</a> 
+    <a href="https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#interaction-modes">(see below)</a> 
   </td>   <td> Mode</td> </tr>
+</table>
+</td>
+
+<!-- Table 4 -->
+<td valign="top">
+<table>
+  <tr> <h2> PUfIN (Custom Variables) </h2> </tr>
+  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
 </table>
 </td>
 
