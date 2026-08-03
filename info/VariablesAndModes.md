@@ -1,4 +1,4 @@
-# Quick Reference
+# Variables & Usage
 
 > *...references under construction...*
 
@@ -21,7 +21,7 @@
   
   <tr> <td> True E<sub>&#957;</sub> (neutrino energy) </td>   <td> Enu_true </td> </tr>
   <tr> <td> E<sub>&#957;</sub> for QE interactions (?) </td>   <td> Enu_QE </td> </tr>
-  <tr> <td> (incoming/outgoing/on impact?) lepton energy </td>   <td> ELep </td> </tr>
+  <tr> <td> Lepton energy (post-FSI?) </td>   <td> ELep </td> </tr>
   <tr> <td> E<sub>miss</sub> (missing energy) </td>   <td> Emiss </td> </tr>
   <tr> <td> E<sub>miss</sub> pre-FSI </td>   <td> Emiss_preFSI </td> </tr>
   
@@ -107,7 +107,7 @@
   <tr> <td> CC </td>   <td> Charged Current</td> </tr>
   <tr> <td> QE </td>   <td> Quasi-elastic </td> </tr>
   <tr> <td> EL </td>   <td> Elastic (?) </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td> FSI </td>   <td> Final State Interaction(s) </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
@@ -129,7 +129,9 @@
   
 </details>
 
-
+## Making Cuts using [Flags & Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-flags--modes-)
+>This is empty right now :)
+<!-- Explain using modes, flags, and operators to select events or interaction types -->
 
 # Interaction Modes
 
