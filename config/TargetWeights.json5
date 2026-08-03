@@ -30,7 +30,7 @@
   },
 
   "T2K": {
-    "exp_pot": 19.7e20,
+    "exp_pot": 36.02089e20,
     "flux_pot": 1e21,
     "fv_nucleon_targets": 5.5e29, // taking off panel and half of the last paned for fdg1
     "xsec_units": 1e-38,
