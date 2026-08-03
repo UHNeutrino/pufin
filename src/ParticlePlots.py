@@ -1075,7 +1075,7 @@ def Savehist2DWithProfile(hist1, prof1, AxisInfo, save_location, filename, ext,
     
 def MakeRatiosToNominal(
     hist_dict,
-    nominal_key,
+    nominal_key_list,
     ratio_selection,
     hist_order,
 ):
@@ -1087,18 +1087,18 @@ def MakeRatiosToNominal(
                      following hist_order
         list[str] -> selected histograms, following list order
     """
+    for nominal_key_check in nominal_key_list:
+        if nominal_key_check not in hist_dict:
+            raise KeyError(
+                f"Ratio nominal '{nominal_key_check}' was not found. "
+                f"Available keys: {list(hist_dict.keys())}"
+            )
 
-    if nominal_key not in hist_dict:
-        raise KeyError(
-            f"Ratio nominal '{nominal_key}' was not found. "
-            f"Available keys: {list(hist_dict.keys())}"
-        )
-
-    if ratio_selection == "all":
+    if ratio_selection == "all" and len(nominal_key_list)==1:
         selected_keys = [
             key
             for key in hist_order
-            if key in hist_dict and key != nominal_key
+            if key in hist_dict and key != nominal_key_list[0]
         ]
 
     elif isinstance(ratio_selection, list):
@@ -1106,7 +1106,7 @@ def MakeRatiosToNominal(
 
     else:
         raise TypeError(
-            "RatioPlots must be 'all' or a list of plot keys"
+            "RatioPlots must be 'all' or a list of plot keys. Also Can't have 'all' and multiple Nominals"
         )
 
     if not selected_keys:
@@ -1125,19 +1125,24 @@ def MakeRatiosToNominal(
             f"Available keys: {list(hist_dict.keys())}"
         )
 
-    if nominal_key in selected_keys:
+    if nominal_key_list[0] in selected_keys and len(nominal_key_list)==1:
         raise ValueError(
             f"RatioPlots must not contain the nominal key "
-            f"'{nominal_key}'"
+            f"'{nominal_key_list[0]}'"
         )
 
-    nominal_hist = hist_dict[nominal_key]
-    ratio_dict = {}
+    nominal_hist_list = []
+    for nominal_key in nominal_key_list:
+        nominal_hist = hist_dict[nominal_key]
+        nominal_hist_list.append(nominal_hist)
 
+
+    ratio_dict = {}
+    nominal_hist_counter = 0
     for key in selected_keys:
         comparison_hist = hist_dict[key]
 
-        if comparison_hist.GetNbinsX() != nominal_hist.GetNbinsX():
+        if comparison_hist.GetNbinsX() != nominal_hist_list[nominal_hist_counter].GetNbinsX():
             raise ValueError(
                 f"Cannot divide '{key}' by '{nominal_key}': "
                 "histograms have different numbers of bins"
@@ -1147,13 +1152,15 @@ def MakeRatiosToNominal(
             f"h_ratio_{key}_over_{nominal_key}"
         )
         ratio.SetDirectory(0)
-        ratio.Divide(nominal_hist)
+        ratio.Divide(nominal_hist_list[nominal_hist_counter])
 
         ratio.SetLineColor(comparison_hist.GetLineColor())
         ratio.SetLineStyle(comparison_hist.GetLineStyle())
         ratio.SetLineWidth(comparison_hist.GetLineWidth())
 
         ratio_dict[key] = ratio
+        if len(nominal_key_list)>1:
+            nominal_hist_counter += 1 
 
     return ratio_dict
 

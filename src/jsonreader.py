@@ -557,28 +557,6 @@ def MakeSame1D(same1D,GlobalSettings):
             df = pp.DefineTKI(df)
         if Thresholds:
             df = pp.FlagParticleThresholds(df)
-        # if same1D.get("Cut"):
-        #     df = df.Filter(same1D["Cut"])
-        #     # histInfo = ("name", f"hist_{key}", BinL[0], BinL[1], BinL[2])
-        #     # current_hist = df.Histo1D(histInfo, plot["Var"])
-        #     # current = current_hist.Integral()
-        #     # print(current)
-        
-################ Check bin error propagation ###############################################
-############################################################################################
-        # bins = array.array('d', same1D["VBins"][1])
-        # histInfo = ("name", f"hist_{key}", BinL[0], BinL[1], BinL[2])
-        # varBinInfo = ROOT.RDF.TH1DModel("h_varbins", f"hist_{key}", len(bins) - 1, bins)
-        # histInfoUse = varBinInfo if same1D["VBins"][0] else histInfo
-
-        # # ------------------------------------------------------------------
-        # # 1) check bin errors BEFORE adding spline weights
-        # # ------------------------------------------------------------------
-        # rdf_raw = df.Histo1D(histInfoUse, Var)
-        # hist_raw = rdf_raw.GetValue()
-        # hist_raw.SetDirectory(0)
-        # _print_selected_bins(hist_raw, f"{key} RAW before spline weights")
-        
         if reweight_flag:
             f_flux = ROOT.TFile.Open(rw_file, "READ")
             if not f_flux or f_flux.IsZombie():
@@ -608,10 +586,6 @@ def MakeSame1D(same1D,GlobalSettings):
 
         histInfoScale = (f"h_scale_{key}", f"hist_{key}", 160, 0, 8)
         histInfo = (f"h_{key}", f"hist_{key}", BinL[0], BinL[1], BinL[2])
-        # print("bins")
-        # print(bins)
-        # print("nbins")
-        # print(len(bins) - 1)
         varBinInfo = ROOT.RDF.TH1DModel(f"h_varbins_{key}", f"hist_{key}", len(bins) - 1, bins)
 
         if same1D["VBins"][0]:
@@ -625,11 +599,6 @@ def MakeSame1D(same1D,GlobalSettings):
         hist_rdfs.append(rdf_hist)  # Keep RDF object alive
         hist = rdf_hist.GetValue()
         pp.HistoErrorBars(hist)
-
-        #hist = rdf_hist.GetValue()
-        
-        # if reweight_flag:
-            # if (Fscale != 1 or undoNormB):
         if reweight_flag and not areaB:
             target_integral = bin_integral_unnorm
             current = df.Sum(weight_col).GetValue()
@@ -640,29 +609,11 @@ def MakeSame1D(same1D,GlobalSettings):
             s = target_integral / current
             hist.Scale(s)
             print("uncut scaled bin integral after weight normalization")
-            print(hist.Integral())  
-                # ------------------------------------------------------------------
-                # 2) Check bin errors AFTER splinning and adding weight normalization
-                # ------------------------------------------------------------------
-            #     hist_weighted = hist.Clone(f"{key}_weighted")
-            #     hist_weighted.SetDirectory(0)
-            #     _print_selected_bins(hist_weighted, f"{key} AFTER normalization factor")
-            # else:
-            #     _print_selected_bins(hist, f"{key} AFTER normalization factor (s=1)")
-                # hist.Scale(s)
-                # print("scale factor integral")
-                # print(hist.Integral())
-                # print("width scale factor integral")
-                # print(hist.Integral("width"))
-            
-                    
-        # if Thresholds:
-        #     df = pp.FlagParticleThresholds(df)    
+            print(hist.Integral())     
         if same1D.get("Cut"):
             df_cut = df.Filter(same1D["Cut"])
         else:
             df_cut = df
-        # df_cut = df  # uncomment if trying to scale using a specific interaction cross section 
         
         if plot.get("Cut"):
             df_cut = df_cut.Filter(plot["Cut"])
@@ -675,12 +626,7 @@ def MakeSame1D(same1D,GlobalSettings):
             
         hist_cut = rdf_cut.GetValue()
         hist_cut.SetDirectory(0)
-        
-        # Scale cut histogram by the same global factor s
-        # if reweight_flag:
-        #     if Fscale != 1 or undoNormB:
-        #         hist_cut.Scale(s)
-        
+
         if areaB:
             area_integral = hist_cut.Integral()
 
@@ -706,22 +652,12 @@ def MakeSame1D(same1D,GlobalSettings):
             
         print("scaled bin integral (cut hist)")
         print(hist_cut.Integral())
-        # print("scaled width integral (cut hist)")
-        # print(hist_cut.Integral("width"))
-            
-        # pp.HistoErrorBars(hist_cut)    - Do we add error bars on cut histogram or uncut?
-        #hist = sf.formatHist(rdf_hist.GetValue(), xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
         hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
         
-        # if Add_Ratio and top_histo:
-            # hist.GetXaxis().SetLabelSize(0)     # hide numbers
-            # hist.GetXaxis().SetTitleSize(0)     # hide title
-            # hist.GetXaxis().SetTickLength(0)    # hide ticks
-            # hist.GetXaxis().SetLabelOffset(999) # hide x axis labels
-            # top_histo = False
             
         #color = getattr(ROOT, color_str.split("+")[0]) + int(color_str.split("+")[1]) if "+" in color_str else getattr(ROOT, color_str)
         color = sf.parse_color(plot["Color"])
+        hist.SetLineStyle(plot["Style"])
         hist.SetLineColor(color)
         hist.SetLineWidth(1)
         
@@ -802,9 +738,16 @@ def MakeSame1D(same1D,GlobalSettings):
                 "Add_Ratio is true, but RatioPlots is empty"
             )
 
+
+        # Make it a list if its just one
+        if isinstance(RatioNominal, str):
+            RatioNominalList = [RatioNominal]
+        else:
+            RatioNominalList = RatioNominal
+
         ratio_dict = pp.MakeRatiosToNominal(
             hist_dict,
-            RatioNominal,
+            RatioNominalList,
             RatioPlots,
             hist_order,
         )
@@ -855,7 +798,7 @@ def MakeSame1D(same1D,GlobalSettings):
             xa.SetLabelSize(0.10)
 
             ya = h_ratio.GetYaxis()
-            ya.SetTitle(f"Ratio to {RatioNominal}")
+            ya.SetTitle(same1D["RatioLabel"])
             ya.SetNdivisions(505)
             ya.SetTitleSize(0.10)
             ya.SetTitleOffset(0.55)
