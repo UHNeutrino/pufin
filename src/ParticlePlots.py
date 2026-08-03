@@ -1072,6 +1072,141 @@ def Savehist2DWithProfile(hist1, prof1, AxisInfo, save_location, filename, ext,
 
     c.Write("canvas")
     root_file.Close()
+    
+def MakeRatiosToNominal(
+    hist_dict,
+    nominal_key,
+    ratio_selection,
+    hist_order,
+):
+    """
+    Create comparison/nominal ratio histograms.
+
+    ratio_selection:
+        "all"     -> every available histogram except nominal,
+                     following hist_order
+        list[str] -> selected histograms, following list order
+    """
+
+    if nominal_key not in hist_dict:
+        raise KeyError(
+            f"Ratio nominal '{nominal_key}' was not found. "
+            f"Available keys: {list(hist_dict.keys())}"
+        )
+
+    if ratio_selection == "all":
+        selected_keys = [
+            key
+            for key in hist_order
+            if key in hist_dict and key != nominal_key
+        ]
+
+    elif isinstance(ratio_selection, list):
+        selected_keys = ratio_selection.copy()
+
+    else:
+        raise TypeError(
+            "RatioPlots must be 'all' or a list of plot keys"
+        )
+
+    if not selected_keys:
+        raise ValueError(
+            "No comparison plots were selected for the ratio panel"
+        )
+
+    missing_keys = [
+        key for key in selected_keys
+        if key not in hist_dict
+    ]
+
+    if missing_keys:
+        raise KeyError(
+            f"RatioPlots contains missing keys: {missing_keys}. "
+            f"Available keys: {list(hist_dict.keys())}"
+        )
+
+    if nominal_key in selected_keys:
+        raise ValueError(
+            f"RatioPlots must not contain the nominal key "
+            f"'{nominal_key}'"
+        )
+
+    nominal_hist = hist_dict[nominal_key]
+    ratio_dict = {}
+
+    for key in selected_keys:
+        comparison_hist = hist_dict[key]
+
+        if comparison_hist.GetNbinsX() != nominal_hist.GetNbinsX():
+            raise ValueError(
+                f"Cannot divide '{key}' by '{nominal_key}': "
+                "histograms have different numbers of bins"
+            )
+
+        ratio = comparison_hist.Clone(
+            f"h_ratio_{key}_over_{nominal_key}"
+        )
+        ratio.SetDirectory(0)
+        ratio.Divide(nominal_hist)
+
+        ratio.SetLineColor(comparison_hist.GetLineColor())
+        ratio.SetLineStyle(comparison_hist.GetLineStyle())
+        ratio.SetLineWidth(comparison_hist.GetLineWidth())
+
+        ratio_dict[key] = ratio
+
+    return ratio_dict
+
+def GetRatioRange(ratio_dict, padding_fraction=0.10):
+    """
+    Find an automatic y-axis range across all ratio histograms.
+
+    Ignores:
+        non-finite values
+        bins whose denominator produced a zero ratio
+    """
+
+    import math
+
+    values = []
+
+    for ratio in ratio_dict.values():
+        for bin_idx in range(1, ratio.GetNbinsX() + 1):
+            value = ratio.GetBinContent(bin_idx)
+
+            if not math.isfinite(value):
+                continue
+
+            # ROOT TH1::Divide normally sets bins with zero denominator to zero.
+            # Do not let those artificial zeros control the automatic range.
+            if value == 0:
+                continue
+
+            values.append(value)
+
+    if not values:
+        return [0.5, 1.5]
+
+    ratio_min = min(values)
+    ratio_max = max(values)
+
+    if ratio_min == ratio_max:
+        padding = max(abs(ratio_min) * padding_fraction, 0.1)
+    else:
+        padding = (ratio_max - ratio_min) * padding_fraction
+
+    auto_min = ratio_min - padding
+    auto_max = ratio_max + padding
+
+    # Keep the reference value visible.
+    auto_min = min(auto_min, 1.0)
+    auto_max = max(auto_max, 1.0)
+
+    print(f"Smallest ratio value = {ratio_min}")
+    print(f"Largest ratio value = {ratio_max}")
+    print(f"Automatic ratio range = [{auto_min}, {auto_max}]")
+
+    return [auto_min, auto_max]
 
 
 def PlotStackedEventModes(df, x, histInfo, modes, colors):
