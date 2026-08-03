@@ -2246,8 +2246,6 @@ def defineWeightsSplineStage2(
         }
         if nu_type not in column_map:
             raise ValueError(f"Unsupported nu_type for N spline: {nu_type}")
-        value_col = column_map[nu_type]
-
         print(pathx)
 
         xsecTFile = ROOT.TFile.Open(pathx, "READ")
@@ -2255,7 +2253,7 @@ def defineWeightsSplineStage2(
             raise RuntimeError(f"Could not open NEUT xsec file: {pathx}")
         xsecTFile.Close()
 
-        neut_graph = MakeNeutXsecGraph(pathx, spec["interaction"])
+        neut_graph = MakeNeutXsecGraph(pathx, spec["interaction"], Flavor=nu_type)
         interaction = spec["interaction"]
         neut_spline = ROOT.TSpline3(f"neut_spline_{safe_label}", neut_graph)
         print(f"Using NEUT xsec histogram for {interaction}")
@@ -2319,17 +2317,21 @@ def defineWeightsSplineStage2(
     df = df.Define("weights", f"{func_name0}(Enu_true)")
     return df, bin_integral_unnorm
 
-def MakeNeutXsecGraph(XsecPath, InteractionMode):
+def MakeNeutXsecGraph(XsecPath, InteractionMode, Flavor="NuMu"):
     xs, ys = [], []
-    
+    # Change the flavor format to the way that it is in the neut xsec hists
+    Flavor = Flavor.lower()
+    if "bar" in Flavor:
+        Flavor = Flavor.replace("bar","b")
+
     #### Making a list of the hist names
-    HistnameNuMu = "neut_xsec_numu"
+    HistnameNuMu = f"neut_xsec_{Flavor}"
     if InteractionMode.lower() == "cc":
         HistEnding = ["_ccqe", "_npnh", "_ccppip", "_ccppi0", "_ccnpip", "_ccdif", "_cccoh", "_ccgam", "_ccmpi", "_cceta", "_cck", "_ccdis"]
     elif InteractionMode.lower() == "in":
-        HistEnding.lower() == ["tot"]
-    elif InteractionMode == "nc":
-        raise RuntimeError(f"NC UNDER CONSTRUCTION")
+        HistEnding == ["tot"]
+    elif InteractionMode.lower() == "nc":
+        HistEnding = ["_ncnpi0", "_ncppi0","_ncppim","_ncnpip","_ncdif","_nccoh","_ncngam","_ncpgam","_ncmpi","_ncneta","_ncpeta","_nck0","_nckp","_ncdis","_ncqep","_ncqen"]
     else:
         raise RuntimeError(f"No Channel found \'{InteractionMode}\'")
     
@@ -2341,7 +2343,7 @@ def MakeNeutXsecGraph(XsecPath, InteractionMode):
     xsecTFile = ROOT.TFile(XsecPath)
     for i in range(0,len(HistNameList)):
         xsecHist = xsecTFile.Get(HistNameList[i])
-        # print(f"Got {HistNameList[i]}")
+        print(f"Got {HistNameList[i]}")
         for j in range(1, xsecHist.GetNbinsX()+1):
             if i == 0:
                 xs.append(xsecHist.GetBinCenter(j))
