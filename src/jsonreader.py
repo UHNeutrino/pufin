@@ -27,7 +27,6 @@ def GrabFluxReWeights(GlobalSettings):
     xsecmode = frwDict.get("XsecMode")
     flavor = frwDict.get("Flavor")
     xsecpath = frwDict.get("XsecPath")
-    xsechist = frwDict.get("XsecHist")
     nucpert = frwDict.get("NucleonsPerTarget")
 
     if areaB:
@@ -48,7 +47,6 @@ def GrabFluxReWeights(GlobalSettings):
         flavor,
         target,
         xsecpath,
-        xsechist,
         nucpert,
     ]
     print(f"Using Fscale for {detector} {target}: {Fscale:.18e}")
@@ -131,7 +129,6 @@ def MakePlots(plots, GlobalSettings):
         flavor,
         target,
         xsecpath,
-        xsechist,
         nucpert,
     ) = reweight_cfg
     
@@ -276,7 +273,6 @@ def MakeStacks(stacks,GlobalSettings):
         flavor,
         target,
         xsecpath,
-        xsechist,
         nucpert,
     ) = reweight_cfg
     userFolder = GlobalSettings["userFolder"]
@@ -380,7 +376,6 @@ def MakeOverlap(overlap,GlobalSettings):
         flavor,
         target,
         xsecpath,
-        xsechist,
         nucpert,
     ) = reweight_cfg
     userFolder = GlobalSettings["userFolder"]
@@ -528,7 +523,6 @@ def MakeSame1D(same1D,GlobalSettings):
             flavor,
             target,
             xsecpath,
-            xsechist,
             nucpert,
         ) = reweight_cfg
         Var = plot["Var"]
@@ -942,7 +936,6 @@ def MakeContour(Contour,GlobalSettings):
         flavor,
         target,
         xsecpath,
-        xsechist,
         nucpert,
     ) = reweight_cfg
     userFolder = GlobalSettings["userFolder"]
@@ -1086,7 +1079,6 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         flavor,
         target,
         xsecpath,
-        xsechist,
         nucpert,
     ) = reweight_cfg
     userFolder = GlobalSettings["userFolder"]

@@ -1663,7 +1663,6 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         flavor,
         target,
         xsecpath,
-        xsechist,
         nucpert,
     ) = reweight_cfg
     
@@ -1789,14 +1788,67 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         if not xsecTFile or xsecTFile.IsZombie():
             raise RuntimeError(f"Could not open NEUT xsec file: {xsecpath}")
 
-        xsecHist = xsecTFile.Get(xsechist)
-        if not xsecHist:
-            xsecTFile.ls()
-            raise RuntimeError(f"Could not find NEUT xsec histogram: {xsechist}")
+        mode = xsecmode.lower()
+        
+        if mode == "total":
+            hist_names = [
+                "neut_xsec_numu_tot"
+            ]
 
-        for i in range(1, xsecHist.GetNbinsX() + 1):
-            xs.append(xsecHist.GetBinCenter(i))
-            ys.append(xsecHist.GetBinContent(i))
+        elif mode == "cc":
+            hist_names = [
+                "neut_xsec_numu_ccqe",
+                "neut_xsec_numu_npnh",
+                "neut_xsec_numu_ccppip",
+                "neut_xsec_numu_ccppi0",
+                "neut_xsec_numu_ccnpip",
+                "neut_xsec_numu_ccdif",
+                "neut_xsec_numu_cccoh",
+                "neut_xsec_numu_ccgam",
+                "neut_xsec_numu_ccmpi",
+                "neut_xsec_numu_cceta",
+                "neut_xsec_numu_cck",
+                "neut_xsec_numu_ccdis",
+            ]
+
+        elif mode == "nc":
+            xsecTFile.Close()
+            raise RuntimeError(
+                "XsecMode 'NC' is not configured for NEUT"
+            )
+
+        else:
+            xsecTFile.Close()
+            raise ValueError(
+                "For NEUT, XsecMode must be 'CC', 'total', or 'NC'"
+            )
+        
+        for hist_index, hist_name in enumerate(hist_names):
+            xsecHist = xsecTFile.Get(hist_name)
+        
+            if not xsecHist:
+                xsecTFile.ls()
+                xsecTFile.Close()
+                raise RuntimeError(f"Could not find NEUT xsec histogram: {hist_name}")
+            
+            if hist_index == 0:
+                for i in range(1, xsecHist.GetNbinsX() + 1):
+                    xs.append(xsecHist.GetBinCenter(i))
+                    ys.append(0.0)
+        
+            for i in range(1, xsecHist.GetNbinsX() + 1):
+                ys[i - 1] += xsecHist.GetBinContent(i)
+                
+            print(f"Added NEUT xsec histogram: {hist_name}")
+
+        # xsecHist = xsecTFile.Get(xsechist)
+        # if not xsecHist:
+        #     xsecTFile.ls()
+        #     raise RuntimeError(f"Could not find NEUT xsec histogram: {xsechist}")
+
+        # for i in range(1, xsecHist.GetNbinsX() + 1):
+        #     xs.append(xsecHist.GetBinCenter(i))
+        #     ys.append(xsecHist.GetBinContent(i))
 
         xsecTFile.Close()
 
@@ -1804,7 +1856,8 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         for i, (x, y) in enumerate(zip(xs, ys)):
             neut_spline.SetPoint(i, x, y)
 
-        print(f"Using NEUT xsec histogram: {xsechist}")
+        # print(f"Using NEUT xsec histogram: {xsechist}")
+        print(f"Using NEUT XsecMode: {xsecmode}")
         print(f"NEUT xsec at 3 GeV: {neut_spline.Eval(3)}")
         
     elif xsectype == "X":
