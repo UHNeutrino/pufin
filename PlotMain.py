@@ -10,6 +10,7 @@ script_path = os.path.realpath(__file__)
 
 if sys.argv[1]:
     Jsonfile = sys.argv[1]
+    Jsonfile = Jsonfile + ".json5"
 else:
     Jsonfile = "PlotMain.json5"
     print("Defaulting to PlotMain.json5")
