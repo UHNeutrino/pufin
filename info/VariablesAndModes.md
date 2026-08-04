@@ -76,20 +76,81 @@
 </table>
 </td>
 
-<!-- Table 4 -->
-<td valign="top">
+<!-- Closes Inline Table -->
+</tr>
+</table>
+
+</details>
+
+
+  <!-- PUfIN variables dropdown -->
+<details>
+<summary> <b>
+  PUfIN Custom Variables
+</b> </summary>
+<!-- Opens Inline Tables -->
 <table>
-  <tr> <h2> PUfIN (Custom Variables) </h2> </tr>
+<tr>
+
+<!-- Table 1 -->
+<td valign="top"> 
+<table>
+  <tr> <h2> Evis Variables </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
 </table>
-</td>
+</td> 
+
+<!-- Table 2 -->
+<td valign="top"> 
+<table>
+  <tr> <h2> Kinematic Variables </h2> </tr>
+  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+</table>
+</td> 
+
+<!-- Table 3 -->
+<td valign="top"> 
+<table>
+  <tr> <h2> TKI Variables </h2> </tr>
+  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+</table>
+</td> 
+
+<!-- Table 4 -->
+<td valign="top"> 
+<table>
+  <tr> <h2> Heading 4 </h2> </tr>
+  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+</table>
+</td> 
 
 <!-- Closes Inline Table -->
 </tr>
 </table>
 
+<!-- add variables from EvisB, KinematicsB, 
+TKI (transverse kinematic imbalance), etc. from src/ParticlePlots 
+> Evis_2 = calorimetric reconstruction -->
 </details>
 
 
@@ -129,9 +190,12 @@
   
 </details>
 
-## Making Cuts using [Flags & Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-flags--modes-)
+## Making Cuts for Variables, [Flags, & Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-flags--modes-)
 >This is empty right now :)
 <!-- Explain using modes, flags, and operators to select events or interaction types -->
+
+## Using PUfIN Custom Variables
+>This is empty right now :)
 
 # Interaction Modes
 
@@ -144,7 +208,7 @@
 
 + RES *(neutrino mode CC1pi resonant events)*:  
   ```
-  Mode == 11 && Mode == 12 && Mode == 13
+  Mode == 11 || Mode == 12 || Mode == 13
   ```
 </details>
 
