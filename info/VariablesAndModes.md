@@ -1,12 +1,12 @@
 # Variables & Usage
 
-> *...references under construction...*
+> *...under construction...*
 
 <!-- Variable Keys Dropdown -->
 <details>
 
 <summary> <b>
-  Variable Keys
+  Standard Variable Keys
 </b> </summary>
 
 <!-- Opens Inline Tables -->
@@ -53,11 +53,11 @@
 <td valign="top">
 <table>
   <tr> <h2> Flags & Modes </h2> </tr>
-  <tr><td><b>Variable:</b></td>   <td><b>Key:</b></td> </tr>
+  <tr><td><b> Flag(s): </b></td>   <td><b>Key:</b></td> </tr>
   
-  <tr> <td> Flag all CC interactions </td>   <td> flagCCINC </td> </tr>
-  <tr> <td> '' all NC '' </td>   <td> flagNCINC </td> </tr>
-  <tr> <td> '' CC Quasi Elastic '' </td>   <td> flagCCQE </td> </tr>
+  <tr> <td> all CC </td>   <td> flagCCINC </td> </tr>
+  <tr> <td> all NC </td>   <td> flagNCINC </td> </tr>
+  <tr> <td> CC Quasi Elastic </td>   <td> flagCCQE </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagCC0pi </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagCCQELike </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagNCEL </td> </tr>
@@ -86,7 +86,7 @@
   <!-- PUfIN variables dropdown -->
 <details>
 <summary> <b>
-  PUfIN Custom Variables
+  PUfIN Custom Variable Keys
 </b> </summary>
 <!-- Opens Inline Tables -->
 <table>
@@ -134,7 +134,7 @@
 <!-- Table 4 -->
 <td valign="top"> 
 <table>
-  <tr> <h2> Heading 4 </h2> </tr>
+  <tr> <h2> Threshold Flags </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
