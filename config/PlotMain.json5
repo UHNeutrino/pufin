@@ -59,180 +59,181 @@
             "logz": false,
             "profileX": false, // only works with 2D
             "diagonal": false // only works with profileX=true
+        },
+    "stacks":
+        {
+            "Gen":"NEUT5.9",
+            "Description":"flatf_1e7",
+            "Type":"1D", //Only 1D works
+            "Cut": "flagCCINC == true", // For no cuts, type ""
+            "Var1": "Enu_true",
+            "StackCuts":{"Mode == 1": "QE", "Mode == 2":"2p2h", "( Mode ==  12 || Mode == 13 || Mode == 14 )":"Neutron Resonance", "(Mode == 11 )":"Proton Resonance","( Mode == 15 )":"Diffractive Channel", "Mode == 16":"Coherent Scatter", "!(Mode==1 || Mode == 2 ||  Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 11 || Mode == 15 || Mode == 16) && flagCCINC == true":"Other"}, //, "Mode == 26":"DIS"},
+            "Colors":"600, 416, 880, 800, 802, 920, 1",
+            "AxisInfo":"#nu Energy, GeV, Unscaled Interactions, , Hydrogen in CH Stacked CC events",
+            "Bins": [160, 0, 8], 
+            "Name": "TestStacks_v2",
+            "Ext": "png",
+            // THE FOLLOWING IS NOT WORKING
+            "max": 7000, 
+            "logz": false
+        },
+     "overlap":
+        {
+            "Gen":"NEUT5.9",
+            "Description":"flatf_1e7",
+            "Type":"1D",
+            "Cut": "", // For no cuts, type ""
+            "Var1": "Enu_true",
+            "StackCuts":{"Mode == 1":"QE", "Mode == 2":"2p2h", "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16":"RES"},
+            "Colors":"632, 416, 880, 800",
+            "AxisInfo":"Enu_true, GeV, counts, , Stacks Test",
+            "Bins": [160, 0, 8], 
+            "Name": "TestOverlap_v2",
+            "Ext": "png",
+            "max": 0, 
+            "logz": false
+        },
+    "1DSame":
+    {
+        "Cut": "flagCCINC == true",
+        "AxisInfo": "True E_{#nu}, GeV, Interactions, , ",// @ NOvA 1 Pion Q2 & W cuts", //Q2
+        "Bins": [160, 0, 8],
+        //If VBins is true, treats the second element as bin edges
+        "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
+        "Name": "SavedFileName",
+        "Ext": "png", //will always save as a root file in any case
+        "logy": false,
+        "ErrorBars": false,
+        "max": -1,
+        "Add_Ratio": true,  // show ratio panel
+        "RatioNominal": ["key1","key2"], // can be a list of keys or a single key
+        "RatioPlots": ["key1","key1"], // "all" for every ratio plot or a list of keys
+        "RatioRange": [0, 2], // "auto" or [0.5 , 1.5]
+        "RatioLabel":"Neut/Genie",
+        "Plots": [
+            {
+            "Key": "GenieN24",
+            "File": "flatf10M_1e7",
+            "Label": "Genie numuCC",
+            "Color": "kBlack",
+            "Var": "Enu_true",
+            "Cut": "",
+
+            "FluxReweight":{
+                "FluxPath":"/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+                "FluxHistogram":"numu",
+                "AreaNormFlag": false,
+                //-----------------------------------------------------------------------------------//
+                // --------------------- Edit below only for re-weighting flux --------------------- //
+                //-----------------------------------------------------------------------------------//              
+                
+                "XsecType":"G",
+                "UndoFluxNormFlag":false,
+                "TargetWeightsFile": "./config/TargetWeights.json5",
+                "Detector":"Nova",
+                "Target":"C12",
+                "XsecMode": "total",
+                // "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
+                "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
+
+                // -------- Used Only by Genie --------- //
+                "Flavor": "nu_mu",
+                "NucleonsPerTarget":12
+                }
+            },
+            {
+            "Key": "GenieQE",
+            "File": "GenieN24_flatf10M_1e7",
+            "Label": "Genie numuCC QE",
+            "Color": "kBlue",
+            "Var": "Enu_true",
+            "Cut": "Mode ==1",
+
+            "FluxReweight":{
+                "FluxPath":"/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+                "FluxHistogram":"numu",
+                "AreaNormFlag": false,
+                //-----------------------------------------------------------------------------------//
+                // --------------------- Edit below only for re-weighting flux --------------------- //
+                //-----------------------------------------------------------------------------------//              
+                
+                "XsecType":"G",
+                "UndoFluxNormFlag":false,
+                "TargetWeightsFile": "./config/TargetWeights.json5",
+                "Detector":"Nova",
+                "Target":"C12",
+                "XsecMode": "total",
+                // "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
+                "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
+
+                // -------- Used Only by Genie --------- //
+                "Flavor": "nu_mu",
+                "NucleonsPerTarget":12
+                }
+            },
+            {
+            "Key": "NEUT5.6.4",
+            "File": "Flat_NEUT5.6.4_FFCConC7ECard_1e7",
+            "Label": "Neut CC on Carbon",
+            "Color": "kRed",
+            "Var": "Enu_true",
+            "Cut": "",
+
+            "FluxReweight":{
+                "FluxPath":"/data/t2k-nova/fluxes/21bv2/run4/nd5_tuned21bv2_13anom_run4_numode_fine.root",
+                "FluxHistogram":"enu_nd5_21b_real_numu",
+                "AreaNormFlag": false,
+                //-----------------------------------------------------------------------------------//
+                // --------------------- Edit below only for re-weighting flux --------------------- //
+                //-----------------------------------------------------------------------------------//              
+                
+                "XsecType":"N",
+                "UndoFluxNormFlag":true,
+                "TargetWeightsFile": "./config/TargetWeights.json5",
+                "Detector":"T2K",
+                "Target":"C12",
+                "XsecMode": "CC",
+                "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
+                // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
+
+                // -------- Used Only by Genie --------- //
+                "Flavor": "nu_mu",
+                "NucleonsPerTarget":12
+                }
+                }
+        ]
+    },
+    "Contour":
+        {
+            "Gen":"Flat_NEUT5.9",
+            "Description":"flatf_1e7",
+            "Cut": "", // For no cuts, type ""
+            "Var1":"q0",
+            "Var2":"q3",
+            "ConCuts":{ "Mode == 1":"QE", "Mode == 2":"2P2H", "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs"},
+            "AutoQuant":[false, "Evis_kin", "Enu_true",true,5],
+            "TotalPercents":[90], //requires pdf save for line textures to show up
+            "Colors":"600, 416, 880, 800", // blue, green, purple, ? 
+            "AxisInfo":"q0, (GeV), q3, (GeV), Contour Test",
+            "Bins":[100,0,5,100,0,5],
+            "logz":true,
+            "Name": "TestContour",
+            "Ext": "png"
+        },
+    "ContourStyle":
+        {
+            "Gen":"Flat_NEUT5.9",
+            "Description":"flatf_1e7",
+            "Cut": "", // For no cuts, type "", this is the inital cut that applies to all events
+            "Var1":"q0",
+            "Var2":"q3",
+            "TotalPercents":[90],
+            "ColorCuts":{"Mode == 1":"QE, 600", "Mode == 2":"2P2H, 416", "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)":"Pion Abs, 880"}, // "Cut":"Label, color number"
+            "StyleCuts":{"Enu_true < 0.6":"Enu < .6, 2","Enu_true > 0.6":"Enu_true > .6, 1"}, //"Eres_kin >= -0.1 && Eres_kin <= 0.1":"ErK ~ 0%, 1"  },//"Cut":"Label, style number"
+            "AxisInfo":"q0, (GeV/c), q3, (GeV), Cont Style Test",
+            "Bins":[100,0,5,100,0,5],
+            "logz":true,
+            "Name": "TestContourStyle",
+            "Ext": "png"
         }
-    // "stacks":
-    //     {
-    //         "Gen":"NEUT5.9",
-    //         "Description":"flatf_1e7",
-    //         "Type":"1D", //Only 1D works
-    //         "Cut": "flagCCINC == true", // For no cuts, type ""
-    //         "Var1": "Enu_true",
-    //         "StackCuts":{"Mode == 1": "QE", "Mode == 2":"2p2h", "( Mode ==  12 || Mode == 13 || Mode == 14 )":"Neutron Resonance", "(Mode == 11 )":"Proton Resonance","( Mode == 15 )":"Diffractive Channel", "Mode == 16":"Coherent Scatter", "!(Mode==1 || Mode == 2 ||  Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 11 || Mode == 15 || Mode == 16) && flagCCINC == true":"Other"}, //, "Mode == 26":"DIS"},
-    //         "Colors":"600, 416, 880, 800, 802, 920, 1",
-    //         "AxisInfo":"#nu Energy, GeV, Unscaled Interactions, , Hydrogen in CH Stacked CC events",
-    //         "Bins": [160, 0, 8], 
-    //         "Name": "TestStacks_v2",
-    //         "Ext": "png",
-    //         // THE FOLLOWING IS NOT WORKING
-    //         "max": 7000, 
-    //         "logz": false
-    //     }
-    //  "overlap":
-    //     {
-    //         "Gen":"NEUT5.9",
-    //         "Description":"flatf_1e7",
-    //         "Type":"1D",
-    //         "Cut": "", // For no cuts, type ""
-    //         "Var1": "Enu_true",
-    //         "StackCuts":{"Mode == 1":"QE", "Mode == 2":"2p2h", "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16":"RES"},
-    //         "Colors":"632, 416, 880, 800",
-    //         "AxisInfo":"Enu_true, GeV, counts, , Stacks Test",
-    //         "Bins": [160, 0, 8], 
-    //         "Name": "TestOverlap_v2",
-    //         "Ext": "png",
-    //         "max": 0, 
-    //         "logz": false
-    //     }
-    // "1DSame":
-    // {
-    //     "Cut": "flagCCINC == true",
-    //     "AxisInfo": "True E_{#nu}, GeV, Interactions, , ",// @ NOvA 1 Pion Q2 & W cuts", //Q2
-    //     "Bins": [160, 0, 8],
-    //     //If VBins is true, treats the second element as bin edges
-    //     "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
-    //     "Name": "TestSame1D_Ratios_v2",
-    //     "Ext": "png",
-    //     "logy": false,
-    //     "ErrorBars": false,
-    //     "max": -1,
-    //     "Add_Ratio": true,  // show ratio panel
-    //     "RatioNominal": "GenieN24",
-    //     "RatioPlots": "all", // "all" for every ratio plot
-    //     "RatioRange": "auto", // "auto" or [0.5 , 1.5]          
-    //     "Plots": [
-    //         {
-    //         "Key": "GenieN24",
-    //         "File": "flatf10M_1e7",
-    //         "Label": "Genie numuCC",
-    //         "Color": "kBlack",
-    //         "Var": "Enu_true",
-    //         "Cut": "",
-
-    //         "FluxReweight":{
-    //             "FluxPath":"/data/t2k-nova/fluxes/NOvAFluxProd6.root",
-    //             "FluxHistogram":"numu",
-    //             "AreaNormFlag": false,
-    //             //-----------------------------------------------------------------------------------//
-    //             // --------------------- Edit below only for re-weighting flux --------------------- //
-    //             //-----------------------------------------------------------------------------------//              
-                
-    //             "XsecType":"G",
-    //             "UndoFluxNormFlag":false,
-    //             "TargetWeightsFile": "./config/TargetWeights.json5",
-    //             "Detector":"Nova",
-    //             "Target":"C12",
-    //             "XsecMode": "total",
-    //             // "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
-    //             "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
-
-    //             // -------- Used Only by Genie --------- //
-    //             "Flavor": "nu_mu",
-    //             "NucleonsPerTarget":12
-    //             }
-    //         },
-    //         {
-    //         "Key": "GenieQE",
-    //         "File": "GenieN24_flatf10M_1e7",
-    //         "Label": "Genie numuCC QE",
-    //         "Color": "kBlue",
-    //         "Var": "Enu_true",
-    //         "Cut": "Mode ==1",
-
-    //         "FluxReweight":{
-    //             "FluxPath":"/data/t2k-nova/fluxes/NOvAFluxProd6.root",
-    //             "FluxHistogram":"numu",
-    //             "AreaNormFlag": false,
-    //             //-----------------------------------------------------------------------------------//
-    //             // --------------------- Edit below only for re-weighting flux --------------------- //
-    //             //-----------------------------------------------------------------------------------//              
-                
-    //             "XsecType":"G",
-    //             "UndoFluxNormFlag":false,
-    //             "TargetWeightsFile": "./config/TargetWeights.json5",
-    //             "Detector":"Nova",
-    //             "Target":"C12",
-    //             "XsecMode": "total",
-    //             // "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
-    //             "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
-
-    //             // -------- Used Only by Genie --------- //
-    //             "Flavor": "nu_mu",
-    //             "NucleonsPerTarget":12
-    //             }
-    //         },
-    //         {
-    //         "Key": "NEUT5.6.4",
-    //         "File": "Flat_NEUT5.6.4_FFCConC7ECard_1e7",
-    //         "Label": "Neut CC on Carbon",
-    //         "Color": "kRed",
-    //         "Var": "Enu_true",
-    //         "Cut": "",
-
-    //         "FluxReweight":{
-    //             "FluxPath":"/data/t2k-nova/fluxes/21bv2/run4/nd5_tuned21bv2_13anom_run4_numode_fine.root",
-    //             "FluxHistogram":"enu_nd5_21b_real_numu",
-    //             "AreaNormFlag": false,
-    //             //-----------------------------------------------------------------------------------//
-    //             // --------------------- Edit below only for re-weighting flux --------------------- //
-    //             //-----------------------------------------------------------------------------------//              
-                
-    //             "XsecType":"N",
-    //             "UndoFluxNormFlag":true,
-    //             "TargetWeightsFile": "./config/TargetWeights.json5",
-    //             "Detector":"T2K",
-    //             "Target":"C12",
-    //             "XsecMode": "CC",
-    //             "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
-    //             // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
-
-    //             // -------- Used Only by Genie --------- //
-    //             "Flavor": "nu_mu",
-    //             "NucleonsPerTarget":12
-    //             }
-    //             }
-    //     ]
-    // }
-    // "Contour":
-    //     {
-    //         "Gen":"Flat_NEUT5.9",
-    //         "Description":"flatf_1e7",
-    //         "Cut": "", // For no cuts, type ""
-    //         "Var1":"q0",
-    //         "Var2":"q3",
-    //         "ConCuts":{ "Mode == 1":"QE", "Mode == 2":"2P2H", "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)": "Pion Abs"},
-    //         "AutoQuant":[false, "Evis_kin", "Enu_true",true,5],
-    //         "TotalPercents":[90], //requires pdf save for line textures to show up
-    //         "Colors":"600, 416, 880, 800", // blue, green, purple, ? 
-    //         "AxisInfo":"q0, (GeV), q3, (GeV), Contour Test",
-    //         "Bins":[100,0,5,100,0,5],
-    //         "logz":true,
-    //         "Name": "TestContour",
-    //         "Ext": "png"
-    //     }
-    // "ContourStyle":
-    //     {
-    //         "Gen":"Flat_NEUT5.9",
-    //         "Description":"flatf_1e7",
-    //         "Cut": "", // For no cuts, type "", this is the inital cut that applies to all events
-    //         "Var1":"q0",
-    //         "Var2":"q3",
-    //         "TotalPercents":[90],
-    //         "ColorCuts":{"Mode == 1":"QE, 600", "Mode == 2":"2P2H, 416", "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)":"Pion Abs, 880"}, // "Cut":"Label, color number"
-    //         "StyleCuts":{"Enu_true < 0.6":"Enu < .6, 2","Enu_true > 0.6":"Enu_true > .6, 1"}, //"Eres_kin >= -0.1 && Eres_kin <= 0.1":"ErK ~ 0%, 1"  },//"Cut":"Label, style number"
-    //         "AxisInfo":"q0, (GeV/c), q3, (GeV), Cont Style Test",
-    //         "Bins":[100,0,5,100,0,5],
-    //         "logz":true,
-    //         "Name": "TestContourStyle",
-    //         "Ext": "png"
-    //     }
 }

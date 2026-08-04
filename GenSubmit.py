@@ -68,7 +68,7 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         --time={SlurmTime} \\
         --job-name=NEUT{Node}of{TotalNodes}\\
         --output=NEUTGeneration_{Node}of{TotalNodes}_{DateStr}.out\\
-        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}/:{OutPath}/ {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && echo {len(NodeFiles)} Files in {SlurmTime} && python GenMain.py NeutMult --Files {FilesFormated} --CPUPercent {CPUPercent}' "
+        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}/:{OutPath}/ {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && echo {len(NodeFiles)} Files in {SlurmTime} && python GenMain.py NeutMult --Files {FilesFormated} --CPUNumber {NCores}' "
         """
         # print(cmd)
         print(f"Sending Job to Node {Node} of {TotalNodes}\n  Estimated time: {SlurmTime}")

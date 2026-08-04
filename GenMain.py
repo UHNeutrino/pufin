@@ -933,7 +933,12 @@ def GenNeutFlatSingleFile(File, Card):
     output_text.close()
     return RunBool
 
-def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
+def GenNeutMultiOnNodeFiles(FileNames, CPUPercent=None, CPUNumber=None):
+    if not CPUPercent and not CPUNumber:
+        raise ValueError("NEED CPU PERCENT OR CPU NUMBER")
+    if CPUNumber and not CPUPercent:
+        CPUPercent = 100
+
     if CPUPercent > 1 and CPUPercent <= 100:
         CPUPercent /= 100
     elif CPUPercent > 100 or CPUPercent < 0:
@@ -941,6 +946,9 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
     
     MaxCores     = os.cpu_count()
     NCores = max(1,int(os.environ.get("SLURM_CPUS_PER_TASK", MaxCores*CPUPercent))) #makes the number of core the max between 1, slurm cpu count, and cpupercent*cpu count
+    if CPUNumber:
+        NCores = CPUNumber
+
     JobID = os.environ.get("SLURM_JOB_ID","0")
     print(f"Number of Cores: {NCores}")
     CardList = []
@@ -958,6 +966,8 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent):
     # proccessed files list
     RunList = []
     ctx = mp.get_context("spawn") #This should help with a slurm multiprocessing bug?
+    if NCores > len(FileNames):
+            NCores = len(FileNames)
     with concurrent.futures.ProcessPoolExecutor(max_workers=NCores, mp_context=ctx) as exe: 
         for result in exe.map(GenNeutFlatSingleFile, FileNames, CardList):
             RunList.append(result)
@@ -1104,7 +1114,8 @@ if __name__ =="__main__":
     #If Being called by GenSubmit on multiple Nodes:
     NeutMultParser = subparsers.add_parser("NeutMult")
     NeutMultParser.add_argument("--Files",  nargs="+", required=True)
-    NeutMultParser.add_argument("--CPUPercent", required=True)
+    NeutMultParser.add_argument("--CPUPercent", required=False)
+    NeutMultParser.add_argument("--CPUNumber", required=False)
     
     # For Making the Xsecs on a cluster:
     NeutXsecParser = subparsers.add_parser("NeutXsec")
@@ -1134,6 +1145,7 @@ if __name__ =="__main__":
         GenNeutMultiOnNodeFiles(
             FileNames= args.Files,
             CPUPercent=float(args.CPUPercent),
+            CPUNumber=int(args.CPUNumber)
             )
     elif args.command=="NeutXsec":
         GenNeutXsec(
