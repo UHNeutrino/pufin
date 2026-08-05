@@ -1,12 +1,12 @@
-# Quick Reference
+# Variables & Usage
 
-> *...references under construction...*
+> *...under construction...*
 
 <!-- Variable Keys Dropdown -->
 <details>
 
 <summary> <b>
-  Variable Keys
+  Standard Variable Keys
 </b> </summary>
 
 <!-- Opens Inline Tables -->
@@ -16,34 +16,48 @@
 <!-- Left Table -->
 <td valign="top">
 <table>
- <tr> <h2> &nbsp; Heading 1 </h2> </tr>
+ <tr> <h2> Energy, Transfer, & Momentum </h2> </tr>
  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
- <tr> <td> q<sub>0</sub> </td>   <td>q0</td>         </tr>
- <tr> <td> q<sub>3</sub> </td>   <td> q3 </td>       </tr>
- <tr> <td> Q<sup>2</sup> </td>   <td> Q2 </td>       </tr>
+  
+  <tr> <td> True E<sub>&#957;</sub> (neutrino energy) </td>   <td> Enu_true </td> </tr>
+  <tr> <td> E<sub>&#957;</sub> for QE interactions (?) </td>   <td> Enu_QE </td> </tr>
+  <tr> <td> Lepton energy (post-FSI?) </td>   <td> ELep </td> </tr>
+  <tr> <td> E<sub>miss</sub> (missing energy) </td>   <td> Emiss </td> </tr>
+  <tr> <td> E<sub>miss</sub> pre-FSI </td>   <td> Emiss_preFSI </td> </tr>
+  
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td> q<sub>0</sub> (energy transfer) </td>   <td>q0</td>         </tr>
+  <tr> <td> q<sub>3</sub> (3-momentum transfer) </td>   <td> q3 </td>       </tr>
+  <tr> <td> Q<sup>2</sup> (collision hardness) </td>   <td> Q2 </td>       </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
 </table>
 </td>
   
-<!-- Center Table -->
+<!-- Table 2 -->
 <td valign="top">
 <table>
-  <tr> <h2> &nbsp; Heading 2 </h2> </tr>
+  <tr> <h2> Invariant Mass, Position, & Misc. </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+
+  <tr> <td> W (invariant mass) </td>   <td> W </td> </tr>
+  <tr> <td> W as predicted by GENIE (?) </td>   <td> W_genie </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
 </table>
 </td>
 
-<!-- Right Table -->
+<!-- Table 3 -->
 <td valign="top">
 <table>
-  <tr> <h2> &nbsp; Flags & Modes </h2> </tr>
-  <p> note: <small> NC = Neutral Current, CC = Charged Current </small></p>
+  <tr> <h2> Flags & Modes </h2> </tr>
+  <tr><td><b> Flag(s): </b></td>   <td><b>Key:</b></td> </tr>
   
-  <tr><td><b>Variable:</b></td>   <td><b>Key:</b></td> </tr>
-  <tr> <td> Flag all CC interactions </td>   <td> flagCCINC </td> </tr>
-  <tr> <td> '' all NC '' </td>   <td> flagNCINC </td> </tr>
-  <tr> <td> '' CC Quasi Elastic '' </td>   <td> flagCCQE </td> </tr>
+  <tr> <td> all CC </td>   <td> flagCCINC </td> </tr>
+  <tr> <td> all NC </td>   <td> flagNCINC </td> </tr>
+  <tr> <td> CC Quasi Elastic </td>   <td> flagCCQE </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagCC0pi </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagCCQELike </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagNCEL </td> </tr>
@@ -57,7 +71,7 @@
   <tr> <td>Lorem ipsum ...</td>   <td> flagCC1pi0 </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagNC1pi0 </td> </tr>
   <tr> <td> Interaction Modes 
-    <a href="https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md">(see below)</a> 
+    <a href="https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#interaction-modes">(see below)</a> 
   </td>   <td> Mode</td> </tr>
 </table>
 </td>
@@ -67,6 +81,104 @@
 </table>
 
 </details>
+
+
+  <!-- PUfIN variables dropdown -->
+<details>
+<summary> <b>
+  PUfIN Custom Variable Keys
+</b> </summary>
+<!-- Opens Inline Tables -->
+<table>
+<tr>
+
+<!-- Table 1 -->
+<td valign="top"> 
+<table>
+  <tr> <h2> Evis Variables </h2> </tr>
+  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+</table>
+</td> 
+
+<!-- Table 2 -->
+<td valign="top"> 
+<table>
+  <tr> <h2> Kinematic Variables </h2> </tr>
+  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+</table>
+</td> 
+
+<!-- Table 3 -->
+<td valign="top"> 
+<table>
+  <tr> <h2> TKI Variables </h2> </tr>
+  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+</table>
+</td> 
+
+<!-- Table 4 -->
+<td valign="top"> 
+<table>
+  <tr> <h2> Threshold Flags </h2> </tr>
+  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+</table>
+</td> 
+
+<!-- Closes Inline Table -->
+</tr>
+</table>
+
+<!-- add variables from EvisB, KinematicsB, 
+TKI (transverse kinematic imbalance), etc. from src/ParticlePlots 
+> Evis_2 = calorimetric reconstruction -->
+</details>
+
+
+<!-- Abbreviations Dropdown -->
+<details>
+<summary> <b>
+  Table of Abbreviations
+</b> </summary>
+
+<table>
+  <!-- <tr> <h2> Header </h2> </tr> -->
+  <tr> <td><b> Abbreviation: </b></td>   <td><b> Meaning: </b></td> </tr>
+  
+  <tr> <td> NC </td>   <td> Neutral Current </td> </tr>
+  <tr> <td> CC </td>   <td> Charged Current</td> </tr>
+  <tr> <td> QE </td>   <td> Quasi-elastic </td> </tr>
+  <tr> <td> EL </td>   <td> Elastic (?) </td> </tr>
+  <tr> <td> FSI </td>   <td> Final State Interaction(s) </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <!-- will alphabetize or categorize when I'm "done" -->
+</table>
+  
+</details>
+
 
 <!-- Extended Variables Dropdown -->
 <details>
@@ -78,6 +190,14 @@
   
 </details>
 
+## Making Cuts for Variables, [Flags, & Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-flags--modes-)
+>This is empty right now :)
+<!-- Explain using modes, flags, and operators to select events or interaction types -->
+
+## Using PUfIN Custom Variables
+>This is empty right now :)
+
+# Interaction Modes
 
 <!-- Frequent Modes Dropdown -->
 <details>
@@ -88,11 +208,10 @@
 
 + RES *(neutrino mode CC1pi resonant events)*:  
   ```
-  Mode == 11 && Mode == 12 && Mode == 13
+  Mode == 11 || Mode == 12 || Mode == 13
   ```
 </details>
 
-# Interaction Modes
 
 ## NEUTRINO MODES
 ---
