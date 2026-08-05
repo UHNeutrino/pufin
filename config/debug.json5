@@ -111,7 +111,28 @@
             "File": "GenieN24_flatf_1e7",
             "Label": "NOvA Flux",
             "Color": "kRed",
-            "reWeight":[true, "/data/t2k-nova/fluxes/Prod6extracted_Travis50MeV_flux_ratio.root","h1", 1.86841953e-11, "G", false, false],
+            "FluxReweight":{
+                "FluxPath":"/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+                "FluxHistogram":"numu",
+                "AreaNormFlag":false,
+                //-----------------------------------------------------------------------------------//
+                // --------------------- Edit below only for re-weighting flux --------------------- //
+                //-----------------------------------------------------------------------------------//
+
+                "XsecType":"G", // G for Genie or N for Neut
+                "UndoFluxNormFlag":false,
+                "TargetWeightsFile": "./config/TargetWeights.json5",
+                "Detector":"Nova", // T2K or Nova
+                "Target":"C12",
+                "XsecMode": "CC", // total, CC or NC
+                "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
+
+
+                // -------- Used Only by Genie --------- //
+                
+                "Flavor": "nu_mu",
+                "NucleonsPerTarget":12
+            },
             "Var": "Enu_true"
             },
             {
@@ -119,7 +140,27 @@
             "File": "Flat_NEUT5.9_flatf_1e7",
             "Label": "NEUT T2K",
             "Color": "kBlue",
-            "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 2.75e-7, "N", false, true], //boolian to start, file location, scaling factor (put 1 for nothing), area norm bool, multiply by bin with bool
+            "FluxReweight":{
+                "FluxPath": "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root",
+                "FluxHistogram": "enu_nd5_13a_real_numu",
+                "AreaNormFlag":false,
+                //-----------------------------------------------------------------------------------//
+                // --------------------- Edit below only for re-weighting flux --------------------- //
+                //-----------------------------------------------------------------------------------//
+
+                "XsecType":"N", // G for Genie or N for Neut
+                "UndoFluxNormFlag":true,
+                "TargetWeightsFile": "./config/TargetWeights.json5",
+                "Detector":"T2K", // T2K or Nova
+                "Target":"C12",
+                "XsecMode": "CC", // total, CC or NC
+                "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
+
+                // -------- Used Only by Genie --------- //
+                
+                "Flavor": "nu_mu",
+                "NucleonsPerTarget":12
+            },
             "Var": "Enu_true"
             },
             

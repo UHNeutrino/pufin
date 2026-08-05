@@ -478,7 +478,10 @@ def MakeSame1D(same1D,GlobalSettings):
         label = plot["Label"]
 
         # reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(plot)
-        reweight_cfg = GrabFluxReWeights(GlobalSettings)
+        if "FluxReweight" in plot:
+            reweight_cfg = GrabFluxReWeights(plot)
+        else:
+            reweight_cfg = GrabFluxReWeights(GlobalSettings)
         reweight_flag = reweight_cfg[0]
         areaB = reweight_cfg[5]
         hist_order.append(key)
