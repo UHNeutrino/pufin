@@ -18,7 +18,7 @@ else:
 
 
 script_dir = script_path.replace("PlotMain.py","")
-f = open(f'{script_dir}config/{Jsonfile}.json5"')
+f = open(f'{script_dir}config/{Jsonfile}.json5')
 data = json5.load(f)
 
 if not data.get("global"):
@@ -91,5 +91,3 @@ else:
         jsr.MakeContour(Contour,GlobalSettings)
     if ContourStyle:
         jsr.MakeContourStyle(ContourStyle,GlobalSettings)
-    if quantiles:
-        jsr.MakeQuantiles(same1D,GlobalSettings)

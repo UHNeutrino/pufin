@@ -3,7 +3,7 @@
         {
             "userFolder":"/data/t2k-nova/FlatTrees",
             "treeName":"FlatTree_VARS",
-            "Save": "t2k-nova/TestingFunctions",
+            "Save": "pufin/DebugPlots",
             "DebugLvl":0,
             "EvisB": false,
             "KinematicsB":false,
@@ -12,14 +12,33 @@
             "Ext": "png",
             "DebugPrint":0,
             "DebugMode":false,
+            "FluxReweight":{
+                "FluxPath": "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root",
+                "FluxHistogram": "enu_nd5_13a_real_numu",
+                "AreaNormFlag":true,
+                //-----------------------------------------------------------------------------------//
+                // --------------------- Edit below only for re-weighting flux --------------------- //
+                //-----------------------------------------------------------------------------------//
+
+                "XsecType":"N", // G for Genie or N for Neut
+                "UndoFluxNormFlag":true,
+                "TargetWeightsFile": "./config/TargetWeights.json5",
+                "Detector":"T2K", // T2K or Nova
+                "Target":"C12",
+                "XsecMode": "CC", // total, CC or NC
+                "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
+
+                // -------- Used Only by Genie --------- //
+                
+                "Flavor": "nu_mu",
+                "NucleonsPerTarget":12
+            }
 
         },
     "plots":
         {
-            "Bool": false,
-            "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 2.75e-7, "N", false, true],
             "Gen":"NEUT5.9",
-            "Flux":"flatf_1e7",
+            "Description":"flatf_1e7",
             "Type":"1D",
             // Specify the cut for the dataframe. For no cuts, type ""
             "Cut": "",
@@ -37,10 +56,8 @@
         },
     "stacks":
         {
-            "Bool":false,
-            "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 1, "", true, false],
             "Gen":"NEUT5.9",
-            "Flux":"flatf_1e7",
+            "Description":"flatf_1e7",
             "Type":"1D", //Only 1D works
             "Cut": "", // For no cuts, type ""
             "Var1": "Enu_true",
@@ -57,10 +74,8 @@
         },
      "overlap":
         {
-            "Bool": false,
-            "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 1, "", true, false],
             "Gen":"NEUT5.9",
-            "Flux":"flatf_1e7",
+            "Description":"flatf_1e7",
             "Type":"1D",
             "Cut": "", // For no cuts, type ""
             "Var1": "Enu_true",
@@ -76,11 +91,8 @@
         },
     "1DSame":
         {
-            "Bool": false,
-            "Cut": "",//"(flagCC1pip == true || flagNC1pip == true || flagCC1pim == true || flagNC1pim == true)", // For no cuts, type ""
-            //"Cut": "(flagCC1pip == true || flagNC1pip == true || flagCC1pim == true || flagNC1pim == true) && Q2 <= 1 && W >= 1.1 && W < 1.4",
+            "Cut": "",
             "AxisInfo": "Enu_true, GeV/c, Frequency, , ",// @ NOvA 1 Pion Q2 & W cuts", //Q2
-            //"AxisInfo": "#deltaP_{T}, GeV/c, Frequency, , QE Delta PT x & y for Leading Proton", //PLep
             "Bins": [160, 0, 8],
             //If VBins is true, treats the second element as bin edges
             "VBins": [false,[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,3,4,5,6,7,8,30]],
@@ -97,7 +109,6 @@
             {
             "Key": "Genie",
             "File": "GenieN24_flatf_1e7",
-            //"Cut": "flagCC0pi == true && flagNovaProtonP == true && flagNovaMuonP == true && (Q2 >= 0.4)",
             "Label": "NOvA Flux",
             "Color": "kRed",
             "reWeight":[true, "/data/t2k-nova/fluxes/Prod6extracted_Travis50MeV_flux_ratio.root","h1", 1.86841953e-11, "G", false, false],
@@ -116,10 +127,8 @@
         },
     "Contour":
         {
-            "Bool": false,
-            "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 2.75e-7, "N", false, true],
             "Gen":"Flat_NEUT5.9",
-            "Flux":"flatf_1e7",
+            "Description":"flatf_1e7",
             "Cut": "", // For no cuts, type ""
             "Var1":"q0",
             "Var2":"q3",
@@ -138,7 +147,7 @@
             "Bool": true,
             "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 2.75e-7, "N", false, true],
             "Gen":"Flat_NEUT5.9",
-            "Flux":"flatf_1e7",
+            "Description":"flatf_1e7",
             "Cut": "", // For no cuts, type "", this is the inital cut that applies to all events
             "Var1":"q0",
             "Var2":"q3",
@@ -151,40 +160,4 @@
             "Name": "ContourStyleAreaRW",
             "Ext": "png"
         },
-    "quantiles":
-        {
-            "Bool": false,
-            "reWeight": [false, "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"], // "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_stdbins.root","enu_nd5_23a_untuned_numu"
-            "reWeight2":[true,  "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"], // "/data/t2k-nova/fluxes/NOvADeriveFlux50MeVwidth_ppfs_numu.root","numu"
-            "Spline":true,
-            "custom_quantiles": true,
-            "consistent_quantiles": [0, 0.8, 1.6, 2.4, 8, 20], // Pi Abs[0, 0.5, 0.7, 0.8, 1.0, 8], // 2P2H [0, 0.3, 0.5, 0.7, 1.0, 8], // QE [0, 0.3, 0.45, 0.7, 2.1, 8],
-            "x1": "q3", 
-            "y1": "q0", 
-
-            "y2": "CosLep",
-            "x2": "PLep",
-            "xLabel": "#mu",
-            "yLabel": "Cos #theta",
-
-            "cut": "flagCC0pi == 1 && Mode ==1", //(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)",
-            "mode_label": "CCPi0&QE",
-            "mode_title": "QE",
-            "max_energy": 8,
-
-            "zaxis": true,
-            "Norm": true,
-            "zmax": 16, // Choose max value integer (w/out quotation marks) or "None" (use quotation marks)
-            "zmin": 0, // has to be symmetric with zmax for difference plots
-            "logz": false,
-            "plot_type": "compare",  // "grid", "segments" or "compare"
-            "compare_type": "Ratio", // "Difference" or "Ratio"
-            "Save": "t2k-nova/plots_quantiles/QE/constant_quantiles/normalized",
-            "AutoNameB": false,
-            "SaveName": "Ratio_max",
-            "AutoTitleB": true,
-            "Title": "Lalala",
-            "Ext": "png"
-        },
-    
 }

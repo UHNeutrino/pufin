@@ -9,6 +9,7 @@ import array
 
 HOME = os.getenv("HOME", "/home/lboe")
 
+
 def GrabFluxReWeights(GlobalSettings):
     frwDict = GlobalSettings.get("FluxReweight")
     
@@ -51,6 +52,8 @@ def GrabFluxReWeights(GlobalSettings):
     ]
     print(f"Using Fscale for {detector} {target}: {Fscale:.18e}")
     return reweight_cfg
+
+
 
 def CalculateTargetWeightFactor(targets_file, detector, target):
     with open(targets_file, "r") as f:
@@ -117,20 +120,8 @@ def CalculateTargetWeightFactor(targets_file, detector, target):
 
 def MakePlots(plots, GlobalSettings):
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
-    (
-        reweight_flag,
-        rw_file,
-        rw_flux,
-        Fscale,
-        xsectype,
-        areaB,
-        undoNormB,
-        xsecmode,
-        flavor,
-        target,
-        xsecpath,
-        nucpert,
-    ) = reweight_cfg
+    reweight_flag = reweight_cfg[0]
+    areaB = reweight_cfg[5]
     
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder+ f'/*{plots["Gen"]}*{plots["Description"]}*.root')
@@ -148,8 +139,10 @@ def MakePlots(plots, GlobalSettings):
         AxisInfo = []
         #df = pp.CreateDataFrame(file_path, plots["Cut"])
         df = pp.CreateDataFrame(file_path, cut ="None")
-        Vbins = array.array('d',plots["VBins"][1])
-        varBinInfo = ROOT.RDF.TH1DModel("h_varbins","h", len(Vbins) - 1, Vbins)
+        VbinBool = "VBins" in plots
+        if VbinBool:
+            Vbins = array.array('d',plots["VBins"][1])
+            varBinInfo = ROOT.RDF.TH1DModel("h_varbins","h", len(Vbins) - 1, Vbins)
 
 
         if(GlobalSettings["EvisB"]):
@@ -168,7 +161,7 @@ def MakePlots(plots, GlobalSettings):
 
         if plots["Type"] == "1D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
-            if plots["VBins"][0]:
+            if VbinBool:
                 histInfo = varBinInfo
             if reweight_flag:
                 hist = df.Histo1D(histInfo,plots["Var1"],"weights")
@@ -176,7 +169,7 @@ def MakePlots(plots, GlobalSettings):
                 hist = df.Histo1D(histInfo,plots["Var1"])
         if plots["Type"] == "2D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
-            if plots["VBins"][0]:
+            if VbinBool:
                 histInfo = varBinInfo
             if(reweight_flag):
                 hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"],"weights")
@@ -261,20 +254,8 @@ def MakePlots(plots, GlobalSettings):
 
 def MakeStacks(stacks,GlobalSettings):
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
-    (
-        reweight_flag,
-        rw_file,
-        rw_flux,
-        Fscale,
-        xsectype,
-        areaB,
-        undoNormB,
-        xsecmode,
-        flavor,
-        target,
-        xsecpath,
-        nucpert,
-    ) = reweight_cfg
+    reweight_flag = reweight_cfg[0]
+    areaB = reweight_cfg[5]
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder+ f'/*{stacks["Gen"]}*{stacks["Description"]}*.root')
     if root_files == []:
@@ -364,20 +345,8 @@ def MakeStacks(stacks,GlobalSettings):
 
 def MakeOverlap(overlap,GlobalSettings):
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
-    (
-        reweight_flag,
-        rw_file,
-        rw_flux,
-        Fscale,
-        xsectype,
-        areaB,
-        undoNormB,
-        xsecmode,
-        flavor,
-        target,
-        xsecpath,
-        nucpert,
-    ) = reweight_cfg
+    reweight_flag = reweight_cfg[0]
+    areaB = reweight_cfg[5]
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder + f'/*{overlap["Gen"]}*{overlap["Description"]}*.root')
     if root_files == []:
@@ -506,26 +475,12 @@ def MakeSame1D(same1D,GlobalSettings):
     for plot in plots_list:
         file = plot["File"]
         key = plot["Key"]
-        color_str = plot["Color"]
         label = plot["Label"]
 
         # reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(plot)
-        reweight_cfg = GrabFluxReWeights(plot)
-        (
-            reweight_flag,
-            rw_file,
-            rw_flux,
-            Fscale,
-            xsectype,
-            areaB,
-            undoNormB,
-            xsecmode,
-            flavor,
-            target,
-            xsecpath,
-            nucpert,
-        ) = reweight_cfg
-        Var = plot["Var"]
+        reweight_cfg = GrabFluxReWeights(GlobalSettings)
+        reweight_flag = reweight_cfg[0]
+        areaB = reweight_cfg[5]
         hist_order.append(key)
 
         # Find matching file
@@ -536,17 +491,7 @@ def MakeSame1D(same1D,GlobalSettings):
 
         file_path = matches[0]
         print(f"Processing {file_path}")
-
-        #df = pp.CreateDataFrame(file_path, same1D["Cut"])
-        #df = pp.CreateDataFrame(file_path, cut = "cc == true && qel == true")
         df = pp.CreateDataFrame(file_path, cut = "None")
-        # unfiltered = df.Count().GetValue()
-        # df = df.Filter("Enu_true < 8.0 ")
-        #df = df.Filter("Ev < 8.0 ") ## for gst files
-        # frakLost = 1.0 - df.Count().GetValue()/unfiltered
-        # print(f"Fraction lost from E Nu cut: {frakLost}")
-        # print(f"Events lost from E Nu cut: {unfiltered - df.Count().GetValue()}")
-        # print(f'Total Events {df.Count().GetValue()}')
 
 
         if kin:
@@ -557,30 +502,13 @@ def MakeSame1D(same1D,GlobalSettings):
             df = pp.DefineTKI(df)
         if Thresholds:
             df = pp.FlagParticleThresholds(df)
-        if reweight_flag:
-            f_flux = ROOT.TFile.Open(rw_file, "READ")
-            if not f_flux or f_flux.IsZombie():
-                print(f"[reWeight] Could not open rw_file: {rw_file}")
-            else:
-                h_flux = f_flux.Get(rw_flux)
-                if not h_flux:
-                    print(f"[reWeight] Could not find histogram '{rw_flux}' in {rw_file}")
-                    f_flux.ls()
-                else:
-                    print(f"[reWeight] Flux hist: {rw_flux}")
-                    print(f"  Integral()        = {h_flux.Integral()}")
-                    I_flux = h_flux.Integral("width")
-                    print(f"  Integral('width') = {h_flux.Integral('width')}")
-                f_flux.Close()
+
 
         if reweight_flag:
-            print(f"UNDONORM : {undoNormB}")
             df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
-        # if same1D.get("Cut"):
-        #     df = df.Filter(same1D["Cut"])
             
         bins = array.array('d',same1D["VBins"][1])
 
@@ -654,19 +582,19 @@ def MakeSame1D(same1D,GlobalSettings):
         print(hist_cut.Integral())
         hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
         
-            
-        #color = getattr(ROOT, color_str.split("+")[0]) + int(color_str.split("+")[1]) if "+" in color_str else getattr(ROOT, color_str)
+        if "Style" in plot:
+            styleint = plot["Style"]
+        else:
+            styleint = 1
+        
         color = sf.parse_color(plot["Color"])
-        hist.SetLineStyle(plot["Style"])
+        hist.SetLineStyle(styleint)
         hist.SetLineColor(color)
         hist.SetLineWidth(1)
         
         hist_dict[key] = hist
         legend.AddEntry(hist, label, "l")
         histCounter += 1
-        # if (histCounter == 0):
-        #     hist.SetLineWidth(2)
-        # ^This could be better
 
         highest_max = max(hist.GetMaximum() for hist in hist_dict.values())
 
@@ -867,20 +795,8 @@ def MakeSame1D(same1D,GlobalSettings):
 
 def MakeContour(Contour,GlobalSettings):
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
-    (
-        reweight_flag,
-        rw_file,
-        rw_flux,
-        Fscale,
-        xsectype,
-        areaB,
-        undoNormB,
-        xsecmode,
-        flavor,
-        target,
-        xsecpath,
-        nucpert,
-    ) = reweight_cfg
+    reweight_flag = reweight_cfg[0]
+    areaB = reweight_cfg[5]
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder + f'/*{Contour["Gen"]}*{Contour["Description"]}*.root')
     if root_files == []:
@@ -1010,20 +926,9 @@ def MakeContour(Contour,GlobalSettings):
 
 def MakeContourStyle(ContourStyle,GlobalSettings):
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
-    (
-        reweight_flag,
-        rw_file,
-        rw_flux,
-        Fscale,
-        xsectype,
-        areaB,
-        undoNormB,
-        xsecmode,
-        flavor,
-        target,
-        xsecpath,
-        nucpert,
-    ) = reweight_cfg
+    reweight_flag = reweight_cfg[0]
+    areaB = reweight_cfg[5]
+
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder + f'/*{ContourStyle["Gen"]}*{ContourStyle["Description"]}*.root')
     if root_files == []:
