@@ -10,11 +10,17 @@ import src.ParticlePlots as pp
 import src.SetupFunctions as sf
 
 
+PUFIN_OUT = os.environ.get("PUFIN_OUT")
+if PUFIN_OUT == None:
+    raise EnvironmentError("PUFIN_OUT Must be defined for WeightMain")
+
 if sys.argv[1]:
+    argString = sys.argv[1]
+    if ".json5" in argString:
+        argString = argString.replace(".json5","")
     CONFIG_FILE = f"./config/{sys.argv[1]}.json5"
 else:
-    CONFIG_FILE = "./config/WeightMain.json5"
-    print("Defaulting to WeightMain.json5")
+    raise ValueError("Please specify a config file to use in /config")
 
 
 #### Define filename pattern expected for PUfIN ROOT files #####
@@ -383,7 +389,7 @@ def calculate_target_weight_factors(
 
 def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict):
     discovered = discover_pufin_files(
-        base_dir=stage2["base_dir"],generator=stage2["generator"],)
+        base_dir=PUFIN_OUT,generator=stage2["generator"],)
 
     filters = get_filters(stage2)
     selected = build_selected_entries(discovered, filters)

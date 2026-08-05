@@ -9,15 +9,16 @@ sf.setupRoot
 script_path = os.path.realpath(__file__)
 
 if sys.argv[1]:
-    Jsonfile = sys.argv[1]
-    Jsonfile = Jsonfile + ".json5"
+    argString = sys.argv[1]
+    if ".json5" in argString:
+        argString = argString.replace(".json5","")
+    Jsonfile = argString
 else:
-    Jsonfile = "PlotMain.json5"
-    print("Defaulting to PlotMain.json5")
+    raise ValueError("Please specify which config file to use in /config")
 
 
 script_dir = script_path.replace("PlotMain.py","")
-f = open(f'{script_dir}config/{Jsonfile}')
+f = open(f'{script_dir}config/{Jsonfile}.json5"')
 data = json5.load(f)
 
 if not data.get("global"):
