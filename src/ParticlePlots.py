@@ -907,8 +907,8 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
     #treeName = "gst"
     print(fileName)
 
-    if isinstance(dir_location, ROOT.TTree):
-        df = ROOT.RDataFrame(dir_location)
+    if isinstance(dir_location, list):
+        df = ROOT.RDataFrame(treeName,dir_location)
     else:
         df = ROOT.RDataFrame(treeName,fileName)
     df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")

@@ -463,20 +463,16 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict):
         print(f"    rw_flux        = {rw_flux}")
         print(f"    energy window  = [{energy_min}, {energy_max}] GeV")
         
-        chain = ROOT.TChain("FlatTree_VARS")
+        FileList = [] #Make a list of files rather than a chain
 
         for meta in group["files"]:
             file_path = meta["path"]
-            added = chain.Add(file_path)
-            if added == 0:
-                raise RuntimeError(f"Failed to add file to TChain: {file_path}")
+            FileList.append(file_path)
             print(f"  added file           = {file_path}")
-        chain_entries = chain.GetEntries()
-        print(f"  chain files          = {chain.GetNtrees()}")
-        print(f"  chain entries        = {chain_entries}")
-        if chain.GetNtrees() == 0 or chain_entries == 0:
-            raise RuntimeError(f"Empty TChain for {interaction} {requested_flavor} {energy_range} {target}")
-        df = pp.CreateDataFrame(chain, cut="None")
+        print(f"  Total files          = {len(FileList)}")
+        if len(FileList) == 0:
+            raise RuntimeError(f"Empty File List for {interaction} {requested_flavor} {energy_range} {target}")
+        df = pp.CreateDataFrame(FileList, cut="None")
         df = apply_global_definitions(df, global_settings)
 
         weight_col = ""
