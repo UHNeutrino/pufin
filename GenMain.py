@@ -1025,7 +1025,7 @@ def FlatNeut(GenList):
             
             if (Genf.IsZombie()) or (not Genf.Get("fluxhisto")):
                 Genf.Close()
-                os.remove(Genf)
+                os.remove(GenPath)
                 GenNeutSingleFile(Gen)  #Try to regenerate once if it failed before
                 try:
                     Genf = ROOT.TFile(GenPath)
