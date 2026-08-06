@@ -651,41 +651,44 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=No
                     raise ValueError(f"Mode {Mode} Does Not Exist!!")
                 for CName in CNameList:
                     f = CardPath + "/" + CName
-                    if not os.path.exists(f):
-                        print(f"Missing {f}")
-                        CardString = ""
-                        if not GlobalV.NeutCardTunes.get(Tune):
-                            raise ValueError(f"Tune {Tune} Does Not Exist")
-                        CardString = CardString + GlobalV.NeutCardTunes.get(Tune)
-                        CardString = CardString + f"\nEVCT-NEVT {Events}\n"
-                        CardString = CardString + GlobalV.NeutCardModes.get(Mode)
-                        CardString = CardString + GlobalV.NeutCardFlavors.get(Flavor)
-                        CardString = CardString + GlobalV.NeutCardTargets.get(Target)
-                        tempErange = CName.split("_")[-3]
-                        low = tempErange.split("-")[0]
-                        if (tempErange != "0-8GeV"):
-                            print("NOT 0-8GeV")
-                            CardString = CardString.replace("EVCT-FILENM 'flat_flux_0-8GeV.root'",f"EVCT-FILENM 'flat_flux_{tempErange}.root'" )
-                            CardString = CardString.replace("EVCT-HISTNM 'FlatHist'",f"EVCT-HISTNM 'FlatHist_{low}''" )
-                        else:
-                            CardString = CardString.replace("EVCT-HISTNM 'FlatHist'",f"EVCT-HISTNM 'FlatHist_{low}''" )
-                        if Target == "Titanium":
-                            # This is here because Neut can't generate titanium with certain QE models
-                            if "NEUT-MDLQE 402" in CardString:
-                                CardString = CardString.replace("NEUT-MDLQE 402","NEUT-MDLQE 002")
-                            else:
-                                CardString = CardString + "NEUT-MDLQE 002 \n"
-
-                            if "NEUT-MDL2P2H 2" in CardString:
-                                CardString = CardString.replace("NEUT-MDL2P2H 2","NEUT-MDL2P2H 1")
-                            else:
-                                CardString = CardString + "NEUT-MDL2P2H 1 \n"
-
-                        with open(f, "w") as file:
-                            file.write(CardString)
-                        print(f"Made Neut Card: {f}")
+                    if os.path.exists(f):
+                        print(f"Remaking Card {CName}")
+                        os.remove(f)
                     else:
-                        print(f"Neut Card {CName} exists")
+                        print(f"Missing {CName}")
+                    CardString = ""
+                    if not GlobalV.NeutCardTunes.get(Tune):
+                        raise ValueError(f"Tune {Tune} Does Not Exist")
+                    CardString = CardString + GlobalV.NeutCardTunes.get(Tune)
+                    CardString = CardString + f"\nEVCT-NEVT {Events}\n"
+                    
+                    CardString = CardString + GlobalV.NeutCardModes.get(Mode)
+                    CardString = CardString + GlobalV.NeutCardFlavors.get(Flavor)
+                    CardString = CardString + GlobalV.NeutCardTargets.get(Target)
+                    tempErange = CName.split("_")[-3]
+                    low = tempErange.split("-")[0]
+                    if (tempErange != "0-8GeV"):
+                        print("NOT 0-8GeV")
+                        CardString = CardString.replace("EVCT-FILENM 'flat_flux_0-8GeV.root'",f"EVCT-FILENM 'flat_flux_{tempErange}.root'" )
+                        CardString = CardString.replace("EVCT-HISTNM 'FlatHist'",f"EVCT-HISTNM 'FlatHist_{low}''" )
+                    else:
+                        CardString = CardString.replace("EVCT-HISTNM 'FlatHist'",f"EVCT-HISTNM 'FlatHist_{low}''" )
+                    if Target == "Titanium":
+                        # This is here because Neut can't generate titanium with certain QE models
+                        if "NEUT-MDLQE 402" in CardString:
+                            CardString = CardString.replace("NEUT-MDLQE 402","NEUT-MDLQE 002")
+                        else:
+                            CardString = CardString + "NEUT-MDLQE 002 \n"
+
+                        if "NEUT-MDL2P2H 2" in CardString:
+                            CardString = CardString.replace("NEUT-MDL2P2H 2","NEUT-MDL2P2H 1")
+                        else:
+                            CardString = CardString + "NEUT-MDL2P2H 1 \n"
+
+                    with open(f, "w") as file:
+                        file.write(CardString)
+                    print(f"Made Neut Card: {f}")
+
     return CardNames
 
 def GenNeutXsec(Tune, Targets, FullCardPath=None):
@@ -891,8 +894,8 @@ def GenNeutFlatSingleFile(File, Card):
 
     GenName = File
     f = GenDir + f"/{GenName}"
-    # wait time to hopefully not overload the memeory in a node
-    waitTime = random.randrange(0,10)
+    # wait time to hopefully not overload the I/O in a node
+    waitTime = random.randrange(0,60)
     time.sleep(waitTime)
     
 
@@ -961,6 +964,9 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent=None, CPUNumber=None):
         CardName = CardName.replace("Original_NEUT", "NEUT")
         NodeCard = CardName.replace(".card",f"{JobID}.card")
         if not os.path.exists(f"{tmpdir}/{NodeCard}"):
+            shutil.copy(f"{CardDir}/{CardName}", os.path.join(tmpdir, os.path.basename(NodeCard)))
+        else:
+            os.remove(f"{tmpdir}/{NodeCard}")
             shutil.copy(f"{CardDir}/{CardName}", os.path.join(tmpdir, os.path.basename(NodeCard)))
         CardList.append(NodeCard) 
     # proccessed files list
@@ -1066,6 +1072,8 @@ def Generate(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=None, 
                 Flavor=Flavor,
             )
     elif Generator.lower()=="neut":
+        subprocess.run("rm *.text ", cwd=tmpdir, shell=True) #remove previous text files
+
         if not Tune:
             raise ValueError("Neut requires a tune")
         CardNames = MakeNeutCards(Tune, Targets, Events, Modes=Mode, Flavors=Flavor)
@@ -1106,9 +1114,9 @@ if __name__ =="__main__":
     GenParser.add_argument("--generator", required=True)
     GenParser.add_argument("--events", required=True, type=int)
     GenParser.add_argument("--tune", default=None)
-    GenParser.add_argument("--target", default=None)
-    GenParser.add_argument("--mode", default=None)
-    GenParser.add_argument("--flavor", default=None)
+    GenParser.add_argument("--target",  nargs="+", default=None)
+    GenParser.add_argument("--mode",  nargs="+", default=None)
+    GenParser.add_argument("--flavor",  nargs="+",default=None)
     GenParser.add_argument("--CPUPercent", default=None, type=float)
     GenParser.add_argument("--NChunks", default=None, type=int)
     #If Being called by GenSubmit on multiple Nodes:
@@ -1136,8 +1144,6 @@ if __name__ =="__main__":
             Target=args.target,
             Mode=args.mode,
             Flavor=args.flavor,
-            # CPUPercent=float(args.CPUPercent),
-            # NChunks=int(args.NChunks),
             CPUPercent=args.CPUPercent,
             NChunks=args.NChunks,
         )
