@@ -5,7 +5,9 @@
 PlotMain.py is a plotting function that uses interaction data in flattened root files as well as flux histograms to output organized files and figures with several extensions (.root, .png, and/or .pdf). This function can be used to reweight and plot data in a variety of forms (as outlined [here](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#functionality)) and also supports [custom variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#using-pufin-custom-variables) not included in standard root trees.
 
 
-## Outline
+<details>
+<summary><h2> Outline </h2></summary>
+  
 + [Setup](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#setup)
 + [Functionality](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#functionality)
   + [Reweighting with ```"FluxReweight":```](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#reweighting-with-fluxreweight)
@@ -16,6 +18,8 @@ PlotMain.py is a plotting function that uses interaction data in flattened root 
   + [Plotting with ```"Contour":```](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#plotting-with-contour)
   + [Plotting with ```"ContourStyle":```](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#plotting-with-contourstyle)
 + [Using PlotMain.py](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#using-plotmainpy)
+
+</details>
 
 ## Setup
 After installing PUfIN using:
