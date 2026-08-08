@@ -43,5 +43,17 @@
       "Ti48": 0.01632,
       "O16": 0.04472
     }
+  },
+  "ICARUS": {
+    "exp_pot": 2e20,
+    "flux_pot": 1.62e19,
+    "fv_nucleon_targets": 2.61098e32, // 433 tons of loquid argon
+    "xsec_units": 1, // 1e-38 for Genie and 1 for NEUT -> this should be updated
+    "flux_gev_norm": 0.05,
+    "flux_cm_conv": 1e-4,
+
+    "target_percent": {
+      "Ar40": 1
+    }
   }
 }
