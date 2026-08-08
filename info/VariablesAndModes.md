@@ -1,3 +1,36 @@
+> Not what you're looking for? Click [here](https://github.com/UHNeutrino/pufin/blob/main/README.md) to return to the main PUfIN README
+
+# Variables & Modes
+PUfIN is compatible with standard and custom variable keys as well as Nuisance [Interaction Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#interaction-modes), which are detailed in the following document.
+
+<details open>
+<summary><h2> Outline </h2></summary>
+  
++ [Variables & Usage](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#variables--usage)
+  + Standard Variable Keys
+    + [Energy, Transfer, & Momentum](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-energy-transfer--momentum-)
+    + [Invariant Mass, Position, & Miscellaneous](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-invariant-mass-position--misc-)
+    + [Flags & Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-flags--modes-)
+  + PUfIN Custom Variable Keys
+    + [Evis Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-evis-variables-)
+    + [Kinematic Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-kinematic-variables-)
+    + [TKI Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-tki-variables-)
+    + [Threshold Flags](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-threshold-flags-)
+  + Table of Abbreviations
+  + Extended Variable Descriptions
+  + [Making Cuts with Variables, Flags, & Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#making-cuts-with-variables-flags--modes)
+  + [Using PUfIN Custom Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#using-pufin-custom-variables)
++ [Interaction Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#interaction-modes)
+  + Frequently Used Modes 
+  + [Neutrino Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#neutrino-modes)
+    + [Charged Current](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#charged-current)
+    + [Neutral Current](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#neutral-current)
+  + [Anti Neutrino Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#anti-neutrino-modes)
+    + [Charged Current](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#charged-current-1)
+    + [Neutral Current](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#neutral-current-1)
+   
+</details>
+
 # Variables & Usage
 
 > *...under construction...*
@@ -190,7 +223,7 @@ TKI (transverse kinematic imbalance), etc. from src/ParticlePlots
   
 </details>
 
-## Making Cuts for Variables, [Flags, & Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-flags--modes-)
+## Making Cuts with Variables, [Flags, & Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-flags--modes-)
 >This is empty right now :)
 <!-- Explain using modes, flags, and operators to select events or interaction types -->
 
@@ -613,5 +646,3 @@ ELASTIC
    -52 : NEUBAR,N --> NEUBAR,N
 ```
 </details>
-
-
