@@ -8,11 +8,11 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
   
 + [Variables & Usage](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#variables--usage)
   + Standard Variable Keys
-    + [Energy, Transfer, & Momentum](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-energy-transfer--momentum-)
+    + [Energy, Transfer, & Momentum](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#energy-transfer-momentum)
     + [Invariant Mass, Position, & Miscellaneous](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-invariant-mass-position--misc-)
     + [Flags & Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-flags--modes-)
   + PUfIN Custom Variable Keys
-    + [Evis Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-evis-variables-)
+    + [Evis Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md )
     + [Kinematic Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-kinematic-variables-)
     + [TKI Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-tki-variables-)
     + [Threshold Flags](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-threshold-flags-)
@@ -49,7 +49,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <!-- Left Table -->
 <td valign="top">
 <table>
- <tr> <h2> Energy, Transfer, & Momentum </h2> </tr>
+ <tr> <h2 id="energy-transfer-momentum"> Energy, Transfer, & Momentum </h2> </tr>
  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
   
   <tr> <td> True E<sub>&#957;</sub> (neutrino energy) </td>   <td> Enu_true </td> </tr>
@@ -69,7 +69,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <!-- Table 2 -->
 <td valign="top">
 <table>
-  <tr> <h2> Invariant Mass, Position, & Misc. </h2> </tr>
+  <tr> <h2 id="#-invariant-mass-position--misc-"> Invariant Mass, Position, & Misc. </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
 
   <tr> <td> W (invariant mass) </td>   <td> W </td> </tr>
@@ -85,7 +85,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <!-- Table 3 -->
 <td valign="top">
 <table>
-  <tr> <h2> Flags & Modes </h2> </tr>
+  <tr> <h2 id="#-flags--modes-"> Flags & Modes </h2> </tr>
   <tr><td><b> Flag(s): </b></td>   <td><b>Key:</b></td> </tr>
   
   <tr> <td> all CC </td>   <td> flagCCINC </td> </tr>
@@ -128,7 +128,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <!-- Table 1 -->
 <td valign="top"> 
 <table>
-  <tr> <h2> Evis Variables </h2> </tr>
+  <tr> <h2 id="#-evis-variables-"> Evis Variables </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
@@ -141,7 +141,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <!-- Table 2 -->
 <td valign="top"> 
 <table>
-  <tr> <h2> Kinematic Variables </h2> </tr>
+  <tr> <h2 id="#-kinematic-variables-"> Kinematic Variables </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
@@ -154,7 +154,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <!-- Table 3 -->
 <td valign="top"> 
 <table>
-  <tr> <h2> TKI Variables </h2> </tr>
+  <tr> <h2 id="#-tki-variables-"> TKI Variables </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
@@ -167,7 +167,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <!-- Table 4 -->
 <td valign="top"> 
 <table>
-  <tr> <h2> Threshold Flags </h2> </tr>
+  <tr> <h2 id="#-threshold-flags-"> Threshold Flags </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
