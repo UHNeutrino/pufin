@@ -20,7 +20,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
   + Extended Variable Descriptions
   + [Making Cuts with Variables, Flags, & Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#making-cuts-with-variables-flags--modes)
   + [Using PUfIN Custom Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#using-pufin-custom-variables)
-    + PlotMain Activation Settings
+    + Custom Variable Activation Settings
 + [Interaction Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#interaction-modes)
   + Frequently Used Modes 
   + [Neutrino Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#neutrino-modes)
@@ -230,9 +230,19 @@ TKI (transverse kinematic imbalance), etc. from src/ParticlePlots
 
 ## Using PUfIN Custom Variables
 
-PUfIN comes with built-in custom variables, which are defined and computed in [ParticlePlots.py](https://github.com/UHNeutrino/pufin/blob/main/src/ParticlePlots.py). However, due to the added compute time used to calculate these variables, activation of these variables is required before using them. The custom variables and flags are separated into 4 categories--[Evis Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-evis-variables-), [Kinematic Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-kinematic-variables-), [TKI Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-tki-variables-), [Threshold Flags](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-threshold-flags-)--and can be activated individually by setting their respective config setting to true (variable sets not in use should be ```false``` to minimize compute time). When using [PlotMain](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md), these settings are activated within ```"global":``` in your config file as follows:
+PUfIN comes with built-in custom variables, which are defined and computed in 
+[ParticlePlots.py](https://github.com/UHNeutrino/pufin/blob/main/src/ParticlePlots.py). 
+However, due to the added compute time used to calculate these variables, activation of these variables is required before using them. 
+The custom variables and flags are separated into 4 categories--
+[Evis Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-evis-variables-), 
+[Kinematic Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-kinematic-variables-), 
+[TKI Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-tki-variables-), 
+[Threshold Flags](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-threshold-flags-)
+--and can be activated individually by setting their respective config setting to true 
+(variable sets not in use should be ```false``` to minimize compute time). 
+These settings are activated within ```"global":``` in your config file as follows:
 
-| PlotMain Activation Setting |Variable Set |
+| Activation Setting | Variable Set |
 | --------------------------------| -------------|
 | ```"EvisB": true```             | Evis Variables|
 | ```"KinematicsB": true```             | Kinematic Variables|
