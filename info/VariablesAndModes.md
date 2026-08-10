@@ -3,7 +3,7 @@
 # Variables & Modes
 PUfIN is compatible with standard and custom variable keys as well as Nuisance [Interaction Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#interaction-modes), which are detailed in the following document.
 
-<details open>
+<details>
 <summary><h2> Outline </h2></summary>
   
 + [Variables & Usage](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#variables--usage)
@@ -12,7 +12,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
     + [Invariant Mass, Position, & Miscellaneous](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-invariant-mass-position--misc-)
     + [Flags & Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-flags--modes-)
   + PUfIN Custom Variable Keys
-    + [Evis Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md )
+    + [Evis Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-evis-variables-)
     + [Kinematic Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-kinematic-variables-)
     + [TKI Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-tki-variables-)
     + [Threshold Flags](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-threshold-flags-)
@@ -20,6 +20,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
   + Extended Variable Descriptions
   + [Making Cuts with Variables, Flags, & Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#making-cuts-with-variables-flags--modes)
   + [Using PUfIN Custom Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#using-pufin-custom-variables)
+    + PlotMain Activation Settings
 + [Interaction Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#interaction-modes)
   + Frequently Used Modes 
   + [Neutrino Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#neutrino-modes)
@@ -200,9 +201,9 @@ TKI (transverse kinematic imbalance), etc. from src/ParticlePlots
   <tr> <td> NC </td>   <td> Neutral Current </td> </tr>
   <tr> <td> CC </td>   <td> Charged Current</td> </tr>
   <tr> <td> QE </td>   <td> Quasi-elastic </td> </tr>
-  <tr> <td> EL </td>   <td> Elastic (?) </td> </tr>
+  <tr> <td> EL </td>   <td> Elastic </td> </tr>
   <tr> <td> FSI </td>   <td> Final State Interaction(s) </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td> TKI </td>   <td> Transverse Kinematic Imbalance </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
@@ -228,7 +229,17 @@ TKI (transverse kinematic imbalance), etc. from src/ParticlePlots
 <!-- Explain using modes, flags, and operators to select events or interaction types -->
 
 ## Using PUfIN Custom Variables
->This is empty right now :)
+
+PUfIN comes with built-in custom variables, which are defined and computed in [ParticlePlots.py](https://github.com/UHNeutrino/pufin/blob/main/src/ParticlePlots.py). However, due to the added compute time used to calculate these variables, activation of these variables is required before using them. The custom variables and flags are separated into 4 categories--[Evis Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-evis-variables-), [Kinematic Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-kinematic-variables-), [TKI Variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-tki-variables-), [Threshold Flags](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-threshold-flags-)--and can be activated individually by setting their respective config setting to true (variable sets not in use should be ```false``` to minimize compute time). When using [PlotMain](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md), these settings are activated within ```"global":``` in your config file as follows:
+
+| PlotMain Activation Setting |Variable Set |
+| --------------------------------| -------------|
+| ```"EvisB": true```             | Evis Variables|
+| ```"KinematicsB": true```             | Kinematic Variables|
+| ```"TkiB": true```             | TKI Variables|
+| ```"ThresholdsB": true```             | Threshold Flags|
+
+
 
 # Interaction Modes
 
