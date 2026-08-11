@@ -233,7 +233,7 @@ def GenGenieFlatSingleFile(File):
     if FlavorPDG == None:
         raise ValueError(f"No Such Flavor {Flavor}")
 
-    Flux = f"/data/t2k-nova/fluxes/full_flat_flux_{Emin}-{Emax}GeV.root,h1"
+    Flux = f"{OutPath}/FlatFluxes/flat_flux_{Emin}-{Emax}GeV.root"
 
     RunBool = not os.path.exists(GenPath)
 
