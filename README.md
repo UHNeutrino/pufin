@@ -25,11 +25,12 @@ This repo is for all code related to the Plotting Utility for Interacting Neutri
 <!-- what can PUfIN do? -->
 PUfIN consists of 4 independent functions, each of which serves a distinct purpose. These functions are described briefly below:
 
- + **PlotMain**
+ + **PlotMain** \
+   PlotMain.py is a plotting function that uses interaction data in flattened root files as well as flux histograms to output organized files and figures with several extensions (.root, .png, and/or .pdf). This function can be used to reweight and plot data in a variety of forms (as outlined here) and also supports custom variables not included in standard root trees.
     > For setup instructions and more detailed information on this function, see
   [PlotMain](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md)
 
- + **GenMain**
+ + **GenMain** 
     > For setup instructions and more detailed information on this function, see
   [GenMain](https://github.com/UHNeutrino/pufin/blob/main/info/GenMain.md)
 
