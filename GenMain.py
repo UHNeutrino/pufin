@@ -661,8 +661,10 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
                         raise ValueError(f"Tune {Tune} Does Not Exist")
                     CardString = CardString + GlobalV.NeutCardTunes.get(Tune)
                     CardString = CardString + f"\nEVCT-NEVT {Events}\n"
-                    
-                    CardString = CardString + GlobalV.NeutCardModes.get(Mode)
+                    if "Bar" in Flavor:
+                        CardString = CardString + GlobalV.AntiNeutCardModes.get(Mode)
+                    else:
+                        CardString = CardString + GlobalV.NeutCardModes.get(Mode)
                     CardString = CardString + GlobalV.NeutCardFlavors.get(Flavor)
                     CardString = CardString + GlobalV.NeutCardTargets.get(Target)
                     tempErange = CName.split("_")[-3]
