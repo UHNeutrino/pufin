@@ -11,11 +11,11 @@ This repo is for all code related to the Plotting Utility for Interacting Neutri
 + Find or generate color schemes using ROOT's [TColor Class Reference](https://root.cern.ch/doc/v636/classTColor.html)
   
 + Set other line attributes by referencing ROOT's [TAttLine Class Reference](https://root.cern.ch/doc/v630/classTAttLine.html)
-  > Check [src/jsonreader.py](https://github.com/UHNeutrino/pufin/blob/main/src/jsonreader.py)
+  > Check [src/jsonreader.py](src/jsonreader.py)
     for attribute support in each PlotMain plotting type
 
 + Identify Nuisance interaction mode codes with [Nuisance HEPForge](https://nuisance.hepforge.org/tutorials/interaction_modes.html)
-  or this [internal document](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md) 
+  or this [internal document](info/VariablesAndModes.md) 
 
 + Review git commands with this [cheat sheet](https://education.github.com/git-cheat-sheet-education.pdf)
 
@@ -25,21 +25,22 @@ This repo is for all code related to the Plotting Utility for Interacting Neutri
 <!-- what can PUfIN do? -->
 PUfIN consists of 4 independent functions, each of which serves a distinct purpose. These functions are described briefly below:
 
- + **PlotMain**
+ + **PlotMain** \
+   PlotMain.py is a plotting function that uses interaction data in flattened root files as well as flux histograms to output organized files and figures with several extensions (.root, .png, and/or .pdf). This function can be used to reweight and plot data in a variety of forms (as outlined here) and also supports custom variables not included in standard root trees.
     > For setup instructions and more detailed information on this function, see
-  [PlotMain](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md)
+  [PlotMain](info/PlotMain.md)
 
- + **GenMain**
+ + **GenMain** 
     > For setup instructions and more detailed information on this function, see
-  [GenMain](https://github.com/UHNeutrino/pufin/blob/main/info/GenMain.md)
+  [GenMain](info/GenMain.md)
 
  + **WeightMain**
     > For setup instructions and more detailed information on this function, see
-  [WeightMain](https://github.com/UHNeutrino/pufin/blob/main/info/WeightMain.md)
+  [WeightMain](info/WeightMain.md)
 
  + **GenSubmit**
     > For setup instructions and more detailed information on this function, see
-  [GenSubmit](https://github.com/UHNeutrino/pufin/blob/main/info/GenSubmit.md)
+  [GenSubmit](info/GenSubmit.md)
 
 ## Structure
 <!-- include which files each function references, expanded file tree as list with embedded links, 

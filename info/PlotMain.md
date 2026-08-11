@@ -1,21 +1,25 @@
-> Not what you're looking for? Click [here](https://github.com/UHNeutrino/pufin/blob/main/README.md) to return to the main PUfIN README
+> Not what you're looking for? Click [here](../README.md) to return to the main PUfIN README
 
 # PlotMain.py
 
-PlotMain.py is a plotting function that uses interaction data in flattened root files as well as flux histograms to output organized files and figures with several extensions (.root, .png, and/or .pdf). This function can be used to reweight and plot data in a variety of forms (as outlined [here](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#functionality)) and also supports [custom variables](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#using-pufin-custom-variables) not included in standard root trees.
+PlotMain.py is a plotting function that uses interaction data in flattened root files as well as flux histograms to output organized files and figures with several extensions (.root, .png, and/or .pdf). This function can be used to reweight and plot data in a variety of forms (as outlined [here](#functionality)) and also supports [custom variables](VariablesAndModes.md#using-pufin-custom-variables) not included in standard root trees.
 
 
-## Outline
-+ [Setup](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#setup)
-+ [Functionality](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#functionality)
-  + [Reweighting with ```"FluxReweight":```](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#reweighting-with-fluxreweight)
-  + [Plotting with ```"plots":```](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#plotting-with-plots)
-  + [Plotting with ```"stacks":```](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#plotting-with-stacks)
-  + [Plotting with ```"overlap":```](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#plotting-with-overlap)
-  + [Plotting with ```"1DSame":```](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#plotting-with-1dsame)
-  + [Plotting with ```"Contour":```](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#plotting-with-contour)
-  + [Plotting with ```"ContourStyle":```](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#plotting-with-contourstyle)
-+ [Using PlotMain.py](https://github.com/UHNeutrino/pufin/blob/main/info/PlotMain.md#using-plotmainpy)
+<details>
+<summary><h2> Outline </h2></summary>
+  
++ [Setup](#setup)
++ [Functionality](#functionality)
+  + [Reweighting with ```"FluxReweight":```](#reweighting-with-fluxreweight)
+  + [Plotting with ```"plots":```](#plotting-with-plots)
+  + [Plotting with ```"stacks":```](#plotting-with-stacks)
+  + [Plotting with ```"overlap":```](#plotting-with-overlap)
+  + [Plotting with ```"1DSame":```](#plotting-with-1dsame)
+  + [Plotting with ```"Contour":```](#plotting-with-contour)
+  + [Plotting with ```"ContourStyle":```](#plotting-with-contourstyle)
++ [Using PlotMain.py](#using-plotmainpy)
+
+</details>
 
 ## Setup
 After installing PUfIN using:
@@ -74,7 +78,7 @@ git clone https://github.com/UHNeutrino/PUfIN/
 ## Using PlotMain.py
 
 + Create a ```.json5``` config file within the config folder, using
-  [PUfIN/config/PlotMain.json5](https://github.com/UHNeutrino/pufin/blob/main/config/PlotMain.json5) as a template
+  [PUfIN/config/PlotMain.json5](../config/PlotMain.json5) as a template
   + Your config file (```config/MyConfig.json5```) should include ```"global"``` and one (or more) plotting modes
   + Alternatively, directly edit and run using the existing config file ```PlotMain.json5```
 
