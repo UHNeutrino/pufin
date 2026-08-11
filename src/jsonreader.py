@@ -251,6 +251,117 @@ def MakePlots(plots, GlobalSettings):
             else:
                 pp.Savehist(hist,AxisInfo,GlobalSettings["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=False, logz = plots["logz"])
                 
+def Make2DRatio(Ratio2D, GlobalSettings):
+    reweight_cfg = GrabFluxReWeights(GlobalSettings)
+    reweight_flag = reweight_cfg[0]
+    areaB = reweight_cfg[5]
+    
+    userFolder = GlobalSettings["userFolder"]
+    root_files1 = glob.glob( userFolder+ f'/*{Ratio2D["File1"]}*.root')
+    root_files2 = glob.glob( userFolder+ f'/*{Ratio2D["File2"]}*.root')
+
+    if root_files1 == []:
+        printMsg =  "NO such root files:"+f'/*{Ratio2D["File1"]}*.root'
+        raise ValueError(printMsg)
+    if root_files2 == []:
+        printMsg =  "NO such root files:"+f'/*{Ratio2D["File2"]}*.root'
+        raise ValueError(printMsg)
+
+    if len(root_files1) > 1 or len(root_files2) > 1:
+        raise ValueError(f"Got too many files: {root_files1} and {root_files2}")
+
+
+    # print(file_path)
+    # file_name1, file_name2 = root_files1.split('/')[-1], root_files2.split('/')[-1]
+    # generator = file_name.split('_')[1]
+    # flux = file_name.split('_')[2]
+    # Tevents = file_name.split('_')[3]
+    BinX = Ratio2D["BinsX"]
+    BinY = Ratio2D["BinsY"]
+    AxisInfo = []
+    df1, df2 = pp.CreateDataFrame(root_files1, cut ="None"), pp.CreateDataFrame(root_files2, cut ="None")
+
+    if(GlobalSettings["EvisB"]):
+        df1, df2 = pp.DefineEvis(df1), pp.DefineEvis(df2)
+    if (GlobalSettings["KinematicsB"]):
+        df1, df2 = pp.DefineKinematics(df)
+    if (GlobalSettings["TkiB"]):
+        df1, df2 = pp.DefineTKI(df)
+    for word in Ratio2D["AxisInfo"].split(','):
+        AxisInfo.append(word)
+    if reweight_flag:
+        df1, bin_integral_unnorm1 = pp.defineWeightsSpline(df1, reweight_cfg)
+        df2, bin_integral_unnorm2 = pp.defineWeightsSpline(df2, reweight_cfg)
+        weight_col = "weights"
+    else:
+        weight_col = ""
+
+
+    histInfo = (AxisInfo[-1],AxisInfo[-1],BinX[0],BinX[1],BinX[2],BinY[0],BinY[1],BinY[2])
+    if(reweight_flag):
+        hist1, hist2 = df1.Histo2D(histInfo,plots["Var1"],plots["Var2"],"weights"), df2.Histo2D(histInfo,plots["Var1"],plots["Var2"],"weights")
+    else:
+        hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"])
+
+    ################################################################
+    #Histogram scaling for event rates
+    if not areaB and weight_col:
+        target_integral = bin_integral_unnorm
+        current = df.Sum(weight_col).GetValue()
+        s = target_integral / current
+        hist.Scale(s)
+        if GlobalSettings["DebugPrint"] != 0:  
+            print("uncut bin integral")
+            print(current)
+            print("uncut scaled bin integral")
+            print(hist.Integral())
+
+        
+                
+    if (GlobalSettings["ThresholdsB"]):
+        df = pp.FlagParticleThresholds(df)  
+    if plots.get("Cut"):
+        df_cut = df.Filter(plots["Cut"])
+    else:
+        df_cut = df        
+    # Build the CUT histogram, still using weights if you have them
+    if weight_col:
+        rdf_cut = df_cut.Histo2D(histInfo, plots["Var1"], plots["Var2"], weight_col)
+    else:
+        rdf_cut = df_cut.Histo2D(histInfo, plots["Var1"],plots["Var2"])
+        
+    hist_cut = rdf_cut.GetValue()
+    hist_cut.SetDirectory(0)
+    
+    # Scale cut histogram by the same global factor s
+    if areaB:
+        area_integral = hist_cut.Integral()
+        if area_integral <= 0:
+            raise RuntimeError("Cut weighted histogram has zero area")
+        hist_cut.Scale(1.0 / area_integral)
+    elif weight_col:
+        hist_cut.Scale(s)
+    if GlobalSettings["DebugPrint"] != 0:
+        print("scaled bin integral (cut hist)")
+        print(hist_cut.Integral())
+    xvar, xunit, yvar, yunit, PlotTitle = AxisInfo
+    hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=plots["max"], PlotTitle=PlotTitle)
+    ########################################################################################################################
+    hist.SetName("h")
+    saveLoc = HOME+"/"+GlobalSettings["Save"]+"/"+plots["Name"]
+    out_file = ROOT.TFile(f"{saveLoc}.root", "RECREATE")
+    print(f"Saved {saveLoc}.root")
+    hist.Write()  # Write the histogram to the file
+    
+
+    out_file.Close()  # Close to finalize writing
+    nx = datetime.datetime.now()
+    x = str(nx)
+    fileN = plots["Name"]
+    fileN = fileN.replace(" ", "-")
+    pp.Savehist(hist,AxisInfo,GlobalSettings["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=False, logz = plots["logz"])
+
+
 
 def MakeStacks(stacks,GlobalSettings):
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
