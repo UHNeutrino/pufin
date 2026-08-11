@@ -8,7 +8,8 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
   
 + [Variables & Usage](#variables--usage)
   + Standard Variable Keys
-    + [Energy, Transfer, & Momentum](#energy-transfer-momentum)
+    + [Energy, Transfer, & Momentum](#user-content-energy-transfer-momentum)
+      <!-- test ^^^ -->
     + [Invariant Mass, Position, & Miscellaneous](#invariant-mass-position--misc)
     + [Flags & Modes](#flags--modes)
   + PUfIN Custom Variable Keys
@@ -37,7 +38,8 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 > *...under construction...*
  
 <!-- Variable Keys Dropdown -->
-<details>
+<details open>
+ <!-- test ^^^ -->
 <summary> <b>
   Standard Variable Keys
 </b> </summary>
