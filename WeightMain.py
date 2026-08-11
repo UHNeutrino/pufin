@@ -69,7 +69,14 @@ def parse_pufin_filename(path: str | Path) -> dict: # input can be string path o
 
 
 #### Looks through generator/target directories, checks that they exist, gets metadata from filenames and returns list of discovered files ####
-def discover_pufin_files(base_dir: str, generator: str) -> list[dict]:
+def discover_pufin_files(base_dir: str, stage2: str) -> list[dict]:
+    generator = stage2.get("generator")
+    version = stage2.get("version")
+    tune = stage2.get("tune")
+
+    if (not generator) or (not version) or (not tune):
+        return ValueError("Specify the generator version and tune in 'stage2' ")
+
     generator_dir = Path(base_dir) / generator.upper()
     if not generator_dir.is_dir():
         raise FileNotFoundError(f"Missing generator directory: {generator_dir}")
@@ -79,7 +86,7 @@ def discover_pufin_files(base_dir: str, generator: str) -> list[dict]:
         if not target_dir.is_dir():
             continue
 
-        for root_file in sorted(target_dir.glob("Flat_*.root")):
+        for root_file in sorted(target_dir.glob(f"Flat_{generator}{version}_{tune}*.root")):
             meta = parse_pufin_filename(root_file)
             discovered.append(meta)
 
@@ -389,7 +396,7 @@ def calculate_target_weight_factors(
 
 def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict):
     discovered = discover_pufin_files(
-        base_dir=PUFIN_OUT,generator=stage2["generator"],)
+        base_dir=PUFIN_OUT,stage2=stage2,)
 
     filters = get_filters(stage2)
     selected = build_selected_entries(discovered, filters)

@@ -615,7 +615,7 @@ def GenGenieMultiOnNodeFiles(FileNames, CPUPercent):
 
     return RunList
                     
-def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None, MultiNodeB=None):
+def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
     if not os.environ.get("NEUT_VERSION"):
         raise ValueError("NEUT_VERSION Environment Variable Not Defined")
     NeutVersion = str(os.environ.get("NEUT_VERSION")).replace(".","-")
@@ -798,6 +798,7 @@ def GenNeut(CardNames):
 def CheckNeutFiles(CardNames, NChunks):
     # Checks all files
     FileNames = []
+    FinishedFiles = []
     #Copy all Fluxes to tmp dir
 
     for Card in CardNames:
@@ -822,7 +823,7 @@ def CheckNeutFiles(CardNames, NChunks):
         
         for i in range(TempChunks):
             GenName = Card.replace("NEUT", "Flat_NEUT")
-            GenName = GenName.replace(".card",f"P{i:03}.root")
+            GenName = GenName.replace(".card",f"P{i+1:03}.root")
             OriginName = GenName.replace("Flat","Original")
             f = GenDir + f"/{GenName}"
             RunBool = not os.path.exists(f)
@@ -839,16 +840,29 @@ def CheckNeutFiles(CardNames, NChunks):
                 elif not RFile.Get("FlatTree_VARS") and not RunBool:
                     os.remove(f) #same thing if it is empty
                     RunBool = True
+                else:
+                    FinishedFiles.append(OriginName)
                 RFile.Close()
             if RunBool == True:
                 FileNames.append(OriginName)
 
+    print(f"{len(FinishedFiles)} files done, {len(FileNames)} to go")
+    inputWait = True
+    while inputWait:
+        In = input("Continue? (y/n)")
+        if In.lower() == "n":
+            exit()
+        elif In.lower() == "y":
+            inputWait = False
+        elif In.lower() == "p":
+            print(FileNames)
+        else:
+            print("unknown response, y to continue, n to stop, p to print files")
+    
+    
     return FileNames
 
-def GenNeutSingleFile(File):
-    TempString = File[:-9]
-    TempString = TempString + ".card"
-    Card = TempString.replace("Original_", "")
+def GenNeutSingleFile(File,Card):
     TargetLabel = Card.split("_")[5]
     Target = GlobalV.NeutLabelTargets.get(TargetLabel)
     GenDir = OutPath + f"/NEUT/{Target}"
@@ -879,7 +893,7 @@ def GenNeutSingleFile(File):
         exec_string=""
         exec_string += f"neutroot2 {Card} {GenName}"
         #print(f">>>>>>>>>>>>>>>>>>>>Running Genertation of {GenName} now")
-        subprocess.run(exec_string.split(), cwd=tmpdir)
+        subprocess.run(exec_string, shell=True, cwd=tmpdir)
         shutil.move(f"{tmpdir}/{GenName}", os.path.join(GenDir, GenName))   
         #print(f"Generated {GenName}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     else:
@@ -895,7 +909,7 @@ def GenNeutFlatSingleFile(File, Card):
     GenName = File
     f = GenDir + f"/{GenName}"
     # wait time to hopefully not overload the I/O in a node
-    waitTime = random.randrange(0,60)
+    waitTime = random.randrange(0,30)
     time.sleep(waitTime)
     
 
@@ -923,7 +937,7 @@ def GenNeutFlatSingleFile(File, Card):
         #print(f">>>>>>>>>>>>>>>>>>>>Running Genertation of {GenName} now")
         output_text.write(f">>>>>>>Running Generation of {GenName} now...\n")
         output_text.flush()
-        subprocess.run(exec_string.split(), cwd=tmpdir)
+        subprocess.run(exec_string, shell=True, cwd=tmpdir)
         output_text.write(f"Generate {GenName}<<<<<<<<<<<<<\n")
         output_text.flush()
         shutil.move(f"{tmpdir}/{GenName}", os.path.join(GenDir, GenName))   
@@ -931,7 +945,8 @@ def GenNeutFlatSingleFile(File, Card):
     else:
         print("Original File exists")
     GenList = [GenName]
-    FlatNeut(GenList)
+    CardList = [Card]
+    FlatNeut(GenList,CardList)
     output_text.write(f">>>>>>>{GenName} Flattened<<<<<<<<<<<\n")
     output_text.close()
     return RunBool
@@ -989,9 +1004,9 @@ def GenNeutMultiOnNodeFiles(FileNames, CPUPercent=None, CPUNumber=None):
     return RunList
 
 
-def FlatNeut(GenList):
+def FlatNeut(GenList, CardList):
     #Flattens for every given generated file
-    for Gen in GenList:
+    for Gen,Card in zip(GenList,CardList):
         TargetLabel = Gen.split("_")[6]
         Target = GlobalV.NeutLabelTargets.get(TargetLabel)
         GenDir = OutPath + f"/NEUT/{Target}"
@@ -1026,7 +1041,7 @@ def FlatNeut(GenList):
             if (Genf.IsZombie()) or (not Genf.Get("fluxhisto")):
                 Genf.Close()
                 os.remove(GenPath)
-                GenNeutSingleFile(Gen)  #Try to regenerate once if it failed before
+                GenNeutSingleFile(Gen,Card)  #Try to regenerate once if it failed before
                 try:
                     Genf = ROOT.TFile(GenPath)
                 except:
