@@ -1,14 +1,46 @@
-# Variables & Usage
-
-> *...under construction...*
-
-<!-- Variable Keys Dropdown -->
+> Not what you're looking for? Click [here](../README.md) to return to the main PUfIN README
+ 
+# Variables & Modes
+PUfIN is compatible with standard and custom variable keys as well as Nuisance [Interaction Modes](#interaction-modes), which are detailed in the following document.
+ 
 <details>
+<summary><h2> Outline </h2></summary>
+  
++ [Variables & Usage](#variables--usage)
+  + Standard Variable Keys
+    + [Energy, Transfer, & Momentum](#energy-transfer-momentum)
+    + [Invariant Mass, Position, & Miscellaneous](#invariant-mass-position--misc)
+    + [Flags & Modes](#flags--modes)
+  + PUfIN Custom Variable Keys
+    + [Evis Variables](#evis-variables)
+    + [Kinematic Variables](#kinematic-variables)
+    + [TKI Variables](#tki-variables)
+    + [Threshold Flags](#threshold-flags)
+  + Table of Abbreviations
+  + Extended Variable Descriptions
+  + [Making Cuts with Variables, Flags, & Modes](#making-cuts-with-variables-flags--modes)
+  + [Using PUfIN Custom Variables](#using-pufin-custom-variables)
+    + Custom Variable Activation Settings
++ [Interaction Modes](#interaction-modes)
+  + Frequently Used Modes 
+  + [Neutrino Modes](#neutrino-modes)
+    + [Charged Current](#charged-current)
+    + [Neutral Current](#neutral-current)
+  + [Anti Neutrino Modes](#anti-neutrino-modes)
+    + [Charged Current](#charged-current-1)
+    + [Neutral Current](#neutral-current-1)
+   
+</details>
 
+# Variables & Usage
+ 
+> *...under construction...*
+ 
+<!-- Variable Keys Dropdown -->
+<details open>
 <summary> <b>
   Standard Variable Keys
 </b> </summary>
-
 <!-- Opens Inline Tables -->
 <table>
 <tr>
@@ -16,11 +48,11 @@
 <!-- Left Table -->
 <td valign="top">
 <table>
- <tr> <h2> Energy, Transfer, & Momentum </h2> </tr>
+ <tr> <h2 id="energy-transfer-momentum"> Energy, Transfer, & Momentum </h2> </tr>
  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
   
-  <tr> <td> True E<sub>&#957;</sub> (neutrino energy) </td>   <td> Enu_true </td> </tr>
-  <tr> <td> E<sub>&#957;</sub> for QE interactions (?) </td>   <td> Enu_QE </td> </tr>
+  <tr> <td> True E<sub>&nu;</sub> (neutrino energy) </td>   <td> Enu_true </td> </tr>
+  <tr> <td> (Reco) E<sub>&nu;</sub><sup>QE</sup> </td>   <td> Enu_QE </td> </tr>
   <tr> <td> Lepton energy (post-FSI?) </td>   <td> ELep </td> </tr>
   <tr> <td> E<sub>miss</sub> (missing energy) </td>   <td> Emiss </td> </tr>
   <tr> <td> E<sub>miss</sub> pre-FSI </td>   <td> Emiss_preFSI </td> </tr>
@@ -28,7 +60,9 @@
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td> q<sub>0</sub> (energy transfer) </td>   <td>q0</td>         </tr>
   <tr> <td> q<sub>3</sub> (3-momentum transfer) </td>   <td> q3 </td>       </tr>
-  <tr> <td> Q<sup>2</sup> (collision hardness) </td>   <td> Q2 </td>       </tr>
+  <tr> <td> Q<sup>2</sup> (collision hardness/4-momentum transfer) </td>   <td> Q2 </td>       </tr>
+  <tr> <td> (Reco) Q<sup>2, QE</sup> </td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
 </table>
 </td>
@@ -36,9 +70,8 @@
 <!-- Table 2 -->
 <td valign="top">
 <table>
-  <tr> <h2> Invariant Mass, Position, & Misc. </h2> </tr>
+  <tr> <h2 id="invariant-mass-position--misc"> Invariant Mass, Position, & Misc. </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
-
   <tr> <td> W (invariant mass) </td>   <td> W </td> </tr>
   <tr> <td> W as predicted by GENIE (?) </td>   <td> W_genie </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
@@ -48,11 +81,10 @@
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
 </table>
 </td>
-
 <!-- Table 3 -->
 <td valign="top">
 <table>
-  <tr> <h2> Flags & Modes </h2> </tr>
+  <tr> <h2 id="flags--modes"> Flags & Modes </h2> </tr>
   <tr><td><b> Flag(s): </b></td>   <td><b>Key:</b></td> </tr>
   
   <tr> <td> all CC </td>   <td> flagCCINC </td> </tr>
@@ -71,31 +103,27 @@
   <tr> <td>Lorem ipsum ...</td>   <td> flagCC1pi0 </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagNC1pi0 </td> </tr>
   <tr> <td> Interaction Modes 
-    <a href="https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#interaction-modes">(see below)</a> 
+    <a href="#interaction-modes">(see below)</a> 
   </td>   <td> Mode</td> </tr>
 </table>
 </td>
-
 <!-- Closes Inline Table -->
 </tr>
 </table>
-
 </details>
-
-
+ 
   <!-- PUfIN variables dropdown -->
-<details>
+<details open>
 <summary> <b>
   PUfIN Custom Variable Keys
 </b> </summary>
 <!-- Opens Inline Tables -->
 <table>
 <tr>
-
 <!-- Table 1 -->
 <td valign="top"> 
 <table>
-  <tr> <h2> Evis Variables </h2> </tr>
+  <tr> <h2 id="evis-variables"> Evis Variables </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
@@ -104,11 +132,10 @@
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
 </table>
 </td> 
-
 <!-- Table 2 -->
 <td valign="top"> 
 <table>
-  <tr> <h2> Kinematic Variables </h2> </tr>
+  <tr> <h2 id="kinematic-variables"> Kinematic Variables </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
@@ -117,11 +144,10 @@
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
 </table>
 </td> 
-
 <!-- Table 3 -->
 <td valign="top"> 
 <table>
-  <tr> <h2> TKI Variables </h2> </tr>
+  <tr> <h2 id="tki-variables"> TKI Variables </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
@@ -130,11 +156,10 @@
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
 </table>
 </td> 
-
 <!-- Table 4 -->
 <td valign="top"> 
 <table>
-  <tr> <h2> Threshold Flags </h2> </tr>
+  <tr> <h2 id="threshold-flags"> Threshold Flags </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
@@ -143,23 +168,19 @@
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
 </table>
 </td> 
-
 <!-- Closes Inline Table -->
 </tr>
 </table>
-
 <!-- add variables from EvisB, KinematicsB, 
 TKI (transverse kinematic imbalance), etc. from src/ParticlePlots 
 > Evis_2 = calorimetric reconstruction -->
 </details>
-
-
+ 
 <!-- Abbreviations Dropdown -->
 <details>
 <summary> <b>
   Table of Abbreviations
 </b> </summary>
-
 <table>
   <!-- <tr> <h2> Header </h2> </tr> -->
   <tr> <td><b> Abbreviation: </b></td>   <td><b> Meaning: </b></td> </tr>
@@ -167,10 +188,10 @@ TKI (transverse kinematic imbalance), etc. from src/ParticlePlots
   <tr> <td> NC </td>   <td> Neutral Current </td> </tr>
   <tr> <td> CC </td>   <td> Charged Current</td> </tr>
   <tr> <td> QE </td>   <td> Quasi-elastic </td> </tr>
-  <tr> <td> EL </td>   <td> Elastic (?) </td> </tr>
+  <tr> <td> EL </td>   <td> Elastic </td> </tr>
   <tr> <td> FSI </td>   <td> Final State Interaction(s) </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td> TKI </td>   <td> Transverse Kinematic Imbalance </td> </tr>
+  <tr> <td> Reco </td>   <td> Reconstruction/Reconstructed </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
@@ -178,24 +199,45 @@ TKI (transverse kinematic imbalance), etc. from src/ParticlePlots
 </table>
   
 </details>
-
-
+ 
 <!-- Extended Variables Dropdown -->
 <details>
 <summary> <b>
   Extended Variable Descriptions
 </b> </summary>
-
->This is empty right now :)
+  
+<!-- reco E_nu QE equation -->
+$$
+E_\nu^{QE, rec} = \frac{m_p^2 - m_\ell^2 - (m_n - E_\text{b})^2 + 2E_\ell(m_n - E_\text{b})} {2(m_n - E_\text{b} - E_\ell + p_\ell^z)} 
+$$
   
 </details>
 
-## Making Cuts for Variables, [Flags, & Modes](https://github.com/UHNeutrino/pufin/blob/main/info/VariablesAndModes.md#-flags--modes-)
+## Making Cuts with Variables, [Flags, & Modes](#flags--modes)
 >This is empty right now :)
 <!-- Explain using modes, flags, and operators to select events or interaction types -->
-
+ 
 ## Using PUfIN Custom Variables
->This is empty right now :)
+ 
+PUfIN comes with built-in custom variables, which are defined and computed in 
+[ParticlePlots.py](../src/ParticlePlots.py). 
+However, due to the added compute time used to calculate these variables, activation of these variables is required before using them. 
+The custom variables and flags are separated into 4 categories--
+[Evis Variables](#evis-variables), 
+[Kinematic Variables](#kinematic-variables), 
+[TKI Variables](#tki-variables), 
+[Threshold Flags](#threshold-flags)
+--and can be activated individually by setting their respective config setting to true 
+(variable sets not in use should be ```false``` to minimize compute time). 
+These settings are activated within ```"global":``` in your config file as follows:
+ 
+| Activation Setting | Variable Set |
+| --------------------------------| -------------|
+| ```"EvisB": true```             | Evis Variables|
+| ```"KinematicsB": true```             | Kinematic Variables|
+| ```"TkiB": true```             | TKI Variables|
+| ```"ThresholdsB": true```             | Threshold Flags|
+
 
 # Interaction Modes
 
@@ -613,5 +655,3 @@ ELASTIC
    -52 : NEUBAR,N --> NEUBAR,N
 ```
 </details>
-
-

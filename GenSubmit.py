@@ -77,11 +77,10 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
     
         
 def GenieRunScript(Container, NChunks, TotalNodes, Target=None, Mode=None, Flavor=None, CPUPercent=None):
-    OutPath = "/data/t2k-nova/PUfINOutputs/_MultiProcess"
-    os.makedirs(OutPath, exist_ok=True)
+    OutPath = os.environ.get("PUFIN_OUT")
 
-    OldOutPath = os.environ.get("PUFIN_OUT")
-    os.environ["PUFIN_OUT"] = OutPath
+    if OutPath is None:
+        raise ValueError("PUFIN_OUT Needs to be defined!")
 
     Generator = "GENIE"
 
@@ -94,26 +93,32 @@ def GenieRunScript(Container, NChunks, TotalNodes, Target=None, Mode=None, Flavo
         Modes=Mode,
         Flavors=Flavor,
     )
-
-    if OldOutPath == None:
-        del os.environ["PUFIN_OUT"]
-    else:
-        os.environ["PUFIN_OUT"] = OldOutPath
+    
+    if len(FileNames) == 0:
+        print("Already done (─ ‿ ─)")
+        return
 
     if CPUPercent > 1 and CPUPercent <= 100:
         CPUPercent /= 100
-    elif CPUPercent > 100 or CPUPercent < 0:
+    elif CPUPercent > 100 or CPUPercent <= 0:
         raise ValueError("CorePercent must be 0<x leq 1 or 1<x<100")
+    
+    CORES_PER_NODE = 48
+    MEMORY_PER_CORE_GB = 2
 
-    NCores = max(1, int(cpu_count()*CPUPercent))
+    NCores = max(1, int(CORES_PER_NODE * CPUPercent))
+    MemoryGB = NCores * MEMORY_PER_CORE_GB
+    
+    if len(FileNames) < TotalNodes:
+        TotalNodes = len(FileNames)
 
     print(f"Not Sorted {len(FileNames)}")
     FileNames = sorted(FileNames, key=lambda x: "_NuMu_" not in x)
     print(f"Total Files: {len(FileNames)}")
+    print(f"Cores per node: {NCores}")
+    print(f"Memory per node: {MemoryGB} GB")
 
-    processes = []
-
-    for Node in range(0, TotalNodes):
+    for Node in range(TotalNodes):
         NodeFiles = FileNames[Node::TotalNodes]
 
         if len(NodeFiles) == 0:
@@ -121,24 +126,34 @@ def GenieRunScript(Container, NChunks, TotalNodes, Target=None, Mode=None, Flavo
             continue
 
         SlurmTime = GenieTimeEstimator(NodeFiles)
+        FilesFormatted = " ".join(NodeFiles)
 
         print(f"Files on Node {Node}: {len(NodeFiles)}")
 
-        cmd = f"""
-        sbatch \\
+        cmd = f"""sbatch \\
         --nodes=1 \\
         --ntasks-per-node=1  \\
         --cpus-per-task={NCores} \\
         --time={SlurmTime} \\
-        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:/mnt {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && python GenMain.py GenieMult --Files "{NodeFiles}" --CPUPercent {CPUPercent} '"
+        --mem={MemoryGB}G \\
+        --job-name=GENIE{Node}of{TotalNodes} \\
+        --output=GENIEGeneration_{Node}of{TotalNodes}_%j.out \\
+        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && python GenMain.py GenieMult --Files {FilesFormatted} --CPUPercent {CPUPercent} '"
         """
+        print(f"Sending GENIE job to Node {Node} of {TotalNodes}")
+        print(f"  Files: {len(NodeFiles)}")
+        print(f"  Cores: {NCores}")
+        print(f"  Memory: {MemoryGB} GB")
+        print(f"  Estimated time: {SlurmTime}")
 
-        print(cmd)
-        # p = subprocess.Popen(cmd, shell=True)
-        # processes.append(p)
+        subprocess.run(cmd, shell=True, check=True)
+        time.sleep(2)
+    #     print(cmd)
+    #     p = subprocess.Popen(cmd, shell=True)
+    #     processes.append(p)
 
-    for p in processes:
-        p.wait()
+    # for p in processes:
+    #     p.wait()
 
 def NeutTimeEstimator(Files, NCores):
     # loop through all files and come up with a decent time estimation using linear regressions from trends found in initial testing
