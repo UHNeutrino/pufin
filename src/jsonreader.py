@@ -7,7 +7,7 @@ import src.SetupFunctions as sf
 import glob
 import array
 
-HOME = os.getenv("HOME", "/home/lboe")
+
 
 
 def GrabFluxReWeights(GlobalSettings):
@@ -236,7 +236,7 @@ def MakePlots(plots, GlobalSettings):
             
         if plots["Ext"] == "root":
             hist.SetName("h")
-            saveLoc = HOME+"/"+GlobalSettings["Save"]+"/"+plots["Name"]
+            saveLoc = GlobalSettings["Save"]+"/"+plots["Name"]
             out_file = ROOT.TFile(f"{saveLoc}.root", "RECREATE")
             print(f"Saved {saveLoc}.root")
             hist.Write()  # Write the histogram to the file
@@ -270,7 +270,6 @@ def Make2DRatio(Ratio2D, GlobalSettings):
     if len(root_files1) > 1 or len(root_files2) > 1:
         raise ValueError(f"Got too many files: {root_files1} and {root_files2}")
 
-
     # print(file_path)
     # file_name1, file_name2 = root_files1.split('/')[-1], root_files2.split('/')[-1]
     # generator = file_name.split('_')[1]
@@ -284,9 +283,9 @@ def Make2DRatio(Ratio2D, GlobalSettings):
     if(GlobalSettings["EvisB"]):
         df1, df2 = pp.DefineEvis(df1), pp.DefineEvis(df2)
     if (GlobalSettings["KinematicsB"]):
-        df1, df2 = pp.DefineKinematics(df)
+        df1, df2 = pp.DefineKinematics(df1), pp.DefineKinematics(df2)
     if (GlobalSettings["TkiB"]):
-        df1, df2 = pp.DefineTKI(df)
+        df1, df2 = pp.DefineTKI(df1), pp.DefineTKI(df2)
     for word in Ratio2D["AxisInfo"].split(','):
         AxisInfo.append(word)
     if reweight_flag:
@@ -299,67 +298,86 @@ def Make2DRatio(Ratio2D, GlobalSettings):
 
     histInfo = (AxisInfo[-1],AxisInfo[-1],BinX[0],BinX[1],BinX[2],BinY[0],BinY[1],BinY[2])
     if(reweight_flag):
-        hist1, hist2 = df1.Histo2D(histInfo,plots["Var1"],plots["Var2"],"weights"), df2.Histo2D(histInfo,plots["Var1"],plots["Var2"],"weights")
+        hist1, hist2 = df1.Histo2D(histInfo,Ratio2D["Var1"],Ratio2D["Var2"],"weights"), df2.Histo2D(histInfo,Ratio2D["Var1"],Ratio2D["Var2"],"weights")
     else:
-        hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"])
+        hist1, hist2 = df1.Histo2D(histInfo,Ratio2D["Var1"],Ratio2D["Var2"]), df2.Histo2D(histInfo,Ratio2D["Var1"],Ratio2D["Var2"])
 
     ################################################################
     #Histogram scaling for event rates
     if not areaB and weight_col:
-        target_integral = bin_integral_unnorm
-        current = df.Sum(weight_col).GetValue()
-        s = target_integral / current
-        hist.Scale(s)
+        target_integral1, target_integral2 = bin_integral_unnorm1, bin_integral_unnorm2
+        current1, current2 = df1.Sum(weight_col).GetValue(), df2.Sum(weight_col).GetValue()
+        s1, s2 = target_integral1/current1, target_integral2/current2
+        hist1.Scale(s1), hist2.Scale(s2)
         if GlobalSettings["DebugPrint"] != 0:  
             print("uncut bin integral")
-            print(current)
+            print(f"hist1: {current1} hist2: {current2}")
             print("uncut scaled bin integral")
-            print(hist.Integral())
+            print(f"hist1: {hist1.Integral()} hist2: {hist2.Integral()}")
 
         
                 
     if (GlobalSettings["ThresholdsB"]):
-        df = pp.FlagParticleThresholds(df)  
-    if plots.get("Cut"):
-        df_cut = df.Filter(plots["Cut"])
+        df1, df2 = pp.FlagParticleThresholds(df1), pp.FlagParticleThresholds(df2)
+    if Ratio2D.get("Cut"):
+        df_cut1, df_cut2 = df1.Filter(Ratio2D["Cut"]), df2.Filter(Ratio2D["Cut"])
     else:
-        df_cut = df        
+        df_cut1,  df_cut2 = df1, df2      
     # Build the CUT histogram, still using weights if you have them
     if weight_col:
-        rdf_cut = df_cut.Histo2D(histInfo, plots["Var1"], plots["Var2"], weight_col)
+        rdf_cut1, rdf_cut2 = df_cut1.Histo2D(histInfo, Ratio2D["Var1"], Ratio2D["Var2"], weight_col), df_cut2.Histo2D(histInfo, Ratio2D["Var1"], Ratio2D["Var2"], weight_col)
     else:
-        rdf_cut = df_cut.Histo2D(histInfo, plots["Var1"],plots["Var2"])
+        rdf_cut1, rdf_cut2 = df_cut1.Histo2D(histInfo, Ratio2D["Var1"],Ratio2D["Var2"]), df_cut2.Histo2D(histInfo, Ratio2D["Var1"],Ratio2D["Var2"])
         
-    hist_cut = rdf_cut.GetValue()
-    hist_cut.SetDirectory(0)
+    hist_cut1, hist_cut2 = rdf_cut1.GetValue(), rdf_cut2.GetValue()
+    hist_cut1.SetDirectory(0), hist_cut2.SetDirectory(0)
     
     # Scale cut histogram by the same global factor s
     if areaB:
-        area_integral = hist_cut.Integral()
-        if area_integral <= 0:
+        area_integral1, area_integral2 = hist_cut1.Integral(), hist_cut2.Integral()
+        if area_integral1 <= 0 or area_integral2 <= 0:
             raise RuntimeError("Cut weighted histogram has zero area")
-        hist_cut.Scale(1.0 / area_integral)
+        hist_cut1.Scale(1.0 / area_integral1), hist_cut2.Scale(1.0/area_integral2)
     elif weight_col:
-        hist_cut.Scale(s)
+        hist_cut1.Scale(s1), hist_cut2.Scale(s2)
     if GlobalSettings["DebugPrint"] != 0:
         print("scaled bin integral (cut hist)")
-        print(hist_cut.Integral())
+        print(f"hist 1 {hist_cut1.Integral()} hist 2 {hist_cut1.Integral()}")
     xvar, xunit, yvar, yunit, PlotTitle = AxisInfo
-    hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=plots["max"], PlotTitle=PlotTitle)
+    Fhist1, Fhist2 = sf.formatHist(hist_cut1, xvar, xunit, yvar, yunit, max=Ratio2D.get("max"), PlotTitle=PlotTitle), sf.formatHist(hist_cut2, xvar, xunit, yvar, yunit, max=Ratio2D.get("max"), PlotTitle=PlotTitle)
     ########################################################################################################################
-    hist.SetName("h")
-    saveLoc = HOME+"/"+GlobalSettings["Save"]+"/"+plots["Name"]
-    out_file = ROOT.TFile(f"{saveLoc}.root", "RECREATE")
-    print(f"Saved {saveLoc}.root")
-    hist.Write()  # Write the histogram to the file
+    Fhist1.SetName("h1"), Fhist2.SetName("h2")
+    saveLoc = GlobalSettings["Save"]+"/"+Ratio2D["Name"]
     
 
-    out_file.Close()  # Close to finalize writing
+    ratio = Fhist1.Clone("ratio")
+    ratio.Divide(Fhist2)
+    Fhist1.SetStats(0), Fhist2.SetStats(0), ratio.SetStats(0)
+    if Ratio2D.get("RatioMin")!= None and Ratio2D.get("RatioMax"):
+        ratio.SetMinimum(Ratio2D["RatioMin"])
+        ratio.SetMaximum(Ratio2D["RatioMax"])
+
     nx = datetime.datetime.now()
     x = str(nx)
-    fileN = plots["Name"]
+    fileN = Ratio2D["Name"]
     fileN = fileN.replace(" ", "-")
-    pp.Savehist(hist,AxisInfo,GlobalSettings["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=False, logz = plots["logz"])
+    Ext = "png"
+    pp.Savehist(ratio,AxisInfo,GlobalSettings["Save"],fileN,Ext,max = Ratio2D.get("max"), Normalize=False, logz = Ratio2D["logz"])
+
+    out_file = ROOT.TFile(f"{saveLoc}.root", "RECREATE")
+    print(f"Saved {saveLoc}.root")
+    c = ROOT.TCanvas("ratio", "ratio", 800, 600)
+    ROOT.gStyle.SetPalette(ROOT.kBird)
+    ratio.Draw("COLZ")
+    c.Write() 
+    c1 = ROOT.TCanvas("hist1", "hist1", 800, 600)
+    Fhist1.Draw("COLZ")  # Write the histogram to the file
+    c1.Write()
+    c2 = ROOT.TCanvas("hist2", "hist2", 800, 600)
+    Fhist2.Draw("COLZ")  # Write the histogram to the file
+    c2.Write()
+    out_file.Close()  # Close to finalize writing
+    
 
 
 
@@ -513,8 +531,6 @@ def MakeOverlap(overlap,GlobalSettings):
             cuts.append(cut)
             Legend.append(name)
         histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
-        # for num in overlap["Colors"].split(","):
-        #     colors.append(int(num))
         for color_spec in overlap["Colors"].split(","):
             colors.append(sf.parse_color(color_spec))
         
@@ -870,8 +886,8 @@ def MakeSame1D(same1D,GlobalSettings):
 
     #outname = f"{HOME}/{GlobalSettings['Save']}/{same1D['Name']}.{same1D['Ext']}"
     base_name = f"{GlobalSettings['Save']}/{same1D['Name']}"
-    root_outname = f"{HOME}/{base_name}.root"
-    image_outname = f"{HOME}/{base_name}.{same1D['Ext']}"
+    root_outname = f"{base_name}.root"
+    image_outname = f"{base_name}.{same1D['Ext']}"
     
     # Always save the ROOT file.
     f_out = ROOT.TFile(root_outname, "RECREATE")
