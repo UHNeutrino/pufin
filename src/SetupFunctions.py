@@ -32,11 +32,11 @@ def formatName(dir_location):
     NameParts[3] = NameParts[3].split('.root')[0]
     return NameParts
 
-def formatHist(hist, xvar, xunit, yvar, yunit, max = -1, PlotTitle = None, NameParts = None):
+def formatHist(hist, xvar, xunit, yvar, yunit, max = None, PlotTitle = None, NameParts = None):
     hist.SetStats(1) #1 for a legend 0 for no legend
     hist.GetXaxis().SetTitle(f"{xvar} {xunit}")
     hist.GetYaxis().SetTitle(f"{yvar} {yunit}")
-    if max != -1:
+    if max:
         hist.SetMaximum(max)
 
     if NameParts is not None:
