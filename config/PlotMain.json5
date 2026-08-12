@@ -205,19 +205,20 @@
         },
     "2DRatio":
         {
-            "File1":"GenieAR23_onAr_flatf_0-5GeV_NumuCC_SuSAv2",
-            "File2":"NEUT6.1.4_ArgonDCC",
-            "Cut": "",
-            "Var1": "Q2",
-            "Var2": "W",
-            "AxisInfo":"Q^2, GeV^2, W, GeV , UHMC ",
-            "BinsX": [160, 0, 8], 
-            "BinsY": [160, 0, 8], 
-            "Name": "Test1",
-            "max": -1, 
+            "File1":"fileonename",
+            "File2":"filetwoname",
+            "Cut": "variable == something",
+            "Var1": "variable1",
+            "Var2": "variable1",
+            "AxisInfo":"XLabel, Xunits, YLabel, Yunits , Title ",
+            "BinsX": [80, 0, 8], 
+            "BinsY": [80, 0, 8], 
+            "Name": "FileName",
+            "max": 3, //individual histogram maxes when saved
+            "RatioMax":3,
+            "RatioMin":0,
             "logz": false,
         },
-    
     "Contour":
         {
             "Gen":"Flat_NEUT5.9",
