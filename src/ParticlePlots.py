@@ -17,7 +17,7 @@ SF.setupRoot()
 
 # use Rdataframes to plot the q0 v q3 2DHisto and Q^2 vs W 2DHisto for 2P2H interacions, which have mode 2
 # Plan is to get the q0, q3, Q^2 and W for all events where Mode = 2
-HOME = os.getenv("HOME", "/home/lboe")
+
 
 def DefineKinematics(df):
     #df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
@@ -1005,9 +1005,9 @@ def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, ext, ma
 
     SF.formatTcanvasSame(c)  # Format the canvas based on the first histogram
     legend.Draw("SAME") #draw legend.
-    c.SaveAs(f"{HOME}/{save_location}/{filename}.{ext}")
+    c.SaveAs(f"{save_location}/{filename}.{ext}")
     root_file = ROOT.TFile(
-        f"{HOME}/{save_location}/{filename}.root",
+        f"{save_location}/{filename}.root",
         "RECREATE",
     )
     hist1.Write("hist1")
@@ -1060,8 +1060,8 @@ def Savehist2DWithProfile(hist1, prof1, AxisInfo, save_location, filename, ext,
         diag.Draw("SAME")
         
 
-    c.SaveAs(f"{HOME}/{save_location}/{filename}.{ext}")
-    root_path = f"{HOME}/{save_location}/{filename}.root"
+    c.SaveAs(f"{save_location}/{filename}.{ext}")
+    root_path = f"{save_location}/{filename}.root"
     root_file = ROOT.TFile(root_path, "RECREATE")
 
     h1.Write("hist2d")
@@ -1270,8 +1270,8 @@ def SaveStackedHist(stack, histlist, AxisInfo, Legend, save_path):
         legend.AddEntry(histlist[i], f"{Legend[i]}", "f")
     legend.Draw()
 
-    canvas.SaveAs(f"{HOME}/{save_path}")
-    root_path = os.path.splitext(f"{HOME}/{save_path}")[0] + ".root"
+    canvas.SaveAs(f"{save_path}")
+    root_path = os.path.splitext(f"{save_path}")[0] + ".root"
 
     root_file = ROOT.TFile(root_path, "RECREATE")
 
@@ -1455,8 +1455,8 @@ def SaveContHist(histlist, AxisInfo, Legend, colors, percents, save_path, logz):
     pave.Draw()
     # latex.DrawLatex(0.9, 0.35, f"Events = {histlist[0].Integral():.1f}")
 
-    canvas.SaveAs(f"{HOME}/{save_path}")
-    root_path = os.path.splitext(f"{HOME}/{save_path}")[0] + ".root"
+    canvas.SaveAs(f"{save_path}")
+    root_path = os.path.splitext(f"{save_path}")[0] + ".root"
 
     root_file = ROOT.TFile(root_path, "RECREATE")
 
@@ -1559,8 +1559,8 @@ def SaveContHistStyles(histlist, AxisInfo, colors, styles, Clabels, Slabels, sav
     pave.Draw()
     # latex.DrawLatex(0.9, 0.35, f"Events = {histlist[0].Integral():.1f}")
 
-    canvas.SaveAs(f"{HOME}/{save_path}")
-    root_path = os.path.splitext(f"{HOME}/{save_path}")[0] + ".root"
+    canvas.SaveAs(f"{save_path}")
+    root_path = os.path.splitext(f"{save_path}")[0] + ".root"
 
     root_file = ROOT.TFile(root_path, "RECREATE")
 
@@ -2399,7 +2399,7 @@ def defineSplineTest(df, rwRootFile, histName):
     c1.BuildLegend()
     hist.SetTitle("T2K Flux Spline vs Points")
     c1.Update()
-    c1.SaveAs("/home/lboe/t2k-nova/6-23-25/flux_spline_comparison2.png")
+    # c1.SaveAs("/save/path/flux_spline_comparison2.png")
 
 def overlapPlots(df, x, histInfo, cuts, colors, weights=""):
     histlist = []
@@ -2457,8 +2457,8 @@ def SaveOverlapPlot(histlist, AxisInfo, Legend, save_path, hist_max=None, Normal
     legend.Draw()
 
     # saves hist to a specific directory 
-    c.SaveAs(f"{HOME}/{save_path}")
-    root_path = os.path.splitext(f"{HOME}/{save_path}")[0] + ".root"
+    c.SaveAs(f"{save_path}")
+    root_path = os.path.splitext(f"{save_path}")[0] + ".root"
 
     root_file = ROOT.TFile(root_path, "RECREATE")
 

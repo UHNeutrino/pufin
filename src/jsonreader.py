@@ -124,9 +124,9 @@ def MakePlots(plots, GlobalSettings):
     areaB = reweight_cfg[5]
     
     userFolder = GlobalSettings["userFolder"]
-    root_files = glob.glob( userFolder+ f'/*{plots["Gen"]}*{plots["Description"]}*.root')
+    root_files = glob.glob( userFolder+ f'/*{plots["File"]}*.root')
     if root_files == []:
-        printMsg =  "NO such root files:"+f'/*{plots["Gen"]}*{plots["Description"]}*.root'
+        printMsg =  "NO such root files:"+f'/*{plots["File"]}*.root'
         print(printMsg)
 
     for file_path in root_files:
@@ -231,25 +231,22 @@ def MakePlots(plots, GlobalSettings):
             print("scaled bin integral (cut hist)")
             print(hist_cut.Integral())
         xvar, xunit, yvar, yunit, PlotTitle = AxisInfo
-        hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=plots["max"], PlotTitle=PlotTitle)
+        hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=plots.get("max"), PlotTitle=PlotTitle)
         ########################################################################################################################
-            
-        if plots["Ext"] == "root":
-            hist.SetName("h")
-            saveLoc = GlobalSettings["Save"]+"/"+plots["Name"]
-            out_file = ROOT.TFile(f"{saveLoc}.root", "RECREATE")
-            print(f"Saved {saveLoc}.root")
-            hist.Write()  # Write the histogram to the file
-            out_file.Close()  # Close to finalize writing
+
+        nx = datetime.datetime.now()
+        x = str(nx)
+        fileN = plots["Name"]
+        fileN = fileN.replace(" ", "-")
+        if GlobalSettings.get("SavePdf"):
+            ext = "pdf"
         else:
-            nx = datetime.datetime.now()
-            x = str(nx)
-            fileN = plots["Name"]
-            fileN = fileN.replace(" ", "-")
-            if (plots["profileX"]): 
-                pp.Savehist2DWithProfile(hist, p1,AxisInfo,GlobalSettings["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=False, logz = plots["logz"], diagonal=plots["diagonal"]) 
-            else:
-                pp.Savehist(hist,AxisInfo,GlobalSettings["Save"],fileN,plots["Ext"],max = plots["max"], Normalize=False, logz = plots["logz"])
+            ext = "png"
+
+        if (plots["profileX"]): 
+            pp.Savehist2DWithProfile(hist, p1,AxisInfo,GlobalSettings["Save"],fileN,ext,max = plots.get("max"), Normalize=False, logz = plots["logz"], diagonal=plots["diagonal"]) 
+        else:
+            pp.Savehist(hist,AxisInfo,GlobalSettings["Save"],fileN,ext,max = plots.get("max"), Normalize=False, logz = plots["logz"])
                 
 def Make2DRatio(Ratio2D, GlobalSettings):
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
@@ -386,7 +383,7 @@ def MakeStacks(stacks,GlobalSettings):
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
     userFolder = GlobalSettings["userFolder"]
-    root_files = glob.glob( userFolder+ f'/*{stacks["Gen"]}*{stacks["Description"]}*.root')
+    root_files = glob.glob( userFolder+ f'/*{stacks["File"]}*.root')
     if root_files == []:
         print("NO such root files")
 
@@ -467,7 +464,12 @@ def MakeStacks(stacks,GlobalSettings):
         for hist in histlist:
             stack.Add(hist)      
 
-        save_L = GlobalSettings["Save"] + "/" + stacks["Name"] + "." + stacks["Ext"]
+        if GlobalSettings.get("SavePdf"):
+            ext = "pdf"
+        else:
+            ext = "png"
+        
+        save_L = GlobalSettings["Save"] + "/" + stacks["Name"] + "." + ext
 
         pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L)
 
@@ -477,7 +479,7 @@ def MakeOverlap(overlap,GlobalSettings):
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
     userFolder = GlobalSettings["userFolder"]
-    root_files = glob.glob( userFolder + f'/*{overlap["Gen"]}*{overlap["Description"]}*.root')
+    root_files = glob.glob( userFolder + f'/*{overlap["File"]}*.root')
     if root_files == []:
         print("NO such root files")
         
@@ -552,7 +554,13 @@ def MakeOverlap(overlap,GlobalSettings):
         elif weight_col:
             for hist in histlist:
                 hist.Scale(s)
-        save_L = GlobalSettings["Save"] + "/" + overlap["Name"] + "." +overlap["Ext"]
+
+        if GlobalSettings.get("SavePdf"):
+            ext = "pdf"
+        else:
+            ext = "png"
+        
+        save_L = GlobalSettings["Save"] + "/" + overlap["Name"] + "." + ext
         pp.SaveOverlapPlot(histlist, AxisInfo, Legend,save_L, Normalize=False)
         
 def MakeSame1D(same1D,GlobalSettings):
@@ -710,7 +718,7 @@ def MakeSame1D(same1D,GlobalSettings):
             
         print("scaled bin integral (cut hist)")
         print(hist_cut.Integral())
-        hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=same1D["max"], PlotTitle=PlotTitle)
+        hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=same1D.get("max"), PlotTitle=PlotTitle)
         
         if "Style" in plot:
             styleint = plot["Style"]
@@ -728,7 +736,7 @@ def MakeSame1D(same1D,GlobalSettings):
 
         highest_max = max(hist.GetMaximum() for hist in hist_dict.values())
 
-        if same1D["max"] > 0:
+        if same1D.get("max"):
             plot_max = same1D["max"]
         else:
             plot_max = highest_max * 1.15
@@ -885,9 +893,14 @@ def MakeSame1D(same1D,GlobalSettings):
         line.Draw("SAME")
 
     #outname = f"{HOME}/{GlobalSettings['Save']}/{same1D['Name']}.{same1D['Ext']}"
+    if GlobalSettings.get("SavePdf"):
+        ext = "pdf"
+    else:
+        ext = "png"
+
     base_name = f"{GlobalSettings['Save']}/{same1D['Name']}"
     root_outname = f"{base_name}.root"
-    image_outname = f"{base_name}.{same1D['Ext']}"
+    image_outname = f"{base_name}.{ext}"
     
     # Always save the ROOT file.
     f_out = ROOT.TFile(root_outname, "RECREATE")
@@ -928,15 +941,19 @@ def MakeContour(Contour,GlobalSettings):
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
     userFolder = GlobalSettings["userFolder"]
-    root_files = glob.glob( userFolder + f'/*{Contour["Gen"]}*{Contour["Description"]}*.root')
+    root_files = glob.glob( userFolder + f'/*{Contour["File"]}*.root')
     if root_files == []:
         print("NO such root files")
+
+    if GlobalSettings.get("SavePdf"):
+        ext = "pdf"
+    else:
+        ext = "png"
 
     for file_path in root_files:
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
-        #df = pp.CreateDataFrame(file_path, Contour["Cut"])
         df = pp.CreateDataFrame(file_path, cut ="None")
         BinL = Contour["Bins"]
         AxisInfo = []
@@ -950,10 +967,6 @@ def MakeContour(Contour,GlobalSettings):
             df = pp.DefineKinematics(df)
         if (GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
-        # if (GlobalSettings["ThresholdsB"]):
-        #     df = pp.FlagParticleThresholds(df)
-        # if Contour.get("Cut"):
-        #     df = df.Filter(Contour["Cut"])
 
         if reweight_flag:
             df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
@@ -1032,7 +1045,7 @@ def MakeContour(Contour,GlobalSettings):
                 Legend.append(f" {lower_bound:.2f} <= {x} < {upper_bound:.2f}")
             # save intermediary hist 
             if Contour["AutoQuant"][3]:
-                save_L0 = GlobalSettings["Save"] + "/" + "INT" +Contour["Name"] + "." +Contour["Ext"]
+                save_L0 = GlobalSettings["Save"] + "/" + "INT" +Contour["Name"] + "." + ext
                 # c.SaveAs(save_L0)
                 pp.SaveIntPlot(df,x,y,x_bins,save_L0)
         else:
@@ -1047,7 +1060,7 @@ def MakeContour(Contour,GlobalSettings):
         histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
         print(AxisInfo)
         histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts, Contour["TotalPercents"])
-        save_L = GlobalSettings["Save"]+ "/"+ Contour["Name"] + "." +Contour["Ext"]
+        save_L = GlobalSettings["Save"]+ "/"+ Contour["Name"] + "." + ext
         # if Contour["ContStyle"]:
         #     pp.SaveContHistStyles(histlist, AxisInfo, colors, Contour["styles"], Contour["Clabels"], Contour["Slabels"], save_L, Contour["logz"])
         # else:
@@ -1060,7 +1073,7 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
     areaB = reweight_cfg[5]
 
     userFolder = GlobalSettings["userFolder"]
-    root_files = glob.glob( userFolder + f'/*{ContourStyle["Gen"]}*{ContourStyle["Description"]}*.root')
+    root_files = glob.glob( userFolder + f'/*{ContourStyle["File"]}*.root')
     if root_files == []:
         print("NO such root files")
 
@@ -1069,8 +1082,8 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
         #df = pp.CreateDataFrame(file_path, Contour["Cut"])
-        #df = pp.CreateDataFrame(file_path, cut="None")
-        df = ROOT.RDataFrame(GlobalSettings["treeName"],file_path)
+        df = pp.CreateDataFrame(file_path, cut="None")
+        # df = ROOT.RDataFrame(GlobalSettings["treeName"],file_path)
         BinL = ContourStyle["Bins"]
         AxisInfo = []
         cuts = []
@@ -1152,11 +1165,14 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         print(f"colors {colors}")
         print(f"styles {styles}")
         print(f"Labels {ColorLabels} and { StyleLabels}") 
-
+        if GlobalSettings.get("SavePdf"):
+            ext = "pdf"
+        else:
+            ext = "png"
          
 
         histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
         print(AxisInfo)
         histlist = pp.PlotContEventCuts(df, ContourStyle["Var1"], ContourStyle["Var2"], histInfo, cuts, ContourStyle["TotalPercents"])
-        save_L = GlobalSettings["Save"]+ "/" + ContourStyle["Name"] + "." +ContourStyle["Ext"]
+        save_L = GlobalSettings["Save"]+ "/" + ContourStyle["Name"] + "." + ext
         pp.SaveContHistStyles(histlist, AxisInfo, colors, styles, ColorLabels, StyleLabels, save_L, ContourStyle["logz"])
