@@ -921,7 +921,7 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
         return df
 
 
-def Savehist(hist, AxisInfo, save_location, filename, ext, max = 0, Normalize = False, logz = False):
+def Savehist(hist, AxisInfo, save_location, filename, ext, max = None, Normalize = False, logz = False):
     xvar = AxisInfo[0]
     xunit = AxisInfo[1]
     yvar = AxisInfo[2]
@@ -929,7 +929,7 @@ def Savehist(hist, AxisInfo, save_location, filename, ext, max = 0, Normalize = 
     PlotTitle = AxisInfo[4]
     ROOT.gStyle.SetPalette(ROOT.kInvertedDarkBodyRadiator)
     #ROOT.gStyle.SetPalette(ROOT.kBird)
-    if max != 0:
+    if max:
         hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle)
     else:
         hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
@@ -941,10 +941,12 @@ def Savehist(hist, AxisInfo, save_location, filename, ext, max = 0, Normalize = 
     SF.formatTcanvas(hist,c)
     if logz:
         c.SetLogz()
+    if save_location[0] != "/":
+        save_location = "/"+save_location
 
-    c.SaveAs(f"{HOME}/{save_location}/{filename}.{ext}")
+    c.SaveAs(f"{save_location}/{filename}.{ext}")
     root_file = ROOT.TFile(
-        f"{HOME}/{save_location}/{filename}.root",
+        f"{save_location}/{filename}.root",
         "RECREATE",
     )
     hist.Write("hist")
