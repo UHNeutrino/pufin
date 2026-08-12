@@ -4,7 +4,6 @@ import sys
 import src.jsonreader as jsr
 import src.SetupFunctions as sf
 
-HOME = os.getenv("HOME", "/home/lboe")
 sf.setupRoot
 script_path = os.path.realpath(__file__)
 
@@ -32,6 +31,10 @@ if GlobalSettings["DebugMode"]:
     GlobalSettings["Save"] = script_dir + "DebugPlots"
     os.makedirs(GlobalSettings["Save"], exist_ok=True)
 
+if not sf.DirTest(GlobalSettings["Save"]):
+    
+    raise ValueError("Can't save in " + GlobalSettings.get("Save"))
+
 plots = data.get("plots")
 stacks = data.get("stacks")
 overlap = data.get("overlap")
@@ -39,6 +42,7 @@ same1D = data.get("1DSame")
 Contour = data.get("Contour")
 ContourStyle = data.get("ContourStyle")
 quantiles = data.get("quantiles")
+Ratio2D = data.get("2DRatio")
 
 if GlobalSettings["DebugMode"]:
     print("Starting Plots")
@@ -87,7 +91,9 @@ else:
         jsr.MakeOverlap(overlap,GlobalSettings)
     if same1D:
         jsr.MakeSame1D(same1D,GlobalSettings)
+    if Ratio2D:
+        jsr.Make2DRatio(Ratio2D, GlobalSettings)
     if Contour:
         jsr.MakeContour(Contour,GlobalSettings)
     if ContourStyle:
-        jsr.MakeContourStyle(ContourStyle,GlobalSettings)
+        jsr.MakeContourStyle(ContourStyle,GlobalSettings)    
