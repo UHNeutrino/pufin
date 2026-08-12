@@ -2,6 +2,17 @@ import ROOT
 import os
 from array import array
 
+def DirTest(directory):
+    # Test if the script can write a file to the given directory
+    test_file = os.path.join(directory, ".write_test.tmp")
+    try:
+        with open(test_file, "w") as f:
+            f.write("test")
+        os.remove(test_file)
+        return True
+    except (IOError, OSError):
+        return False
+
 def setupRoot():
     ROOT.gStyle.SetStatX(0.85)  # Closer to the left edge
     ROOT.gStyle.SetStatY(0.9)  # Slightly below the top edge
