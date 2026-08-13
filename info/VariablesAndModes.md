@@ -197,22 +197,24 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <table>
   <tr> <h2 id="kinematic-variables"> Kinematic Variables </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
- 
-  <tr> <td>Lorem ipsum ...</td>   <td> PProton1 </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> PProton1_PFSI </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> PProton </td> </tr>
+
+ <!-- which of the following returns a scalar? -->
+  <tr> <td> Max proton momentum (in FS) </td>   <td> PProton1 </td> </tr>
+  <tr> <td> Max proton momentum (Pre-FSI) </td>   <td> PProton1_PFSI </td> </tr>
+  <tr> <td> Proton momentum </td>   <td> PProton </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> CosProton </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> CosProton_PFSI </td> </tr>
  
-  <tr> <td>Lorem ipsum ...</td>   <td> PPionPlus </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> PPionPlus_PFSI </td> </tr>
+  <tr> <td> Max &pi;<sup>+</sup> momentum (in FS) </td>   <td> PPionPlus </td> </tr>
+  <tr> <td> Max &pi;<sup>+</sup> momentum (Pre-FSI) </td>   <td> PPionPlus_PFSI </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> PPionMax </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> CosPion </td> </tr>
-  
+  <!-- link full description for CosPion in Extended Variable Descriptions -->
   
   <tr> <td>Lorem ipsum ...</td>   <td> initNeucMag </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> Muon_KE </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> PionMax_KE </td> </tr>
+  <tr> <td> Muon KE </td>   <td> Muon_KE </td> </tr>
+  <tr> <td> Maximum Pion KE (any &pi; charge) </td>
+        <td> PionMax_KE </td> </tr>
 </table>
 </td> 
 <!-- Table 3 -->
@@ -221,15 +223,15 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
  <tr> <h2 id="tki-variables"> TKI Variables </h2> </tr>
  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
  
- <tr> <td>Lorem ipsum ...</td>   <td> PNu </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> PTLep </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> PTHad </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> PTHad_PFSI </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> PTProton1 </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> PTPion1 </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> PTPion1_PFSI </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> PTProton_PFSI</td> </tr>
- 
+ <tr> <td> Neutrino Momentum (as cartesian vector) </td>   <td> PNu </td> </tr>
+ <tr> <td> p<sub>T</sub><sup>lep</sup> (transverse lepton momentum) </td>   <td> PTLep </td> </tr>
+ <tr> <td> p<sub>T</sub><sup>had</sup> (transverse hadron momentum) </td>   <td> PTHad </td> </tr>
+ <tr> <td> p<sub>T</sub><sup>had</sup> (Pre-FSI) </td>   <td> PTHad_PFSI </td> </tr>
+ <tr> <td> p<sub>T</sub><sup>proMax</sup> (largest proton p<sub>T</sub>) </td>   <td> PTProton1 </td> </tr>
+ <tr> <td> p<sub>T</sub><sup>&pi;Max</sup> (largest pion p<sub>T</sub>) </td>   <td> PTPion1 </td> </tr>
+ <tr> <td> p<sub>T</sub><sup>&pi;Max</sup> (Pre-FSI) </td>   <td> PTPion1_PFSI </td> </tr>
+
+ <!-- how do these relate to standard "dalphat" variable in root files -->
  <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT_Had </td> </tr>
  <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT </td> </tr>
  <tr> <td>Lorem ipsum ...</td>   <td> CosDeltaAlphaT </td> </tr>
@@ -312,6 +314,7 @@ TKI (transverse kinematic imbalance), etc. from src/ParticlePlots
   <tr> <td> QE </td>   <td> Quasi-elastic </td> </tr>
   <tr> <td> EL </td>   <td> Elastic </td> </tr>
   <tr> <td> FSI </td>   <td> Final State Interaction(s) </td> </tr>
+  <tr> <td> FS </td>   <td> Final State </td> </tr>
   <tr> <td> TKI </td>   <td> Transverse Kinematic Imbalance </td> </tr>
   <tr> <td> Reco </td>   <td> Reconstruction/Reconstructed </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
