@@ -73,7 +73,7 @@ git clone https://github.com/UHNeutrino/PUfIN/
 + Change user specific save directory
   + In your config file, edit ```"global"``` to change the folder you want your plot(s) to be saved to. For example:
     ```
-    "Save": "home/username/My_Folder",
+    "Save": "/home/username/My_Folder",
     ```
     > If the folder you enter does not exist yet, it will not be created for you
     
