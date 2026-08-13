@@ -106,7 +106,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
  <tr> <td>Lorem ipsum ...</td>   <td> PhiAdler </td> </tr>
  
  <tr> <td> &delta;&alpha;<sub>T</sub> </td>   <td> dalphat </td> </tr>
- <tr> <td> &delta; p<sub>T</sub> </td>   <td> dpt </td> </tr>
+ <tr> <td> &delta;p<sub>T</sub> </td>   <td> dpt </td> </tr>
  <tr> <td>Lorem ipsum ...</td>   <td> dphit </td> </tr>
  
  <tr> <td>Lorem ipsum ...</td>   <td> tgt </td> </tr>
@@ -176,11 +176,20 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <table>
   <tr> <h2 id="evis-variables"> Evis Variables </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+ 
+  <tr> <td>Lorem ipsum ...</td>   <td> Evis_1 </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Evis_2 </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Evis_2_PFSI </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Evis_3 </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Evis_kin </td> </tr>
+
+  <tr> <td>Lorem ipsum ...</td>   <td> E_had </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> E_had_PFSI </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Ehad_3 </td> </tr>
+  
+  <tr> <td>Lorem ipsum ...</td>   <td> Eres_kin </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Eres_kin2 </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Eres_cal </td> </tr>
 </table>
 </td> 
 <!-- Table 2 -->
@@ -188,23 +197,63 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <table>
   <tr> <h2 id="kinematic-variables"> Kinematic Variables </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+ 
+  <tr> <td>Lorem ipsum ...</td>   <td> PProton1 </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> PProton1_PFSI </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> PProton </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> CosProton </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> CosProton_PFSI </td> </tr>
+ 
+  <tr> <td>Lorem ipsum ...</td>   <td> PPionPlus </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> PPionPlus_PFSI </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> PPionMax </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> CosPion </td> </tr>
+  
+  
+  <tr> <td>Lorem ipsum ...</td>   <td> initNeucMag </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Muon_KE </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> PionMax_KE </td> </tr>
 </table>
 </td> 
 <!-- Table 3 -->
 <td valign="top"> 
 <table>
-  <tr> <h2 id="tki-variables"> TKI Variables </h2> </tr>
-  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+ <tr> <h2 id="tki-variables"> TKI Variables </h2> </tr>
+ <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+ 
+ <tr> <td>Lorem ipsum ...</td>   <td> PNu </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> PTLep </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> PTHad </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> PTHad_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> PTProton1 </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> PTPion1 </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> PTPion1_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> PTProton_PFSI</td> </tr>
+ 
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT_Had </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> CosDeltaAlphaT </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT_pion </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT_PFSI </td> </tr>
+ 
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_Had </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_pion </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_PFSI </td> </tr>
+ 
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_Had </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_Had_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_pion </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_pion_PFSI </td> </tr>
+ 
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_Had </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_Had_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_pion </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_pion_PFSI </td> </tr>
 </table>
 </td> 
 <!-- Table 4 -->
@@ -212,11 +261,33 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <table>
   <tr> <h2 id="threshold-flags"> Threshold Flags </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNovaALL </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNovaMuonP </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNovaProtonP </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNovaPionPlusP </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNovaPion_KE </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNovaCosPion </td> </tr>
+
+  <tr> <td>Lorem ipsum ...</td>   <td> flagT2KALL </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagT2KMuonP </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagT2KProtonP </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagT2KPionPlusP </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagT2KCosLep </td> </tr>
+
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbALL_Aspirational </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbALL_Conservative </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbMuonP_Aspirational </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbMuonP_Conservative </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbProtonP_Aspirational </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbProtonP_Conservative </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbPionPlusP_Aspirational </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbPionPlusP_Conservative </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbZeroPiAboveThreshold_Conservative </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbPiBelowThreshold_Conservative </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbPion_KE_Aspirational </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbPion_KE_Conservative </td> </tr>
+  <!-- # <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr> # -->
 </table>
 </td> 
 <!-- Closes Inline Table -->
