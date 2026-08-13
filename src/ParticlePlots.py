@@ -927,8 +927,6 @@ def Savehist(hist, AxisInfo, save_location, filename, ext, max = None, Normalize
     yvar = AxisInfo[2]
     yunit = AxisInfo[3]
     PlotTitle = AxisInfo[4]
-    ROOT.gStyle.SetPalette(ROOT.kInvertedDarkBodyRadiator)
-    #ROOT.gStyle.SetPalette(ROOT.kBird)
     if max:
         hist = SF.formatHist(hist ,xvar, xunit, yvar, yunit, max = max, PlotTitle=PlotTitle)
     else:
@@ -1021,7 +1019,6 @@ def Savehist2DWithProfile(hist1, prof1, AxisInfo, save_location, filename, ext,
                           draw2d_opt="COLZ"):
     xvar, xunit, yvar, yunit, PlotTitle = AxisInfo[0], AxisInfo[1], AxisInfo[2], AxisInfo[3], AxisInfo[4]
 
-    ROOT.gStyle.SetPalette(ROOT.kInvertedDarkBodyRadiator)
 
     # Format the TH2 (axes, titles, ranges, etc.)
     if max != 0:

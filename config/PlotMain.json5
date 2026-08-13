@@ -11,6 +11,7 @@
             "KinematicsB":false,
             "TkiB": false,
             "ThresholdsB": false,
+            "Palette":"kRainBow",
             "DebugPrint":0,
             "DebugMode":false,
             "SavePdf":true,

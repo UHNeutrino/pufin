@@ -11,6 +11,12 @@ import array
 
 
 def GrabFluxReWeights(GlobalSettings):
+    if GlobalSettings.get("Palette"):
+            pal = getattr(ROOT,GlobalSettings["Palette"])
+    else:
+        pal = ROOT.kBird
+    ROOT.gStyle.SetPalette(pal)
+
     frwDict = GlobalSettings.get("FluxReweight")
     
     if not frwDict:
@@ -364,7 +370,9 @@ def Make2DRatio(Ratio2D, GlobalSettings):
     out_file = ROOT.TFile(f"{saveLoc}.root", "RECREATE")
     print(f"Saved {saveLoc}.root")
     c = ROOT.TCanvas("ratio", "ratio", 800, 600)
-    ROOT.gStyle.SetPalette(ROOT.kBird)
+
+    
+
     ratio.Draw("COLZ")
     c.Write() 
     c1 = ROOT.TCanvas("hist1", "hist1", 800, 600)
