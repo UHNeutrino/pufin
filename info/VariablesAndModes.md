@@ -50,35 +50,82 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <table>
  <tr> <h2 id="energy-transfer-momentum"> Energy, Transfer, & Momentum </h2> </tr>
  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+
+  <tr> <td>Lorem ipsum ...</td>   <td> E </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> E_init </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> E_vert </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> E_pdg </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> EavAlt </td> </tr>
   
   <tr> <td> True E<sub>&nu;</sub> (neutrino energy) </td>   <td> Enu_true </td> </tr>
   <tr> <td> (Reco) E<sub>&nu;</sub><sup>QE</sup> </td>   <td> Enu_QE </td> </tr>
   <tr> <td> Lepton energy (post-FSI?) </td>   <td> ELep </td> </tr>
   <tr> <td> E<sub>miss</sub> (missing energy) </td>   <td> Emiss </td> </tr>
   <tr> <td> E<sub>miss</sub> pre-FSI </td>   <td> Emiss_preFSI </td> </tr>
+  <tr> <td> Lorem ipsum ...</td>   <td> Erecoil_minerva </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Erecoil_charged </td> </tr>
+  
+
+  
   
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td> q<sub>0</sub> (energy transfer) </td>   <td>q0</td>         </tr>
-  <tr> <td> q<sub>3</sub> (3-momentum transfer) </td>   <td> q3 </td>       </tr>
-  <tr> <td> Q<sup>2</sup> (collision hardness/4-momentum transfer) </td>   <td> Q2 </td>       </tr>
-  <tr> <td> (Reco) Q<sup>2, QE</sup> </td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td> q<sub>0</sub> (energy transfer) </td>   <td>q0</td>     </tr>
+  <tr> <td> q<sub>3</sub> (3-momentum transfer) </td>   <td> q3 </td>  </tr>
+  <tr> <td> Q<sup>2</sup> (collision hardness/4-momentum transfer) </td>   <td> Q2 </td>  </tr>
+  <tr> <td> (Reco) Q<sup>2, QE</sup> </td>   <td> Q2_QE </td> </tr>
+  
+  <tr> <td>Lorem ipsum ...</td>   <td> px </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> py </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> pz </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> px_init </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> py_init </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> pz_init </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> px_vert </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> py_vert </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> pz_vert </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> ninitp</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> nvertp </td> </tr>
+  <!-- # <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr> # -->
 </table>
 </td>
   
 <!-- Table 2 -->
 <td valign="top">
 <table>
-  <tr> <h2 id="invariant-mass-position--misc"> Invariant Mass, Position, & Misc. </h2> </tr>
-  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
-  <tr> <td> W (invariant mass) </td>   <td> W </td> </tr>
-  <tr> <td> W as predicted by GENIE (?) </td>   <td> W_genie </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+ <tr> <h2 id="invariant-mass-position--misc"> Invariant Mass, Position, & Misc. </h2> </tr>
+ <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+ <tr> <td> W (invariant mass) </td>   <td> W </td> </tr>
+ <tr> <td> W as predicted by GENIE (?) </td>   <td> W_genie </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> W_nuc_rest </td> </tr>
+ 
+ <tr> <td> Lorem ipsum ... </td>   <td> x </td> </tr>
+ <tr> <td> Lorem ipsum ...</td>   <td> y </td> </tr>
+
+ <tr> <td>Lorem ipsum ...</td>   <td> CosLep </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> CosThetaAdler </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> PhiAdler </td> </tr>
+ 
+ <tr> <td> &delta;&alpha;<sub>T</sub> </td>   <td> dalphat </td> </tr>
+ <tr> <td> &delta; p<sub>T</sub> </td>   <td> dpt </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> dphit </td> </tr>
+ 
+ <tr> <td>Lorem ipsum ...</td>   <td> tgt </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> tgta </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> tgtz </td> </tr>
+ 
+ <tr> <td>Lorem ipsum ...</td>   <td> cc </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> pdg </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> pdg_rank </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> pnreco_C </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> nfsp </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> PDGnu </td> </tr>
+  
+ <tr> <td>Lorem ipsum ...</td>   <td> Weight </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> InputWeight </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> RWWeight </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> fScaleFactor </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> CustomWeight </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> CustomWeightArray </td> </tr>
 </table>
 </td>
 <!-- Table 3 -->
@@ -102,9 +149,13 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
   <tr> <td>Lorem ipsum ...</td>   <td> flagNC1pim </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagCC1pi0 </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagNC1pi0 </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagCC0piMINERvA</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagCC0Pi_T2K_AnaI</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagCC0Pi_T2K_AnaII </td> </tr>
   <tr> <td> Interaction Modes 
     <a href="#interaction-modes">(see below)</a> 
   </td>   <td> Mode</td> </tr>
+  <td>Lorem ipsum ...</td>   <td> GENIEResCode </td>
 </table>
 </td>
 <!-- Closes Inline Table -->
