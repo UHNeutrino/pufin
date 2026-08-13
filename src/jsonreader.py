@@ -1024,7 +1024,7 @@ def MakeContour(Contour,GlobalSettings):
                 print("weights activated1")
             else:
                 cuthist = df.Histo2D(histogramInfo, x,y)
-            total_events = int(cuthist.Integral())
+            total_events = float(cuthist.Integral())
             # print(f"Total events: {total_events}")
             # Define cumulative events array
             cumulative_events = [0]
