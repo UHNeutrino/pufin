@@ -2,13 +2,24 @@ import ROOT
 import os
 import json5
 import datetime
+import re
 import src.ParticlePlots as pp 
 import src.SetupFunctions as sf
 import glob
 import array
 
 
+def get_nucleons_per_target(target: str) -> int:
+    """Extract the mass number from a target name such as C12, O16, or Ar40."""
+    match = re.search(r"\d+", target)
 
+    if not match:
+        raise ValueError(
+            f"Could not determine nucleons per target from target '{target}'. "
+            "Expected a target name such as C12, O16, or Ar40."
+        )
+
+    return int(match.group())
 
 def GrabFluxReWeights(GlobalSettings):
     if GlobalSettings.get("Palette"):
@@ -34,13 +45,12 @@ def GrabFluxReWeights(GlobalSettings):
     xsecmode = frwDict.get("XsecMode")
     flavor = frwDict.get("Flavor")
     xsecpath = frwDict.get("XsecPath")
-    nucpert = frwDict.get("NucleonsPerTarget")
+    nucpert = get_nucleons_per_target(target)
 
     if areaB:
         Fscale = 1
     else:
         Fscale = CalculateTargetWeightFactor(targets_file, detector, target)
-    # Fscale = frwDict.get("Fscale")
     
     reweight_cfg = [
         reweight_flag,
@@ -57,6 +67,7 @@ def GrabFluxReWeights(GlobalSettings):
         nucpert,
     ]
     print(f"Using Fscale for {detector} {target}: {Fscale:.18e}")
+    print(f"Nucleons per target for {target}: {nucpert}")
     return reweight_cfg
 
 

@@ -5,7 +5,7 @@
             "treeName":"FlatTree_VARS",
             //"treeName":"gst",
             // "Save": "UHMCVerification",
-            "Save": "/home/lboe",
+            "Save": "/home/kdobbs/pufin/test",
             "DebugLvl":0,
             "EvisB": false,
             "KinematicsB":false,
@@ -14,37 +14,36 @@
             "Palette":"kRainBow",
             "DebugPrint":0,
             "DebugMode":false,
-            "SavePdf":true,
+            "SavePdf":false,
             "FluxReweight":{
-                // "FluxPath":"/data/t2k-nova/fluxes/NOvAFluxProd6.root",
-                // "FluxHistogram":"numu",
-                "FluxPath": "/data/t2k-nova/fluxes/21bv2/run4/nd5_tuned21bv2_13anom_run4_numode_fine.root",
-                "FluxHistogram": "enu_nd5_21b_real_numu",
+                "FluxPath":"/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+                "FluxHistogram":"numu",
+                // "FluxPath": "/data/t2k-nova/fluxes/21bv2/run4/nd5_tuned21bv2_13anom_run4_numode_fine.root",
+                // "FluxHistogram": "enu_nd5_21b_real_numu",
                 "AreaNormFlag":false,
                 //-----------------------------------------------------------------------------------//
                 // --------------------- Edit below only for re-weighting flux --------------------- //
                 //-----------------------------------------------------------------------------------//
 
-                "XsecType":"N", // G for Genie or N for Neut
-                "UndoFluxNormFlag":true,
+                "XsecType":"G", // G for Genie or N for Neut
+                "UndoFluxNormFlag":false,
                 "TargetWeightsFile": "./config/TargetWeights.json5",
-                "Detector":"T2K", // T2K or Nova
+                "Detector":"Nova", // T2K or Nova
                 "Target":"C12",
-                "XsecMode": "CC", // total, CC or NC
-                "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
-                // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
+                "XsecMode": "total", // total, CC or NC
+                // "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
+                "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
                 // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/AR2320i00000-k250-e1000/data/xsec_graphs.root"
 
                 // -------- Used Only by Genie --------- //
                 
-                "Flavor": "nu_mu",
-                "NucleonsPerTarget":12
+                "Flavor": "nu_mu"
             }
 
         },
     "plots":
         {
-            "File":"ROOT_filename",
+            "File":"Flat_GenieN24_flatf_1e6",
             "Type":"1D",
             // Specify the cut for the dataframe. For no cuts, type ""
             "Cut": "flagCCINC == true",
@@ -53,8 +52,8 @@
             "AxisInfo":"#nu Energy, GeV, Interactions,  , UHMC ",
             "Bins": [160, 0, 8], // [60,-2.0,1.0,80,0,180],
             "VBins":[false,[0.0, 0.1, 0.2, 0.34, 0.4, 0.5, 0.6, 0.70, 0.8, 0.9, 1.0, 1.1, 1.200, 1.3, 1.40, 1.5, 1.6, 1.7, 1.8, 1.91, 2.0, 2.1, 2.2, 2.3, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.5, 5.0, 6.0, 7.0, 8.0] ],
-            "Name": "TestPlotsNeutCCnoCut_v3",
-            "max": -1, 
+            "Name": "August17_new",
+            "max": null, 
             "logz": false,
             "profileX": false, // only works with 2D
             "diagonal": false // only works with profileX=true
@@ -161,8 +160,7 @@
                     "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
 
                     // -------- Used Only by Genie --------- //
-                    "Flavor": "nu_mu",
-                    "NucleonsPerTarget":12
+                    "Flavor": "nu_mu"
                     }
                 },
                 {
@@ -191,8 +189,7 @@
                     // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
 
                     // -------- Used Only by Genie --------- //
-                    "Flavor": "nu_mu",
-                    "NucleonsPerTarget":12
+                    "Flavor": "nu_mu"
                     }
                     }
             ]
@@ -226,7 +223,7 @@
             "AxisInfo":"q0, (GeV), q3, (GeV), Contour Test",
             "Bins":[100,0,5,100,0,5],
             "logz":true,
-            "Name": "TestContour",
+            "Name": "TestContour"
         },
     "ContourStyle":
         {
@@ -240,6 +237,6 @@
             "AxisInfo":"q0, (GeV/c), q3, (GeV), Cont Style Test",
             "Bins":[100,0,5,100,0,5],
             "logz":true,
-            "Name": "TestContourStyle",
+            "Name": "TestContourStyle"
         }
 }
