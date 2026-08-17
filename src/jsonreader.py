@@ -45,7 +45,23 @@ def GrabFluxReWeights(GlobalSettings):
     xsecmode = frwDict.get("XsecMode")
     flavor = frwDict.get("Flavor")
     xsecpath = frwDict.get("XsecPath")
-    nucpert = get_nucleons_per_target(target)
+    if not areaB:
+        nucpert = get_nucleons_per_target(target)
+        if (not undoNormB):
+            raise ValueError("Need to define 'UndoFluxNormFlag' ")
+        elif (not xsecmode):
+            raise ValueError("Need to define 'XsecMode' ")
+        elif (not xsecpath):
+            raise ValueError("Need to define 'XsecPath' ")
+        elif (not xsectype):
+            raise ValueError("Need to define 'XsecType' ")
+        elif (not detector):
+            raise ValueError("Need to define 'Detector' ")
+        elif (not target) or (not flavor):
+            raise ValueError("Need to define 'Target' and 'Flavor' ")
+    else:
+        nucpert = 1
+        xsectype = "X"
 
     if areaB:
         Fscale = 1

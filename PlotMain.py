@@ -7,6 +7,9 @@ import src.SetupFunctions as sf
 sf.setupRoot
 script_path = os.path.realpath(__file__)
 
+if len(sys.argv) < 2:
+    raise ValueError("Please specify which config file to use in /config")
+
 if sys.argv[1]:
     argString = sys.argv[1]
     if ".json5" in argString:
