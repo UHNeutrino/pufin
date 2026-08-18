@@ -1120,10 +1120,70 @@ def Generate(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=None, 
 
     print(f"{Generator.upper()} Generation Is Complete")
 
+def CheckGeneratedFiles(Verbosity, UseRoot):
+    if UseRoot:
+        import ROOT
+    FlatNeutFiles = glob.glob(f"{OutPath}/NEUT/*/Flat*.root")
+    FlatGenieFiles = glob.glob(f"{OutPath}/GENIE/*/Flat*.root")
+    if (len(FlatNeutFiles)> 0):
+        print("----------------Neut----------------")
+        print(f"Total Files: {len(FlatNeutFiles)}")
+        VersionTuneLoop(FlatNeutFiles, UseRoot, Verbosity)
+
+    if (len(FlatGenieFiles)> 0 ):
+        print("----------------Genie----------------")
+        print(f"Total Files: {len(FlatGenieFiles)}")
+        VersionTuneLoop(FlatGenieFiles, UseRoot, Verbosity)
+        
+
+def VersionTuneLoop(FileList, UseRoot, Verbosity):
+    
+    VersionTuneList = []
+    for file in FileList:
+        FName = file.split("/")[-1]
+        Version = FName.split("_")[1]
+        Tune = FName.split("_")[2]
+        VersionTune = Version.upper() + "_" + Tune.upper()
+        if not (VersionTune.upper() in VersionTuneList):
+            VersionTuneList.append(VersionTune)
+
+
+    for VersionTune in VersionTuneList:
+        TotalEvents = 0
+        FlatFilesTemp = []
+        for file in FileList:
+            if VersionTune.upper() in file.upper():
+                FlatFilesTemp.append(file)
+        
+        print(f"************For {VersionTune} ************")
+        print(f"Total Files {len(FlatFilesTemp)}")
+        for file in FlatFilesTemp:
+            endStr = file.split("_")[-1]
+            eventCount = endStr[:4]
+            if "." in eventCount:
+                # genie uses e:2 rather than e:3 so I need to remove the period
+                eventCount = eventCount.replace(".", "")
+            eventFloat = float(eventCount)
+            TotalEvents += eventFloat
+        
+        if UseRoot:
+            Ndf = ROOT.RDataFrame("FlatTree_VARS",FlatFilesTemp)
+            print(f"Total Events in RDataFrame:{Ndf.Count().GetValue()}")
+        else:
+            print(f"Total Events: {int(TotalEvents):e}")
+            print("Warning this number is based off of the file naming and may not reflect the actual number of events")
+
+
+
+
 
 if __name__ =="__main__":
     
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser("""
+    Gen- Neut or Genie generation with multiprocessing available
+    Neut/GenieMult- Multiprocessing that should only be called by GenSubmit
+    NeutXsec- Generation of Neut Xsecs meant for GenSubmit
+    """)
 
     subparsers = parser.add_subparsers(dest="command", required=True)
     #If just regular Generating:
@@ -1146,11 +1206,16 @@ if __name__ =="__main__":
     NeutXsecParser = subparsers.add_parser("NeutXsec")
     NeutXsecParser.add_argument("--tune", required=True)
     NeutXsecParser.add_argument("--targets", required=True)
-    
+
+    #Genie multiprocessing through GenSubmit
     GenieMultParser = subparsers.add_parser("GenieMult")
     GenieMultParser.add_argument("--Files", nargs="+", required=True)
     GenieMultParser.add_argument("--CPUPercent", required=True)
-    
+
+    #For checking files that have been downloaded
+    GenCheckParser = subparsers.add_parser("Check")
+    GenCheckParser.add_argument("--Verbosity")
+    GenCheckParser.add_argument("--UseRoot", action="store_true")
 
     args = parser.parse_args()
     if args.command=="Gen":
@@ -1180,6 +1245,8 @@ if __name__ =="__main__":
             FileNames=args.Files,
             CPUPercent=float(args.CPUPercent),
         )
+    elif args.command=="Check":
+        CheckGeneratedFiles(Verbosity=args.Verbosity, UseRoot=args.UseRoot)
 
     
     # Tune = "Prod7E"
