@@ -1230,6 +1230,10 @@ if __name__ =="__main__":
             NChunks=args.NChunks,
         )
     elif args.command=="NeutMult":
+        if args.CPUPercent:
+            cpuPercent = float(args.CPUPercent)
+        else:
+            cpuPercent = None
         GenNeutMultiOnNodeFiles(
             FileNames= args.Files,
             CPUPercent=float(args.CPUPercent),
