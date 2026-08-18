@@ -173,6 +173,9 @@ def NeutTimeEstimator(Files, NCores):
     TotalSeconds += len(Files)*180
     
     TotalSeconds = int(TotalSeconds/(NCores/3))
+    # add random wait time
+    TotalSeconds += len(Files)*30
+    
     if TotalSeconds>= 86400:
         raise ValueError("Allocation exceeding 24hrs, use more cores or less chunks")
     t = time.gmtime(TotalSeconds)
