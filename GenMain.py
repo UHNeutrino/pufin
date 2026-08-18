@@ -1236,7 +1236,7 @@ if __name__ =="__main__":
             cpuPercent = None
         GenNeutMultiOnNodeFiles(
             FileNames= args.Files,
-            CPUPercent=float(args.CPUPercent),
+            CPUPercent=cpuPercent,
             CPUNumber=int(args.CPUNumber)
             )
     elif args.command=="NeutXsec":
