@@ -44,19 +44,7 @@ git clone https://github.com/UHNeutrino/PUfIN/
   ```
   + To point the interpreter in VSCode to the venv you just created, navigate to the Command Palette using <kbd> Ctrl </kbd> + <kbd> Shift </kbd> + <kbd> P </kbd> , type and select ```Python: Select Interpreter```, and enter or select ```your_venv_folder/bin/python```
 
-
-+ Change user specific file paths (optional)
-  + In ```jsonreader.py``` and ```PlotMain.py``` change the home directory to 
-    ```
-    HOME = os.getenv("HOME", "/home/username")
-    ```
-  + In your config file, edit ```"global"``` to change the folder you want your plot(s) to be saved to
-    ```
-    "Save": "My_Folder",
-    ```
-    > If the folder you enter does not exist yet, it will not be created for you
-    
-    Leaving this field blank will save created files to your home directory.
++ See [Using PlotMain.py](#using-plotmainpy) to begin plotting
 
 ## Functionality
 
@@ -82,6 +70,15 @@ git clone https://github.com/UHNeutrino/PUfIN/
   + Your config file (```config/MyConfig.json5```) should include ```"global"``` and one (or more) plotting modes
   + Alternatively, directly edit and run using the existing config file ```PlotMain.json5```
 
++ Change user specific save directory
+  + In your config file, edit ```"global"``` to change the folder you want your plot(s) to be saved to. For example:
+    ```
+    "Save": "/home/username/My_Folder",
+    ```
+    > If the folder you enter does not exist yet, it will not be created for you
+    
+    Leaving this field blank or entering an invalid file path will result in the error: ```Can't save in "your/invalid/path"```.
+    
 + To create plots, include desired plotting modes within ```config/MyConfig.json5```, then run 
   ```
   (.venv) [username@domain PUfIN]$ python PlotMain.py MyConfig

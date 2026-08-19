@@ -50,35 +50,82 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <table>
  <tr> <h2 id="energy-transfer-momentum"> Energy, Transfer, & Momentum </h2> </tr>
  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+
+  <tr> <td>Lorem ipsum ...</td>   <td> E </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> E_init </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> E_vert </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> E_pdg </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> EavAlt </td> </tr>
   
   <tr> <td> True E<sub>&nu;</sub> (neutrino energy) </td>   <td> Enu_true </td> </tr>
   <tr> <td> (Reco) E<sub>&nu;</sub><sup>QE</sup> </td>   <td> Enu_QE </td> </tr>
   <tr> <td> Lepton energy (post-FSI?) </td>   <td> ELep </td> </tr>
   <tr> <td> E<sub>miss</sub> (missing energy) </td>   <td> Emiss </td> </tr>
   <tr> <td> E<sub>miss</sub> pre-FSI </td>   <td> Emiss_preFSI </td> </tr>
+  <tr> <td> Lorem ipsum ...</td>   <td> Erecoil_minerva </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Erecoil_charged </td> </tr>
+  
+
+  
   
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td> q<sub>0</sub> (energy transfer) </td>   <td>q0</td>         </tr>
-  <tr> <td> q<sub>3</sub> (3-momentum transfer) </td>   <td> q3 </td>       </tr>
-  <tr> <td> Q<sup>2</sup> (collision hardness/4-momentum transfer) </td>   <td> Q2 </td>       </tr>
-  <tr> <td> (Reco) Q<sup>2, QE</sup> </td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+  <tr> <td> q<sub>0</sub> (energy transfer) </td>   <td>q0</td>     </tr>
+  <tr> <td> q<sub>3</sub> (3-momentum transfer) </td>   <td> q3 </td>  </tr>
+  <tr> <td> Q<sup>2</sup> (collision hardness/4-momentum transfer) </td>   <td> Q2 </td>  </tr>
+  <tr> <td> (Reco) Q<sup>2, QE</sup> </td>   <td> Q2_QE </td> </tr>
+  
+  <tr> <td>Lorem ipsum ...</td>   <td> px </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> py </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> pz </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> px_init </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> py_init </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> pz_init </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> px_vert </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> py_vert </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> pz_vert </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> ninitp</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> nvertp </td> </tr>
+  <!-- # <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr> # -->
 </table>
 </td>
   
 <!-- Table 2 -->
 <td valign="top">
 <table>
-  <tr> <h2 id="invariant-mass-position--misc"> Invariant Mass, Position, & Misc. </h2> </tr>
-  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
-  <tr> <td> W (invariant mass) </td>   <td> W </td> </tr>
-  <tr> <td> W as predicted by GENIE (?) </td>   <td> W_genie </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+ <tr> <h2 id="invariant-mass-position--misc"> Invariant Mass, Position, & Misc. </h2> </tr>
+ <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+ <tr> <td> W (invariant mass) </td>   <td> W </td> </tr>
+ <tr> <td> W as predicted by GENIE (?) </td>   <td> W_genie </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> W_nuc_rest </td> </tr>
+ 
+ <tr> <td> Lorem ipsum ... </td>   <td> x </td> </tr>
+ <tr> <td> Lorem ipsum ...</td>   <td> y </td> </tr>
+
+ <tr> <td>Lorem ipsum ...</td>   <td> CosLep </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> CosThetaAdler </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> PhiAdler </td> </tr>
+ 
+ <tr> <td> &delta;&alpha;<sub>T</sub> </td>   <td> dalphat </td> </tr>
+ <tr> <td> &delta;p<sub>T</sub> </td>   <td> dpt </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> dphit </td> </tr>
+ 
+ <tr> <td>Lorem ipsum ...</td>   <td> tgt </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> tgta </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> tgtz </td> </tr>
+ 
+ <tr> <td>Lorem ipsum ...</td>   <td> cc </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> pdg </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> pdg_rank </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> pnreco_C </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> nfsp </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> PDGnu </td> </tr>
+  
+ <tr> <td>Lorem ipsum ...</td>   <td> Weight </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> InputWeight </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> RWWeight </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> fScaleFactor </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> CustomWeight </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> CustomWeightArray </td> </tr>
 </table>
 </td>
 <!-- Table 3 -->
@@ -102,9 +149,13 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
   <tr> <td>Lorem ipsum ...</td>   <td> flagNC1pim </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagCC1pi0 </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> flagNC1pi0 </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagCC0piMINERvA</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagCC0Pi_T2K_AnaI</td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagCC0Pi_T2K_AnaII </td> </tr>
   <tr> <td> Interaction Modes 
     <a href="#interaction-modes">(see below)</a> 
   </td>   <td> Mode</td> </tr>
+  <td>Lorem ipsum ...</td>   <td> GENIEResCode </td>
 </table>
 </td>
 <!-- Closes Inline Table -->
@@ -125,11 +176,20 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <table>
   <tr> <h2 id="evis-variables"> Evis Variables </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+ 
+  <tr> <td>Lorem ipsum ...</td>   <td> Evis_1 </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Evis_2 </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Evis_2_PFSI </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Evis_3 </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Evis_kin </td> </tr>
+
+  <tr> <td>Lorem ipsum ...</td>   <td> E_had </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> E_had_PFSI </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Ehad_3 </td> </tr>
+  
+  <tr> <td>Lorem ipsum ...</td>   <td> Eres_kin </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Eres_kin2 </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> Eres_cal </td> </tr>
 </table>
 </td> 
 <!-- Table 2 -->
@@ -137,23 +197,65 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <table>
   <tr> <h2 id="kinematic-variables"> Kinematic Variables </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+
+ <!-- which of the following returns a scalar? -->
+  <tr> <td> Max proton momentum (in FS) </td>   <td> PProton1 </td> </tr>
+  <tr> <td> Max proton momentum (Pre-FSI) </td>   <td> PProton1_PFSI </td> </tr>
+  <tr> <td> Proton momentum </td>   <td> PProton </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> CosProton </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> CosProton_PFSI </td> </tr>
+ 
+  <tr> <td> Max &pi;<sup>+</sup> momentum (in FS) </td>   <td> PPionPlus </td> </tr>
+  <tr> <td> Max &pi;<sup>+</sup> momentum (Pre-FSI) </td>   <td> PPionPlus_PFSI </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> PPionMax </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> CosPion </td> </tr>
+  <!-- link full description for CosPion in Extended Variable Descriptions -->
+  
+  <tr> <td>Lorem ipsum ...</td>   <td> initNeucMag </td> </tr>
+  <tr> <td> Muon KE </td>   <td> Muon_KE </td> </tr>
+  <tr> <td> Maximum Pion KE (any &pi; charge) </td>
+        <td> PionMax_KE </td> </tr>
 </table>
 </td> 
 <!-- Table 3 -->
 <td valign="top"> 
 <table>
-  <tr> <h2 id="tki-variables"> TKI Variables </h2> </tr>
-  <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+ <tr> <h2 id="tki-variables"> TKI Variables </h2> </tr>
+ <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
+ 
+ <tr> <td> Neutrino Momentum (as cartesian vector) </td>   <td> PNu </td> </tr>
+ <tr> <td> p<sub>T</sub><sup>lep</sup> (transverse lepton momentum) </td>   <td> PTLep </td> </tr>
+ <tr> <td> p<sub>T</sub><sup>had</sup> (transverse hadron momentum) </td>   <td> PTHad </td> </tr>
+ <tr> <td> p<sub>T</sub><sup>had</sup> (Pre-FSI) </td>   <td> PTHad_PFSI </td> </tr>
+ <tr> <td> p<sub>T</sub><sup>proMax</sup> (largest proton p<sub>T</sub>) </td>   <td> PTProton1 </td> </tr>
+ <tr> <td> p<sub>T</sub><sup>&pi;Max</sup> (largest pion p<sub>T</sub>) </td>   <td> PTPion1 </td> </tr>
+ <tr> <td> p<sub>T</sub><sup>&pi;Max</sup> (Pre-FSI) </td>   <td> PTPion1_PFSI </td> </tr>
+
+ <!-- how do these relate to standard "dalphat" variable in root files -->
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT_Had </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> CosDeltaAlphaT </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT_pion </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT_PFSI </td> </tr>
+ 
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_Had </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_pion </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_PFSI </td> </tr>
+ 
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_Had </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_Had_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_pion </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_pion_PFSI </td> </tr>
+ 
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_Had </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_Had_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_pion </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_pion_PFSI </td> </tr>
 </table>
 </td> 
 <!-- Table 4 -->
@@ -161,11 +263,33 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <table>
   <tr> <h2 id="threshold-flags"> Threshold Flags </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
+
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNovaALL </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNovaMuonP </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNovaProtonP </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNovaPionPlusP </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNovaPion_KE </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagNovaCosPion </td> </tr>
+
+  <tr> <td>Lorem ipsum ...</td>   <td> flagT2KALL </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagT2KMuonP </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagT2KProtonP </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagT2KPionPlusP </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagT2KCosLep </td> </tr>
+
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbALL_Aspirational </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbALL_Conservative </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbMuonP_Aspirational </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbMuonP_Conservative </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbProtonP_Aspirational </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbProtonP_Conservative </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbPionPlusP_Aspirational </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbPionPlusP_Conservative </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbZeroPiAboveThreshold_Conservative </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbPiBelowThreshold_Conservative </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbPion_KE_Aspirational </td> </tr>
+  <tr> <td>Lorem ipsum ...</td>   <td> flagIcarusBnbPion_KE_Conservative </td> </tr>
+  <!-- # <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr> # -->
 </table>
 </td> 
 <!-- Closes Inline Table -->
@@ -190,6 +314,7 @@ TKI (transverse kinematic imbalance), etc. from src/ParticlePlots
   <tr> <td> QE </td>   <td> Quasi-elastic </td> </tr>
   <tr> <td> EL </td>   <td> Elastic </td> </tr>
   <tr> <td> FSI </td>   <td> Final State Interaction(s) </td> </tr>
+  <tr> <td> FS </td>   <td> Final State </td> </tr>
   <tr> <td> TKI </td>   <td> Transverse Kinematic Imbalance </td> </tr>
   <tr> <td> Reco </td>   <td> Reconstruction/Reconstructed </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td>Lorem ipsum ...</td> </tr>
