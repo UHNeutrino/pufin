@@ -8,7 +8,7 @@
   
 + [Setup](#setup)
 + [Functionality](#functionality)
-+ [Using GenMain.py](#using-genmainpy)
++ [Using GenSubmit.py](#using-gensubmitpy)
 
 </details>
 
