@@ -76,16 +76,29 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         time.sleep(2)
     
         
-def GenieRunScript(Container, NChunks, TotalNodes, Target=None, Mode=None, Flavor=None, CPUPercent=None):
+def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=None, Flavor=None, CPUPercent=None):
     OutPath = os.environ.get("PUFIN_OUT")
 
     if OutPath is None:
         raise ValueError("PUFIN_OUT Needs to be defined!")
 
+    if Events <= 0:
+        raise ValueError("Events must be greater than zero")
+
+    if NChunks <= 0:
+        raise ValueError("NChunks must be greater than zero")
+
+    if TotalNodes <= 0:
+        raise ValueError("TotalNodes must be greater than zero")
+
     Generator = "GENIE"
+    CORES_PER_NODE = 48
+    MAX_GENIE_CORES = 40
+    MEMORY_PER_CORE_GB = 2
 
     FilePath, Targets = GenMain.DirectorySetup(Generator, SingleTarget=Target, Mode=Mode)
     GenMain.FlatFluxMaker()
+    GenMain.GlobalV.GenieEventsPerChunk = Events
 
     FileNames = GenMain.CheckGenieFiles(
         Targets=Targets,
@@ -103,20 +116,22 @@ def GenieRunScript(Container, NChunks, TotalNodes, Target=None, Mode=None, Flavo
     elif CPUPercent > 100 or CPUPercent <= 0:
         raise ValueError("CorePercent must be 0<x leq 1 or 1<x<100")
     
-    CORES_PER_NODE = 48
-    MEMORY_PER_CORE_GB = 2
-
     NCores = max(1, int(CORES_PER_NODE * CPUPercent))
-    MemoryGB = NCores * MEMORY_PER_CORE_GB
+    NCores = min(NCores,MAX_GENIE_CORES)
+    # MemoryGB = NCores * MEMORY_PER_CORE_GB
     
+    FileNames = sorted(FileNames, key=lambda x: "_NuMu_" not in x)
     if len(FileNames) < TotalNodes:
         TotalNodes = len(FileNames)
+        
+    print(f"Events per chunk: {Events}")
+    print(f"Requested NuMu chunks: {NChunks}")
+    print(f"Missing GENIE chunks: {len(FileNames)}")
+    print(f"Number of node jobs: {TotalNodes}")
+    print(f"Maximum simultaneous chunks per node: {NCores}")
 
-    print(f"Not Sorted {len(FileNames)}")
-    FileNames = sorted(FileNames, key=lambda x: "_NuMu_" not in x)
-    print(f"Total Files: {len(FileNames)}")
-    print(f"Cores per node: {NCores}")
-    print(f"Memory per node: {MemoryGB} GB")
+    # print(f"Not Sorted {len(FileNames)}")
+    # print(f"Total Files: {len(FileNames)}")
 
     for Node in range(TotalNodes):
         NodeFiles = FileNames[Node::TotalNodes]
@@ -124,36 +139,77 @@ def GenieRunScript(Container, NChunks, TotalNodes, Target=None, Mode=None, Flavo
         if len(NodeFiles) == 0:
             print(f"Files on Node {Node}: 0")
             continue
+        
+        CoresForNode = min(NCores,len(NodeFiles))
+
+        MemoryGB = CoresForNode * MEMORY_PER_CORE_GB
 
         SlurmTime = GenieTimeEstimator(NodeFiles)
         FilesFormatted = " ".join(NodeFiles)
+        print(f"Cores on Node {Node}: {CoresForNode}")
+        print(f"Memory request: {MemoryGB} GB")
+        print(f"Estimated time: {SlurmTime}")
 
         print(f"Files on Node {Node}: {len(NodeFiles)}")
 
         cmd = f"""sbatch \\
         --nodes=1 \\
         --ntasks-per-node=1  \\
-        --cpus-per-task={NCores} \\
+        --cpus-per-task={CoresForNode} \\
         --time={SlurmTime} \\
         --mem={MemoryGB}G \\
-        --job-name=GENIE{Node}of{TotalNodes} \\
-        --output=GENIEGeneration_{Node}of{TotalNodes}_%j.out \\
+        --job-name=GENIE{Node+1}of{TotalNodes} \\
+        --output=GENIEGeneration_{Node+1}of{TotalNodes}_%j.out \\
         --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && python GenMain.py GenieMult --Files {FilesFormatted} --CPUPercent {CPUPercent} '"
         """
         print(f"Sending GENIE job to Node {Node} of {TotalNodes}")
         print(f"  Files: {len(NodeFiles)}")
-        print(f"  Cores: {NCores}")
+        print(f"  Cores: {CoresForNode}")
         print(f"  Memory: {MemoryGB} GB")
         print(f"  Estimated time: {SlurmTime}")
 
         subprocess.run(cmd, shell=True, check=True)
         time.sleep(2)
-    #     print(cmd)
-    #     p = subprocess.Popen(cmd, shell=True)
-    #     processes.append(p)
+        
+def GenieTimeEstimator(Files, NCores):
+    """Estimate GENIE wall time from measured per-event performance."""
 
-    # for p in processes:
-    #     p.wait()
+    if len(Files) == 0:
+        raise ValueError("Cannot estimate GENIE time with no files")
+
+    if NCores <= 0:
+        raise ValueError("NCores must be greater than zero")
+
+    SECONDS_PER_EVENT = 3600 / 100000
+    SAFETY_FACTOR = 1.25
+
+    TotalSeconds = 0
+
+    for File in Files:
+        EventsAndPart = File.split("_")[7]
+        Events = int(EventsAndPart.split("P")[0])
+
+        TotalSeconds += Events * SECONDS_PER_EVENT
+
+    EffectiveCores = min(NCores, len(Files))
+
+    TotalSeconds = int(
+        (TotalSeconds / EffectiveCores) * SAFETY_FACTOR
+    )
+
+    TotalSeconds = max(TotalSeconds, 60)
+
+    if TotalSeconds >= 86400:
+        raise ValueError(
+            "GENIE allocation exceeding 24hrs, "
+            "use more nodes or fewer chunks per node"
+        )
+
+    t = time.gmtime(TotalSeconds)
+    SlurmTime = time.strftime("%H:%M:%S", t)
+
+    return SlurmTime
+
 
 def NeutTimeEstimator(Files, NCores):
     # loop through all files and come up with a decent time estimation using linear regressions from trends found in initial testing
@@ -198,6 +254,7 @@ if __name__ =="__main__":
     
     GenieParser = subparsers.add_parser("GenGenie")
     GenieParser.add_argument("--container", required=True, type=str)
+    GenieParser.add_argument("--events",required=True,type=int,)
     GenieParser.add_argument("--total_nodes", required=True, type=int)
     GenieParser.add_argument("--cpu_percent", required=True, type=float)
     GenieParser.add_argument("--nchunks", required=True, type=int)
@@ -222,25 +279,24 @@ if __name__ =="__main__":
     
     elif args.command == "GenGenie":
         GenieRunScript(
-        Container=args.container,
-        NChunks=args.nchunks,
-        TotalNodes=args.total_nodes,
-        Target=args.target,
-        Mode=args.mode,
-        Flavor=args.flavor,
-        CPUPercent=args.cpu_percent,
+            Container=args.container,
+            Events=args.events,
+            NChunks=args.nchunks,
+            TotalNodes=args.total_nodes,
+            Target=args.target,
+            Mode=args.mode,
+            Flavor=args.flavor,
+            CPUPercent=args.cpu_percent,
     )
 
 # source /data/t2k-nova/MainSetup.sh
 # export PUFIN_OUT=/data/t2k-nova/PUfINOutputs/_MultiProcess
 # python GenSubmit.py GenGenie \
-#   --container /path/to/container.sif \
-#   --total_nodes 2 \
-#   --cpu_percent 75 \
-#   --nchunks 10 \
-#   --target Carbon \
-#   --mode CC \
-#   --flavor NuMu
+#     --container /project/cherdack/containers/Generators/NeutGenieWorking.sif \
+#     --events 10000 \
+#     --nchunks 1000 \
+#     --total_nodes 20 \
+#     --cpu_percent 100
 
 
 
