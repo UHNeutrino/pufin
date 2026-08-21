@@ -160,7 +160,7 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
         --mem={MemoryGB}G \\
         --job-name=GENIE{Node+1}of{TotalNodes} \\
         --output=GENIEGeneration_{Node+1}of{TotalNodes}_%j.out \\
-        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && python GenMain.py GenieMult --Files {FilesFormatted} --CPUPercent {CPUPercent} '"
+        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'cd /opt/root-p68x && source /opt/SetupAll.sh cd $SLURM_SUBMIT_DIR && export PUFIN_OUT={OutPath} && python GenMain.py GenieMult --Files {FilesFormatted} --CPUPercent {CPUPercent} '"
         """
         print(f"Sending GENIE job to Node {Node} of {TotalNodes}")
         print(f"  Files: {len(NodeFiles)}")
@@ -292,10 +292,17 @@ if __name__ =="__main__":
 # source /data/t2k-nova/MainSetup.sh
 # export PUFIN_OUT=/data/t2k-nova/PUfINOutputs/_MultiProcess
 # python GenSubmit.py GenGenie \
-#     --container /project/cherdack/containers/Generators/NeutGenieWorking.sif \
+#     --container /project/cherdack/containers/Generators/t2k-nova-generator.sif \
 #     --events 10000 \
 #     --nchunks 1000 \
 #     --total_nodes 20 \
+#     --cpu_percent 100
+
+# python GenSubmit.py GenGenie \
+#     --container /project/cherdack/containers/Generators/t2k-nova-generator.sif \
+#     --events 1000 \
+#     --nchunks 80 \
+#     --total_nodes 2 \
 #     --cpu_percent 100
 
 
