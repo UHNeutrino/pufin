@@ -16,10 +16,9 @@
 
 
 void t2krwSave(){
-    // auto T2Krw = t2krew::MakeT2KReWeightInstance();
-    std::string card_file = "/data/t2k-nova/LarsGen/neutsysBig.card";
-    const char* infile = "/data/t2k-nova/LarsGen/neutSysTest1e6.root";
-    const char* outfile = "/data/t2k-nova/KristenGen/NeutSys/nuisSysBig_with_NEUTweights.root";
+    std::string card_file = "/path/to/the/card/file.card";
+    const char* infile = "/path/to/the/generated/file.root";
+    const char* outfile = "/path/to/the/output/file.root";
     TFile *fin = TFile::Open(infile, "READ");
     if (!fin || fin->IsZombie()) {
         std::cerr << "Error: cannot open input file " << infile << std::endl;
@@ -31,14 +30,9 @@ void t2krwSave(){
         std::cerr << "Error: cannot find tree 'neuttree' in " << infile << std::endl;
         return;
     }
-    // intree->Print();
     NeutVect *nvect = nullptr;
     intree->SetBranchAddress("vectorbranch", &nvect);
 
-    // NeutVtx *nvtx = nullptr;
-    // intree->SetBranchAddress("vertexbranch", &nvtx);
-
-    std::cout << "hi1." << std::endl;
     // -------------------------------
     // Create output file and tree
     // -------------------------------
@@ -73,7 +67,6 @@ void t2krwSave(){
         outtree->Branch(name.c_str(), &weight_branches[name]);
     }
 
-    std::cout << "hi2" << std::endl;
 
     // -------------------------------
     // Set the NEUT card file
@@ -122,10 +115,8 @@ void t2krwSave(){
             //         std::cout << "\t Particle " << j << std::endl;
             //         std::cout << "\t\tPID = " << Part->fPID << std::endl;
             //         std::cout << "\t\tStatus = " << Part->fStatus  << std::endl;
-
             //     }
             // }
-
             // CalcWeight now takes the Event reference
             weight_branches[name] = rw->CalcWeight(neut_event);
         }

@@ -1,5 +1,5 @@
 // R__ADD_LIBRARY_PATH($LD_LIBRARY_PATH)
-R__ADD_LIBRARY_PATH("/project/software/GENIE_v2_06_00/Generator/install/lib")
+R__ADD_LIBRARY_PATH("/path/to/GENIE_v2_06_00/Generator/install/lib")
 R__LOAD_LIBRARY(libGRwClc.so)
 #include "nusystematics/utility/response_helper.hh"
 #include "Framework/Ntuple/NtpMCEventRecord.h"
@@ -26,12 +26,10 @@ R__LOAD_LIBRARY(libGRwClc.so)
 
 
 void nusysSave(){
-    std::string fcl_file = "/home/lboe/t2k-nova/systReWeighters/all.fcl";
-    // std::string fcl_file = "/home/kdobbs/t2k-nova/nusystrun/all.fcl";
-    std::string Genie_path_name = "/data/t2k-nova/KristenGen/N2420i0211b_Flat_1000000_Default_numu";  
-    // std::string Genie_path_name = "/data/t2k-nova/KristenGen/SystWeights/GENIEN24_ff";
+    std::string fcl_file = "/path/to/fcl/file/name.fcl";
+    std::string Genie_path_name = "/path/to/genie/generated/file/name";  
     std::string Genie_file_str  = Genie_path_name + ".root";  
-    std::string OutPath_str     = Genie_path_name + "_sysweights_PiAbs.root";  
+    std::string OutPath_str     = Genie_path_name + "_dialname.root";  
     const char* Genie_file = Genie_file_str.c_str(); // Genie file path
     const char* OutPath    = OutPath_str.c_str();
 
