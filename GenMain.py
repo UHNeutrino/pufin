@@ -122,6 +122,9 @@ def CheckGenieFiles(Targets, Events, Modes=None, Flavors=None):
         if TargetLabel is None:
             raise ValueError(f"No target label found for {Target}")
         for Mode in Modes:
+            if Mode not in GlobalV.GenModeScales:
+                raise ValueError(f"No GENIE mode scale defined for {Mode}")
+        
             for Flavor in Flavors:
 
                 # Just like NEUT: no nue/nuebar NC generation
@@ -131,7 +134,8 @@ def CheckGenieFiles(Targets, Events, Modes=None, Flavors=None):
                 if Flavor not in GlobalV.GenFlavorScales:
                     raise ValueError(f"No GENIE flavor scale defined for {Flavor}")
 
-                NChunks = int(NuMuNChunks * GlobalV.GenFlavorScales[Flavor])
+                # NChunks = int(NuMuNChunks * GlobalV.GenFlavorScales[Flavor])
+                NChunks = int(NuMuNChunks* GlobalV.GenFlavorScales[Flavor]* GlobalV.GenModeScales[Mode])
 
                 if NChunks < 1:
                     NChunks = 1

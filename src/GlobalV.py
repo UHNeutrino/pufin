@@ -134,4 +134,9 @@ GenFlavorScales = {
     "NuEBar": 0.01,
 }
 
+GenModeScales = {
+    "CC": 1.0,
+    "NC": 0.1,
+}
+
 GenieEventsPerChunk = 100000
