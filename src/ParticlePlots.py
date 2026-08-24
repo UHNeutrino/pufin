@@ -895,7 +895,7 @@ def FlagParticleThresholds(df):
 
     return df
 
-def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
+def CreateDataFrame(file_path, cut, treeName=None):    # First get the data into a dataframe
     if file_path is None:
         dir_location = input("Give Full Flat Tree Directory Location: ")
     else:
@@ -903,15 +903,18 @@ def CreateDataFrame(file_path, cut):    # First get the data into a dataframe
     
     
     fileName = f"{dir_location}"
-    treeName = "FlatTree_VARS"
-    #treeName = "gst"
+    if treeName==None:
+        treeName = "FlatTree_VARS"
+    
     print(fileName)
 
     if isinstance(dir_location, list):
         df = ROOT.RDataFrame(treeName,dir_location)
     else:
         df = ROOT.RDataFrame(treeName,fileName)
-    df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
+
+    if treeName=="FlatTree_VARS":
+        df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
     #df = df.Define("PLep","TMath::Power(TMath::Power(El, 2)-TMath::Power(.1056, 2), 0.5)") # for gst files
 
     if cut == "None":

@@ -170,8 +170,7 @@ def MakePlots(plots, GlobalSettings):
         Tevents = file_name.split('_')[3]
         BinL = plots["Bins"]
         AxisInfo = []
-        #df = pp.CreateDataFrame(file_path, plots["Cut"])
-        df = pp.CreateDataFrame(file_path, cut ="None")
+        df = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"))
         VbinBool = "VBins" in plots
         if VbinBool:
             Vbins = array.array('d',plots["VBins"][1])
@@ -426,8 +425,7 @@ def MakeStacks(stacks,GlobalSettings):
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
-        #df = pp.CreateDataFrame(file_path, stacks["Cut"])
-        df = pp.CreateDataFrame(file_path, cut="None")
+        df = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"))
         weight_col = ""
         BinL = stacks["Bins"]
         AxisInfo = []
@@ -522,8 +520,7 @@ def MakeOverlap(overlap,GlobalSettings):
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
-        # df = pp.CreateDataFrame(file_path, overlap["Cut"])
-        df = pp.CreateDataFrame(file_path, cut = "None")
+        df = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"))
         weight_col = ""
         if reweight_flag:
             df, bin_integral_unnorm = pp.defineWeightsSpline(df,reweight_cfg)
@@ -664,7 +661,7 @@ def MakeSame1D(same1D,GlobalSettings):
 
         file_path = matches[0]
         print(f"Processing {file_path}")
-        df = pp.CreateDataFrame(file_path, cut = "None")
+        df = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"))
 
 
         if kin:
@@ -989,7 +986,7 @@ def MakeContour(Contour,GlobalSettings):
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
-        df = pp.CreateDataFrame(file_path, cut ="None")
+        df = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"))
         BinL = Contour["Bins"]
         AxisInfo = []
         cuts = []
@@ -1116,8 +1113,7 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
-        #df = pp.CreateDataFrame(file_path, Contour["Cut"])
-        df = pp.CreateDataFrame(file_path, cut="None")
+        df = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"))
         # df = ROOT.RDataFrame(GlobalSettings["treeName"],file_path)
         BinL = ContourStyle["Bins"]
         AxisInfo = []

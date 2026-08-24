@@ -3,7 +3,6 @@ import argparse
 import time
 import GenMain
 import subprocess
-import json5
 from multiprocessing import cpu_count
 
 # This script runs GenMain->GenNeutCards to get a list of cards
