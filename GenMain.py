@@ -443,7 +443,7 @@ def gen_flatten(original_file: str, job: dict):
       -i "{original_path}" \
       -t "{job['TargetPDG']}" \
       -o "{prep_file}" \
-      -f "{job['Flux_directory']}/full_flat_flux_{job['Emin']}-{job['Emax']}GeV.root,h1"
+      -f "{job['Flux_directory']}/full_flat_flux_{job['Emin']}-{job['Emax']}GeV.root,FlatHist_{job['Emin']}"
     """
 
     print("Preparing GENIE file...")
