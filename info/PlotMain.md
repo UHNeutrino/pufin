@@ -17,6 +17,8 @@ PlotMain.py is a plotting function that uses interaction data in flattened root 
   + [Plotting with ```"1DSame":```](#plotting-with-1dsame)
   + [Plotting with ```"Contour":```](#plotting-with-contour)
   + [Plotting with ```"ContourStyle":```](#plotting-with-contourstyle)
+  + [Plotting with ```"quantiles":```](#plotting-with-quantiles)
+  + [Plotting with ```"2DRatio":```](#plotting-with-2dratio)
 + [Using PlotMain.py](#using-plotmainpy)
 
 </details>
@@ -105,6 +107,8 @@ git clone https://github.com/UHNeutrino/PUfIN/
 <summary><b> Example </b></summary>
   
 <!-- Example plots entry and link to config file with another example -->
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
 </details>
 
@@ -124,6 +128,8 @@ git clone https://github.com/UHNeutrino/PUfIN/
 <summary><b> Example </b></summary>
   
 <!-- Example stacks entry and link to config file with another example -->
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
 </details>
 
@@ -136,36 +142,90 @@ git clone https://github.com/UHNeutrino/PUfIN/
 <summary><b> Example </b></summary>
   
 <!-- Example overlap entry and link to config file with another example -->
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
 </details>
 
 
 ### Plotting with ```"1DSame":```
 
+***...still needs general description...***
+
 <details>
 <summary><b> Example </b></summary>
   
 <!-- Example 1DSame entry and link to config file with another example -->
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
 </details>
 
 
 ### Plotting with ```"Contour":```
 
+***...still needs general description...***
+
 <details>
 <summary><b> Example </b></summary>
   
 <!-- Example Contour entry and link to config file with another example -->
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
 </details>
 
 
 ### Plotting with ```"ContourStyle":```
 
+***...still needs general description...***
+
 <details>
 <summary><b> Example </b></summary>
   
 <!-- Example ContourStyle entry and link to config file with another example -->
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
+  
+</details>
+
+
+### Plotting with ```"quantiles":```
+
+***...still needs general description...***
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example quantiles entry and link to config file with another example -->
+
+| Plot: | Description: |
+|-------|--------------|
+| <!-- To add a plot image, just copy/paste the image here (GitHub automatically adds necessary html tags & hosts the image) -->|<!-- type description here --> |
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
+  
+</details>
+
+
+### Plotting with ```"2DRatio":```
+
+***...still needs general description...***
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example 2DRatio entry and link to config file with another example -->
+
+```
+Example
+```
+
+| Plot: | Description: |
+|-------|--------------|
+| <img width="896" height="472" alt="png rendered from 2DSame example" src="https://github.com/user-attachments/assets/d5e20538-385d-42e4-a7b9-76387dd7cced" /> | A 2D Ratio plot--generated using the configuration above--showing the differences (as a ratio) in the NEUT DCC (Dynamical Coupled-Channels) and RS (Rein-Sehgal) model predictions for resonant event occupation of Q<sup>2</sup>-W kinematic space. | 
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
 </details>
 
@@ -191,5 +251,4 @@ git clone https://github.com/UHNeutrino/PUfIN/
   (.venv) [username@domain PUfIN]$ python PlotMain.py MyConfig
   ```
 
-     > DO NOT include the ```.json5``` extension when referencing your config file 
 
