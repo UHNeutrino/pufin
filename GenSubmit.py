@@ -92,8 +92,8 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
 
     Generator = "GENIE"
     CORES_PER_NODE = 48
-    MAX_GENIE_CORES = 40
-    MEMORY_PER_CORE_GB = 2
+    MAX_GENIE_CORES = 20
+    MEMORY_PER_CORE_GB = 4
 
     FilePath, Targets = GenMain.DirectorySetup(Generator, SingleTarget=Target, Mode=Mode)
     GenMain.FlatFluxMaker()
@@ -144,7 +144,8 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
         MemoryGB = CoresForNode * MEMORY_PER_CORE_GB
 
         # SlurmTime = GenieTimeEstimator(NodeFiles)
-        SlurmTime = GenieTimeEstimator(NodeFiles, CoresForNode)
+        # SlurmTime = GenieTimeEstimator(NodeFiles, CoresForNode)
+        SlurmTime = "00:30:00"
         FilesFormatted = " ".join(NodeFiles)
         print(f"Cores on Node {Node}: {CoresForNode}")
         print(f"Memory request: {MemoryGB} GB")
