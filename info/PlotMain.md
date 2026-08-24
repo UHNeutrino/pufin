@@ -77,17 +77,97 @@ git clone https://github.com/UHNeutrino/PUfIN/
   
 </details>
 
+
 ### Plotting with ```"plots":```
+
+```"plots":``` creates a simple plot using events from a single (flattened) root file (see [plotting with ```"1DSame":```](#plotting-with-1dsame) to plot multiple files on the same plot). To use ```"plots"```, the mode must be defined in the called config file and the following entries edited.
+
++ Standard entries
+  + ```"File":```
+  + ```"Type":```
+  + ```"Cut":```
+  + ```"Var1"```
+  + ```"Var2"```
+  + ```"AxisInfo":```
+  + ```"Bins":```
+    + For ```"Type": 1D```:
+    + For ```"Type": 2D```:
+  + ```"VBins":```
+  + ```"Name":```
+  + ```"max":```
+  + ```"logz":```
+  + ```"profileX":```
+  + ```"diagonal":```
++ Optional/additional plot customization
+  + ```"Style":```
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example plots entry and link to config file with another example -->
+  
+</details>
+
 
 ### Plotting with ```"stacks":```
 
+***...still needs general description...***
+
++ ```"File":```
++ ```"Type":```
++ ```"Cut":```
++ ```"Var1"```
++ ```"StackCuts":```
++ ```"":```
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example stacks entry and link to config file with another example -->
+  
+</details>
+
+
 ### Plotting with ```"overlap":```
+
+***...still needs general description...***
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example overlap entry and link to config file with another example -->
+  
+</details>
+
 
 ### Plotting with ```"1DSame":```
 
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example 1DSame entry and link to config file with another example -->
+  
+</details>
+
+
 ### Plotting with ```"Contour":```
 
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example Contour entry and link to config file with another example -->
+  
+</details>
+
+
 ### Plotting with ```"ContourStyle":```
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example ContourStyle entry and link to config file with another example -->
+  
+</details>
 
 
 ## Using PlotMain.py
