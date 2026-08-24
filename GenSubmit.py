@@ -92,8 +92,8 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
 
     Generator = "GENIE"
     CORES_PER_NODE = 48
-    MAX_GENIE_CORES = 10
-    MEMORY_PER_CORE_GB = 12
+    MAX_GENIE_CORES = 20
+    MEMORY_PER_CORE_GB = 4
 
     FilePath, Targets = GenMain.DirectorySetup(Generator, SingleTarget=Target, Mode=Mode)
     GenMain.FlatFluxMaker()
