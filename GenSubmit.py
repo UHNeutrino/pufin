@@ -3,7 +3,7 @@ import argparse
 import time
 import GenMain
 import subprocess
-import json5
+# import json5
 from multiprocessing import cpu_count
 
 # This script runs GenMain->GenNeutCards to get a list of cards
@@ -144,7 +144,8 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
 
         MemoryGB = CoresForNode * MEMORY_PER_CORE_GB
 
-        SlurmTime = GenieTimeEstimator(NodeFiles)
+        # SlurmTime = GenieTimeEstimator(NodeFiles)
+        SlurmTime = GenieTimeEstimator(NodeFiles, CoresForNode)
         FilesFormatted = " ".join(NodeFiles)
         print(f"Cores on Node {Node}: {CoresForNode}")
         print(f"Memory request: {MemoryGB} GB")
@@ -154,13 +155,13 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
 
         cmd = f"""sbatch \\
         --nodes=1 \\
-        --ntasks-per-node=1  \\
+        --ntasks-per-node=1 \\
         --cpus-per-task={CoresForNode} \\
         --time={SlurmTime} \\
         --mem={MemoryGB}G \\
         --job-name=GENIE{Node+1}of{TotalNodes} \\
         --output=GENIEGeneration_{Node+1}of{TotalNodes}_%j.out \\
-        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'cd /opt/root-p68x && source /opt/SetupAll.sh cd $SLURM_SUBMIT_DIR && export PUFIN_OUT={OutPath} && python GenMain.py GenieMult --Files {FilesFormatted} --CPUPercent {CPUPercent} '"
+        --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && python GenMain.py GenieMult --Files {FilesFormatted} --CPUPercent {CPUPercent}'"
         """
         print(f"Sending GENIE job to Node {Node} of {TotalNodes}")
         print(f"  Files: {len(NodeFiles)}")

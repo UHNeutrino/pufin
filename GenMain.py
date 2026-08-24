@@ -237,7 +237,7 @@ def GenGenieFlatSingleFile(File):
     if FlavorPDG == None:
         raise ValueError(f"No Such Flavor {Flavor}")
 
-    Flux = f"{OutPath}/FlatFluxes/flat_flux_{Emin}-{Emax}GeV.root"
+    Flux = f"{OutPath}/FlatFluxes/flat_flux_{Emin}-{Emax}GeV.root,FlatHist_{Emin}"
 
     RunBool = not os.path.exists(GenPath)
 
@@ -271,7 +271,7 @@ def GenGenieFlatSingleFile(File):
         exec_string += f"-o {GenPath} "
         exec_string += f"--cross-sections $GENIE_XSEC_FILE"
 
-        subprocess.run(exec_string, shell=True, executable="/bin/bash")
+        subprocess.run(exec_string, shell=True, executable="/bin/bash", check=True)
         print(exec_string)
         print(f"Generated {GenName}")
     else:
@@ -311,13 +311,13 @@ def GenGenieFlatSingleFile(File):
         exec_string += f"-o {PrepPath} "
         exec_string += f"-f {Flux}"
 
-        subprocess.run(exec_string, shell=True, executable="/bin/bash")
+        subprocess.run(exec_string, shell=True, executable="/bin/bash", check=True)
         print(exec_string)
 
         exec_string = ""
         exec_string += f"nuisflat -i GENIE:{PrepPath} -o {FlatPath}"
 
-        subprocess.run(exec_string, shell=True, executable="/bin/bash")
+        subprocess.run(exec_string, shell=True, executable="/bin/bash", check=True)
         print(exec_string)
         print(f"Generated {FlatName}")
 
