@@ -346,7 +346,7 @@ def gev_gen_genie(events: int, i: int, job: dict):
       -t "{job['TargetPDG']}" \
       -n {events} \
       -e {job['Emin']},{job['Emax']} \
-      -f {job['Flux_directory']}/full_flat_flux_{job['Emin']}-{job['Emax']}GeV.root,h1 \
+      -f {job['Flux_directory']}/full_flat_flux_{job['Emin']}-{job['Emax']}GeV.root,FlatHist_{job['Emin']} \
       -p {job['FlavorPDG']} \
       --event-generator-list {job['Mode']} \
       --seed {seed} \
