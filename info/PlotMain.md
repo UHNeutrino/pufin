@@ -50,6 +50,33 @@ git clone https://github.com/UHNeutrino/PUfIN/
 
 ### Reweighting with ```"FluxReweight":```
 
+```"FluxReweight"``` can be used in any of the plotting modes supported by ```"PlotMain.py"``` to reweight using flux histograms and/or area normalize data. To set a flux, the following reweight dictionary entries can be modified in ```"global"``` or in an active plotting mode.
+
+> Note: Reweighting in ```"global"``` overrides flux reweighting in all modes, with the exception of 1DSame. In this mode, the reweighting within individual plots in ```"1DSame"``` takes precedence over ```"global"```. To specify and use different fluxes in a plotting mode other than ```"1DSame"```, remove or comment out the ```"FluxReweight"``` entry in ```"global"```.
+
++ Required entries:
+  + ```"FluxPath":```
+  + ```"FluxHistogram":```
+  + ```"AreaNormFlag":```
++ Only for ```"AreaNormFlag": false```:
+  + ```"XsecType":```
+  + ```"UndoFluxNormFlag":```
+  + ```"TargetWeightsFile":```
+  + ```"Detector":```
+  + ```"Target":```
+  + ```"XsecMode":```
+  + ```"XsecPath":```
++ Only used by GENIE (without area normalization):
+  + ```"Flavor":```
+  + ```"NucleonsPerTarget":```
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example FluxReweight entry and link to config file with another example -->
+  
+</details>
+
 ### Plotting with ```"plots":```
 
 ### Plotting with ```"stacks":```
