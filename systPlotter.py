@@ -7,8 +7,9 @@ import src.SetupFunctions as sf
 import glob
 import array
 
+# don't use this script, it's a work in progress for a later pufin update
 
-HOME = os.getenv("HOME", "/home/lboe")
+HOME = os.getenv("HOME")
 sf.setupRoot
 userFolder = f"/data/t2k-nova/FlatTrees"
 script_path = os.path.realpath(__file__)

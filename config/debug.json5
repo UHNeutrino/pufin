@@ -25,12 +25,8 @@
                 "Detector":"T2K", // T2K or Nova
                 "Target":"C12",
                 "XsecMode": "CC", // total, CC or NC
-                "XsecPath":"/path/to/your/xsec.root"
-
-                // -------- Used Only by Genie --------- //
-                
-                "Flavor": "nu_mu",
-                "NucleonsPerTarget":12
+                "XsecPath":"/path/to/your/xsec.root",
+                "Flavor":"numu"
             }
 
         },
@@ -117,13 +113,8 @@
                 "Detector":"Nova", // T2K or Nova
                 "Target":"C12",
                 "XsecMode": "CC", // total, CC or NC
-                "XsecPath":"/path/to/your/xsec.root"
-
-
-                // -------- Used Only by Genie --------- //
-                
+                "XsecPath":"/path/to/your/xsec.root",
                 "Flavor": "nu_mu",
-                "NucleonsPerTarget":12
             },
             "Var": "Enu_true"
             },
@@ -146,12 +137,8 @@
                 "Detector":"T2K", // T2K or Nova
                 "Target":"C12",
                 "XsecMode": "CC", // total, CC or NC
-                "XsecPath":"/path/to/your/xsec.root"
-
-                // -------- Used Only by Genie --------- //
-                
-                "Flavor": "nu_mu",
-                "NucleonsPerTarget":12
+                "XsecPath":"/path/to/your/xsec.root",
+                "Flavor": "nu_mu"
             },
             "Var": "Enu_true"
             },
