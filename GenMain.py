@@ -1132,27 +1132,34 @@ def CheckGeneratedFiles(Verbosity, UseRoot):
     if (len(FlatNeutFiles)> 0):
         print("----------------Neut----------------")
         print(f"Total Files: {len(FlatNeutFiles)}")
-        VersionTuneLoop(FlatNeutFiles, UseRoot, Verbosity)
+        EverythingLoop(FlatNeutFiles, UseRoot, Verbosity)
 
     if (len(FlatGenieFiles)> 0 ):
         print("----------------Genie----------------")
         print(f"Total Files: {len(FlatGenieFiles)}")
-        VersionTuneLoop(FlatGenieFiles, UseRoot, Verbosity)
-        
-
-def VersionTuneLoop(FileList, UseRoot, Verbosity):
+        EverythingLoop(FlatGenieFiles, UseRoot, Verbosity)
     
-    VersionTuneList = []
+
+def EverythingLoop(FileList, UseRoot, Verbosity):
+    if Verbosity != None and Verbosity > 4:
+        raise ValueError("Verbosity can be a maximum of 4")
+    SpecificationList = []
     for file in FileList:
         FName = file.split("/")[-1]
         Version = FName.split("_")[1]
         Tune = FName.split("_")[2]
-        VersionTune = Version.upper() + "_" + Tune.upper()
-        if not (VersionTune.upper() in VersionTuneList):
-            VersionTuneList.append(VersionTune)
+        Specification = Version.upper() + "_" + Tune.upper()
+        
+        if Verbosity:
+            for i in range(1,Verbosity+1):
+                Specification = Specification + "_" + FName.split("_")[i+2]
 
 
-    for VersionTune in VersionTuneList:
+        if not (Specification.upper() in SpecificationList):
+            SpecificationList.append(Specification)
+
+
+    for VersionTune in SpecificationList:
         TotalEvents = 0
         FlatFilesTemp = []
         for file in FileList:
@@ -1163,7 +1170,10 @@ def VersionTuneLoop(FileList, UseRoot, Verbosity):
         print(f"Total Files {len(FlatFilesTemp)}")
         for file in FlatFilesTemp:
             endStr = file.split("_")[-1]
-            eventCount = endStr[:4]
+            if "P" in endStr:
+                eventCount = endStr.split("P")[0]
+            else:
+                eventCount = endStr.split(".root")[0]
             if "." in eventCount:
                 # genie uses e:2 rather than e:3 so I need to remove the period
                 eventCount = eventCount.replace(".", "")
@@ -1175,10 +1185,6 @@ def VersionTuneLoop(FileList, UseRoot, Verbosity):
             print(f"Total Events in RDataFrame:{Ndf.Count().GetValue()}")
         else:
             print(f"Total Events: {int(TotalEvents):e}")
-            print("Warning this number is based off of the file naming and may not reflect the actual number of events")
-
-
-
 
 
 if __name__ =="__main__":
@@ -1218,7 +1224,7 @@ if __name__ =="__main__":
 
     #For checking files that have been downloaded
     GenCheckParser = subparsers.add_parser("Check")
-    GenCheckParser.add_argument("--Verbosity")
+    GenCheckParser.add_argument("--Verbosity", type=int)
     GenCheckParser.add_argument("--UseRoot", action="store_true")
 
     args = parser.parse_args()
