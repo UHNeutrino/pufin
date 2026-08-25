@@ -153,7 +153,7 @@ git clone https://github.com/UHNeutrino/PUfIN/
 
 </tr></table>
 
-> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
 </details>
 
@@ -192,7 +192,7 @@ Example config
 </td> </tr>
 </table>
 
-> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
 </details>
 
@@ -226,7 +226,7 @@ Example config
 </td> </tr>
 </table>
 
-> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
 </details>
 
@@ -260,7 +260,7 @@ Example config
 </td> </tr>
 </table>
 
-> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
 </details>
 
@@ -295,7 +295,7 @@ Example config
 </td> </tr>
 </table>
 
-> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
 </details>
 
@@ -329,7 +329,7 @@ Example config
 </td> </tr>
 </table>
 
-> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
 </details>
 
@@ -363,7 +363,7 @@ Example config
 </td> </tr>
 </table>
 
-> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
 </details>
 
@@ -432,7 +432,7 @@ A 2D Ratio plot--generated using the configuration above--showing the difference
 </table>
 
 
-> See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
 </details>
 
