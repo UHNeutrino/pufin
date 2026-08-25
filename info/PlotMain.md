@@ -104,9 +104,45 @@ git clone https://github.com/UHNeutrino/PUfIN/
   + ```"Style":```
 
 <details>
-<summary><b> Example </b></summary>
+<summary><b> Examples </b></summary>
   
 <!-- Example plots entry and link to config file with another example -->
+
+```
+1D example config
+```
+
+```
+2D example config
+```
+
+<table><tr>
+
+<td valign="top">
+<table>
+  <tr> <b> 1D Plot </b> </tr>
+  <tr> <td> 
+  <!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+  </td> </tr> 
+  <tr> <td>
+  <!-- type plot description here -->
+  </td> </tr>
+</table>
+</td>
+
+<td valign="top">
+<table>
+  <tr> <b> 2D Plot </b> </tr>
+  <tr> <td> 
+  <!-- To add 2D plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+  </td> </tr> 
+  <tr> <td>
+  <!-- type 2D plot description here -->
+  </td> </tr>
+</table>
+</td>
+
+</tr></table>
 
 > See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
@@ -199,9 +235,18 @@ git clone https://github.com/UHNeutrino/PUfIN/
   
 <!-- Example quantiles entry and link to config file with another example -->
 
-| Plot: | Description: |
-|-------|--------------|
-| <!-- To add a plot image, just copy/paste the image here (GitHub automatically adds necessary html tags & hosts the image) -->|<!-- type description here --> |
+```
+Example config
+```
+
+<table>
+<tr> <td> 
+<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+</td> </tr> 
+<tr> <td>
+<!-- type plot description here -->
+</td> </tr>
+</table>
 
 > See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
@@ -217,13 +262,34 @@ git clone https://github.com/UHNeutrino/PUfIN/
   
 <!-- Example 2DRatio entry and link to config file with another example -->
 
+> Note: ```In global```, the color palette was set by adding ```"Palette": "kRainBow"```, and the [PUfIN custom variable](/VariablesAndModes.md#using-pufin-custom-variables) CosLep was activated by setting ```"TkiB": true```
 ```
-Example
+    "2DRatio":
+        {
+            "File1":"Flat_NEUT6.1.4_OxygenDCC",
+            "File2":"Flat_NEUT6.1.4_OxygenRS",
+            "Cut": "(Mode == 11 || Mode == 12 || Mode == 13) && CosLep > 0.92", 
+            "Var1": "W",
+            "Var2": "Q2",
+            "AxisInfo":"W, GeV, Q^{2}, GeV^{2}, Oxygen DCC/RS (CosLep > 0.92)",
+            "BinsX": [50, 0.5, 3], 
+            "BinsY": [60, 0, 3], 
+            "Name": "DCCRSRatio_CosLep_Oxygen_4of4",
+            "RatioMax":2,
+            "RatioMin":0,
+            "logz": false,
+        },
 ```
 
-| Plot: | Description: |
-|-------|--------------|
-| <img width="896" height="472" alt="png rendered from 2DSame example" src="https://github.com/user-attachments/assets/d5e20538-385d-42e4-a7b9-76387dd7cced" /> | A 2D Ratio plot--generated using the configuration above--showing the differences (as a ratio) in the NEUT DCC (Dynamical Coupled-Channels) and RS (Rein-Sehgal) model predictions for resonant event occupation of Q<sup>2</sup>-W kinematic space. | 
+<table>
+<tr> <td> 
+<img width="896" height="472" alt="png rendered from 2DSame example" src="https://github.com/user-attachments/assets/d5e20538-385d-42e4-a7b9-76387dd7cced" /> 
+</td> </tr> 
+<tr> <td>
+A 2D Ratio plot--generated using the configuration above--showing the differences (as a ratio) in the NEUT DCC (Dynamical Coupled-Channels) and RS (Rein-Sehgal) model predictions for resonant event occupation of Q<sup>2</sup>-W kinematic space when cos(&theta;<sub>&mu;</sub>) > 0.92. 
+</td> </tr>
+</table>
+
 
 > See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
