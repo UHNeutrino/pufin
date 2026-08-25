@@ -1,7 +1,7 @@
 {
     "global":
         {
-            "userFolder":"/data/t2k-nova/FlatTrees",
+            "userFolder":"/path/to/Flat/Trees",
             "treeName":"FlatTree_VARS",
             "Save": "",
             "DebugLvl":0,
@@ -12,7 +12,7 @@
             "DebugPrint":0,
             "DebugMode":false,
             "FluxReweight":{
-                "FluxPath": "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root",
+                "FluxPath":"/path/to/flux",
                 "FluxHistogram": "enu_nd5_13a_real_numu",
                 "AreaNormFlag":true,
                 //-----------------------------------------------------------------------------------//
@@ -25,7 +25,7 @@
                 "Detector":"T2K", // T2K or Nova
                 "Target":"C12",
                 "XsecMode": "CC", // total, CC or NC
-                "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
+                "XsecPath":"/path/to/your/xsec.root"
 
                 // -------- Used Only by Genie --------- //
                 
@@ -104,7 +104,7 @@
             "Label": "NOvA Flux",
             "Color": "kRed",
             "FluxReweight":{
-                "FluxPath":"/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+                "FluxPath":"/path/to/flux",
                 "FluxHistogram":"numu",
                 "AreaNormFlag":false,
                 //-----------------------------------------------------------------------------------//
@@ -117,7 +117,7 @@
                 "Detector":"Nova", // T2K or Nova
                 "Target":"C12",
                 "XsecMode": "CC", // total, CC or NC
-                "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
+                "XsecPath":"/path/to/your/xsec.root"
 
 
                 // -------- Used Only by Genie --------- //
@@ -133,7 +133,7 @@
             "Label": "NEUT T2K",
             "Color": "kBlue",
             "FluxReweight":{
-                "FluxPath": "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root",
+                "FluxPath":"/path/to/flux",
                 "FluxHistogram": "enu_nd5_13a_real_numu",
                 "AreaNormFlag":false,
                 //-----------------------------------------------------------------------------------//
@@ -146,7 +146,7 @@
                 "Detector":"T2K", // T2K or Nova
                 "Target":"C12",
                 "XsecMode": "CC", // total, CC or NC
-                "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
+                "XsecPath":"/path/to/your/xsec.root"
 
                 // -------- Used Only by Genie --------- //
                 
@@ -173,11 +173,9 @@
             "logz":true,
             "Name": "ContourFlat",
         },
-    "ContourStyle":
+     "ContourStyle":
         {
-            "Bool": true,
-            "reWeight":[true, "/data/t2k-nova/fluxes/nd_13a_fluxrelease/nd5_11btune_13anom_250ka_ratios_fine.root","enu_nd5_13a_real_numu", 2.75e-7, "N", false, true],
-            "File": "Flat_NEUT5.9_flatf_1e7",
+            "File":"ROOT_filename",
             "Cut": "", // For no cuts, type "", this is the inital cut that applies to all events
             "Var1":"q0",
             "Var2":"q3",
@@ -187,7 +185,6 @@
             "AxisInfo":"q0, (GeV/c), q3, (GeV), Cont Style Test",
             "Bins":[100,0,5,100,0,5],
             "logz":true,
-            "Name": "ContourStyleTest",
-
-        },
+            "Name": "TestContourStyle"
+        }
 }

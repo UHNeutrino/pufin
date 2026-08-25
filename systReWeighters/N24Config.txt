@@ -1,4 +1,4 @@
-GENIE_FILE:/data/t2k-nova/KristenGen/N2420i0211b_Flat_1000000_Default_numu.root
+GENIE_FILE:/path/to/genie/file
 GENIE_TUNE: N24_20i_02_11b
 NUMBER_OF_EVENTS:1000000
 ENGINE_TYPE:GENIEReWeight
