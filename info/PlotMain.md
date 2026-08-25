@@ -262,7 +262,7 @@ Example config
   
 <!-- Example 2DRatio entry and link to config file with another example -->
 
-> Note: ```In global```, the color palette was set by adding ```"Palette": "kRainBow"```, and the [PUfIN custom variable](/VariablesAndModes.md#using-pufin-custom-variables) CosLep was activated by setting ```"TkiB": true```
+> Note: ```In global```, the color palette was set by adding ```"Palette": "kRainBow"```, and the [PUfIN custom variable](VariablesAndModes.md#using-pufin-custom-variables) CosLep was activated by setting ```"TkiB": true```
 ```
     "2DRatio":
         {
