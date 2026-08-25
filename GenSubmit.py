@@ -182,8 +182,8 @@ def GenieTimeEstimator(Files, NCores):
     if NCores <= 0:
         raise ValueError("NCores must be positive.")
 
-    SECONDS_PER_WAVE_AT_10K = 120
-    SAFETY_FACTOR = 1.25
+    SECONDS_PER_WAVE_AT_10K = 150
+    SAFETY_FACTOR = 1.5
     MINIMUM_SECONDS = 300
     MAXIMUM_SECONDS = 86400
 
