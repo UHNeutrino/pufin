@@ -9,6 +9,19 @@ import glob
 import array
 
 
+def OutFileExists(path):
+    if os.path.exists(path):
+        response = input(f"Output file {path} already exists, do you want to continue? (y/n)")
+        if response.upper() == "Y":
+            return
+        elif response.upper() == "N":
+            exit()
+        else:
+            print("not sure what you meant, exiting")
+            exit()
+    else:
+        return
+
 def get_nucleons_per_target(target: str) -> int:
     """Extract the mass number from a target name such as C12, O16, or Ar40."""
     match = re.search(r"\d+", target)
@@ -152,6 +165,7 @@ def CalculateTargetWeightFactor(targets_file, detector, target):
     return Fscale
 
 def MakePlots(plots, GlobalSettings):
+    OutFileExists(GlobalSettings["Save"]+ "/" + plots["Name"]+".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -281,6 +295,7 @@ def MakePlots(plots, GlobalSettings):
             pp.Savehist(hist,AxisInfo,GlobalSettings["Save"],fileN,ext,max = plots.get("max"), Normalize=False, logz = plots["logz"])
                 
 def Make2DRatio(Ratio2D, GlobalSettings):
+    OutFileExists(GlobalSettings["Save"]+ "/" + Ratio2D["Name"]+".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -413,6 +428,7 @@ def Make2DRatio(Ratio2D, GlobalSettings):
 
 
 def MakeStacks(stacks,GlobalSettings):
+    OutFileExists(GlobalSettings["Save"]+ "/" + stacks["Name"]+ ".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -508,6 +524,7 @@ def MakeStacks(stacks,GlobalSettings):
 
 
 def MakeOverlap(overlap,GlobalSettings):
+    OutFileExists(GlobalSettings["Save"]+ "/" + overlap["Name"]+ ".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -596,6 +613,7 @@ def MakeOverlap(overlap,GlobalSettings):
         pp.SaveOverlapPlot(histlist, AxisInfo, Legend,save_L, Normalize=False)
         
 def MakeSame1D(same1D,GlobalSettings):
+    OutFileExists(GlobalSettings["Save"]+ "/" + same1D["Name"]+".root")
     userFolder = GlobalSettings["userFolder"]
     plots_list = same1D["Plots"]
     hist_dict = {}
@@ -969,6 +987,7 @@ def MakeSame1D(same1D,GlobalSettings):
     
 
 def MakeContour(Contour,GlobalSettings):
+    OutFileExists(GlobalSettings["Save"]+ "/" + Contour["Name"]+".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -1100,6 +1119,7 @@ def MakeContour(Contour,GlobalSettings):
 
 
 def MakeContourStyle(ContourStyle,GlobalSettings):
+    OutFileExists(GlobalSettings["Save"]+ "/" + ContourStyle["Name"] + ".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
