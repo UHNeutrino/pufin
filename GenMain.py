@@ -810,6 +810,7 @@ def CheckNeutFiles(CardNames, NChunks):
     for Card in CardNames:
         TempChunks = NChunks
         TargetLabel = Card.split("_")[5]
+        Mode = Card.split("_")[2]
         Target = GlobalV.NeutLabelTargets.get(TargetLabel)
         Flavor = Card.split("_")[3]
         GenDir = OutPath + f"/NEUT/{Target}"
@@ -823,6 +824,10 @@ def CheckNeutFiles(CardNames, NChunks):
             TempChunks = int(NChunks/100)
         else:
             raise ValueError(f"No Such Flavor {Flavor}")
+        
+        if Mode.Upper()=="NC":
+            TempChunks = int(NChunks/10)
+        
         
         if TempChunks < 1:
             TempChunks = 1
