@@ -1,0 +1,19 @@
+GENIE_FILE:/data/t2k-nova/KristenGen/N2420i0211b_Flat_1000000_Default_numu.root
+GENIE_TUNE: N24_20i_02_11b
+NUMBER_OF_EVENTS:1000000
+ENGINE_TYPE:GENIEReWeight
+DESIRED_SYSTEMATICS_FOR_GENERATION[
+  FrAbs_pi
+]
+centralParamValue: 0
+PARAM_VARIATION[
+ -3,
+ -2,
+ -1,
+ 0,
+ 1,
+ 2,
+ 3
+]
+TOOL_OPTIONS[
+]

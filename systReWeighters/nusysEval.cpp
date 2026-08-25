@@ -6,8 +6,8 @@ R__LOAD_LIBRARY(libGRwClc.so)
 #include "Framework/EventGen/EventRecord.h"
 
 
-#include "/home/lboe/nusystrun/include/user_int/Get_User_stuff.hh"
-#include "/home/lboe/nusystrun/include/draw_struct/CreateXML.hh"
+#include "Get_User_stuff.hh"
+#include "CreateXML.hh"
 
 #include <vector>
 #include <iostream>
@@ -21,9 +21,9 @@ R__LOAD_LIBRARY(libGRwClc.so)
 #include <ROOT/RDataFrame.hxx>
 
 void nusysEval(){
-    std::string fcl_file = "/home/mazen_malak/Thesis_results/all.fcl";
-    const char* Genie_file = "/data/t2k-nova/LarsGen/GenieGen/N24TestGen.root"; // Genie file path
-    std::string userdata = "/data/t2k-nova/LarsGen/GenieGen/N24Config.txt"; //Config file path??
+    std::string fcl_file = "/path/to/fcl/file";
+    const char* Genie_file = "/path/to/genie/file"; // Genie file path
+    std::string userdata = "/path/to/config/tuneconfig.txt"; //Config file path??
     std::cout << "hi" << std::endl;
 
     // ############################################################

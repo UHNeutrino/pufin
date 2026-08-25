@@ -1,0 +1,38 @@
+generated_systematic_provider_configuration: {
+    GENIEReWeight: {
+        FrAbs_pi: {
+            centralParamValue: 0
+            paramVariations: [
+		        -3,
+		        -2,
+	            -1,
+                0,
+                1,
+		        2,
+                3
+            ]
+            prettyName: "FrAbs_pi"
+            systParamId: 0
+            isSplineable: true
+        }
+        parameter_headers: [
+            FrAbs_pi
+        ]
+        tool_options: {
+            AxFFCCQEDipoleToZExp: false
+            CCRESIsShapeOnly: false
+            DISBYIsShapeOnly: false
+            MaCCQEIsShapeOnly: false
+            NCRESIsShapeOnly: false
+            UseFullHERG: true
+            evgen_list_name: ""
+            fill_valid_tree: false
+            genie_tune_name: "${GENIE_XSEC_TUNE}"
+            ignore_parameter_dependence: true
+        }
+        tool_type: "GENIEReWeight"
+    }
+    syst_providers: [
+        GENIEReWeight
+    ]
+}

@@ -20,8 +20,8 @@ R__LOAD_LIBRARY(libGRwClc.so)
 #include <ROOT/RDataFrame.hxx>
 
 void nusystest(){
-    std::string fcl_file = "/home/mazen_malak/Thesis_results/all.fcl";
-    std::string Genie_file = "/data/t2k-nova/KristenGen/output_2.0Gev_5e5.root";
+    std::string fcl_file = "/path/to/fcl/file";
+    const char* Genie_file = "/path/to/genie/file"
     std::cout << "hi" << std::endl;
 
 

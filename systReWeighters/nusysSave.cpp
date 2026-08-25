@@ -1,13 +1,13 @@
 // R__ADD_LIBRARY_PATH($LD_LIBRARY_PATH)
-R__ADD_LIBRARY_PATH("/path/to/GENIE_v2_06_00/Generator/install/lib")
+R__ADD_LIBRARY_PATH("/path/to/genie/GENIE_v2_06_00/Generator/install/lib")
 R__LOAD_LIBRARY(libGRwClc.so)
 #include "nusystematics/utility/response_helper.hh"
 #include "Framework/Ntuple/NtpMCEventRecord.h"
 #include "Framework/EventGen/EventRecord.h"
 
 
-#include "/home/lboe/nusystrun/include/user_int/Get_User_stuff.hh"
-#include "/home/lboe/nusystrun/include/draw_struct/CreateXML.hh"
+#include "Get_User_stuff.hh"
+#include "CreateXML.hh"
 
 #include <vector>
 #include <iostream>
@@ -26,15 +26,14 @@ R__LOAD_LIBRARY(libGRwClc.so)
 
 
 void nusysSave(){
-    std::string fcl_file = "/path/to/fcl/file/name.fcl";
-    std::string Genie_path_name = "/path/to/genie/generated/file/name";  
+    std::string fcl_file = "/path/to/fcl/file.fcl";
+    std::string Genie_path_name = "/path/to/genie/file/geniefilename"; 
     std::string Genie_file_str  = Genie_path_name + ".root";  
     std::string OutPath_str     = Genie_path_name + "_dialname.root";  
     const char* Genie_file = Genie_file_str.c_str(); // Genie file path
     const char* OutPath    = OutPath_str.c_str();
 
-    std::string userdata = "/home/lboe/t2k-nova/systReWeighters/N24Config.txt"; //Config file path??
-    // std::string userdata = "/home/kdobbs/t2k-nova/nusystrun/N24Config.txt"; //Config file path??
+    std::string userdata = "/config/file/path/N24Config.txt"; //Config file path??
     std::cout << "hi" << std::endl;
 
     // ############################################################
