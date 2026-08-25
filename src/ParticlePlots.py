@@ -2356,18 +2356,18 @@ if __name__=="__main__":
     # print("What are you testing?")
     x = 'Enu_true'
     y = 'q0'
-    file_path = "/data/t2k-nova/FlatTrees/Flat_NEUT5.9_flatf_1e7.root"
+    file_path = "/test/root/file/test"
     AxisInfo = ['E#nu_{true}', '(GeV)','counts', '',"test"]
     histInfo = ("name",f"{y} vs {x} plot",250,0,5)
     df = CreateDataFrame(file_path, "None")
-    defineSplineTest(df, "/data/t2k-nova/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu")
+    defineSplineTest(df, "/path/test/fluxes/23av1_nom/nd5_numode_23a_nominal_10MeVbins.root","enu_nd5_23a_untuned_numu")
     # hist  = df.Histo1D(histInfo,x,"weights")
     # Savehist(hist,AxisInfo,"t2k-nova","Test2","png")
     # x = 'W'
     # y = 'Q2'
     # AxisInfo = ['W', '(GeV)','Q^{2}', '(GeV)^{2}']
     # histInfo = ("name",f"{y} vs {x} plot",60,0,3,120,0,6)
-    # hist, file_path = Plot1PI(x,y,histInfo,"/data/t2k-nova/FlatTrees/FLAT_NEUT_0.7GeV_1e7.root")
+    # hist, file_path = Plot1PI(x,y,histInfo,"/some/path/FLAT_NEUT_0.7GeV_1e7.root")
     # SavePlot(hist,"testname2",AxisInfo, file_path)
 
 
