@@ -160,6 +160,7 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
         --cpus-per-task={CoresForNode} \\
         --time={SlurmTime} \\
         --mem={MemoryGB}G \\
+        --exclude=compute-6-9,compute-6-10,compute-6-36 \\
         --job-name=GENIE{Node+1}of{TotalNodes} \\
         --output=GENIEGeneration_{Node+1}of{TotalNodes}_%j.out \\
         --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && python GenMain.py GenieMult --Files {FilesFormatted} --CPUPercent {CPUPercent}'"
