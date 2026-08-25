@@ -32,7 +32,7 @@
         },
     "plots":
         {
-            "File":"Flat_GenieN24_flatf_1e6",
+            "File":"ROOT_filename",
             "Type":"1D",
             // Specify the cut for the dataframe. For no cuts, type ""
             "Cut": "flagCCINC == true",
@@ -95,19 +95,19 @@
             "Plots": [
                 {
                 "Key": "GenieN24",
-                "File": "flatf10M_1e7",
+                "File": "ROOT_filename1",
                 "Label": "Genie numuCC",
                 "Color": "kBlack",
                 "Var": "Enu_true",
                 "Cut": "",
 
                 "FluxReweight":{
-                    "FluxPath":"/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+                    "FluxPath":"/path/to/your/flux/file.root",
                     "FluxHistogram":"numu",
                     "AreaNormFlag": false,
-                    //-----------------------------------------------------------------------------------//
-                    // --------------------- Edit below only for re-weighting flux --------------------- //
-                    //-----------------------------------------------------------------------------------//              
+                //----------------------------------------------------------------------------------------------------------------------//
+                // --------------------- Edit below only for event-rate reweighting (not just area normalization) --------------------- //
+                //----------------------------------------------------------------------------------------------------------------------//       
                     
                     "XsecType":"G",
                     "UndoFluxNormFlag":false,
@@ -115,29 +115,25 @@
                     "Detector":"Nova",
                     "Target":"C12",
                     "XsecMode": "total",
-                    // "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
-                    "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
-
-                    // -------- Used Only by Genie --------- //
+                    "XsecPath":"/path/to/your/xsec/file/xsec.root",
                     "Flavor": "nu_mu",
-                    "NucleonsPerTarget":12
                     }
                 },
                 {
                 "Key": "GenieQE",
-                "File": "GenieN24_flatf10M_1e7",
+                "File": "ROOT_filename2",
                 "Label": "Genie numuCC QE",
                 "Color": "kBlue",
                 "Var": "Enu_true",
                 "Cut": "Mode ==1",
 
                 "FluxReweight":{
-                    "FluxPath":"/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+                    "FluxPath":"/path/to/your/flux/file.root",
                     "FluxHistogram":"numu",
                     "AreaNormFlag": false,
-                    //-----------------------------------------------------------------------------------//
-                    // --------------------- Edit below only for re-weighting flux --------------------- //
-                    //-----------------------------------------------------------------------------------//              
+                //----------------------------------------------------------------------------------------------------------------------//
+                // --------------------- Edit below only for event-rate reweighting (not just area normalization) --------------------- //
+                //----------------------------------------------------------------------------------------------------------------------//       
                     
                     "XsecType":"G",
                     "UndoFluxNormFlag":false,
@@ -145,28 +141,25 @@
                     "Detector":"Nova",
                     "Target":"C12",
                     "XsecMode": "total",
-                    // "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
-                    "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
-
-                    // -------- Used Only by Genie --------- //
+                    "XsecPath":"/path/to/your/xsec/file/xsec.root",
                     "Flavor": "nu_mu"
                     }
                 },
                 {
                 "Key": "NEUT5.6.4",
-                "File": "Flat_NEUT5.6.4_FFCConC7ECard_1e7",
+                "File": "ROOT_filename3",
                 "Label": "Neut CC on Carbon",
                 "Color": "kRed",
                 "Var": "Enu_true",
                 "Cut": "",
 
                 "FluxReweight":{
-                    "FluxPath":"/data/t2k-nova/fluxes/21bv2/run4/nd5_tuned21bv2_13anom_run4_numode_fine.root",
+                    "FluxPath":"/path/to/your/flux/file.root",
                     "FluxHistogram":"enu_nd5_21b_real_numu",
                     "AreaNormFlag": false,
-                    //-----------------------------------------------------------------------------------//
-                    // --------------------- Edit below only for re-weighting flux --------------------- //
-                    //-----------------------------------------------------------------------------------//              
+                //----------------------------------------------------------------------------------------------------------------------//
+                // --------------------- Edit below only for event-rate reweighting (not just area normalization) --------------------- //
+                //----------------------------------------------------------------------------------------------------------------------//       
                     
                     "XsecType":"N",
                     "UndoFluxNormFlag":true,
@@ -174,10 +167,7 @@
                     "Detector":"T2K",
                     "Target":"C12",
                     "XsecMode": "CC",
-                    "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
-                    // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
-
-                    // -------- Used Only by Genie --------- //
+                    "XsecPath":"//path/to/your/xsec/file/xsec.root",
                     "Flavor": "nu_mu"
                     }
                     }
@@ -185,8 +175,8 @@
         },
     "2DRatio":
         {
-            "File1":"fileonename",
-            "File2":"filetwoname",
+            "File1":"fileOnename",
+            "File2":"fileTwoname",
             "Cut": "variable == something",
             "Var1": "variable1",
             "Var2": "variable1",
