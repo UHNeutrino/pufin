@@ -292,8 +292,6 @@ if __name__ =="__main__":
             CPUPercent=args.cpu_percent,
     )
 
-# source /data/t2k-nova/MainSetup.sh
-# export PUFIN_OUT=/data/t2k-nova/PUfINOutputs/_MultiProcess
 # python GenSubmit.py GenGenie \
 #     --container /project/cherdack/containers/Generators/t2k-nova-generator.sif \
 #     --events 10000 \

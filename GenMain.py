@@ -1263,8 +1263,6 @@ if __name__ =="__main__":
     # MakeNeutCards(Tune, Targets,Events)
     # GenNeutXsec(Tune,Targets)
     
-    # source /data/t2k-nova/MainSetup.sh
-    # export PUFIN_OUT=/data/t2k-nova/PUfINOutputs/Test
 
 
     # For Series:
