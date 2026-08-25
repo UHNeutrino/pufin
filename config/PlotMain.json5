@@ -1,43 +1,32 @@
 {
     "global":
         {
-            "userFolder":"/data/t2k-nova/FlatTrees",
-            "treeName":"FlatTree_VARS",
-            //"treeName":"gst",
-            // "Save": "UHMCVerification",
-            "Save": "/home/kdobbs/pufin/test",
-            "DebugLvl":0,
-            "EvisB": false,
-            "KinematicsB":false,
-            "TkiB": false,
-            "ThresholdsB": false,
-            "Palette":"kRainBow",
-            "DebugPrint":0,
-            "DebugMode":false,
-            "SavePdf":false,
-            "FluxReweight":{
-                "FluxPath":"/data/t2k-nova/fluxes/NOvAFluxProd6.root",
-                "FluxHistogram":"numu",
-                // "FluxPath": "/data/t2k-nova/fluxes/21bv2/run4/nd5_tuned21bv2_13anom_run4_numode_fine.root",
-                // "FluxHistogram": "enu_nd5_21b_real_numu",
-                "AreaNormFlag":false,
-                //-----------------------------------------------------------------------------------//
-                // --------------------- Edit below only for re-weighting flux --------------------- //
-                //-----------------------------------------------------------------------------------//
-
+            "userFolder":"/path/to/Flat/Trees",  
+            "treeName":"FlatTree_VARS", //prefered format is nusance flatTrees, but other trees are possible
+            "Save": "/path/to/output/directory", //plot main will check if this exists before running
+            "EvisB": false, // boolean to define visible energy variables
+            "KinematicsB":false, //boolean to define particle kinematics not in FlatTrees
+            "TkiB": false, //boolean to define extra transverse kinematic imbalance variables
+            "ThresholdsB": false, //boolean to define thereshold cuts for different detectors, requires kinematics for some cuts
+            "Palette":"kRainBow", //2D Histogram Root Palette
+            "DebugPrint":0, //set higher value than 0 to get more print statements
+            "DebugMode":false, //tests all plot types using a debug config
+            "SavePdf":false, //save output as root file and pdf, rather than png
+            "FluxReweight":{ //this dictionary is for reweighting flat flux generated files to a desired flux 
+                "FluxPath":"/Path/to/your/flux/file.root",
+                "FluxHistogram":"fluxhistogramname",
+                "AreaNormFlag":false, //set true for an area normalized histogram
+                //----------------------------------------------------------------------------------------------------------------------//
+                // --------------------- Edit below only for event-rate reweighting (not just area normalization) --------------------- //
+                //----------------------------------------------------------------------------------------------------------------------//
                 "XsecType":"G", // G for Genie or N for Neut
-                "UndoFluxNormFlag":false,
-                "TargetWeightsFile": "./config/TargetWeights.json5",
-                "Detector":"Nova", // T2K or Nova
-                "Target":"C12",
+                "UndoFluxNormFlag":false, //set true if your flux is bin width normalized 
+                "TargetWeightsFile": "./config/TargetWeights.json5", 
+                "Detector":"Nova", // Picks the detector within TargetWeights
+                "Target":"C12", //Picks the target in the detector
                 "XsecMode": "total", // total, CC or NC
-                // "XsecPath":"/data/t2k-nova/xsec-splines/NEUT5_6_4xsecsC.root",
-                "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
-                // "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/AR2320i00000-k250-e1000/data/xsec_graphs.root"
-
-                // -------- Used Only by Genie --------- //
-                
-                "Flavor": "nu_mu"
+                "XsecPath":"/path/to/your/xsec/file/xsecs.root", //path to the xsec path used to reweight
+                "Flavor": "nu_mu" //neutrino flavor
             }
 
         },
