@@ -56,6 +56,9 @@ git clone https://github.com/UHNeutrino/PUfIN/
 
 > Note: Reweighting in ```"global"``` overrides flux reweighting in all modes, with the exception of 1DSame. In this mode, the reweighting within individual plots in ```"1DSame"``` takes precedence over ```"global"```. To specify and use different fluxes in a plotting mode other than ```"1DSame"```, remove or comment out the ```"FluxReweight"``` entry in ```"global"```.
 
+<details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+
 + Required entries:
   + ```"FluxPath":```
   + ```"FluxHistogram":```
@@ -71,6 +74,8 @@ git clone https://github.com/UHNeutrino/PUfIN/
 + Only used by GENIE (without area normalization):
   + ```"Flavor":```
   + ```"NucleonsPerTarget":```
+ 
+</details>
 
 <details>
 <summary><b> Example </b></summary>
@@ -84,24 +89,28 @@ git clone https://github.com/UHNeutrino/PUfIN/
 
 ```"plots":``` creates a simple plot using events from a single (flattened) root file (see [plotting with ```"1DSame":```](#plotting-with-1dsame) to plot multiple files on the same plot). To use ```"plots"```, the mode must be defined in the called config file and the following entries edited.
 
-+ Standard entries
-  + ```"File":```
-  + ```"Type":```
-  + ```"Cut":```
-  + ```"Var1"```
-  + ```"Var2"```
-  + ```"AxisInfo":```
-  + ```"Bins":```
-    + For ```"Type": 1D```:
-    + For ```"Type": 2D```:
-  + ```"VBins":```
-  + ```"Name":```
-  + ```"max":```
-  + ```"logz":```
-  + ```"profileX":```
-  + ```"diagonal":```
-+ Optional/additional plot customization
-  + ```"Style":```
+
+<details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+
++ ```"File":```
++ ```"Type":```
++ ```"Cut":```
++ ```"Var1"```
++ ```"Var2"```
++ ```"AxisInfo":```
++ ```"Bins":```
+  + For ```"Type": 1D```:
+  + For ```"Type": 2D```:
++ &dagger;```"VBins":```
++ ```"Name":```
++ ```"max":```
++ ```"logz":```
++ &dagger;```"profileX":```
++ &dagger;```"diagonal":```
++ &dagger;```"Style":```
+
+</details>
 
 <details>
 <summary><b> Examples </b></summary>
@@ -153,17 +162,35 @@ git clone https://github.com/UHNeutrino/PUfIN/
 
 ***...still needs general description...***
 
+<details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+  
 + ```"File":```
 + ```"Type":```
 + ```"Cut":```
 + ```"Var1"```
 + ```"StackCuts":```
-+ ```"":```
++ ```"":``` ....not finished...
+
+</details>
 
 <details>
 <summary><b> Example </b></summary>
   
 <!-- Example stacks entry and link to config file with another example -->
+
+```
+Example config
+```
+
+<table>
+<tr> <td> 
+<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+</td> </tr> 
+<tr> <td>
+<!-- type plot description here -->
+</td> </tr>
+</table>
 
 > See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
@@ -175,9 +202,29 @@ git clone https://github.com/UHNeutrino/PUfIN/
 ***...still needs general description...***
 
 <details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+  
++ 
+
+</details>
+
+<details>
 <summary><b> Example </b></summary>
   
 <!-- Example overlap entry and link to config file with another example -->
+
+```
+Example config
+```
+
+<table>
+<tr> <td> 
+<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+</td> </tr> 
+<tr> <td>
+<!-- type plot description here -->
+</td> </tr>
+</table>
 
 > See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
@@ -189,9 +236,29 @@ git clone https://github.com/UHNeutrino/PUfIN/
 ***...still needs general description...***
 
 <details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+  
++ 
+
+</details>
+
+<details>
 <summary><b> Example </b></summary>
   
 <!-- Example 1DSame entry and link to config file with another example -->
+
+```
+Example config
+```
+
+<table>
+<tr> <td> 
+<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+</td> </tr> 
+<tr> <td>
+<!-- type plot description here -->
+</td> </tr>
+</table>
 
 > See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
@@ -203,9 +270,30 @@ git clone https://github.com/UHNeutrino/PUfIN/
 ***...still needs general description...***
 
 <details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+  
++ 
+
+</details>
+
+
+<details>
 <summary><b> Example </b></summary>
   
 <!-- Example Contour entry and link to config file with another example -->
+
+```
+Example config
+```
+
+<table>
+<tr> <td> 
+<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+</td> </tr> 
+<tr> <td>
+<!-- type plot description here -->
+</td> </tr>
+</table>
 
 > See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
@@ -217,9 +305,29 @@ git clone https://github.com/UHNeutrino/PUfIN/
 ***...still needs general description...***
 
 <details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+  
++ 
+
+</details>
+
+<details>
 <summary><b> Example </b></summary>
   
 <!-- Example ContourStyle entry and link to config file with another example -->
+
+```
+Example config
+```
+
+<table>
+<tr> <td> 
+<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+</td> </tr> 
+<tr> <td>
+<!-- type plot description here -->
+</td> </tr>
+</table>
 
 > See [```PlotMain.json5```](../config/PlotMain.json5) or [```DifferentConfigs.json5```](../config/DifferentConfigs.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
@@ -229,6 +337,13 @@ git clone https://github.com/UHNeutrino/PUfIN/
 ### Plotting with ```"quantiles":```
 
 ***...still needs general description...***
+
+<details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+  
++ 
+
+</details>
 
 <details>
 <summary><b> Example </b></summary>
@@ -258,11 +373,37 @@ Example config
 ***...still needs general description...***
 
 <details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+
++ ```"File1":``` file (as a string) that acts as the ratio numerator
++ ```"File2":``` file (as a string) that acts as the ratio denominator
++ ```"Cut":``` see [making cuts](VariablesAndModes.md#making-cuts-with-variables-flags--modes) for more information
++ ```"Var1":``` x-axis variable
++ ```"Var2":``` y-axis variable
++ ```"AxisInfo":``` entered as a single string with entries separated by commas in the following form
+  
+  ```
+    "x-axis variable, Var1 unit, y-axis variable, Var2 unit, plot title"
+  ```
++ ```"BinsX":``` entered as a list in the following form
+  
+  ```
+  [number of bins along x-axis, x-min, x-max]
+  ```
++ ```"BinsY":``` follows the same convention as ```"BinsX":```
++ ```"Name":``` name that created files will be saved as (entered as a string without extensions)
++ &dagger;```"max":``` individual histogram maxes when saved (entered as a number)
++ ```"RatioMax":``` and ```"RatioMin":``` are the minimum and maximum ratio values
++ ```"logz":``` is a boolean that sets the ratio to a logarithmic scale when ```true```
+
+</details>
+
+<details>
 <summary><b> Example </b></summary>
   
 <!-- Example 2DRatio entry and link to config file with another example -->
 
-> Note: ```In global```, the color palette was set by adding ```"Palette": "kRainBow"```, and the [PUfIN custom variable](VariablesAndModes.md#using-pufin-custom-variables) CosLep was activated by setting ```"TkiB": true```
+> Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":```, the color palette was set by adding ```"Palette": "kRainBow"```, and [PUfIN custom variable](VariablesAndModes.md#using-pufin-custom-variables) CosLep was activated by setting ```"TkiB": true```
 ```
     "2DRatio":
         {
