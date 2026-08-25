@@ -145,8 +145,8 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
         MemoryGB = CoresForNode * MEMORY_PER_CORE_GB
 
         # SlurmTime = GenieTimeEstimator(NodeFiles)
-        SlurmTime = GenieTimeEstimator(NodeFiles, CoresForNode)
-        # SlurmTime = "00:30:00"
+        # SlurmTime = GenieTimeEstimator(NodeFiles, CoresForNode)
+        SlurmTime = "01:30:00"
         FilesFormatted = " ".join(NodeFiles)
         print(f"Cores on Node {Node}: {CoresForNode}")
         print(f"Memory request: {MemoryGB} GB")
@@ -161,7 +161,7 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
         --exclusive \\
         --time={SlurmTime} \\
         --mem={MemoryGB}G \\
-        --exclude=compute-6-9,compute-6-10,compute-6-36,compute-6-59,compute-4-32 \\
+        --exclude=compute-6-9,compute-6-10,compute-6-36,compute-6-59,compute-4-32,compute-5-24,compute-5-25 \\
         --job-name=GENIE{Node+1}of{TotalNodes} \\
         --output=GENIEGeneration_{Node+1}of{TotalNodes}_%j.out \\
         --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && python GenMain.py GenieMult --Files {FilesFormatted} --CPUPercent {CPUPercent}'"
