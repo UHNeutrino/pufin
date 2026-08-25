@@ -254,8 +254,7 @@ def format_total_hist(total_hist, same1d: dict):
 
 
 def save_outputs(total_hist, component_hists, same1d, global_settings):
-    base_out = global_settings["BaseOut"]
-    save_dir = os.path.join(base_out,global_settings["Save"])
+    save_dir = global_settings["Save"]
     os.makedirs(save_dir, exist_ok=True)
 
     base_name = same1d["Name"]

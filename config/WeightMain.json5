@@ -1,8 +1,6 @@
 {
     "global": {
-      "BaseOut": "/data/t2k-nova",
-      "Save": "PUfINOutputs/WeightOutputs",
-      // "Save": "PUfINOutputs/Test",
+      "Save": "/Path/to/output/dir",
       "DebugMode": false,
       "DebugPrint": 0,
       "EvisB": false,
@@ -12,7 +10,6 @@
     },
   
     "stage2": {
-      "base_dir": "/data/t2k-nova/PUfINOutputs",
       "generator": "GENIE",
       "detector": "Nova",
       "version":"5-9-0",
@@ -35,24 +32,24 @@
         "enabled": true,
         "flux_inputs": {
           "NuMu": {
-            "rw_file": "/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+            /path/to/you/flux/file
             "rw_flux": "numu"
           },
           "NuMuBar": {
-            "rw_file": "/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+            /path/to/you/flux/file
             "rw_flux": "numubar"
           },
           "NuE": {
-            "rw_file": "/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+            /path/to/you/flux/file
             "rw_flux": "nue"
           },
           "NuEBar": {
-            "rw_file": "/data/t2k-nova/fluxes/NOvAFluxProd6.root",
+            /path/to/you/flux/file
             "rw_flux": "nuebar"
           }
         },
         "xspline_mode": "G",
-        "xsec_file": "/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
+        "xsec_file": "/path/to/xsec/file/xsec.root",
         "xsec_mode": "auto",
         "areaB": false,
         "undoNormB": false
