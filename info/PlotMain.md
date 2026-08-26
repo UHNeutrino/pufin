@@ -17,6 +17,8 @@ PlotMain.py is a plotting function that uses interaction data in flattened root 
   + [Plotting with ```"1DSame":```](#plotting-with-1dsame)
   + [Plotting with ```"Contour":```](#plotting-with-contour)
   + [Plotting with ```"ContourStyle":```](#plotting-with-contourstyle)
+  + [Plotting with ```"quantiles":```](#plotting-with-quantiles)
+  + [Plotting with ```"2DRatio":```](#plotting-with-2dratio)
 + [Using PlotMain.py](#using-plotmainpy)
 
 </details>
@@ -50,17 +52,389 @@ git clone https://github.com/UHNeutrino/PUfIN/
 
 ### Reweighting with ```"FluxReweight":```
 
+```"FluxReweight"``` can be used in any of the plotting modes supported by ```"PlotMain.py"``` to reweight using flux histograms and/or area normalize data. To set a flux, the following reweight dictionary entries can be modified in ```"global"``` or in an active plotting mode.
+
+> Note: Reweighting in ```"global"``` overrides flux reweighting in all modes, with the exception of 1DSame. In this mode, the reweighting within individual plots in ```"1DSame"``` takes precedence over ```"global"```. To specify and use different fluxes in a plotting mode other than ```"1DSame"```, remove or comment out the ```"FluxReweight"``` entry in ```"global"```.
+
+<details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+
++ Required entries:
+  + ```"FluxPath":```
+  + ```"FluxHistogram":```
+  + ```"AreaNormFlag":```
++ Only for ```"AreaNormFlag": false```:
+  + ```"XsecType":```
+  + ```"UndoFluxNormFlag":```
+  + ```"TargetWeightsFile":```
+  + ```"Detector":```
+  + ```"Target":```
+  + ```"XsecMode":```
+  + ```"XsecPath":```
++ Only used by GENIE (without area normalization):
+  + ```"Flavor":```
+  + ```"NucleonsPerTarget":```
+ 
+</details>
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example FluxReweight entry and link to config file with another example -->
+  
+</details>
+
+
 ### Plotting with ```"plots":```
+
+```"plots":``` creates a simple plot using events from a single (flattened) root file (see [plotting with ```"1DSame":```](#plotting-with-1dsame) to plot multiple files on the same plot). To use ```"plots"```, the mode must be defined in the called config file and the following entries edited.
+
+
+<details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+
++ ```"File":```
++ ```"Type":```
++ ```"Cut":```
++ ```"Var1"```
++ ```"Var2"```
++ ```"AxisInfo":```
++ ```"Bins":```
+  + For ```"Type": 1D```:
+  + For ```"Type": 2D```:
++ &dagger;```"VBins":```
++ ```"Name":```
++ ```"max":```
++ ```"logz":```
++ &dagger;```"profileX":```
++ &dagger;```"diagonal":```
++ &dagger;```"Style":```
+
+</details>
+
+<details>
+<summary><b> Examples </b></summary>
+  
+<!-- Example plots entry and link to config file with another example -->
+
+```
+1D example config
+```
+
+```
+2D example config
+```
+
+<table><tr>
+
+<td valign="top">
+<table>
+  <tr> <b> 1D Plot </b> </tr>
+  <tr> <td> 
+  <!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+  </td> </tr> 
+  <tr> <td>
+  <!-- type plot description here -->
+  </td> </tr>
+</table>
+</td>
+
+<td valign="top">
+<table>
+  <tr> <b> 2D Plot </b> </tr>
+  <tr> <td> 
+  <!-- To add 2D plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+  </td> </tr> 
+  <tr> <td>
+  <!-- type 2D plot description here -->
+  </td> </tr>
+</table>
+</td>
+
+</tr></table>
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
+  
+</details>
+
 
 ### Plotting with ```"stacks":```
 
+***...still needs general description...***
+
+<details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+  
++ ```"File":```
++ ```"Type":```
++ ```"Cut":```
++ ```"Var1"```
++ ```"StackCuts":```
++ ```"":``` ....not finished...
+
+</details>
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example stacks entry and link to config file with another example -->
+
+```
+Example config
+```
+
+<table>
+<tr> <td> 
+<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+</td> </tr> 
+<tr> <td>
+<!-- type plot description here -->
+</td> </tr>
+</table>
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
+  
+</details>
+
+
 ### Plotting with ```"overlap":```
+
+***...still needs general description...***
+
+<details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+  
++ 
+
+</details>
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example overlap entry and link to config file with another example -->
+
+```
+Example config
+```
+
+<table>
+<tr> <td> 
+<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+</td> </tr> 
+<tr> <td>
+<!-- type plot description here -->
+</td> </tr>
+</table>
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
+  
+</details>
+
 
 ### Plotting with ```"1DSame":```
 
+***...still needs general description...***
+
+<details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+  
++ 
+
+</details>
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example 1DSame entry and link to config file with another example -->
+
+```
+Example config
+```
+
+<table>
+<tr> <td> 
+<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+</td> </tr> 
+<tr> <td>
+<!-- type plot description here -->
+</td> </tr>
+</table>
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
+  
+</details>
+
+
 ### Plotting with ```"Contour":```
 
+***...still needs general description...***
+
+<details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+  
++ 
+
+</details>
+
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example Contour entry and link to config file with another example -->
+
+```
+Example config
+```
+
+<table>
+<tr> <td> 
+<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+</td> </tr> 
+<tr> <td>
+<!-- type plot description here -->
+</td> </tr>
+</table>
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
+  
+</details>
+
+
 ### Plotting with ```"ContourStyle":```
+
+***...still needs general description...***
+
+<details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+  
++ 
+
+</details>
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example ContourStyle entry and link to config file with another example -->
+
+```
+Example config
+```
+
+<table>
+<tr> <td> 
+<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+</td> </tr> 
+<tr> <td>
+<!-- type plot description here -->
+</td> </tr>
+</table>
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
+  
+</details>
+
+
+### Plotting with ```"quantiles":```
+
+***...still needs general description...***
+
+<details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+  
++ 
+
+</details>
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example quantiles entry and link to config file with another example -->
+
+```
+Example config
+```
+
+<table>
+<tr> <td> 
+<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+</td> </tr> 
+<tr> <td>
+<!-- type plot description here -->
+</td> </tr>
+</table>
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
+  
+</details>
+
+
+### Plotting with ```"2DRatio":```
+
+***...still needs general description...***
+
+<details>
+<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
+
++ ```"File1":``` file (as a string) that acts as the ratio numerator
++ ```"File2":``` file (as a string) that acts as the ratio denominator
++ ```"Cut":``` see [making cuts](VariablesAndModes.md#making-cuts-with-variables-flags--modes) for more information
++ ```"Var1":``` x-axis variable
++ ```"Var2":``` y-axis variable
++ ```"AxisInfo":``` entered as a single string with entries separated by commas in the following form
+  
+  ```
+    "x-axis variable, Var1 unit, y-axis variable, Var2 unit, plot title"
+  ```
++ ```"BinsX":``` entered as a list in the following form
+  
+  ```
+  [number of bins along x-axis, x-min, x-max]
+  ```
++ ```"BinsY":``` follows the same convention as ```"BinsX":```
++ ```"Name":``` name that created files will be saved as (entered as a string without extensions)
++ &dagger;```"max":``` individual histogram maxes when saved (entered as a number)
++ ```"RatioMax":``` and ```"RatioMin":``` are the minimum and maximum ratio values
++ ```"logz":``` is a boolean that sets the ratio to a logarithmic scale when ```true```
+
+</details>
+
+<details>
+<summary><b> Example </b></summary>
+  
+<!-- Example 2DRatio entry and link to config file with another example -->
+
+> Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":```, the color palette was set by adding ```"Palette": "kRainBow"```, and [PUfIN custom variable](VariablesAndModes.md#using-pufin-custom-variables) CosLep was activated by setting ```"TkiB": true```
+```
+    "2DRatio":
+        {
+            "File1":"Flat_NEUT6.1.4_OxygenDCC",
+            "File2":"Flat_NEUT6.1.4_OxygenRS",
+            "Cut": "(Mode == 11 || Mode == 12 || Mode == 13) && CosLep > 0.92", 
+            "Var1": "W",
+            "Var2": "Q2",
+            "AxisInfo":"W, GeV, Q^{2}, GeV^{2}, Oxygen DCC/RS (CosLep > 0.92)",
+            "BinsX": [50, 0.5, 3], 
+            "BinsY": [60, 0, 3], 
+            "Name": "DCCRSRatio_CosLep_Oxygen_4of4",
+            "RatioMax":2,
+            "RatioMin":0,
+            "logz": false,
+        },
+```
+
+<table>
+<tr> <td> 
+<img width="896" height="472" alt="png rendered from 2DSame example" src="https://github.com/user-attachments/assets/d5e20538-385d-42e4-a7b9-76387dd7cced" /> 
+</td> </tr> 
+<tr> <td>
+A 2D Ratio plot--generated using the configuration above--showing the differences (as a ratio) in the NEUT DCC (Dynamical Coupled-Channels) and RS (Rein-Sehgal) model predictions for resonant event occupation of Q<sup>2</sup>-W kinematic space when cos(&theta;<sub>&mu;</sub>) > 0.92. 
+</td> </tr>
+</table>
+
+
+> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
+  
+</details>
 
 
 ## Using PlotMain.py
@@ -84,5 +458,4 @@ git clone https://github.com/UHNeutrino/PUfIN/
   (.venv) [username@domain PUfIN]$ python PlotMain.py MyConfig
   ```
 
-     > DO NOT include the ```.json5``` extension when referencing your config file 
 

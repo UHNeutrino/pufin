@@ -168,6 +168,8 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 <summary> <b>
   PUfIN Custom Variable Keys
 </b> </summary>
+
+ > &dagger; The **lepton momentum variable (Key: PLep)** is defined automatically without needing activation
 <!-- Opens Inline Tables -->
 <table>
 <tr>
@@ -199,6 +201,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
 
  <!-- which of the following returns a scalar? -->
+  <tr> <td> Lepton momentum &dagger; </td>   <td> PLep </td> </tr>
   <tr> <td> Max proton momentum (in FS) </td>   <td> PProton1 </td> </tr>
   <tr> <td> Max proton momentum (Pre-FSI) </td>   <td> PProton1_PFSI </td> </tr>
   <tr> <td> Proton momentum </td>   <td> PProton </td> </tr>
@@ -209,7 +212,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
   <tr> <td> Max &pi;<sup>+</sup> momentum (Pre-FSI) </td>   <td> PPionPlus_PFSI </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> PPionMax </td> </tr>
   <tr> <td>Lorem ipsum ...</td>   <td> CosPion </td> </tr>
-  <!-- link full description for CosPion in Extended Variable Descriptions -->
+  <!-- link full description for CosPion in Extended Variable Descriptions? -->
   
   <tr> <td>Lorem ipsum ...</td>   <td> initNeucMag </td> </tr>
   <tr> <td> Muon KE </td>   <td> Muon_KE </td> </tr>
