@@ -51,10 +51,10 @@ def DefineKinematics(df):
     """)
     
     # Momentum of the highest momentum pion(+) in the final state (scalar)
-    df = df.Define("PPionPlus", """
+    df = df.Define("PPionCharged", """
     double max_pi_p = -1.0; // Initialize to a negative value
     for (size_t i = 0; i < pdg.size(); ++i) {
-        if (pdg[i] == 211) { // Pi+
+        if (pdg[i] == 211 || pdg[i] == -211) { // Pi+ or Pi-
             double p_magnitude = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
             if (p_magnitude > max_pi_p) {
                 max_pi_p = p_magnitude;
@@ -101,10 +101,10 @@ def DefineKinematics(df):
     """)
     
     # Momentum of the highest momentum pion(+) after the neutrino interaction, but BEFORE FSI (scalar)
-    df = df.Define("PPionPlus_pre", """
+    df = df.Define("PPionCharged_pre", """
     double max_pi_p_pfsi = -1.0; // Initialize to a negative value
     for (size_t i = 0; i < pdg_vert.size(); ++i) {
-        if (pdg_vert[i] == 211) { // Pi+
+        if (pdg_vert[i] == 211 || pdg_vert[i] == -211) { // Pi+
             double p_magnitude = std::sqrt(px_vert[i] * px_vert[i] + py_vert[i] * py_vert[i] + pz_vert[i] * pz_vert[i]);
             if (p_magnitude > max_pi_p_pfsi) {
                 max_pi_p_pfsi = p_magnitude;

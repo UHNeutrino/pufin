@@ -207,8 +207,8 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
   <tr> <td> Cosin of the angle of the highest momentum proton</td>   <td> CosProton </td> </tr>
   <tr> <td> CosProton for the proton pre fsi </td>   <td> CosProton_pre </td> </tr>
  
-  <tr> <td> Max &pi;<sup>+</sup> momentum (in FS) </td>   <td> PPionPlus </td> </tr>
-  <tr> <td> Max &pi;<sup>+</sup> momentum (Pre-FSI) </td>   <td> PPionPlus_pre </td> </tr>
+  <tr> <td> Max &pi;<sup>+</sup> momentum (in FS) </td>   <td> PPionCharged </td> </tr>
+  <tr> <td> Max &pi;<sup>+</sup> momentum (Pre-FSI) </td>   <td> PPionCharged_pre </td> </tr>
   <tr> <td> Returns the highest momentum of all pion </td>   <td> PPionMax </td> </tr>
   <tr> <td> Cosin of the angle of the highest momentum pion</td>   <td> CosPion </td> </tr>
   <!-- link full description for CosPion in Extended Variable Descriptions? -->
