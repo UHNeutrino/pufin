@@ -98,11 +98,11 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
 
     FilePath, Targets = GenMain.DirectorySetup(Generator, SingleTarget=Target, Mode=Mode)
     GenMain.FlatFluxMaker()
-    GenMain.GlobalV.GenieEventsPerChunk = Events
 
     FileNames = GenMain.CheckGenieFiles(
         Targets=Targets,
-        Events=NChunks,
+        NChunks=NChunks,
+        EventsPerChunk=Events,
         Modes=Mode,
         Flavors=Flavor,
     )
@@ -188,7 +188,7 @@ def GenieTimeEstimator(Files, NCores):
     MINIMUM_SECONDS = 300
     MAXIMUM_SECONDS = 86400
 
-    events_per_chunk = int(Files[0].split("_")[7].split("P")[0])
+    events_per_chunk = int(float(Files[0].split("_")[7].split("P")[0]))
 
     effective_cores = min(NCores, len(Files))
     waves = math.ceil(len(Files) / effective_cores)

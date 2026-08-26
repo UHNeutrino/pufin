@@ -24,18 +24,15 @@ def DirectorySetup(Generator, SingleTarget=None, Mode=None):
         os.remove(OutPath+"/"+"test")
     except OSError as e:
             raise ValueError(f"Can't write to {OutPath}")
-    FilePaths = []
-    for target in Targets:
-        OnePath = OutPath + "/" + Generator.upper() + "/" + target + "/"
-        FilePaths.append(OnePath)
-        os.makedirs(OnePath, exist_ok=True)
-        
+
     if SingleTarget:
-        #OnePath = OutPath + "/" + Generator.upper() + "/" + Target + "/"
-        OnePath = OutPath + "/" + Generator.upper() + "/" + SingleTarget + "/"
+        Targets = SingleTarget
+
+    FilePaths = []
+    for Target in Targets:
+        OnePath = OutPath + "/" + Generator.upper() + "/" + Target + "/"
         os.makedirs(OnePath, exist_ok=True)
-        FilePaths = [OnePath]
-        Targets = [SingleTarget]
+        FilePaths.append(OnePath)
 
     print(f"Outputting to {FilePaths}")
     return FilePaths, Targets
@@ -77,15 +74,32 @@ def GetGenieFlavorEvents(Events, Flavor):
 
     return FlavorEvents
 
-def CheckGenieFiles(Targets, Events, Modes=None, Flavors=None):
+def FormatEventCountScientific(events: int) -> str:
+    """Format an integer event count in compact scientific notation."""
+    if events <= 0:
+        raise ValueError("Event count must be greater than zero")
+
+    scientific = f"{events:.10e}"
+    coefficient, exponent = scientific.split("e")
+
+    coefficient = coefficient.rstrip("0").rstrip(".")
+    exponent = int(exponent)
+
+    return f"{coefficient}e{exponent}"
+
+def CheckGenieFiles(Targets, NChunks, EventsPerChunk, Modes=None, Flavors=None):
     # Checks all expected GENIE multiprocessing files and returns the Original_
     # filenames that still need to be generated or flattened.
-    #
-    # For multiprocessing, Events is interpreted as the desired NuMu NChunks.
+
     # Flavor chunk counts are scaled by GlobalV.GenFlavorScales.
-    # Events per GENIE chunk are set by GlobalV.GenieEventsPerChunk.
     if OutPath == None:
         raise ValueError("PUFIN_OUT Needs to be defined!")
+    
+    if EventsPerChunk <= 0:
+        raise ValueError("EventsPerChunk must be greater than zero")
+
+    if NChunks <= 0:
+        raise ValueError("NChunks must be greater than zero")
 
     if not os.environ.get("GENIE_VERSION"):
         raise ValueError("GENIE_VERSION Environment Variable Not Defined")
@@ -97,8 +111,8 @@ def CheckGenieFiles(Targets, Events, Modes=None, Flavors=None):
 
     Tune = GENIE_XSEC_TUNE.split("_", 1)[0]
 
-    EventsPerChunk = GlobalV.GenieEventsPerChunk
-    NuMuNChunks = Events
+    NuMuNChunks = NChunks
+    EventLabel = FormatEventCountScientific(EventsPerChunk)
     FileNames = []
 
     if not Modes:
@@ -134,7 +148,6 @@ def CheckGenieFiles(Targets, Events, Modes=None, Flavors=None):
                 if Flavor not in GlobalV.GenFlavorScales:
                     raise ValueError(f"No GENIE flavor scale defined for {Flavor}")
 
-                # NChunks = int(NuMuNChunks * GlobalV.GenFlavorScales[Flavor])
                 NChunks = int(NuMuNChunks* GlobalV.GenFlavorScales[Flavor]* GlobalV.GenModeScales[Mode])
 
                 if NChunks < 1:
@@ -152,7 +165,7 @@ def CheckGenieFiles(Targets, Events, Modes=None, Flavors=None):
 
                     for i in range(NChunks):
 
-                        GenName = f"Original_GENIE{GenieVersion}_{Tune}_{Mode}_{Flavor}_{Erange}_{TargetLabel}_{EventsPerChunk}P{i:03}.root"
+                        GenName = f"Original_GENIE{GenieVersion}_{Tune}_{Mode}_{Flavor}_{Erange}_{TargetLabel}_{EventLabel}P{i:03}.root"
                         GenName = GenName.replace("+", "")
 
                         FlatName = GenName.replace("Original", "Flat")
@@ -346,7 +359,7 @@ def gev_gen_genie(events: int, i: int, job: dict):
       -t "{job['TargetPDG']}" \
       -n {events} \
       -e {job['Emin']},{job['Emax']} \
-      -f {job['Flux_directory']}/full_flat_flux_{job['Emin']}-{job['Emax']}GeV.root,FlatHist_{job['Emin']} \
+      -f {job['Flux_directory']}/flat_flux_{job['Emin']}-{job['Emax']}GeV.root,FlatHist_{job['Emin']} \
       -p {job['FlavorPDG']} \
       --event-generator-list {job['Mode']} \
       --seed {seed} \
@@ -363,7 +376,7 @@ def gev_gen_genie(events: int, i: int, job: dict):
 
     return f"{job['output_dir']}/{out_name}"
 
-def gen_series(Events: int, final_directory: str, job: dict):
+def gen_series(Events: int, EventsPerJob: int, final_directory: str, job: dict):
     """Generate GENIE files serially and return list of filenames."""
 
     output_dir = job["output_dir"]
@@ -375,8 +388,6 @@ def gen_series(Events: int, final_directory: str, job: dict):
     output_path.mkdir(parents=True)
 
     out_files = []
-
-    EventsPerJob = 100
 
     if Events % EventsPerJob != 0:
         raise ValueError(
@@ -443,7 +454,7 @@ def gen_flatten(original_file: str, job: dict):
       -i "{original_path}" \
       -t "{job['TargetPDG']}" \
       -o "{prep_file}" \
-      -f "{job['Flux_directory']}/full_flat_flux_{job['Emin']}-{job['Emax']}GeV.root,FlatHist_{job['Emin']}"
+      -f "{job['Flux_directory']}/flat_flux_{job['Emin']}-{job['Emax']}GeV.root,FlatHist_{job['Emin']}"
     """
 
     print("Preparing GENIE file...")
@@ -481,7 +492,7 @@ def find_expected_file(directory: str, filename: str):
         return file_path
     return None
                     
-def GenerateGenie(Generator, Events, Target=None, Mode=None, Flavor=None, Multi=None):
+def GenerateGenie(Generator, Events, EventsPerJob, Target=None, Mode=None, Flavor=None, Multi=None):
     FilePaths, Targets = DirectorySetup(Generator)
 
     if Target is not None:
@@ -567,7 +578,7 @@ def GenerateGenie(Generator, Events, Target=None, Mode=None, Flavor=None, Multi=
                         "Emax": Emax,
                         "Erange": Erange,
                         "output_dir": tmpdir,
-                        "Flux_directory": "/data/t2k-nova/fluxes",
+                        "Flux_directory": f"{OutPath}/FlatFluxes",
                     }
                     if flat_file is not None:
                         print(f"Skipping {target_name} {Mode} {Flavor} {Erange}: found {flat_file.name}")
@@ -584,6 +595,7 @@ def GenerateGenie(Generator, Events, Target=None, Mode=None, Flavor=None, Multi=
                     print(f"Generating {target_name} {Mode} {Flavor} {Erange} with {FlavorEvents} events")
                     genie_files, final_genie, final_copy = gen_series(
                         Events=FlavorEvents,
+                        EventsPerJob=EventsPerJob,
                         final_directory=final_dir,
                         job=job,
                     )
@@ -1065,7 +1077,7 @@ def FlatNeut(GenList, CardList):
         else:
             print(f"NEUT FILE {FlatName} exists and works")
 
-def Generate(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=None, CPUPercent=None, NChunks=None):
+def Generate(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=None, CPUPercent=None, NChunks=None, EventsPerJob=None):
     # Grab/Make paths for output generated files
 
     if OutPath==None:
@@ -1077,7 +1089,8 @@ def Generate(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=None, 
         if CPUPercent and NChunks:
             FileNames = CheckGenieFiles(
                 Targets=Targets,
-                Events=NChunks,   # multiprocessing interpretation: NuMu NChunks
+                NChunks=NChunks,   
+                EventsPerChunk=Events,
                 Modes=Mode,
                 Flavors=Flavor,
             )
@@ -1085,9 +1098,13 @@ def Generate(Generator, Events, Tune=None, Target=None, Mode=None, Flavor=None, 
         elif CPUPercent or NChunks:
             raise ValueError("Need both CPUPercent and NChunk for multi processing")
         else:
+            if EventsPerJob is None:
+                raise ValueError("Serial GENIE generation requires --EventsPerJob")
+            
             GenerateGenie(
                 Generator=Generator,
                 Events=Events,
+                EventsPerJob=EventsPerJob,
                 Target=Target,
                 Mode=Mode,
                 Flavor=Flavor,
@@ -1200,6 +1217,7 @@ if __name__ =="__main__":
     GenParser.add_argument("--flavor",  nargs="+",default=None)
     GenParser.add_argument("--CPUPercent", default=None, type=float)
     GenParser.add_argument("--NChunks", default=None, type=int)
+    GenParser.add_argument("--EventsPerJob", default=None, type=int)
     #If Being called by GenSubmit on multiple Nodes:
     NeutMultParser = subparsers.add_parser("NeutMult")
     NeutMultParser.add_argument("--Files",  nargs="+", required=True)
@@ -1232,6 +1250,7 @@ if __name__ =="__main__":
             Flavor=args.flavor,
             CPUPercent=args.CPUPercent,
             NChunks=args.NChunks,
+            EventsPerJob=args.EventsPerJob,
         )
     elif args.command=="NeutMult":
         if args.CPUPercent:
@@ -1263,23 +1282,24 @@ if __name__ =="__main__":
     # MakeNeutCards(Tune, Targets,Events)
     # GenNeutXsec(Tune,Targets)
     
-    # source /data/t2k-nova/MainSetup.sh
+    # source /data/t2k-nova/Setups/MainSetup.sh
     # export PUFIN_OUT=/data/t2k-nova/PUfINOutputs/Test
 
 
     # For Series:
     # python GenMain.py Gen \
     # --generator Genie \
-    # --events 400 
+    # --events 400 \
+    # --EventsPerJob 100
         
-    ## For Multi-core: (remember events = nChuncks for NuMu)
+    ## For Multi-core: 
     # python GenMain.py Gen \
     #   --generator Genie \
-    #   --events 50000 \
+    #   --events 1000 \
     #   --target Carbon \
     #   --mode CC \
     #   --flavor NuMu \
     #   --CPUPercent 50 \
-    #   --NChunks 5
+    #   --NChunks 2
     
    
