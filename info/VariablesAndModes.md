@@ -179,19 +179,18 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
   <tr> <h2 id="evis-variables"> Evis Variables </h2> </tr>
   <tr> <td><b> Variable: </b></td>   <td><b> Key: </b></td> </tr>
  
-  <tr> <td>Lorem ipsum ...</td>   <td> Evis_1 </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> Evis_2 </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> Evis_2_PFSI </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> Evis_3 </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> Evis_kin </td> </tr>
+  <tr> <td>The visible energy from simulation q0 - KE(neutrons) - mass(pions) + Elep </td>   <td> Evis_sim </td> </tr>
+  <tr> <td> Added up energy from a E_had + ELep </td>   <td> Ecal_simple </td> </tr>
+  <tr> <td> Ecal_simple but using pre-fsi hadronic energy </td>   <td> Ecal_simple_pre </td> </tr>
+  <tr> <td> Ehad_inc + ELep </td>   <td> Ecal </td> </tr>
+  <tr> <td> Kinematic rerconstruction of Neutrino energy using outgoing lepton momentum and angle. </td>   <td> Ekin </td> </tr>
 
-  <tr> <td>Lorem ipsum ...</td>   <td> E_had </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> E_had_PFSI </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> Ehad_3 </td> </tr>
+  <tr> <td> Adds up energy in the final state from protons, pions, electrons and photons </td>   <td> E_had </td> </tr>
+  <tr> <td> Hadronic energy pre-fsi </td>   <td> E_had_pre </td> </tr>
+  <tr> <td> Ehad but including other less common particles </td>   <td> Ehad_inc </td> </tr>
   
-  <tr> <td>Lorem ipsum ...</td>   <td> Eres_kin </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> Eres_kin2 </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> Eres_cal </td> </tr>
+  <tr> <td> Resolution of the kinematic reconstruction (Ekin-Etrue)/Etrue</td>   <td> Eres_kin </td> </tr>
+  <tr> <td> Calerometric reconstuction resolution (Ekin-Ecal)/Etrue </td>   <td> Eres_cal </td> </tr>
 </table>
 </td> 
 <!-- Table 2 -->
