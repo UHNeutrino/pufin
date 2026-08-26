@@ -202,18 +202,18 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
  <!-- which of the following returns a scalar? -->
   <tr> <td> Lepton momentum &dagger; </td>   <td> PLep </td> </tr>
   <tr> <td> Max proton momentum (in FS) </td>   <td> PProton1 </td> </tr>
-  <tr> <td> Max proton momentum (Pre-FSI) </td>   <td> PProton1_PFSI </td> </tr>
+  <tr> <td> Max proton momentum (Pre-FSI) </td>   <td> PProton1_pre </td> </tr>
   <tr> <td> Proton momentum </td>   <td> PProton </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> CosProton </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> CosProton_PFSI </td> </tr>
+  <tr> <td> Cosin of the angle of the highest momentum proton</td>   <td> CosProton </td> </tr>
+  <tr> <td> CosProton for the proton pre fsi </td>   <td> CosProton_pre </td> </tr>
  
   <tr> <td> Max &pi;<sup>+</sup> momentum (in FS) </td>   <td> PPionPlus </td> </tr>
-  <tr> <td> Max &pi;<sup>+</sup> momentum (Pre-FSI) </td>   <td> PPionPlus_PFSI </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> PPionMax </td> </tr>
-  <tr> <td>Lorem ipsum ...</td>   <td> CosPion </td> </tr>
+  <tr> <td> Max &pi;<sup>+</sup> momentum (Pre-FSI) </td>   <td> PPionPlus_pre </td> </tr>
+  <tr> <td> Returns the highest momentum of all pion </td>   <td> PPionMax </td> </tr>
+  <tr> <td> Cosin of the angle of the highest momentum pion</td>   <td> CosPion </td> </tr>
   <!-- link full description for CosPion in Extended Variable Descriptions? -->
   
-  <tr> <td>Lorem ipsum ...</td>   <td> initNeucMag </td> </tr>
+  <tr> <td> Momentum of the nucleon before interaction </td>   <td> PNucleon_init </td> </tr>
   <tr> <td> Muon KE </td>   <td> Muon_KE </td> </tr>
   <tr> <td> Maximum Pion KE (any &pi; charge) </td>
         <td> PionMax_KE </td> </tr>
@@ -228,36 +228,36 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
  <tr> <td> Neutrino Momentum (as cartesian vector) </td>   <td> PNu </td> </tr>
  <tr> <td> p<sub>T</sub><sup>lep</sup> (transverse lepton momentum) </td>   <td> PTLep </td> </tr>
  <tr> <td> p<sub>T</sub><sup>had</sup> (transverse hadron momentum) </td>   <td> PTHad </td> </tr>
- <tr> <td> p<sub>T</sub><sup>had</sup> (Pre-FSI) </td>   <td> PTHad_PFSI </td> </tr>
+ <tr> <td> p<sub>T</sub><sup>had</sup> (Pre-FSI) </td>   <td> PTHad_pre </td> </tr>
  <tr> <td> p<sub>T</sub><sup>proMax</sup> (largest proton p<sub>T</sub>) </td>   <td> PTProton1 </td> </tr>
  <tr> <td> p<sub>T</sub><sup>&pi;Max</sup> (largest pion p<sub>T</sub>) </td>   <td> PTPion1 </td> </tr>
- <tr> <td> p<sub>T</sub><sup>&pi;Max</sup> (Pre-FSI) </td>   <td> PTPion1_PFSI </td> </tr>
+ <tr> <td> p<sub>T</sub><sup>&pi;Max</sup> (Pre-FSI) </td>   <td> PTPion1_pre </td> </tr>
 
  <!-- how do these relate to standard "dalphat" variable in root files -->
  <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT_Had </td> </tr>
  <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT </td> </tr>
  <tr> <td>Lorem ipsum ...</td>   <td> CosDeltaAlphaT </td> </tr>
  <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT_pion </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaAlphaT_pre </td> </tr>
  
  <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_Had </td> </tr>
  <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT </td> </tr>
  <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_pion </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_pre </td> </tr>
  
  <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_Had </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_Had_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_Had_pre </td> </tr>
  <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_pre </td> </tr>
  <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_pion </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_pion_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_y_pion_pre </td> </tr>
  
  <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_Had </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_Had_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_Had_pre </td> </tr>
  <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_pre </td> </tr>
  <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_pion </td> </tr>
- <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_pion_PFSI </td> </tr>
+ <tr> <td>Lorem ipsum ...</td>   <td> DeltaPT_x_pion_pre </td> </tr>
 </table>
 </td> 
 <!-- Table 4 -->

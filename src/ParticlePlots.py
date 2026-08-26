@@ -48,7 +48,7 @@ def DefineKinematics(df):
     """)
     
     # Momentum of the highest momentum proton after the neutrino interaction, but BEFORE FSI (scalar)
-    df = df.Define("PProton1_PFSI", """
+    df = df.Define("PProton1_pre", """
     double max_proton_p_pfsi = -1.0; // Initialize to a negative value
     for (size_t i = 0; i < pdg_vert.size(); ++i) {
         if (pdg_vert[i] == 2212) { // Proton
@@ -112,7 +112,7 @@ def DefineKinematics(df):
     """)
     
     # Momentum of the highest momentum pion(+) after the neutrino interaction, but BEFORE FSI (scalar)
-    df = df.Define("PPionPlus_PFSI", """
+    df = df.Define("PPionPlus_pre", """
     double max_pi_p_pfsi = -1.0; // Initialize to a negative value
     for (size_t i = 0; i < pdg_vert.size(); ++i) {
         if (pdg_vert[i] == 211) { // Pi+
@@ -149,7 +149,7 @@ def DefineKinematics(df):
     """)
     
     # Cosine of the angle the highest momentum proton (BEFORE FSI) makes with the initial neutrino direction
-    df = df.Define("CosProton_PFSI", """
+    df = df.Define("CosProton_pre", """
     double cos_proton_pfsi = -5.0;
     double max_proton_ppfsi = -1.0;
     int max_index = -1;
@@ -170,9 +170,8 @@ def DefineKinematics(df):
 
     return cos_proton_pfsi;
     """)
-    
-    #df = df.Filter("PProton1 >= 0")
-    df = df.Define("initNeucMag", """
+
+    df = df.Define("PNucleon_init", """
     float mags;
     for (size_t i = 0; i < px_init.size(); ++i) {
         int pdg = pdg_init[i];
@@ -403,7 +402,7 @@ def DefineTKI(df):
     """)
     
     # Transverse Momentum of Hadrons after the neutrino interaction, BEFORE FSI (Including Neutrons): Protons, +/-/0 Pions, Neutrons
-    df = df.Define("PTHad_PFSI", """
+    df = df.Define("PTHad_pre", """
         double px_had_pfsi = 0;
         double py_had_pfsi = 0;
         double pz_had_pfsi = 0;
@@ -462,7 +461,7 @@ def DefineTKI(df):
     """)
     
     # Transverse momentum of the highest momentum pion after the neutrino interaction and before FSI. Returns a vector.
-    df = df.Define("PTPion1_PFSI", """
+    df = df.Define("PTPion1_pre", """
         TVector3 ppion_pfsi(0, 0, 0);
         TVector3 Best_pfsi(0, 0, 0);
         double Best_mag = -5.0;
@@ -483,7 +482,7 @@ def DefineTKI(df):
     """)
     
     # Transverse momentum of the highest momentum proton after the neutrino interaction and before FSI. Returns a vector.
-    df = df.Define("PTProton1_PFSI", """
+    df = df.Define("PTProton1_pre", """
         TVector3 pproton_pfsi(0, 0, 0);
         TVector3 Best_pfsi(0, 0, 0);
         double Best_mag = -5.0;
@@ -583,8 +582,8 @@ def DefineTKI(df):
     """)
     
     # Delta alpha-T using just the lepton and the highest momentum proton before FSI to calculate delta PT.
-    df = df.Define("DeltaAlphaT_PFSI", """
-        TVector3 delta_p_T_pfsi = PTLep + PTProton1_PFSI;
+    df = df.Define("DeltaAlphaT_pre", """
+        TVector3 delta_p_T_pfsi = PTLep + PTProton1_pre;
 
         double dot = -(PTLep.Dot(delta_p_T_pfsi));
         double magLep = PTLep.Mag();
@@ -631,9 +630,9 @@ def DefineTKI(df):
     """)
     
     # Delta PT using the lepton and the highest momentum proton before FSI.
-    df = df.Define("DeltaPT_PFSI", """
+    df = df.Define("DeltaPT_pre", """
         TVector3 delta_p_T_pfsi(PTLep.X(), PTLep.Y(), PTLep.Z());
-        delta_p_T_pfsi += PTProton1_PFSI;
+        delta_p_T_pfsi += PTProton1_pre;
             
         return delta_p_T_pfsi.Mag();
     """)
@@ -651,8 +650,8 @@ def DefineTKI(df):
     # Componet of delta pt that is parallel to the transverse momentum transfer vector q_T 
     # using the lepton and entire hadronic system to calculate delta pt
     # calculated BEFORE FSI
-    df = df.Define("DeltaPT_y_Had_PFSI", """
-        TVector3 delta_pt_had_pfsi = PTLep + PTHad_PFSI;        
+    df = df.Define("DeltaPT_y_Had_pre", """
+        TVector3 delta_pt_had_pfsi = PTLep + PTHad_pre;        
         double pTlep = PTLep.Mag();
         if (pTlep == 0 || pTlep != pTlep) return -5.0;   
         TVector3 qT_hat = (-1.0 / pTlep) * PTLep;        
@@ -672,8 +671,8 @@ def DefineTKI(df):
     # Componet of delta pt that is parallel to the transverse momentum transfer vector q_T 
     # using just the letpton and the highest momentum proton to calculate delta pt
     # calculated BEFORE FSI
-    df = df.Define("DeltaPT_y_PFSI", """
-        TVector3 delta_pt_pfsi = PTLep + PTProton1_PFSI;        
+    df = df.Define("DeltaPT_y_pre", """
+        TVector3 delta_pt_pfsi = PTLep + PTProton1_pre;        
         double pTlep = PTLep.Mag();
         if (pTlep == 0 || pTlep != pTlep) return -5.0;   
         TVector3 qT_hat = (-1.0 / pTlep) * PTLep;        
@@ -693,8 +692,8 @@ def DefineTKI(df):
     # Componet of delta pt that is parallel to the transverse momentum transfer vector q_T 
     # using just the letpton, the highest momentum proton and the highest momentum pion to calculate delta pt
     # calculated BEFORE FSI
-    df = df.Define("DeltaPT_y_pion_PFSI", """
-        TVector3 delta_pt_pfsi_pp = PTLep + PTProton1_PFSI + PTPion1_PFSI;        
+    df = df.Define("DeltaPT_y_pion_pre", """
+        TVector3 delta_pt_pfsi_pp = PTLep + PTProton1_pre + PTPion1_pre;        
         double pTlep = PTLep.Mag();
         if (pTlep == 0 || pTlep != pTlep) return -5.0;   
         TVector3 qT_hat = (-1.0 / pTlep) * PTLep;        
@@ -722,8 +721,8 @@ def DefineTKI(df):
     # Componet of delta pt that is perpendicular to the transverse momentum transfer vector q_T
     # using the lepton and entire hadronic system to calculate delta pt
     # calculated BEFORE FSI
-    df = df.Define("DeltaPT_x_Had_PFSI", """
-        TVector3 delta_pt_had_pfsi = PTLep + PTHad_PFSI;
+    df = df.Define("DeltaPT_x_Had_pre", """
+        TVector3 delta_pt_had_pfsi = PTLep + PTHad_pre;
         double pnu = PNu.Mag();
         double pTlep = PTLep.Mag();
         if (pnu == 0 || pTlep == 0) return -5.0;
@@ -758,8 +757,8 @@ def DefineTKI(df):
     # Componet of delta pt that is perpendicular to the transverse momentum transfer vector q_T
     # using the just the lepton and the highest momentum proton to calculate delta pt
     # calculated BEFORE FSI
-    df = df.Define("DeltaPT_x_PFSI", """
-        TVector3 delta_pt_pfsi = PTLep + PTProton1_PFSI;
+    df = df.Define("DeltaPT_x_pre", """
+        TVector3 delta_pt_pfsi = PTLep + PTProton1_pre;
         double pnu = PNu.Mag();
         double pTlep = PTLep.Mag();
         if (pnu == 0 || pTlep == 0) return -5.0;
@@ -795,8 +794,8 @@ def DefineTKI(df):
     # Componet of delta pt that is perpendicular to the transverse momentum transfer vector q_T
     # using the just the lepton, the highest momentum proton and the highest momentum pion to calculate delta pt
     # calculated BEFORE FSI
-    df = df.Define("DeltaPT_x_pion_PFSI", """
-        TVector3 delta_pt_pp_pfsi = PTLep + PTProton1_PFSI + PTPion1_PFSI;
+    df = df.Define("DeltaPT_x_pion_pre", """
+        TVector3 delta_pt_pp_pfsi = PTLep + PTProton1_pre + PTPion1_pre;
         double pnu = PNu.Mag();
         double pTlep = PTLep.Mag();
         if (pnu == 0 || pTlep == 0) return -5.0;
