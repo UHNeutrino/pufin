@@ -1,5 +1,6 @@
 import os
 import argparse
+import math
 import time
 import GenMain
 import subprocess
@@ -92,16 +93,16 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
 
     Generator = "GENIE"
     CORES_PER_NODE = 48
-    MAX_GENIE_CORES = 40
-    MEMORY_PER_CORE_GB = 2
+    MAX_GENIE_CORES = 20
+    MEMORY_PER_CORE_GB = 5
 
     FilePath, Targets = GenMain.DirectorySetup(Generator, SingleTarget=Target, Mode=Mode)
     GenMain.FlatFluxMaker()
-    GenMain.GlobalV.GenieEventsPerChunk = Events
 
     FileNames = GenMain.CheckGenieFiles(
         Targets=Targets,
-        Events=NChunks,
+        NChunks=NChunks,
+        EventsPerChunk=Events,
         Modes=Mode,
         Flavors=Flavor,
     )
@@ -144,7 +145,8 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
         MemoryGB = CoresForNode * MEMORY_PER_CORE_GB
 
         # SlurmTime = GenieTimeEstimator(NodeFiles)
-        SlurmTime = GenieTimeEstimator(NodeFiles, CoresForNode)
+        # SlurmTime = GenieTimeEstimator(NodeFiles, CoresForNode)
+        SlurmTime = "02:00:00"
         FilesFormatted = " ".join(NodeFiles)
         print(f"Cores on Node {Node}: {CoresForNode}")
         print(f"Memory request: {MemoryGB} GB")
@@ -156,8 +158,10 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
         --nodes=1 \\
         --ntasks-per-node=1 \\
         --cpus-per-task={CoresForNode} \\
+        --exclusive \\
         --time={SlurmTime} \\
         --mem={MemoryGB}G \\
+        --exclude=compute-6-9,compute-6-10,compute-6-36,compute-6-59,compute-4-32,compute-5-24,compute-5-25 \\
         --job-name=GENIE{Node+1}of{TotalNodes} \\
         --output=GENIEGeneration_{Node+1}of{TotalNodes}_%j.out \\
         --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && python GenMain.py GenieMult --Files {FilesFormatted} --CPUPercent {CPUPercent}'"
@@ -172,43 +176,44 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
         time.sleep(2)
         
 def GenieTimeEstimator(Files, NCores):
-    """Estimate GENIE wall time from measured per-event performance."""
-
-    if len(Files) == 0:
-        raise ValueError("Cannot estimate GENIE time with no files")
+    """Estimate GENIE generation, preparation, and flattening wall time."""
+    if not Files:
+        raise ValueError("Files cannot be empty.")
 
     if NCores <= 0:
-        raise ValueError("NCores must be greater than zero")
+        raise ValueError("NCores must be positive.")
 
-    SECONDS_PER_EVENT = 3600 / 100000
-    SAFETY_FACTOR = 1.25
+    SECONDS_PER_WAVE_AT_10K = 150
+    SAFETY_FACTOR = 1.5
+    MINIMUM_SECONDS = 300
+    MAXIMUM_SECONDS = 86400
 
-    TotalSeconds = 0
+    events_per_chunk = int(float(Files[0].split("_")[7].split("P")[0]))
 
-    for File in Files:
-        EventsAndPart = File.split("_")[7]
-        Events = int(EventsAndPart.split("P")[0])
+    effective_cores = min(NCores, len(Files))
+    waves = math.ceil(len(Files) / effective_cores)
 
-        TotalSeconds += Events * SECONDS_PER_EVENT
+    event_scale = events_per_chunk / 10000
 
-    EffectiveCores = min(NCores, len(Files))
-
-    TotalSeconds = int(
-        (TotalSeconds / EffectiveCores) * SAFETY_FACTOR
+    total_seconds = int(
+        waves
+        * SECONDS_PER_WAVE_AT_10K
+        * event_scale
+        * SAFETY_FACTOR
     )
 
-    TotalSeconds = max(TotalSeconds, 60)
+    total_seconds = max(total_seconds, MINIMUM_SECONDS)
 
-    if TotalSeconds >= 86400:
+    if total_seconds >= MAXIMUM_SECONDS:
         raise ValueError(
-            "GENIE allocation exceeding 24hrs, "
-            "use more nodes or fewer chunks per node"
+            "GENIE allocation exceeds 24 hours; use more nodes "
+            "or fewer chunks per node."
         )
 
-    t = time.gmtime(TotalSeconds)
-    SlurmTime = time.strftime("%H:%M:%S", t)
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
 
-    return SlurmTime
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 
 def NeutTimeEstimator(Files, NCores):
