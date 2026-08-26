@@ -3,6 +3,7 @@ import array as pyarray
 import os
 import src.SetupFunctions as SF
 import re
+import time
 
 
 SF.setupRoot()
@@ -1589,17 +1590,13 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
     ) = reweight_cfg
     
     flux_file = ROOT.TFile.Open(rwRootFile, "READ")
-    hist = flux_file.Get(histName)  
+    hist = flux_file.Get(histName)
+    print(f"using flux: {rwRootFile}")
     print(histName)
+    time.sleep(1)
     hist.SetDirectory(0)  
     flux_file.Close()
 
-    # if (areaB):
-    #     integral1 = hist.Integral("width")  # Use "width" to integrate over bin widths (important for variable bins)
-    #     if integral1 > 0:
-    #         hist.Scale(1.0 / integral1)
-    #     else:
-    #         raise ValueError("Histogram has zero integral; cannot normalize.")
     print("original width integral")
     print(hist.Integral("width"))
 
