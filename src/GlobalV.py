@@ -139,4 +139,3 @@ GenModeScales = {
     "NC": 0.1,
 }
 
-GenieEventsPerChunk = 100000
