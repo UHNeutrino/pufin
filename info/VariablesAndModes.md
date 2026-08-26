@@ -201,8 +201,8 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
 
  <!-- which of the following returns a scalar? -->
   <tr> <td> Lepton momentum &dagger; </td>   <td> PLep </td> </tr>
-  <tr> <td> Max proton momentum (in FS) </td>   <td> PProton1 </td> </tr>
-  <tr> <td> Max proton momentum (Pre-FSI) </td>   <td> PProton1_pre </td> </tr>
+  <tr> <td> Max proton momentum (in FS) </td>   <td> PProtonMax </td> </tr>
+  <tr> <td> Max proton momentum (Pre-FSI) </td>   <td> PProtonMax </td> </tr>
   <tr> <td> Proton momentum </td>   <td> PProton </td> </tr>
   <tr> <td> Cosin of the angle of the highest momentum proton</td>   <td> CosProton </td> </tr>
   <tr> <td> CosProton for the proton pre fsi </td>   <td> CosProton_pre </td> </tr>

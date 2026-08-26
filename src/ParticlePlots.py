@@ -23,7 +23,7 @@ def DefineKinematics(df):
     #df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
     
     # Momentum of the highest momentum proton in the final state (scalar)
-    df = df.Define("PProton1", """
+    df = df.Define("PProtonMax", """
     double max_proton_p = -1.0; // Initialize to a negative value
     for (size_t i = 0; i < pdg.size(); ++i) {
         if (pdg[i] == 2212) { // Proton
@@ -36,19 +36,8 @@ def DefineKinematics(df):
     return max_proton_p;
     """)
     
-    df = df.Define("PProton", """
-    double proton_p = -1.0; // Initialize to a negative value
-    for (size_t i = 0; i < pdg.size(); ++i) {
-        if (pdg[i] == 2212) { // Proton
-            proton_p = std::sqrt(px[i] * px[i] + py[i] * py[i] + pz[i] * pz[i]);
-            
-        }
-    }
-    return proton_p;
-    """)
-    
     # Momentum of the highest momentum proton after the neutrino interaction, but BEFORE FSI (scalar)
-    df = df.Define("PProton1_pre", """
+    df = df.Define("PProtonMax", """
     double max_proton_p_pfsi = -1.0; // Initialize to a negative value
     for (size_t i = 0; i < pdg_vert.size(); ++i) {
         if (pdg_vert[i] == 2212) { // Proton
@@ -854,20 +843,20 @@ def FlagParticleThresholds(df):
     else:
         df = df.Define("flagNovaMuonP", f"(PLep > 0.490)")
     if "flagNovaProtonP" in cols:
-        df = df.Redefine("flagNovaProtonP", f"(PProton > .600)")
+        df = df.Redefine("flagNovaProtonP", f"(PProtonMax > .600)")
     else:
-        df = df.Define("flagNovaProtonP", f"(PProton > .600)")
+        df = df.Define("flagNovaProtonP", f"(PProtonMax > .600)")
     df = df.Define("flagNovaPionPlusP", f"(PPionMax > .364)") # ~ KE>250 from Palash
     df = df.Define("flagNovaPion_KE", f"(PionMax_KE > .250)") 
     df = df.Define("flagNovaCosPion", f"CosPion > 0.342") # Palash cc 1 pi analysis @ NOvA
     df = df.Define("flagT2KMuonP", f"(PLep > 0.200)") # T2K technote 199
-    df = df.Define("flagT2KProtonP", f"(PProton > 0.450)") # value from T2K technote
+    df = df.Define("flagT2KProtonP", f"(PProtonMax > 0.450)") # value from T2K technote
     df = df.Define("flagT2KPionPlusP", f"(PPionMax > 0.05)") # Michelle Tracking
     df = df.Define("flagT2KCosLep", f"(CosLep > 0.2)") # T2K technote 199 for a 1Pi+ analysis
     df = df.Define("flagIcarusBnbMuonP_Aspirational", f"(PLep > 0.085)") # from Dan
     df = df.Define("flagIcarusBnbMuonP_Conservative", f"(PLep > 0.115)") # from Dan
-    df = df.Define("flagIcarusBnbProtonP_Aspirational", f"(PProton > 0.310)") # from Dan
-    df = df.Define("flagIcarusBnbProtonP_Conservative", f"(PProton > 0.445)") # from Dan
+    df = df.Define("flagIcarusBnbProtonP_Aspirational", f"(PProtonMax > 0.310)") # from Dan
+    df = df.Define("flagIcarusBnbProtonP_Conservative", f"(PProtonMax > 0.445)") # from Dan
     df = df.Define("flagIcarusBnbPionPlusP_Aspirational", f"(PPionMax > .095)") # from Dan
     df = df.Define("flagIcarusBnbPionPlusP_Conservative", f"(PPionMax > .170)") # from Dan
     df = df.Define("flagIcarusBnbZeroPiAboveThreshold_Conservative", f"(PPionMax < .170)") # from Dan
