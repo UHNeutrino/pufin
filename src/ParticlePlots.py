@@ -224,7 +224,7 @@ def DefineKinematics(df):
 
 def DefineEvis(df):
     # Define Evis_1 where EavAlt = q0 - KE(neutrons) - mass(pions)
-    df = df.Define("Evis_1", "EavAlt + ELep")
+    df = df.Define("Evis_sim", "EavAlt + ELep")
     
     # E_had = KE (protons & charged pions) + E (pi0, e+/-, photons)
     df = df.Define("E_had", """
@@ -244,7 +244,7 @@ def DefineEvis(df):
         return e_had;
     """)
     # E_had after the neutrino interaction, but before FSI
-    df = df.Define("E_had_PFSI", """
+    df = df.Define("E_had_pre", """
         double e_had_pfsi = 0;
         for (size_t i = 0; i < pdg_vert.size(); ++i) {
             int pdg_val = pdg_vert[i];
@@ -261,11 +261,11 @@ def DefineEvis(df):
         return e_had_pfsi;
     """)
 
-    # Add Evis_2 to dataframe (based on Erecoil from nuisance)
-    df = df.Define("Evis_2", "E_had + ELep")
+    # Add Ecal_simple to dataframe (based on Erecoil from nuisance)
+    df = df.Define("Ecal_simple", "E_had + ELep")
     
-    # Evis_2 after the neutrino interaction but BEFORE FSI
-    df = df.Define("Evis_2_PFSI", "E_had_PFSI + ELep")
+    # Ecal_simple after the neutrino interaction but BEFORE FSI
+    df = df.Define("Ecal_simple_Pre", "E_had_pre + ELep")
     
     # E_had3 = kTrueEavail_NT from CAFAna/Vars/TruthVArs.cxx
     # E_had3 = skip bindinos & nucleons + total energy minus proton mass of (Primarily) strange baryons
@@ -273,7 +273,7 @@ def DefineEvis(df):
     # + total energy plus proton mass of (primarily) anti-protons 
     # since anhillation is mostly the interaction mode
     # + if no neutrons or leptons (mostly kaons) just add all the energy
-    df = df.Define("E_had3", """
+    df = df.Define("E_had_inc", """
         double e_had3 = 0;
         for (size_t i = 0; i < pdg.size(); ++i) {
             int pdg_val = pdg[i];
@@ -311,14 +311,14 @@ def DefineEvis(df):
         return e_had3;
     """)
 
-    # Add Evis_3 to data frame (based on code from NOvA)
-    df = df.Define("Evis_3", "E_had3 + ELep")
+    # Add Ecal to data frame (based on code from NOvA)
+    df = df.Define("Ecal", "E_had_inc + ELep")
 
     # nabbed formula from https://indico.fnal.gov/event/53004/contributions/244614/attachments/158383/207801/interactionModelTalk.pdf
     # Assuming we're using Carbon 12, might be wrong on that!
 
     # Eb from Bodek paper for neutron in C+O
-    df = df.Define("Evis_kin", """
+    df = df.Define("Ekin", """
                 double Energy = -9999.9;
                 double Mp = .938272;
                 double Mn = .93956;
@@ -330,27 +330,14 @@ def DefineEvis(df):
                 }
                 return Energy;
                    """)
-    
     df = df.Define("Eres_kin","""
-                double EnergyResKin = ((Evis_kin-Enu_true)/Enu_true);
-                if (EnergyResKin > 10.0)
-                {
-                    EnergyResKin = 10.0;
-                }
-                if (EnergyResKin < -10.0)
-                {
-                    EnergyResKin = -10.0;
-                }
-                return EnergyResKin;
-                   """)
-    df = df.Define("Eres_kin2","""
-                double EnergyResKin2 = ((Evis_kin-Enu_true)/Enu_true);
+                double EnergyResKin = ((Ekin-Enu_true)/Enu_true);
         
-                return EnergyResKin2;
+                return EnergyResKin;
                    """)
 
     df = df.Define("Eres_cal","""
-                double EnergyResCal = (Evis_3-Enu_true) / Enu_true;
+                double EnergyResCal = (Ecal-Enu_true) / Enu_true;
               
                 return EnergyResCal;
                    """)
@@ -953,70 +940,8 @@ def Savehist(hist, AxisInfo, save_location, filename, ext, max = None, Normalize
     hist.Write("hist")
     c.Write("canvas")
     root_file.Close()
-    
 
-def SaveHistSame(hist1, hist2, hist3, AxisInfo, save_location, filename, ext, max=None, Normalize=0):
-    """Saves multiple 1D histograms on the same canvas."""
-
-    xvar = AxisInfo[0]
-    xunit = AxisInfo[1]
-    yvar = AxisInfo[2]
-    yunit = AxisInfo[3]
-    PlotTitle = AxisInfo[4]
-
-    c = ROOT.TCanvas()
-    legend = ROOT.TLegend(0.6, 0.6, 0.89, 0.79)  # Adjust legend position as needed
-
-    hist1 = SF.formatHist(hist1, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
-    hist2 = SF.formatHist(hist2, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
-    hist3 = SF.formatHist(hist3, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
-    
-    # for i, hist in enumerate(hist_list): #iterate through the rresultptr objects
-    #     if max is not None:
-    #         hist = SF.formatHist(hist, xvar, xunit, yvar, yunit, max=max, PlotTitle=PlotTitle)
-    #     else:
-    #         hist = SF.formatHist(hist, xvar, xunit, yvar, yunit, PlotTitle=PlotTitle)
-
-        # if Normalize == 1:
-        #     scale = 1 / (hist.Integral())
-        #     hist.Scale(scale)
-
-        # elif Normalize == 2:
-        #     hist.SetMaximum(3000)
-        #     c.SetLogz()
-
-    # Manual color and style settings:
-    hist1.SetLineColor(ROOT.kBlue)
-    hist1.SetLineWidth(2)
-
-    hist2.SetLineColor(ROOT.kBlack)
-    hist2.SetLineWidth(2)
-
-    hist3.SetLineColor(ROOT.kOrange+2)
-    hist3.SetLineStyle(2)  # Dotted line
-    hist3.SetLineWidth(2)
-
-    hist2.Draw("HIST")
-    hist3.Draw("HIST SAME")
-    hist1.Draw("HIST SAME")
-
-    legend.AddEntry(hist1, "Evis 1", "l")
-    legend.AddEntry(hist2, "Evis 2", "l")
-    legend.AddEntry(hist3, "Evis 3", "l")
-
-    SF.formatTcanvasSame(c)  # Format the canvas based on the first histogram
-    legend.Draw("SAME") #draw legend.
-    c.SaveAs(f"{save_location}/{filename}.{ext}")
-    root_file = ROOT.TFile(
-        f"{save_location}/{filename}.root",
-        "RECREATE",
-    )
-    hist1.Write("hist1")
-    hist2.Write("hist2")
-    hist3.Write("hist3")
-    c.Write("canvas")
-    root_file.Close()
-    
+  
 def Savehist2DWithProfile(hist1, prof1, AxisInfo, save_location, filename, ext,
                           max=0, Normalize=False, logz=False, diagonal=False, 
                           draw2d_opt="COLZ"):
