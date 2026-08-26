@@ -215,8 +215,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
   
   <tr> <td> Momentum of the nucleon before interaction </td>   <td> PNucleon_init </td> </tr>
   <tr> <td> Muon KE </td>   <td> Muon_KE </td> </tr>
-  <tr> <td> Maximum Pion KE (any &pi; charge) </td>
-        <td> PionMax_KE </td> </tr>
+  <tr> <td> Maximum Pion KE (any &pi; charge) </td> <td> PionMax_KE </td> </tr>
 </table>
 </td> 
 <!-- Table 3 -->
