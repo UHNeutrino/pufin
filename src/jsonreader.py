@@ -221,7 +221,7 @@ def MakePlots(plots, GlobalSettings):
                 hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"],"weights")
             else:
                 hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"])
-            if(plots["profileX"]):
+            if(plots.get("profileX")):
                 h2 = hist.GetValue()
                 h2.SetDirectory(0)
                 p1 = h2.ProfileX("hProfileX", 1, -1, "s")
@@ -289,7 +289,7 @@ def MakePlots(plots, GlobalSettings):
         else:
             ext = "png"
 
-        if (plots["profileX"]): 
+        if (plots.get("profileX")): 
             pp.Savehist2DWithProfile(hist, p1,AxisInfo,GlobalSettings["Save"],fileN,ext,max = plots.get("max"), Normalize=False, logz = plots["logz"], diagonal=plots["diagonal"]) 
         else:
             pp.Savehist(hist,AxisInfo,GlobalSettings["Save"],fileN,ext,max = plots.get("max"), Normalize=False, logz = plots["logz"])
