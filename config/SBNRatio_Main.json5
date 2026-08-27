@@ -1,0 +1,55 @@
+{
+    "global":
+        {
+            "userFolder":"/data/t2k-nova/FlatTrees",
+            "treeName":"FlatTree_VARS",
+            "Save": "/home/kpendleton/SavedPlots/SBNPlots",
+            "DebugLvl":0,
+            "EvisB": false,
+            "KinematicsB":false,
+            "TkiB": {{TKI}},
+            "ThresholdsB": false,
+            "DebugPrint":0,
+            "DebugMode":false,
+            "SavePdf":false,
+            "Palette":"kRainBow",
+            "FluxReweight":{
+                "FluxPath": "/data/t2k-nova/fluxes/bnb_icarus_numu_histogram.root",
+                "FluxHistogram": "hNuE_FV_ZFRONT_FULL_ERANGE",
+                "AreaNormFlag":true,  
+                //-------------------------------------------------------------------------------------   
+                "XsecType":"G",
+                "UndoFluxNormFlag":false,
+                "TargetWeightsFile": "./config/TargetWeights.json5",
+                "Detector":"Nova",
+                "Target":"C12",
+                "XsecMode": "total",
+                "XsecPath":"/data/t2k-nova/xsec-splines/genie_xsec/v3_06_00/NULL/N2420i0211b-k250-e1000/data/xsec_graphs.root",
+                "Flavor": "nu_mu",
+                "NucleonsPerTarget":12
+                }
+        },
+    "2DRatio":
+        {
+            "File1":"Flat_NEUT6.1.4_ArgonDCC_1e7",
+            "File2":"Flat_GenieAR23_onAr_flatf_0-5GeV_NumuCC_SuSAv2_ghep_1e7",
+            // "Cut": "flagCC0pi==1 && Q2 <= 0.15", // For no cuts, type ""
+            // "Cut": "flagCC0pi==1 && Q2 > 0.15 && Q2 <= 0.3", // For no cuts, type ""
+            // "Cut": "flagCC0pi==1 && Q2 > 0.3 && Q2 <= 0.5", // For no cuts, type ""
+            "Cut": "flagCC0pi==1 && {{RANGE}}", // For no cuts, type ""
+            // "Cut": "flagCC0pi==1", // For no cuts, type ""
+            "Var1": "q3",
+            "Var2": "q0",
+            // "AxisInfo":"q3, GeV, q0, GeV, Neut/Genie for Q^{2} <= 0.15",
+            // "AxisInfo":"q3, GeV, q0, GeV, Neut/Genie for  0.15 < Q^{2} <= 0.30",
+            // "AxisInfo":"q3, GeV, q0, GeV, Neut/Genie for 0.3 < Q^{2} <= 0.5",
+            "AxisInfo":"q3, GeV, q0, GeV, Neut/Genie ({{DISPRANGE}})",
+            "BinsX": [50, 0, 2.5], 
+            "BinsY": [40, 0, 2], 
+            "Name": "0PiRatio_{{VAR}}_{{N}}",
+            // "max": 3, //individual histogram maxes when saved
+            "RatioMax":2,
+            "RatioMin":0,
+            "logz": false,
+        },
+}

@@ -1,0 +1,64 @@
+{
+    "MultiPlotter":
+        {
+            "MakePlots": false, 
+            "MakeConfigs": false,
+            "RetrieveConfigs": "/home/kpendleton/testing", //un-comment directory to retrieve
+            "StashConfigs": "/home/kpendleton/testing", //un-comment directory to stash
+            "TemplateConfig": "DCCRS_RatioMain.json5", 
+            // Below used to create unique config file names
+            "MultiConfigTag": "TEST", 
+            "Tag_1": ["N", 2], // [variable tag from Level_1, position in MultiConfig name after MultiConfigTag]
+            "Tag_2": ["VAR", 0],
+            "Tag_3": ["TAG", 1],
+            "Tag_4": ["AUXVAR", 3],
+            // Include corresponding tag for each active level
+            "Levels":
+                {"Level_2":
+                {
+                    "VAR":  ["PLep", "CosLep"],//, "q0",      "Enu_true", "q3"],
+                    "UNIT": ["GeV/c",""],//,       "GeV/c",   "GeV",      "GeV"],
+                    "TKI":  [false,  true],//,     false,     false,      false],
+                    // CHANGE CUTS
+                    "CUT1": [0.35,   0.56],//,      0.49,      0.90,      0.65],
+                    "CUT2": [0.60,   0.76],//,      0.64,      1.20,      0.90],
+                    "CUT3": [1.00,   0.92],//,      0.86,      1.50,      1.20],
+                    // "FILE": ["Flat_NEUT6.1.4_ArgonDCC_1e7", "Flat_GenieAR23_onAr_flatf_0-5GeV_NumuCC_SuSAv2_ghep_1e7"],
+                    // "NAME": ["NEUT6", "GENIEAr23"],
+                    // Don't need NAME/FILE for ratios, do need for contours to distinguish files
+
+                },
+                "Level_1":
+                {
+                    // "VAR":  ["PLep", "DeltaAlphaT", "DeltaPT", "Enu_true"],
+                    // "UNIT": ["GeV/c","",            "GeV/c",   "GeV"],
+                    // "TKI":  [false,  true,          true,      false],
+                    // "CUT1": [0.49,   80,            0.15,      0.65],
+                    // "CUT2": [0.53,   120,           0.35,      1.00],
+                    // "CUT3": [1.20,   160,           0.45,      1.35],
+                    "RANGE": ["{{VAR}} < {{CUT1}}", 
+                        "{{VAR}} > {{CUT1}} && {{VAR}} <= {{CUT2}}", 
+                        "{{VAR}} > {{CUT2}} && {{VAR}} <= {{CUT3}}", 
+                        "{{VAR}} > {{CUT3}}"],
+                    "DISPRANGE": ["{{VAR}} < {{CUT1}}",
+                        "{{CUT1}} < {{VAR}} <= {{CUT2}}", 
+                        "{{CUT2}} < {{VAR}} <= {{CUT3}}", 
+                        "{{VAR}} > {{CUT3}}"],
+                    "N": ["1of4", "2of4", "3of4", "4of4"], 
+                    // Don't need "Nof4"/RANGEs for contours, do need for ratios to distinguish cuts
+                },
+                "Level_3":
+                {
+                    "TARGET": ["Oxygen", "Carbon"],
+                    "DCCFILE": ["Flat_NEUT6.1.4_OxygenDCC", "Flat_NEUT6.1.4_CarbonDCC"],
+                    "RSFILE": ["Flat_NEUT6.1.4_OxygenRS", "Flat_NEUT6.1.4_OxygenDCC"],
+                    "TAG": ["Ox", "Carb"],
+
+                },
+                "Level_4":
+                {
+                    "AUXVAR": ["test1", "test2"]
+                }
+            }
+        }  
+}
