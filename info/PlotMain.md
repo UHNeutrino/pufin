@@ -4,6 +4,24 @@
 
 PlotMain.py is a plotting function that uses interaction data in flattened root files as well as flux histograms to output organized files and figures with several extensions (.root, .png, and/or .pdf). This function can be used to reweight and plot data in a variety of forms (as outlined [here](#functionality)) and also supports [custom variables](VariablesAndModes.md#using-pufin-custom-variables) not included in standard root trees.
 
+<details>
+
+<summary> <b>
+  Useful Resources 
+</b> </summary>
+
++ Find or generate color schemes using ROOT's [TColor Class Reference](https://root.cern.ch/doc/v636/classTColor.html)
+  
++ Set other line attributes by referencing ROOT's [TAttLine Class Reference](https://root.cern.ch/doc/v630/classTAttLine.html)
+  > Check [src/jsonreader.py](src/jsonreader.py)
+    for attribute support in each PlotMain plotting type
+
++ Identify Nuisance interaction mode codes with [Nuisance HEPForge](https://nuisance.hepforge.org/tutorials/interaction_modes.html)
+  or this [internal document](info/VariablesAndModes.md)
+
++ Identify NEUT, GENIE, and PUfIN variables by referencing [VariablesAndModes.md](info/VariablesAndModes.md)
+
+</details>
 
 <details>
 <summary><h2> Outline </h2></summary>
