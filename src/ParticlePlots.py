@@ -232,6 +232,38 @@ def DefineEvis(df):
         }
         return e_had;
     """)
+    df = df.Define("E_had_less", """
+            double e_had = 0;
+            for (size_t i = 0; i < pdg.size(); ++i) {
+                int pdg_val = pdg[i];
+                double energy = E[i]; // E is a value in ttree
+    
+                if (pdg_val == 2212) { // Proton
+                    e_had += energy - 0.938; // KE of proton
+                } else if (pdg_val == 211 || pdg_val == -211) { // Charged pion
+                    e_had += energy - 0.1396; // KE of charged pion
+                }
+                else if (pdg_val == 111) { // Charged pion
+                    e_had += energy - 0.13498; // KE of charged pion
+                } 
+            }
+            return e_had;
+        """)
+    df = df.Define("E_had_QE", """
+            double e_had = 0;
+            for (size_t i = 0; i < pdg.size(); ++i) {
+                int pdg_val = pdg[i];
+                double energy = E[i]; // E is a value in ttree
+    
+                if (pdg_val == 2212) { // Proton
+                    e_had += energy - 0.938; // KE of proton
+                } 
+                //else if (pdg_val == 11 || pdg_val == -11 || pdg_val == 22) { // electron, positron, photon
+                //    e_had += energy; // Total energy
+                //}
+            }
+            return e_had;
+        """)
     # E_had after the neutrino interaction, but before FSI
     df = df.Define("E_had_pre", """
         double e_had_pfsi = 0;
@@ -330,6 +362,26 @@ def DefineEvis(df):
               
                 return EnergyResCal;
                    """)
+
+
+    df = df.Define("q0_proxy","""
+                    double q0_proxy = E_had_QE ;
+                  
+                    return q0_proxy;
+                       """)
+
+    df = df.Define("Q2_proxy","""
+                        double Mu = .105608;
+                        double Q2_proxy = 2*Ecal*(ELep-PLep*CosLep)-TMath::Power(Mu,2);
+                        return Q2_proxy;
+                           """)
+
+    df = df.Define("q3_proxy","""
+                    double q3_proxy = std::sqrt(Q2_proxy + TMath::Power(q0_proxy,2));
+                  
+                    return q3_proxy;
+                       """)
+    
 
     return df
 

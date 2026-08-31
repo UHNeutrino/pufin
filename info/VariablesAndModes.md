@@ -188,9 +188,12 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
   <tr> <td> Adds up energy in the final state from protons, pions, electrons and photons </td>   <td> E_had </td> </tr>
   <tr> <td> Hadronic energy pre-fsi </td>   <td> E_had_pre </td> </tr>
   <tr> <td> Ehad but including other less common particles </td>   <td> Ehad_inc </td> </tr>
-  
+  <tr> <td> Ehad including KE of Protons and Pions </td>   <td> E_had_less </td> </tr>
+  <tr> <td> Ehad including KE of Protons and energy of electrons + photons </td>   <td> E_had_QE </td> </tr>
+
   <tr> <td> Resolution of the kinematic reconstruction (Ekin-Etrue)/Etrue</td>   <td> Eres_kin </td> </tr>
   <tr> <td> Calerometric reconstuction resolution (Ekin-Ecal)/Etrue </td>   <td> Eres_cal </td> </tr>
+  <tr> <td> reconstucted proxies for q0, q3, and Q^2 using truth variables </td>   <td> q0,Q2,q3_proxy </td> </tr>
 </table>
 </td> 
 <!-- Table 2 -->
