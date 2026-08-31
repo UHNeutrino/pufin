@@ -401,6 +401,18 @@ def Make2DRatio(Ratio2D, GlobalSettings):
         ratio.SetMinimum(Ratio2D["RatioMin"])
         ratio.SetMaximum(Ratio2D["RatioMax"])
 
+    if Ratio2D.get("MissingPS"):
+        zmin = -1 * ratio.GetMaximum()
+        binsx = Fhist1.GetNbinsX()
+        binsy = Fhist1.GetNbinsY()
+        for i in range(1, binsx+1):
+            for j in range(1, binsy+1):
+                Numerator = Fhist1.GetBinContent(i,j)
+                Denominator = Fhist2.GetBinContent(i,j)
+                if Numerator > 0 and Denominator == 0:
+                    ratio.SetBinContent(i,j, zmin)
+        ratio.SetMinimum(zmin)
+
     nx = datetime.datetime.now()
     x = str(nx)
     fileN = Ratio2D["Name"]
