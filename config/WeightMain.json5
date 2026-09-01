@@ -32,19 +32,19 @@
         "enabled": true,
         "flux_inputs": {
           "NuMu": {
-            /path/to/you/flux/file
+            "rw_file": "/path/to/you/flux/file",
             "rw_flux": "numu"
           },
           "NuMuBar": {
-            /path/to/you/flux/file
+            "rw_file": "/path/to/you/flux/file",
             "rw_flux": "numubar"
           },
           "NuE": {
-            /path/to/you/flux/file
+            "rw_file": "/path/to/you/flux/file",
             "rw_flux": "nue"
           },
           "NuEBar": {
-            /path/to/you/flux/file
+            "rw_file": "/path/to/you/flux/file",
             "rw_flux": "nuebar"
           }
         },
@@ -64,7 +64,7 @@
         "Name": "test100ccnumu_autoWF_v3",
         "Ext": "png",
         "Norm": false,
-        "max": -1
+        "max": null
       }
     }
   }

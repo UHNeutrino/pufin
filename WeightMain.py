@@ -264,7 +264,8 @@ def save_outputs(total_hist, component_hists, same1d, global_settings):
     fout = ROOT.TFile(root_path, "RECREATE")
     
     img_ext = same1d.get("Ext", "png")
-    pp.HOME = base_out
+    # pp.HOME = base_out
+    pp.HOME = save_dir
     
     pp.Savehist(
         total_hist,
@@ -606,3 +607,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+### export PUFIN_OUT=/data/t2k-nova/PUfINOutputs
