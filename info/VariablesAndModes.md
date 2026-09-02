@@ -182,12 +182,12 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
   <tr> <td>The visible energy from simulation q0 - KE(neutrons) - mass(pions) + Elep </td>   <td> Evis_sim </td> </tr>
   <tr> <td> Added up energy from a E_had + ELep </td>   <td> Ecal_simple </td> </tr>
   <tr> <td> Ecal_simple but using pre-fsi hadronic energy </td>   <td> Ecal_simple_pre </td> </tr>
-  <tr> <td> Ehad_inc + ELep </td>   <td> Ecal </td> </tr>
+  <tr> <td> E_had_inc + ELep </td>   <td> Ecal </td> </tr>
   <tr> <td> Kinematic rerconstruction of Neutrino energy using outgoing lepton momentum and angle. </td>   <td> Ekin </td> </tr>
 
   <tr> <td> Adds up energy in the final state from protons, pions, electrons and photons </td>   <td> E_had </td> </tr>
   <tr> <td> Hadronic energy pre-fsi </td>   <td> E_had_pre </td> </tr>
-  <tr> <td> Ehad but including other less common particles </td>   <td> Ehad_inc </td> </tr>
+  <tr> <td> Ehad but including other less common particles </td>   <td> E_had_inc </td> </tr>
   <tr> <td> Ehad including KE of Protons and Pions </td>   <td> E_had_less </td> </tr>
   <tr> <td> Ehad including KE of Protons and energy of electrons + photons </td>   <td> E_had_QE </td> </tr>
 
