@@ -113,22 +113,36 @@ git clone https://github.com/UHNeutrino/PUfIN/
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
 
-+ ```"File":```
-+ ```"Type":```
-+ ```"Cut":```
-+ ```"Var1"```
-+ ```"Var2"```
-+ ```"AxisInfo":```
-+ ```"Bins":```
-  + For ```"Type": 1D```:
-  + For ```"Type": 2D```:
++ ```"File1":``` file (as a string)
++ ```"Type":``` plot dimensionality (```"1D"``` or ```"2D"```)
++ ```"Cut":``` see [making cuts](VariablesAndModes.md#making-cuts-with-variables-flags--modes) for more information
++ ```"Var1":``` x-axis variable
++ &dagger;```"Var2"``` y-axis variable (when ```"Type": "2D"```)
++ ```"AxisInfo":``` entered as a single string with entries separated by commas in the following form
+  
+  ```
+    "x-axis variable, Var1 unit, y-axis variable, Var2 unit, plot title"
+  ```
+  > for 1D, leave unused fields blank: ``` "x-axis variable, Var1 unit, , , plot title" ```
++ ```"Bins":``` 
+  + For ```"Type": 1D```: entered as a list in the following form
+  
+  ```
+  [number of bins along x-axis, x-min, x-max]
+  ```
+  
+  + For ```"Type": 2D```: entered as a list in the following form
+  
+  ```
+  [number of bins along x-axis, x-min, x-max, number of bins along y-axis, y-min, y-max]
+  ```
 + &dagger;```"VBins":```
-+ ```"Name":```
-+ ```"max":```
-+ ```"logz":```
-+ &dagger;```"profileX":```
-+ &dagger;```"diagonal":```
-+ &dagger;```"Style":```
++ ```"Name":``` name that created files will be saved as (entered as a string without extensions)
++ &dagger;```"max":``` manually maximum plot value (entered as a number, or omitted for automatic scaling)
++ ```"logz":``` sets z-axis (number of interactions) to a log scale (```true```/```false```)
++ &dagger;```"profileX":``` (?) activate by including ```"profileX": true```
++ &dagger;```"diagonal":``` (?) activate by including ```"diagonal": true```
++ &dagger;```"Style":``` line style (see ROOT's [TAttLine Class Reference](https://root.cern.ch/doc/v630/classTAttLine.html) for line style codes)
 
 </details>
 
@@ -137,41 +151,48 @@ git clone https://github.com/UHNeutrino/PUfIN/
   
 <!-- Example plots entry and link to config file with another example -->
 
+> Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":```
 ```
-1D example config
+// 1D configuration
+    "plots":
+        {
+            "File":"Flat_GenieAR23_onAr_flatf_0-5GeV_NumuCC_SuSAv2_ghep_1e7",
+            "Type":"1D",
+            "Cut": "flagCCINC == true",
+            "Var1": "Enu_true",
+            "AxisInfo":"E_{#nu}, GeV, Interactions,  , GENIEAr23 BNB CC-INC",
+            "Bins": [160, 0, 8], // doesn't affect binning since VBins is activated
+            "VBins":[true,[0.0, 0.1, 0.2, 0.34, 0.4, 0.5, 0.6, 0.70, 0.8, 0.9, 1.0, 1.1, 1.200, 1.3, 1.40, 1.5, 1.6, 1.7, 1.8, 1.91, 2.0, 2.1, 2.2, 2.3, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.5, 5.0] ],
+            "Name": "GENIEAR23_Enu_true",
+            "logz": false,
+        }
 ```
 
 ```
 2D example config
 ```
 
-<table><tr>
 
-<td valign="top">
 <table>
-  <tr> <b> 1D Plot </b> </tr>
-  <tr> <td> 
-  <!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
-  </td> </tr> 
-  <tr> <td>
-  <!-- type plot description here -->
-  </td> </tr>
-</table>
-</td>
-
-<td valign="top">
-<table>
-  <tr> <b> 2D Plot </b> </tr>
-  <tr> <td> 
+  <!-- <tr> <b> 1D Plot </b> </tr> -->
+  <tr> 
+  <td> 
+  <img width="896" height="472" alt="image" src="https://github.com/user-attachments/assets/086a7631-712a-463f-900a-1c0f10184757" />
+  </td> 
+  <td> 
   <!-- To add 2D plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
-  </td> </tr> 
-  <tr> <td>
+  </td>
+  </tr> 
+  
+  <tr> 
+  <td>
+  A plot, made using the 1D configuration above, showing the number of events (predicted by GENIE on Ar23) for different values of E<sub>&nu;</sub> using variable bin widths.
+  </td> 
+  <td>
   <!-- type 2D plot description here -->
-  </td> </tr>
+  </td> 
+  </tr>
 </table>
-</td>
-
-</tr></table>
 
 > See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
