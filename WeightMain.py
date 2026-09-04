@@ -608,4 +608,6 @@ def main():
 if __name__ == "__main__":
     main()
     
-### export PUFIN_OUT=/data/t2k-nova/PUfINOutputs
+### For UH_1: export PUFIN_OUT=/data/t2k-nova/PUfINOutputs
+### For carya: export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts
+### python WeightMain.py KristenWeightMain
