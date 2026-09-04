@@ -213,7 +213,15 @@ def DefineKinematics(df):
 
 def DefineEvis(df):
     # Define Evis_1 where EavAlt = q0 - KE(neutrons) - mass(pions)
-    df = df.Define("Evis_sim", "EavAlt + ELep")
+    df = df.Define("Evis_sim", """
+            const int abs_pdg = std::abs(PDG[0]);
+
+            if (abs_pdg == 11 || abs_pdg == 13) {
+                return EavAlt + ELep;
+            }
+
+            return EavAlt;
+                """)
     
     # E_had = KE (protons & charged pions) + E (pi0, e+/-, photons)
     df = df.Define("E_had", """
@@ -283,10 +291,26 @@ def DefineEvis(df):
     """)
 
     # Add Ecal_simple to dataframe (based on Erecoil from nuisance)
-    df = df.Define("Ecal_simple", "E_had + ELep")
+    df = df.Define("Ecal_simple", """
+            const int abs_pdg = std::abs(PDG[0]);
+
+            if (abs_pdg == 11 || abs_pdg == 13) {
+                return E_had + ELep;
+            }
+
+            return E_had;
+                """)
     
     # Ecal_simple after the neutrino interaction but BEFORE FSI
-    df = df.Define("Ecal_simple_Pre", "E_had_pre + ELep")
+    df = df.Define("Ecal_simple_Pre", """
+            const int abs_pdg = std::abs(PDG[0]);
+
+            if (abs_pdg == 11 || abs_pdg == 13) {
+                return E_had_pre + ELep;
+            }
+
+            return E_had_pre;
+                """)
     
     # E_had3 = kTrueEavail_NT from CAFAna/Vars/TruthVArs.cxx
     # E_had3 = skip bindinos & nucleons + total energy minus proton mass of (Primarily) strange baryons
@@ -333,7 +357,15 @@ def DefineEvis(df):
     """)
 
     # Add Ecal to data frame (based on code from NOvA)
-    df = df.Define("Ecal", "E_had_inc + ELep")
+    df = df.Define("Ecal", """
+            const int abs_pdg = std::abs(PDG[0]);
+
+            if (abs_pdg == 11 || abs_pdg == 13) {
+                return E_had_inc + ELep;
+            }
+
+            return E_had_inc;
+                """)
 
     # nabbed formula from https://indico.fnal.gov/event/53004/contributions/244614/attachments/158383/207801/interactionModelTalk.pdf
     # Assuming we're using Carbon 12, might be wrong on that!
