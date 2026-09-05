@@ -214,12 +214,9 @@ def DefineKinematics(df):
 def DefineEvis(df):
     # Define Evis_1 where EavAlt = q0 - KE(neutrons) - mass(pions)
     df = df.Define("Evis_sim", """
-            const int abs_pdg = std::abs(pdg[0]);
-
-            if (abs_pdg == 11 || abs_pdg == 13) {
-                return EavAlt + ELep;
-            }
-
+            if (flagCCINC == 1)
+                return E_avAlt + ELep;               
+                
             return EavAlt;
                 """)
     
@@ -292,22 +289,16 @@ def DefineEvis(df):
 
     # Add Ecal_simple to dataframe (based on Erecoil from nuisance)
     df = df.Define("Ecal_simple", """
-            const int abs_pdg = std::abs(pdg[0]);
-
-            if (abs_pdg == 11 || abs_pdg == 13) {
+            if (flagCCINC == 1)
                 return E_had + ELep;
-            }
 
             return E_had;
                 """)
     
     # Ecal_simple after the neutrino interaction but BEFORE FSI
     df = df.Define("Ecal_simple_Pre", """
-            const int abs_pdg = std::abs(pdg[0]);
-
-            if (abs_pdg == 11 || abs_pdg == 13) {
+            if (flagCCINC == 1)
                 return E_had_pre + ELep;
-            }
 
             return E_had_pre;
                 """)
@@ -358,11 +349,8 @@ def DefineEvis(df):
 
     # Add Ecal to data frame (based on code from NOvA)
     df = df.Define("Ecal", """
-            const int abs_pdg = std::abs(pdg[0]);
-
-            if (abs_pdg == 11 || abs_pdg == 13) {
+            if (flagCCINC == 1)
                 return E_had_inc + ELep;
-            }
 
             return E_had_inc;
                 """)
