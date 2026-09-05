@@ -215,7 +215,7 @@ def DefineEvis(df):
     # Define Evis_1 where EavAlt = q0 - KE(neutrons) - mass(pions)
     df = df.Define("Evis_sim", """
             if (flagCCINC == 1)
-                return E_avAlt + ELep;               
+                return EavAlt + ELep;               
                 
             return EavAlt;
                 """)
