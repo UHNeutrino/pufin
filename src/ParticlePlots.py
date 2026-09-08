@@ -1671,7 +1671,10 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         xsecpath,
         nucpert,
     ) = reweight_cfg
-    
+
+    if areaB == False and xsecmode == "G":
+        Fscale = Fscale * 1e-38 
+        
     flux_file = ROOT.TFile.Open(rwRootFile, "READ")
     hist = flux_file.Get(histName)
     print(f"using flux: {rwRootFile}")
@@ -1703,22 +1706,7 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         spline_width_integral0 += spline0.Eval(x) * w
     print("spline width-integral0 (hist-like) =", spline_width_integral0)
     
-    # ABSOLUTE SCALE: Convert bin normalized histo to "per-bin" contents and apply Fscale
-    # if xspline:
-    #     Gen_code = xspline[0]
-    #     VersionCode = xspline.replace(Gen_code,"")
-    #     Genie_code = xspline if xspline.startswith("Genie") else ""
-    # else:
-    #     Gen_code = "X"
-    #     VersionCode = "X"
-    #     Genie_code = ""
-    # if Gen_code == "N" and VersionCode[0]=="R":
-    #     ChannelCode = VersionCode[-2] + VersionCode[-1]
-    #     VersionCode = VersionCode.replace(ChannelCode,"")
-    # print(Gen_code)
-    # print(VersionCode)
-    # print(xspline)
-    # exit()
+
 
     if xsectype == "G":
         pathx = xsecpath
@@ -1727,59 +1715,20 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         CCpath = f"{flavor}_{target}/tot_cc"
         NCpath = f"{flavor}_{target}/tot_nc"
         
-        # CCpath = "nu_mu_Ar40/tot_cc"
-        # NCpath = "nu_mu_Ar40/tot_nc"
-        # CCpath = "nu_mu_H1/tot_cc"
-        # NCpath = "nu_mu_H1/tot_nc"
-        # CCpath = "nu_mu_Cl35/tot_cc"
-        # NCpath = "nu_mu_Cl35/tot_nc"
-        # CCpath = "nu_mu_Ti48/tot_cc"
-        # NCpath = "nu_mu_Ti48/tot_nc"
-        # CCpath = "nu_mu_O16/tot_cc"
-        # NCpath = "nu_mu_O16/tot_nc"
-        # cc_npath = "nu_mu_C12/tot_cc_n"
-        # cc_ppath = "nu_mu_C12/tot_cc_p"
-        # cc_cohpath = "nu_mu_C12/coh_cc"
-        # cc_dispath = "nu_mu_C12/dis_cc"
-        # cc_resppath = "nu_mu_C12/res_cc_p"
-        # cc_resnpath = "nu_mu_C12/res_cc_n"
-        # cc_mecpath = "nu_mu_C12/mec_cc"
-        # cc_qel_n = "nu_mu_C12/qel_cc_n"
-        # nc_npath = "nu_mu_C12/tot_nc_n"
-        # nc_ppath = "nu_mu_C12/tot_nc_p"
         
         fx = ROOT.TFile.Open(pathx, "READ")
         if not fx or fx.IsZombie():
             raise RuntimeError(f"Could not open xsec file: {pathx}")
 
         g_cc = fx.Get(CCpath)
-        # g_cc_n = fx.Get(cc_npath)
-        # g_cc_p = fx.Get(cc_ppath)
-        # g_cc_coh = fx.Get(cc_cohpath)
-        # g_cc_dis = fx.Get(cc_dispath)
-        # g_cc_res_p = fx.Get(cc_resppath)
-        # g_cc_res_n = fx.Get(cc_resnpath)
-        # g_cc_mec = fx.Get(cc_mecpath)
-        # g_cc_qel_n = fx.Get(cc_qel_n)
-        # g_nc_n = fx.Get(nc_npath)
-        # g_nc_p = fx.Get(nc_ppath)
-        g_nc = fx.Get(NCpath)
+
         if not g_cc or not g_nc:
             fx.ls()
             raise RuntimeError(f"Missing graph(s): CC={CCpath} NC={NCpath}")
 
         # Optional: detach so closing file won’t kill them
         g_cc = g_cc.Clone("g_cc")
-        # g_cc_n = g_cc_n.Clone("g_cc_n")
-        # g_cc_p = g_cc_p.Clone("g_cc_p")
-        # g_cc_coh = g_cc_coh.Clone("g_cc_coh")
-        # g_cc_dis = g_cc_dis.Clone("g_cc_dis")
-        # g_cc_res_p = g_cc_res_p.Clone("g_cc_res_p")
-        # g_cc_res_n = g_cc_res_n.Clone("g_cc_res_n")
-        # g_cc_mec = g_cc_mec.Clone("g_cc_mec")
-        # g_cc_qel_n = g_cc_qel_n.Clone("g_cc_qel_n")
-        # g_nc_n = g_nc_n.Clone("g_nc_n")
-        # g_nc_p = g_nc_p.Clone("g_nc_p")
+
         g_nc = g_nc.Clone("g_nc")
         fx.Close()
         
@@ -1827,30 +1776,10 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         if xsectype == "G":
             CCxsec = float(g_cc.Eval(x))
             NCxsec = float(g_nc.Eval(x))
-            # CC_n_xsec = float(g_cc_n.Eval(x))
-            # CC_p_xsec = float(g_cc_p.Eval(x))
-            # CC_coh_xsec = float(g_cc_coh.Eval(x)) 
-            # CC_dis_xsec = float(g_cc_dis.Eval(x))
-            # CC_res_p_xsec = float(g_cc_res_p.Eval(x))
-            # CC_res_n_xsec = float(g_cc_res_n.Eval(x)) 
-            # CC_mec_xsec = float(g_cc_mec.Eval(x))
-            # CC_qel_n_xsec = float(g_cc_qel_n.Eval(x)) 
-            # NC_n_xsec = float(g_nc_n.Eval(x))
-            # NC_p_xsec = float(g_nc_p.Eval(x))
 
             # clip negatives to 0
             if CCxsec < 0: CCxsec = 0.0
             if NCxsec < 0: NCxsec = 0.0
-            # if CC_n_xsec < 0: CC_n_xsec = 0.0
-            # if CC_p_xsec < 0: CC_p_xsec = 0.0
-            # if CC_coh_xsec < 0: CC_coh_xsec = 0.0 
-            # if CC_dis_xsec < 0: CC_dis_xsec = 0.0
-            # if CC_res_p_xsec < 0: CC_res_p_xsec = 0.0
-            # if CC_res_n_xsec < 0: CC_res_n_xsec = 0.0
-            # if CC_mec_xsec < 0: CC_mec_xsec = 0.0
-            # if CC_qel_n_xsec < 0: CC_qel_n_xsec = 0.0
-            # if NC_n_xsec < 0: NC_n_xsec = 0.0
-            # if NC_p_xsec < 0: NC_p_xsec = 0.0
             if xsecmode == "CC":
                 xsec = CCxsec / nucpert
             elif xsecmode == "NC":
@@ -1859,10 +1788,6 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
                 xsec = (CCxsec + NCxsec) / nucpert
             else:
                 raise ValueError("XsecMode must be either 'CC', 'NC' or 'total'")
-            #xsec = CCxsec/12 
-            #xsec = (CC_coh_xsec/12) + (CC_dis_xsec/12) + (CC_res_p_xsec/12) + (CC_res_n_xsec/12) + (CC_mec_xsec/12) + (CC_qel_n_xsec/12)
-            #xsec = (CC_n_xsec/12) + (CC_p_xsec/12) + (CC_coh_xsec/12) + (CC_mec_xsec/12)
-            #xsec = (CC_n_xsec/12) + (CC_p_xsec/12) + (NC_n_xsec/12) + (NC_p_xsec/12)
         elif xsectype == "N":
             xsec = neut_spline.Eval(x)
             if xsecTester<10:
@@ -2042,6 +1967,8 @@ def defineWeightsSplineStage2(
             hist.Scale(1.0 / integral1)
         else:
             raise ValueError("Histogram has zero integral; cannot normalize.")
+    elif areaB == False and xsec_mode == "G":
+        Fscale = Fscale *1e-38
 
     print("original flux width integral")
     print(hist.Integral("width"))

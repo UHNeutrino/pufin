@@ -115,7 +115,6 @@ def CalculateTargetWeightFactor(targets_file, detector, target):
         "exp_pot",
         "flux_pot",
         "fv_nucleon_targets",
-        "xsec_units",
         "flux_gev_norm",
         "flux_cm_conv",
         "target_percent",
@@ -138,7 +137,6 @@ def CalculateTargetWeightFactor(targets_file, detector, target):
     exp_pot = float(detector_cfg["exp_pot"])
     flux_pot = float(detector_cfg["flux_pot"])
     fv_nucleon_targets = float(detector_cfg["fv_nucleon_targets"])
-    xsec_units = float(detector_cfg["xsec_units"])
     flux_gev_norm = float(detector_cfg["flux_gev_norm"])
     flux_cm_conv = float(detector_cfg["flux_cm_conv"])
     target_percent = float(target_percents[target])
@@ -156,7 +154,6 @@ def CalculateTargetWeightFactor(targets_file, detector, target):
         exp_pot
         * fv_nucleon_targets
         * target_percent
-        * xsec_units
         * flux_cm_conv
         / flux_pot
         / flux_gev_norm
