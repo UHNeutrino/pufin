@@ -1631,28 +1631,6 @@ def defineWeights(df, rwRootFile, histName, Fscale = 1):
 
     return df    
 
-def make_xsec_hist_like_flux(h_flux, g_cc, g_nc, name="h_xsec"):
-    nb = h_flux.GetNbinsX()
-
-    # Build edges array from flux histogram (works for variable bins too)
-    edges = [h_flux.GetXaxis().GetBinLowEdge(1)]
-    for i in range(1, nb + 1):
-        edges.append(h_flux.GetXaxis().GetBinUpEdge(i))
-    edges_arr = pyarray.array('d', edges)
-
-    h_xsec = ROOT.TH1D(name, name, nb, edges_arr)
-    h_xsec.Sumw2()
-
-    for i in range(1, nb + 1):
-        x = h_flux.GetBinCenter(i)
-        cc = float(g_cc.Eval(x))
-        nc = float(g_nc.Eval(x))
-        if cc < 0: cc = 0.0
-        if nc < 0: nc = 0.0
-        h_xsec.SetBinContent(i, cc + nc)
-
-    h_xsec.SetDirectory(0)
-    return h_xsec    
 
 # def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline = "", areaB = False, undoNormB = False):
 def defineWeightsSpline(df, reweight_cfg, label=""):
@@ -1672,7 +1650,7 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         nucpert,
     ) = reweight_cfg
 
-    if areaB == False and xsecmode == "G":
+    if areaB == False and xsectype == "G":
         Fscale = Fscale * 1e-38 
         
     flux_file = ROOT.TFile.Open(rwRootFile, "READ")
@@ -1721,6 +1699,7 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
             raise RuntimeError(f"Could not open xsec file: {pathx}")
 
         g_cc = fx.Get(CCpath)
+        g_nc = fx.Get(NCpath)
 
         if not g_cc or not g_nc:
             fx.ls()
@@ -1753,11 +1732,6 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
     else:
         raise Exception("No Matching Generator code")
     
-
-
-    ##########################################################################
-    #h_xsec = make_xsec_hist_like_flux(hist, g_cc, g_nc, name="h_xsec")
-    ##########################################################################
     
     bin_integral_unnorm = 0.0  
     xsecTester = 0 
@@ -1967,7 +1941,7 @@ def defineWeightsSplineStage2(
             hist.Scale(1.0 / integral1)
         else:
             raise ValueError("Histogram has zero integral; cannot normalize.")
-    elif areaB == False and xsec_mode == "G":
+    elif areaB == False and xspline_mode == "G":
         Fscale = Fscale *1e-38
 
     print("original flux width integral")
@@ -2112,6 +2086,8 @@ def defineWeightsSplineStage2(
 def MakeNeutXsecGraph(XsecPath, InteractionMode, Flavor="NuMu"):
     xs, ys = [], []
     # Change the flavor format to the way that it is in the neut xsec hists
+    if "_" in Flavor:
+        Flavor = Flavor.replace("_","")
     Flavor = Flavor.lower()
     if "bar" in Flavor:
         Flavor = Flavor.replace("bar","b")

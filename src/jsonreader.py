@@ -60,17 +60,17 @@ def GrabFluxReWeights(GlobalSettings):
     xsecpath = frwDict.get("XsecPath")
     if not areaB:
         nucpert = get_nucleons_per_target(target)
-        if (not undoNormB):
+        if (undoNormB == None):
             raise ValueError("Need to define 'UndoFluxNormFlag' ")
-        elif (not xsecmode):
+        elif (xsecmode == None):
             raise ValueError("Need to define 'XsecMode' ")
-        elif (not xsecpath):
+        elif (xsecpath == None):
             raise ValueError("Need to define 'XsecPath' ")
-        elif (not xsectype):
+        elif (xsectype == None):
             raise ValueError("Need to define 'XsecType' ")
-        elif (not detector):
+        elif (detector == None):
             raise ValueError("Need to define 'Detector' ")
-        elif (not target) or (not flavor):
+        elif (target== None) or (flavor== None):
             raise ValueError("Need to define 'Target' and 'Flavor' ")
     else:
         nucpert = 1
@@ -673,7 +673,7 @@ def MakeSame1D(same1D,GlobalSettings):
 
         # reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(plot)
         if "FluxReweight" in plot:
-            reweight_cfg = GrabFluxReWeights(plot)
+            reweight_cfg = GrabFluxReWeights(plot)   
         else:
             reweight_cfg = GrabFluxReWeights(GlobalSettings)
         reweight_flag = reweight_cfg[0]
