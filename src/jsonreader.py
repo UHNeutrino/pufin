@@ -162,7 +162,8 @@ def CalculateTargetWeightFactor(targets_file, detector, target):
     return Fscale
 
 def MakePlots(plots, GlobalSettings):
-    OutFileExists(GlobalSettings["Save"]+ "/" + plots["Name"]+".root")
+    if not GlobalSettings.get("Overwrite"):
+        OutFileExists(GlobalSettings["Save"]+ "/" + plots["Name"]+".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -292,7 +293,8 @@ def MakePlots(plots, GlobalSettings):
             pp.Savehist(hist,AxisInfo,GlobalSettings["Save"],fileN,ext,max = plots.get("max"), Normalize=False, logz = plots["logz"])
                 
 def Make2DRatio(Ratio2D, GlobalSettings):
-    OutFileExists(GlobalSettings["Save"]+ "/" + Ratio2D["Name"]+".root")
+    if not GlobalSettings.get("Overwrite"):
+        OutFileExists(GlobalSettings["Save"]+ "/" + Ratio2D["Name"]+".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -437,7 +439,8 @@ def Make2DRatio(Ratio2D, GlobalSettings):
 
 
 def MakeStacks(stacks,GlobalSettings):
-    OutFileExists(GlobalSettings["Save"]+ "/" + stacks["Name"]+ ".root")
+    if not GlobalSettings.get("Overwrite"):
+        OutFileExists(GlobalSettings["Save"]+ "/" + stacks["Name"]+ ".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -533,7 +536,8 @@ def MakeStacks(stacks,GlobalSettings):
 
 
 def MakeOverlap(overlap,GlobalSettings):
-    OutFileExists(GlobalSettings["Save"]+ "/" + overlap["Name"]+ ".root")
+    if not GlobalSettings.get("Overwrite"):
+        OutFileExists(GlobalSettings["Save"]+ "/" + overlap["Name"]+ ".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -622,7 +626,8 @@ def MakeOverlap(overlap,GlobalSettings):
         pp.SaveOverlapPlot(histlist, AxisInfo, Legend,save_L, Normalize=False)
         
 def MakeSame1D(same1D,GlobalSettings):
-    OutFileExists(GlobalSettings["Save"]+ "/" + same1D["Name"]+".root")
+    if not GlobalSettings.get("Overwrite"):
+        OutFileExists(GlobalSettings["Save"]+ "/" + same1D["Name"]+".root")
     userFolder = GlobalSettings["userFolder"]
     plots_list = same1D["Plots"]
     hist_dict = {}
@@ -996,7 +1001,8 @@ def MakeSame1D(same1D,GlobalSettings):
     
 
 def MakeContour(Contour,GlobalSettings):
-    OutFileExists(GlobalSettings["Save"]+ "/" + Contour["Name"]+".root")
+    if not GlobalSettings.get("Overwrite"):
+        OutFileExists(GlobalSettings["Save"]+ "/" + Contour["Name"]+".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -1066,48 +1072,47 @@ def MakeContour(Contour,GlobalSettings):
         for word in Contour["AxisInfo"].split(','):
                 AxisInfo.append(word)
         if Contour.get("AutoQuant"):
-            if Contour.get("AutoQuant")[0]:
-                x = Contour["AutoQuant"][1]
-                y = Contour["AutoQuant"][2]
-                # Get the total number of events
-                histogramInfo = ("name", f"{y} vs {x} plot", 2000000, df.Min(x).GetValue(), df.Max(x).GetValue(), 1, 0, df.Max(y).GetValue()) #just need 1 bin in y
-                if (df.HasColumn("weights")):
-                    cuthist = df.Histo2D(histogramInfo, x,y,"weights")
-                    print("weights activated1")
-                else:
-                    cuthist = df.Histo2D(histogramInfo, x,y)
-                total_events = float(cuthist.Integral())
-                # print(f"Total events: {total_events}")
-                # Define cumulative events array
-                cumulative_events = [0]
-                for i in range(1, cuthist.GetNbinsX() + 1):
-                    bin_total = sum(cuthist.GetBinContent(i, j) for j in range(1, cuthist.GetNbinsY() + 1))
-                    cumulative_events.append(cumulative_events[-1] + bin_total)
+            x = Contour["AutoQuant"][1]
+            y = Contour["AutoQuant"][2]
+            # Get the total number of events
+            histogramInfo = ("name", f"{y} vs {x} plot", 2000000, df.Min(x).GetValue(), df.Max(x).GetValue(), 1, 0, df.Max(y).GetValue()) #just need 1 bin in y
+            if (df.HasColumn("weights")):
+                cuthist = df.Histo2D(histogramInfo, x,y,"weights")
+                print("weights activated1")
+            else:
+                cuthist = df.Histo2D(histogramInfo, x,y)
+            total_events = float(cuthist.Integral())
+            # print(f"Total events: {total_events}")
+            # Define cumulative events array
+            cumulative_events = [0]
+            for i in range(1, cuthist.GetNbinsX() + 1):
+                bin_total = sum(cuthist.GetBinContent(i, j) for j in range(1, cuthist.GetNbinsY() + 1))
+                cumulative_events.append(cumulative_events[-1] + bin_total)
 
-                # Now that we have cumulative events, let's split them into x sections
-                x_bins = [df.Min(x).GetValue()]  # Start at -100
-                target_events_per_section = total_events / Contour["AutoQuant"][4]
+            # Now that we have cumulative events, let's split them into x sections
+            x_bins = [df.Min(x).GetValue()]  # Start at -100
+            target_events_per_section = total_events / Contour["AutoQuant"][4]
 
-                for i in range(1, Contour["AutoQuant"][4]):  # Divide into i sections
-                    target_events = i * target_events_per_section
-                    # Find the first bin index where the cumulative event count exceeds the target
-                    bin_idx = min(range(len(cumulative_events)), key=lambda idx: abs(cumulative_events[idx] - target_events))
-                    x_bin_edge = cuthist.GetXaxis().GetBinLowEdge(bin_idx)
-                    x_bins.append(x_bin_edge)
-                # Add the final bin edge to ensure full coverage
-                x_bins.append(cuthist.GetXaxis().GetXmax())
-                for i in range(len(x_bins) - 1):
-                    lower_bound = x_bins[i]
-                    upper_bound = x_bins[i + 1]
+            for i in range(1, Contour["AutoQuant"][4]):  # Divide into i sections
+                target_events = i * target_events_per_section
+                # Find the first bin index where the cumulative event count exceeds the target
+                bin_idx = min(range(len(cumulative_events)), key=lambda idx: abs(cumulative_events[idx] - target_events))
+                x_bin_edge = cuthist.GetXaxis().GetBinLowEdge(bin_idx)
+                x_bins.append(x_bin_edge)
+            # Add the final bin edge to ensure full coverage
+            x_bins.append(cuthist.GetXaxis().GetXmax())
+            for i in range(len(x_bins) - 1):
+                lower_bound = x_bins[i]
+                upper_bound = x_bins[i + 1]
 
-                    # Define a filter string for the current quantile
-                    cuts.append(f"{lower_bound} <= {x} && {x} < {upper_bound}")
-                    Legend.append(f" {lower_bound:.2f} <= {x} < {upper_bound:.2f}")
-                # save intermediary hist 
-                if Contour["AutoQuant"][3]:
-                    save_L0 = GlobalSettings["Save"] + "/" + "INT" +Contour["Name"] + "." + ext
-                    # c.SaveAs(save_L0)
-                    pp.SaveIntPlot(df,x,y,x_bins,save_L0)
+                # Define a filter string for the current quantile
+                cuts.append(f"{lower_bound} <= {x} && {x} < {upper_bound}")
+                Legend.append(f" {lower_bound:.2f} <= {x} < {upper_bound:.2f}")
+            # save intermediary hist 
+            if Contour["AutoQuant"][3]:
+                save_L0 = GlobalSettings["Save"] + "/" + "INT" +Contour["Name"] + "." + ext
+                # c.SaveAs(save_L0)
+                pp.SaveIntPlot(df,x,y,x_bins,save_L0)
         else:
             for cut,name in Contour["ConCuts"].items():
                 cuts.append(cut)
@@ -1121,14 +1126,12 @@ def MakeContour(Contour,GlobalSettings):
         print(AxisInfo)
         histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts, Contour["TotalPercents"])
         save_L = GlobalSettings["Save"]+ "/"+ Contour["Name"] + "." + ext
-        # if Contour["ContStyle"]:
-        #     pp.SaveContHistStyles(histlist, AxisInfo, colors, Contour["styles"], Contour["Clabels"], Contour["Slabels"], save_L, Contour["logz"])
-        # else:
         pp.SaveContHist(histlist, AxisInfo, Legend, colors, Contour["TotalPercents"], save_L, Contour["logz"])
 
 
 def MakeContourStyle(ContourStyle,GlobalSettings):
-    OutFileExists(GlobalSettings["Save"]+ "/" + ContourStyle["Name"] + ".root")
+    if not GlobalSettings.get("Overwrite"):
+        OutFileExists(GlobalSettings["Save"]+ "/" + ContourStyle["Name"] + ".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
