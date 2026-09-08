@@ -38,7 +38,7 @@ def DefineKinematics(df):
     """)
     
     # Momentum of the highest momentum proton after the neutrino interaction, but BEFORE FSI (scalar)
-    df = df.Define("PProtonMax", """
+    df = df.Define("PProtonMax_PreFSI", """
     double max_proton_p_pfsi = -1.0; // Initialize to a negative value
     for (size_t i = 0; i < pdg_vert.size(); ++i) {
         if (pdg_vert[i] == 2212) { // Proton
@@ -263,12 +263,23 @@ def DefineEvis(df):
                 if (pdg_val == 2212) { // Proton
                     e_had += energy - 0.938; // KE of proton
                 } 
-                //else if (pdg_val == 11 || pdg_val == -11 || pdg_val == 22) { // electron, positron, photon
-                //    e_had += energy; // Total energy
-                //}
+                else if (pdg_val == 11 || pdg_val == -11 || pdg_val == 22) { // electron, positron, photon
+                    e_had += energy; // Total energy
+                }
             }
             return e_had;
         """)
+    df = df.Define("Photo_Flag", """
+        bool PhotoFlag = false;
+        for (size_t i = 0; i < pdg.size(); ++i) {
+            int pdg_val = pdg[i];
+            if (pdg_val == 11 || pdg_val == -11 || pdg_val == 22) { // electron, positron, photon
+                PhotoFlag = true;
+            }
+        }
+        return PhotoFlag
+
+    """)
     # E_had after the neutrino interaction, but before FSI
     df = df.Define("E_had_pre", """
         double e_had_pfsi = 0;
