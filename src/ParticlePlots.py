@@ -162,18 +162,40 @@ def DefineKinematics(df):
     """)
 
     df = df.Define("PNucleon_init", """
-    float mags;
+    float mag;
+    float maxMag = 0.0;
     for (size_t i = 0; i < px_init.size(); ++i) {
         int pdg = pdg_init[i];
         if (pdg == 2212 || pdg == 2112){ 
             float px = px_init[i];
             float py = py_init[i];
             float pz = pz_init[i];
-            mags = std::sqrt(px*px + py*py + pz*pz);
+            mag = std::sqrt(px*px + py*py + pz*pz);
+            if (mag > maxMag){
+                maxMag = mag;
+            }
         }
     }
-    return mags;
+    return maxMag;
     """)
+
+    df = df.Define("PNucleon_vert", """
+        float mag;
+        float maxMag = 0.0;
+        for (size_t i = 0; i < px_vert.size(); ++i) {
+            int pdg = pdg_vert[i];
+            if (pdg == 2212 || pdg == 2112){ 
+                float px = px_vert[i];
+                float py = py_vert[i];
+                float pz = pz_vert[i];
+                mag = std::sqrt(px*px + py*py + pz*pz);
+                if (mag > maxMag){
+                    maxMag = mag;
+                }
+            }
+        }
+        return maxMag;
+        """)
     
     df = df.Define("Muon_KE", """
     double muonKE = -1.0;
