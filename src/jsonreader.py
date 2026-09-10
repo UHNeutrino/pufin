@@ -162,7 +162,7 @@ def CalculateTargetWeightFactor(targets_file, detector, target):
     return Fscale
 
 def MakePlots(plots, GlobalSettings):
-    if not GlobalSettings.get("Overwrite"):
+    if GlobalSettings.get("Overwrite") != True:
         OutFileExists(GlobalSettings["Save"]+ "/" + plots["Name"]+".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
@@ -293,7 +293,7 @@ def MakePlots(plots, GlobalSettings):
             pp.Savehist(hist,AxisInfo,GlobalSettings["Save"],fileN,ext,max = plots.get("max"), Normalize=False, logz = plots["logz"])
                 
 def Make2DRatio(Ratio2D, GlobalSettings):
-    if not GlobalSettings.get("Overwrite"):
+    if GlobalSettings.get("Overwrite") != True:
         OutFileExists(GlobalSettings["Save"]+ "/" + Ratio2D["Name"]+".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
@@ -439,7 +439,7 @@ def Make2DRatio(Ratio2D, GlobalSettings):
 
 
 def MakeStacks(stacks,GlobalSettings):
-    if not GlobalSettings.get("Overwrite"):
+    if GlobalSettings.get("Overwrite") != True:
         OutFileExists(GlobalSettings["Save"]+ "/" + stacks["Name"]+ ".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
@@ -536,7 +536,7 @@ def MakeStacks(stacks,GlobalSettings):
 
 
 def MakeOverlap(overlap,GlobalSettings):
-    if not GlobalSettings.get("Overwrite"):
+    if GlobalSettings.get("Overwrite") != True:
         OutFileExists(GlobalSettings["Save"]+ "/" + overlap["Name"]+ ".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
@@ -626,7 +626,7 @@ def MakeOverlap(overlap,GlobalSettings):
         pp.SaveOverlapPlot(histlist, AxisInfo, Legend,save_L, Normalize=False)
         
 def MakeSame1D(same1D,GlobalSettings):
-    if not GlobalSettings.get("Overwrite"):
+    if GlobalSettings.get("Overwrite") != True:
         OutFileExists(GlobalSettings["Save"]+ "/" + same1D["Name"]+".root")
     userFolder = GlobalSettings["userFolder"]
     plots_list = same1D["Plots"]
@@ -1001,7 +1001,7 @@ def MakeSame1D(same1D,GlobalSettings):
     
 
 def MakeContour(Contour,GlobalSettings):
-    if not GlobalSettings.get("Overwrite"):
+    if GlobalSettings.get("Overwrite") != True:
         OutFileExists(GlobalSettings["Save"]+ "/" + Contour["Name"]+".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
@@ -1130,7 +1130,7 @@ def MakeContour(Contour,GlobalSettings):
 
 
 def MakeContourStyle(ContourStyle,GlobalSettings):
-    if not GlobalSettings.get("Overwrite"):
+    if GlobalSettings.get("Overwrite") != True:
         OutFileExists(GlobalSettings["Save"]+ "/" + ContourStyle["Name"] + ".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
