@@ -220,16 +220,34 @@ git clone https://github.com/UHNeutrino/PUfIN/
   
 <!-- Example stacks entry and link to config file with another example -->
 
+> Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":```
+
 ```
-Example config
+    "stacks":
+        {
+            "File":"Flat_GenieAR23_onAr_flatf_0-5GeV_NumuCC_SuSAv2_ghep_1e7",
+            "Type":"1D", //Only 1D works now
+            "Cut": "flagCCINC == true",
+            "Var1": "Enu_true",
+            "StackCuts":{"Mode == 1": "QE", "Mode == 2":"2p2h", "( Mode ==  12 || Mode == 13 || Mode == 14 )":"Neutron Resonance",
+              "(Mode == 11 )":"Proton Resonance","( Mode == 15 )":"Diffractive Channel", "Mode == 16":"Coherent Scatter",
+              "!(Mode==1 || Mode == 2 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 11 || Mode == 15 || Mode == 16):"Other"},
+            "Colors":"#ff5e02, #c91f16, #c849a9, #adad7d, #86c8dd, #578dff, #656364",
+            "AxisInfo":"#nu Energy, GeV, Unscaled Interactions, , Genie Argon Stacked CC events",
+            "Bins": [160, 0, 6], 
+            "Name": "TEST_stacks1D",
+            // THE FOLLOWING IS NOT WORKING
+            "max": 7000, 
+            "logz": false
+        }
 ```
 
 <table>
 <tr> <td> 
-<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+<img width="996" height="572" alt="image" src="https://github.com/user-attachments/assets/6f9682df-32cd-421a-ab51-eaba6539399f" />
 </td> </tr> 
 <tr> <td>
-<!-- type plot description here -->
+Stacked CC events on Ar-23 target.
 </td> </tr>
 </table>
 
