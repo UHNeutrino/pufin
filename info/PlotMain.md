@@ -226,7 +226,6 @@ git clone https://github.com/UHNeutrino/PUfIN/
     "stacks":
         {
             "File":"Flat_GenieAR23_onAr_flatf_0-5GeV_NumuCC_SuSAv2_ghep_1e7",
-            "Type":"1D", //Only 1D works now
             "Cut": "flagCCINC == true",
             "Var1": "Enu_true",
             "StackCuts":{"Mode == 1": "QE", "Mode == 2":"2p2h", "( Mode ==  12 || Mode == 13 || Mode == 14 )":"Neutron Resonance",
@@ -236,9 +235,6 @@ git clone https://github.com/UHNeutrino/PUfIN/
             "AxisInfo":"#nu Energy, GeV, Unscaled Interactions, , Genie Argon Stacked CC events",
             "Bins": [160, 0, 6], 
             "Name": "TEST_stacks1D",
-            // THE FOLLOWING IS NOT WORKING
-            "max": 7000, 
-            "logz": false
         }
 ```
 
