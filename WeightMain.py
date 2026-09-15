@@ -246,9 +246,10 @@ def format_total_hist(total_hist, same1d: dict):
         xunit,
         yvar,
         yunit,
-        max=same1d.get("max", -1),
+        max=same1d.get("max", None),
         PlotTitle=plot_title,
     )
+
     total_hist.SetDirectory(0)
     return total_hist, axis_info
 
@@ -273,7 +274,7 @@ def save_outputs(total_hist, component_hists, same1d, global_settings):
         global_settings["Save"],
         base_name,
         img_ext,
-        max=same1d.get("max", -1),
+        max=same1d.get("max", None),
         Normalize=same1d.get("Norm", False),
         logz=False,
     )
@@ -569,7 +570,6 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict):
             total_hist.SetDirectory(0)
         else:
             total_hist.Add(target_hist)
-
         print(f"  running total integral = {total_hist.Integral()}")
 
     if total_hist is None:
