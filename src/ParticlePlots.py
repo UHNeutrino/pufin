@@ -231,6 +231,55 @@ def DefineKinematics(df):
     }
     return max_pi_ke;
     """)
+
+    df = df.Define("NucleonNoq3","""
+
+    double MaxInitialMag = -1;
+    double MaxVertexMag = -1;
+    double MaxPostFSIMag = -1;
+    int InitialIndex = -1;
+    int VertexIndex = -1;
+    int PostFSIIndex = -1;
+
+    double InitialMag = 0;
+    double VertexMag = 0;
+    double PostFSIMag = 0;
+
+    double FinalValue = 0;    
+
+    
+    for (size_t i = 0; i< pdg.size(); ++i){
+        if (pdg[i] == 2212 || pdg[i] == 2112){
+            PostFSIMag = std::sqrt(px[i]*px[i]+py[i]*py[i]+pz[i]*pz[i]);
+            if (PostFSIMag > MaxPostFSIMag) {
+                MaxPostFSIMag = PostFSIMag;
+                PostFSIIndex = i;
+            } 
+        }
+    }
+    for (size_t i = 0; i< pdg_vert.size(); ++i){
+        if (pdg_vert[i]==2212 || pdg_vert[i]==2112){
+            VertexMag = std::sqrt(px_vert[i]*px_vert[i]+py_vert[i]*py_vert[i]+pz_vert[i]*pz_vert[i]);
+            if (VertexMag > MaxVertexMag) {
+                MaxVertexMag = VertexMag;
+                VertexIndex = i;
+            }   
+        }
+    }
+    for (size_t i = 0; i< pdg_init.size(); ++i){
+        if (pdg_init[i] == 2212 || pdg_init[i]==2112){
+            InitialMag = std::sqrt(px_init[i]*px_init[i]+py_init[i]*py_init[i]+pz_init[i]*pz_init[i]);
+            if (InitialMag > MaxInitialMag) {
+                MaxInitialMag = InitialMag;
+                InitialIndex = i;
+            }
+        } 
+    }
+    
+    FinalValue = std::sqrt( TMath::Power(px[PostFSIIndex]+px_init[InitialIndex]-px_vert[VertexIndex],2) +TMath::Power(py[PostFSIIndex]+py_init[InitialIndex]-py_vert[VertexIndex],2)+TMath::Power(pz[PostFSIIndex]+pz_init[InitialIndex]-pz_vert[VertexIndex],2));
+     
+    return FinalValue;
+    """)
     return df
 
 def DefineEvis(df):
