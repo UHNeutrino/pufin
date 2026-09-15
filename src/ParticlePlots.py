@@ -2005,6 +2005,10 @@ def defineWeightsSplineStage2(
     flux_file.Close()
 
     print(histName)
+    
+    xspline_mode = spec["xspline_mode"]
+    xsec_mode = spec["xsec_mode"]
+    target_divisor = float(spec["target_divisor"])
 
     if areaB:
         integral1 = hist.Integral("width")
@@ -2037,10 +2041,6 @@ def defineWeightsSplineStage2(
         w = hist.GetBinWidth(i)
         spline_width_integral0 += spline0.Eval(x) * w
     print("spline width-integral0 (hist-like) =", spline_width_integral0)
-
-    xspline_mode = spec["xspline_mode"]
-    xsec_mode = spec["xsec_mode"]
-    target_divisor = float(spec["target_divisor"])
 
     g_cc = None
     g_nc = None
