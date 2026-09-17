@@ -1177,7 +1177,7 @@ def EverythingLoop(FileList, UseRoot, Verbosity):
                 Specification = Specification + "_" + FName.split("_")[i+2]
 
 
-        if not (Specification.upper() in SpecificationList):
+        if not (Specification in SpecificationList):
             SpecificationList.append(Specification)
 
 
