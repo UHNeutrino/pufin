@@ -153,7 +153,7 @@ git clone https://github.com/UHNeutrino/PUfIN/
 
 > Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":```
 ```
-// 1D configuration
+// 1D config
     "plots":
         {
             "File":"Flat_GenieAR23_onAr_flatf_0-5GeV_NumuCC_SuSAv2_ghep_1e7",
@@ -168,8 +168,23 @@ git clone https://github.com/UHNeutrino/PUfIN/
         }
 ```
 
+> Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":``` and the color palette was set using ```"Palette": "kBird"```
 ```
-2D example config
+// 2D config
+    "plots":
+        {
+            "File":"Flat_GenieAR23_onAr_flatf_0-5GeV_NumuCC_SuSAv2_ghep_1e7",
+            "Type":"2D",
+            "Cut": "flagCCINC == true",
+            "Var1": "q3",
+            "Var2": "q0",
+            "AxisInfo":"q_{3}, GeV, q_{0}, GeV, GENIEAr23 BNB",
+            "Bins": [60, 0, 4.5, 60, 0, 4],
+            "Name": "TEST_plots2D_ProfileX",
+            "logz": true,
+            "profileX": true, // only works with 2D
+            "diagonal": true // only works with profileX=true
+        }
 ```
 
 
@@ -177,10 +192,12 @@ git clone https://github.com/UHNeutrino/PUfIN/
   <!-- <tr> <b> 1D Plot </b> </tr> -->
   <tr> 
   <td> 
+     <!-- To add 1D plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
   <img width="896" height="472" alt="image" src="https://github.com/user-attachments/assets/086a7631-712a-463f-900a-1c0f10184757" />
   </td> 
   <td> 
   <!-- To add 2D plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+  <img width="696" height="472" alt="image" src="https://github.com/user-attachments/assets/2994c34c-486e-4eb4-b673-d4aae54fe161" />
   </td>
   </tr> 
   
@@ -190,6 +207,7 @@ git clone https://github.com/UHNeutrino/PUfIN/
   </td> 
   <td>
   <!-- type 2D plot description here -->
+  A plot, made using the 2D configuration above, showing the q<sub>0</sub>-q<sub>3</sub> phase space occupation of events predicted by GENIE on an Ar23 target with a BNB flux reweight.
   </td> 
   </tr>
 </table>
@@ -370,40 +388,6 @@ Example config
 <summary><b> Example </b></summary>
   
 <!-- Example ContourStyle entry and link to config file with another example -->
-
-```
-Example config
-```
-
-<table>
-<tr> <td> 
-<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
-</td> </tr> 
-<tr> <td>
-<!-- type plot description here -->
-</td> </tr>
-</table>
-
-> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
-  
-</details>
-
-
-### Plotting with ```"quantiles":```
-
-***...still needs general description...***
-
-<details>
-<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
-  
-+ 
-
-</details>
-
-<details>
-<summary><b> Example </b></summary>
-  
-<!-- Example quantiles entry and link to config file with another example -->
 
 ```
 Example config
