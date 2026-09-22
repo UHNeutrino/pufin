@@ -20,7 +20,7 @@
         "interactions": ["CC"],
         // "flavors": ["NuMu", "NuMuBar", "NuE","NuEBar"],
         "flavors": ["NuMu"],
-        // "energy_ranges": ["0-8GeV", "8-30GeV", "30-120GeV"],
+        // "energy_ranges": ["0-8GeV", "8-20GeV", "8-30GeV", "30-120GeV"],
         "energy_ranges": ["0-8GeV"],
         "targets": ["C12", "H1", "Cl35", "O16", "Ti48"]
         // "targets": ["C12"]

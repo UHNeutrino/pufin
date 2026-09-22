@@ -40,7 +40,7 @@ def DirectorySetup(Generator, SingleTarget=None, Mode=None):
 def FlatFluxMaker():
     FluxPath = OutPath+"/"+"FlatFluxes"
     os.makedirs(FluxPath, exist_ok=True)
-    FlatFluxNames = ["flat_flux_0-8GeV.root","flat_flux_8-30GeV.root","flat_flux_30-120GeV.root"]
+    FlatFluxNames = ["flat_flux_0-8GeV.root","flat_flux_8-20GeV.root", "flat_flux_8-30GeV.root","flat_flux_30-120GeV.root"]
 
     for flux in FlatFluxNames:
         f = FluxPath + "/" + flux
@@ -152,10 +152,17 @@ def CheckGenieFiles(Targets, NChunks, EventsPerChunk, Modes=None, Flavors=None):
 
                 if NChunks < 1:
                     NChunks = 1
+                    
+                if Mode == "CC":
+                    Eranges = ["0-8GeV","8-20GeV"]
+                elif Mode == "NC":
+                    Eranges = ["0-8GeV","8-30GeV","30-120GeV"]
+                else:
+                    raise ValueError(f"Unsupported GENIE mode: {Mode}")
 
-                Eranges = ["0-8GeV"]
-                if Mode == "NC":
-                    Eranges = ["0-8GeV", "8-30GeV", "30-120GeV"]
+                # Eranges = ["0-8GeV"]
+                # if Mode == "NC":
+                #     Eranges = ["0-8GeV", "8-30GeV", "30-120GeV"]
 
                 for Erange in Eranges:
                     print(
@@ -501,6 +508,8 @@ def GenerateGenie(Generator, Events, EventsPerJob, Target=None, Mode=None, Flavo
 
     if Mode is None:
         Modes = ["CC", "NC"]
+    elif isinstance(Mode, (list, tuple)):
+        Modes = Mode
     else:
         Modes = [Mode]
     for Mode in Modes:
@@ -510,7 +519,9 @@ def GenerateGenie(Generator, Events, EventsPerJob, Target=None, Mode=None, Flavo
             elif Mode == "CC":
                 Flavors = ["12", "-12", "14", "-14"]
             else:
-                Flavors = ["12", "-12", "14", "-14"]
+                raise ValueError(f"Unsupported GENIE mode: {Mode}")
+        elif isinstance(Flavor, (list, tuple)):
+            Flavors = [str(f) for f in Flavor]
         else:
             Flavors = [str(Flavor)]
     
@@ -534,7 +545,7 @@ def GenerateGenie(Generator, Events, EventsPerJob, Target=None, Mode=None, Flavo
                     raise ValueError(f"No target info found for {target_name}")
 
                 if Mode == "CC":
-                    energy_ranges = [("0", "8")]
+                    energy_ranges = [("0", "8"), ("8", "20")]
                 elif Mode == "NC":
                     energy_ranges = [("0", "8"), ("8", "30"), ("30", "120")]
                 else:
@@ -1300,8 +1311,16 @@ if __name__ =="__main__":
     # For Series:
     # python GenMain.py Gen \
     # --generator Genie \
-    # --events 400 \
-    # --EventsPerJob 100
+    # --events 2000 \
+    # --EventsPerJob 1000
+    
+#     python GenMain.py Gen \
+#   --generator Genie \
+#   --events 2000 \
+#   --EventsPerJob 1000 \
+#   --target Carbon \
+#   --mode CC \
+#   --flavor 14
         
     ## For Multi-core: 
     # python GenMain.py Gen \
