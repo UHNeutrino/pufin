@@ -107,7 +107,7 @@ git clone https://github.com/UHNeutrino/PUfIN/
 
 ### Plotting with ```"plots":```
 
-```"plots":``` creates a simple plot using events from a single (flattened) root file (see [plotting with ```"1DSame":```](#plotting-with-1dsame) to plot multiple files on the same plot). To use ```"plots"```, the mode must be defined in the called config file and the following entries edited.
+```"plots":``` creates a simple 1D or 2D plot using a single cut of events from *one* (flattened) root file (see [plotting with ```"1DSame":```](#plotting-with-1dsame) to plot multiple files on the same plot in 1D). To use ```"plots"```, the mode must be defined in the called config file and the following entries edited.
 
 
 <details>
@@ -219,7 +219,8 @@ git clone https://github.com/UHNeutrino/PUfIN/
 
 ### Plotting with ```"stacks":```
 
-***...still needs general description...***
+```"stacks":``` creates a 1D plot that vertically stacks events that fall within user-specified criteria.
+> For best use, the specified cuts should not overlap so as not to double-count events
 
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
@@ -272,7 +273,7 @@ Stacked CC events on Ar-23 target.
 
 ### Plotting with ```"overlap":```
 
-***...still needs general description...***
+```"overlap":``` used interaction data from a single file and plots multiple 1D curves representing events that satisfy multiple user-specified cuts.
 
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
@@ -285,9 +286,24 @@ Stacked CC events on Ar-23 target.
 <summary><b> Example </b></summary>
   
 <!-- Example overlap entry and link to config file with another example -->
+> Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":```
 
 ```
-Example config
+    "overlap":
+        {
+            "File":"Flat_GenieAR23_onAr_flatf_0-5GeV_NumuCC_SuSAv2_ghep_1e7",
+            "Cut": "", 
+            "Var1": "Enu_true",
+            "StackCuts":{"Mode == 1":"QE",
+                "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16":"RES",
+                "Mode == 26":"DIS",
+                "Mode == 21":"MPP"},
+            "Colors":"kOrange-3, kAzure+4, kRed-3, kViolet-3",
+            "AxisInfo":"Enu_true, GeV, counts, , Genie Ar23 Overlap #nu_{#mu} CC",
+            "Bins": [160, 0, 5.1], 
+            "Name": "TEST_overlap",
+            "logz": false
+        }
 ```
 
 <table>
@@ -306,7 +322,8 @@ Example config
 
 ### Plotting with ```"1DSame":```
 
-***...still needs general description...***
+```"1DSame":``` displays interaction data in 1D from multiple files on the same plot. 
+> Reweighting inside ```"1DSame":``` overrides global flux reweighting
 
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
@@ -340,7 +357,7 @@ Example config
 
 ### Plotting with ```"Contour":```
 
-***...still needs general description...***
+```"Contour":``` creates a 2D plot which displays the event distribution across Var1-Var2 phase space overlaid with contours encircling events that satisfy specified cuts. These cuts are differentiated using line color.
 
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
@@ -375,7 +392,7 @@ Example config
 
 ### Plotting with ```"ContourStyle":```
 
-***...still needs general description...***
+```"ContourStyle":``` creates a 2D plot which displays the event distribution across Var1-Var2 phase space overlaid with contours encircling events that satisfy 2 specified cuts. These cut combinations are differentiated using line color and line style.
 
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
@@ -388,14 +405,30 @@ Example config
 <summary><b> Example </b></summary>
   
 <!-- Example ContourStyle entry and link to config file with another example -->
+> Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":```
 
 ```
-Example config
+    "ContourStyle":
+        {
+            "File":"Flat_NEUT6.1.4_OxygenRS",
+            "Cut": "", 
+            "Var1":"q0",
+            "Var2":"q3",
+            "TotalPercents":[90], // % of valid events to include in contour
+            "ColorCuts":{"Mode == 1":"QE, 868", //"Mode == 2":"2P2H, kOrange-3", 
+                "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)":"Pion Abs, #c849a9"},
+            "StyleCuts":{"Enu_true < 0.7":"Enu < .7, 2","Enu_true > 0.7":"Enu_true > .7, 1"}, //"Eres_kin >= -0.1 && Eres_kin <= 0.1":"ErK ~ 0%, 1"  },//"Cut":"Label, style number"
+            "AxisInfo":"q_{0}, (GeV/c), q_{3}, (GeV), NEUT Oxygen RS Contours",
+            "Bins":[100,0,1.5,100,0,2],
+            "logz":true,
+            "Name": "TEST_ContourStyle"
+        }
 ```
 
 <table>
 <tr> <td> 
 <!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+<img width="996" height="572" alt="image" src="https://github.com/user-attachments/assets/4e34757f-3782-4c82-875d-70cbcdf958e8" />
 </td> </tr> 
 <tr> <td>
 <!-- type plot description here -->
@@ -409,7 +442,7 @@ Example config
 
 ### Plotting with ```"2DRatio":```
 
-***...still needs general description...***
+```"2DRatio":``` creates a 2D plot that displays the ratio between event data from 2 different files.
 
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
