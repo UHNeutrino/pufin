@@ -385,8 +385,8 @@ def DefineEvis(df):
             return E_had_pre;
                 """)
     
-    # E_had3 = kTrueEavail_NT from CAFAna/Vars/TruthVArs.cxx
-    # E_had3 = skip bindinos & nucleons + total energy minus proton mass of (Primarily) strange baryons
+    # E_had_inc = kTrueEavail_NT from CAFAna/Vars/TruthVArs.cxx
+    # E_had_inc = skip bindinos & nucleons + total energy minus proton mass of (Primarily) strange baryons
     # since decays will mostly contain protons 
     # + total energy plus proton mass of (primarily) anti-protons 
     # since anhillation is mostly the interaction mode
@@ -428,14 +428,63 @@ def DefineEvis(df):
         }
         return e_had3;
     """)
+    
+    # Same as E_had_inc but but omitting energy from electron(positron), which would be the primary lepton for nue(bar)s
+    df = df.Define("E_had_inc_nue", """
+        double e_had3 = 0;
+        for (size_t i = 0; i < pdg.size(); ++i) {
+            int pdg_val = pdg[i];
+            double energy = E[i];
+            double px_val = px[i];
+            double py_val = py[i];
+            double pz_val = pz[i];
+
+            if (pdg_val == 2212 || abs(pdg_val) == 211) { // Proton or charged pion
+                double mass_squared = energy * energy - px_val * px_val - py_val * py_val - pz_val * pz_val;
+                if (mass_squared > 0) {
+                    double mass = std::sqrt(mass_squared);
+                    double gamma = energy / mass;
+                    e_had3 += (gamma - 1) / gamma * energy;
+                }
+            } else if (pdg_val == 111 || pdg_val == 22) { // pi0, photon
+                e_had3 += energy;
+            }  else if (pdg_val >= 2000000000)
+	        {
+	        //skip the bindinos
+	        }  else if (pdg_val >= 1000000000)
+            {
+	        //do nothing for nucleons
+	        }  else if (pdg_val >= 2000 && pdg_val != 2212 && pdg_val !=2112){
+	            e_had3 += energy - 0.9382;
+	            //Primarily strange baryons add total energy minus proton mass since decays will mostly contain protons
+	        }  else if (pdg_val <= -2000){
+                e_had3 += energy + 0.9382;
+	            //Primarily anti-protons add total energy plus proton mass since anhillation is mostly the interaction mode
+	        }  else if (pdg_val != 2112 && (abs(pdg_val) < 11 || abs(pdg_val) > 16)){ // no neutrons or leptons
+	            e_had3 += energy; //mostly kaons add all the energy
+	        }
+
+        }
+        return e_had3;
+    """)
 
     # Add Ecal to data frame (based on code from NOvA)
-    df = df.Define("Ecal", """
-            if (flagCCINC == 1)
-                return E_had_inc + ELep;
+    # df = df.Define("Ecal", """
+    #         if (flagCCINC == 1)
+    #             return E_had_inc + ELep;
 
-            return E_had_inc;
-                """)
+    #         return E_had_inc;
+    #             """)
+    df = df.Define("Ecal", """
+    if (flagCCINC == 1) {
+        if (abs(PDGnu) == 14)
+            return E_had_inc + ELep;
+        else if (abs(PDGnu) == 12)
+            return E_had_inc_nue + ELep;
+    }
+
+    return E_had_inc;
+    """)
 
     # nabbed formula from https://indico.fnal.gov/event/53004/contributions/244614/attachments/158383/207801/interactionModelTalk.pdf
     # Assuming we're using Carbon 12, might be wrong on that!
