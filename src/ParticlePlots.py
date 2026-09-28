@@ -532,7 +532,13 @@ def DefineEvis(df):
                   
                     return q3_proxy;
                        """)
-    
+    df = df.Define("KinCalPercentDiff", """
+                        double avg = (Ekin + Ecal)/2.0;
+                        if (avg == 0) {
+                        return -999.0;
+                        }
+                        return (Ekin - Ecal)/avg;
+                           """)
 
     return df
 
