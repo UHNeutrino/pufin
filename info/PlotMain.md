@@ -140,8 +140,8 @@ git clone https://github.com/UHNeutrino/PUfIN/
 + ```"Name":``` name that created files will be saved as (entered as a string without extensions)
 + &dagger;```"max":``` manually maximum plot value (entered as a number, or omitted for automatic scaling)
 + ```"logz":``` sets z-axis (number of interactions) to a log scale (```true```/```false```)
-+ &dagger;```"profileX":``` (?) activate by including ```"profileX": true```
-+ &dagger;```"diagonal":``` (?) activate by including ```"diagonal": true```
++ &dagger;```"profileX":``` plots a point in each Var1-bin (x) at the mean Var2 (y) value for that bin (vert/horiz lines?); only works in 2D, activate by including ```"profileX": true```
++ &dagger;```"diagonal":``` creates a diagonal line where Var1=Var2; only works with profileX, activate by including ```"diagonal": true```
 + &dagger;```"Style":``` line style (see ROOT's [TAttLine Class Reference](https://root.cern.ch/doc/v630/classTAttLine.html) for line style codes)
 
 </details>
@@ -309,9 +309,11 @@ Stacked CC events on Ar-23 target.
 <table>
 <tr> <td> 
 <!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+<img width="696" height="472" alt="image" src="https://github.com/user-attachments/assets/8c721c57-c509-4627-8721-f3bcfa49cfcf" />
 </td> </tr> 
 <tr> <td>
 <!-- type plot description here -->
+Channel overlap for GENIE Ar23 with BNB flux reweight from E<sub>&nu;</sub> = 1-5 GeV
 </td> </tr>
 </table>
 
