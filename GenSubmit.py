@@ -78,6 +78,8 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         
 def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=None, Flavor=None, CPUPercent=None):
     OutPath = os.environ.get("PUFIN_OUT")
+    LogDir = f"{OutPath}/kdobbs_temp_dir"
+    os.makedirs(LogDir, exist_ok=True)
 
     if OutPath is None:
         raise ValueError("PUFIN_OUT Needs to be defined!")
@@ -163,7 +165,7 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
         --mem={MemoryGB}G \\
         --exclude=compute-6-9,compute-6-10,compute-6-36,compute-6-59,compute-4-32,compute-5-24,compute-5-25 \\
         --job-name=GENIE{Node+1}of{TotalNodes} \\
-        --output=GENIEGeneration_{Node+1}of{TotalNodes}_%j.out \\
+        --output={LogDir}/GENIEGeneration_{Node+1}of{TotalNodes}_%j.out \\
         --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && python GenMain.py GenieMult --Files {FilesFormatted} --CPUPercent {CPUPercent}'"
         """
         print(f"Sending GENIE job to Node {Node} of {TotalNodes}")
@@ -296,6 +298,10 @@ if __name__ =="__main__":
             Flavor=args.flavor,
             CPUPercent=args.cpu_percent,
     )
+
+# export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts
+# source SetupPufin.sh
+# moldule load ROOT
 
 # python GenSubmit.py GenGenie \
 #     --container /project/cherdack/containers/Generators/t2k-nova-generator.sif \

@@ -246,9 +246,10 @@ def format_total_hist(total_hist, same1d: dict):
         xunit,
         yvar,
         yunit,
-        max=same1d.get("max", -1),
+        max=same1d.get("max", None),
         PlotTitle=plot_title,
     )
+
     total_hist.SetDirectory(0)
     return total_hist, axis_info
 
@@ -264,7 +265,8 @@ def save_outputs(total_hist, component_hists, same1d, global_settings):
     fout = ROOT.TFile(root_path, "RECREATE")
     
     img_ext = same1d.get("Ext", "png")
-    pp.HOME = base_out
+    # pp.HOME = base_out
+    pp.HOME = save_dir
     
     pp.Savehist(
         total_hist,
@@ -272,7 +274,7 @@ def save_outputs(total_hist, component_hists, same1d, global_settings):
         global_settings["Save"],
         base_name,
         img_ext,
-        max=same1d.get("max", -1),
+        max=same1d.get("max", None),
         Normalize=same1d.get("Norm", False),
         logz=False,
     )
@@ -309,7 +311,6 @@ def calculate_target_weight_factors(
         exp_pot
         * fv_nucleon_targets
         * target_percent
-        * xsec_units
         * flux_cm_conv
         / flux_pot
         / flux_gev_norm
@@ -325,7 +326,6 @@ def calculate_target_weight_factors(
         "exp_pot",
         "flux_pot",
         "fv_nucleon_targets",
-        "xsec_units",
         "flux_gev_norm",
         "flux_cm_conv",
         "target_percent",
@@ -353,7 +353,6 @@ def calculate_target_weight_factors(
     exp_pot = float(detector_cfg["exp_pot"])
     flux_pot = float(detector_cfg["flux_pot"])
     fv_nucleon_targets = float(detector_cfg["fv_nucleon_targets"])
-    xsec_units = float(detector_cfg["xsec_units"])
     flux_gev_norm = float(detector_cfg["flux_gev_norm"])
     flux_cm_conv = float(detector_cfg["flux_cm_conv"])
 
@@ -374,7 +373,6 @@ def calculate_target_weight_factors(
     common_factor = (
         exp_pot
         * fv_nucleon_targets
-        * xsec_units
         * flux_cm_conv
         / flux_pot
         / flux_gev_norm
@@ -572,7 +570,6 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict):
             total_hist.SetDirectory(0)
         else:
             total_hist.Add(target_hist)
-
         print(f"  running total integral = {total_hist.Integral()}")
 
     if total_hist is None:
@@ -606,3 +603,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+### For UH_1: export PUFIN_OUT=/data/t2k-nova/PUfINOutputs
+### For carya: export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts
+### python WeightMain.py KristenWeightMain

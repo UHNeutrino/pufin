@@ -60,17 +60,17 @@ def GrabFluxReWeights(GlobalSettings):
     xsecpath = frwDict.get("XsecPath")
     if not areaB:
         nucpert = get_nucleons_per_target(target)
-        if (not undoNormB):
+        if (undoNormB == None):
             raise ValueError("Need to define 'UndoFluxNormFlag' ")
-        elif (not xsecmode):
+        elif (xsecmode == None):
             raise ValueError("Need to define 'XsecMode' ")
-        elif (not xsecpath):
+        elif (xsecpath == None):
             raise ValueError("Need to define 'XsecPath' ")
-        elif (not xsectype):
+        elif (xsectype == None):
             raise ValueError("Need to define 'XsecType' ")
-        elif (not detector):
+        elif (detector == None):
             raise ValueError("Need to define 'Detector' ")
-        elif (not target) or (not flavor):
+        elif (target== None) or (flavor== None):
             raise ValueError("Need to define 'Target' and 'Flavor' ")
     else:
         nucpert = 1
@@ -115,7 +115,6 @@ def CalculateTargetWeightFactor(targets_file, detector, target):
         "exp_pot",
         "flux_pot",
         "fv_nucleon_targets",
-        "xsec_units",
         "flux_gev_norm",
         "flux_cm_conv",
         "target_percent",
@@ -138,7 +137,6 @@ def CalculateTargetWeightFactor(targets_file, detector, target):
     exp_pot = float(detector_cfg["exp_pot"])
     flux_pot = float(detector_cfg["flux_pot"])
     fv_nucleon_targets = float(detector_cfg["fv_nucleon_targets"])
-    xsec_units = float(detector_cfg["xsec_units"])
     flux_gev_norm = float(detector_cfg["flux_gev_norm"])
     flux_cm_conv = float(detector_cfg["flux_cm_conv"])
     target_percent = float(target_percents[target])
@@ -156,7 +154,6 @@ def CalculateTargetWeightFactor(targets_file, detector, target):
         exp_pot
         * fv_nucleon_targets
         * target_percent
-        * xsec_units
         * flux_cm_conv
         / flux_pot
         / flux_gev_norm
@@ -165,7 +162,8 @@ def CalculateTargetWeightFactor(targets_file, detector, target):
     return Fscale
 
 def MakePlots(plots, GlobalSettings):
-    OutFileExists(GlobalSettings["Save"]+ "/" + plots["Name"]+".root")
+    if GlobalSettings.get("Overwrite") != True:
+        OutFileExists(GlobalSettings["Save"]+ "/" + plots["Name"]+".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -295,7 +293,8 @@ def MakePlots(plots, GlobalSettings):
             pp.Savehist(hist,AxisInfo,GlobalSettings["Save"],fileN,ext,max = plots.get("max"), Normalize=False, logz = plots["logz"])
                 
 def Make2DRatio(Ratio2D, GlobalSettings):
-    OutFileExists(GlobalSettings["Save"]+ "/" + Ratio2D["Name"]+".root")
+    if GlobalSettings.get("Overwrite") != True:
+        OutFileExists(GlobalSettings["Save"]+ "/" + Ratio2D["Name"]+".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -440,7 +439,8 @@ def Make2DRatio(Ratio2D, GlobalSettings):
 
 
 def MakeStacks(stacks,GlobalSettings):
-    OutFileExists(GlobalSettings["Save"]+ "/" + stacks["Name"]+ ".root")
+    if GlobalSettings.get("Overwrite") != True:
+        OutFileExists(GlobalSettings["Save"]+ "/" + stacks["Name"]+ ".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -536,7 +536,8 @@ def MakeStacks(stacks,GlobalSettings):
 
 
 def MakeOverlap(overlap,GlobalSettings):
-    OutFileExists(GlobalSettings["Save"]+ "/" + overlap["Name"]+ ".root")
+    if GlobalSettings.get("Overwrite") != True:
+        OutFileExists(GlobalSettings["Save"]+ "/" + overlap["Name"]+ ".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -625,7 +626,8 @@ def MakeOverlap(overlap,GlobalSettings):
         pp.SaveOverlapPlot(histlist, AxisInfo, Legend,save_L, Normalize=False)
         
 def MakeSame1D(same1D,GlobalSettings):
-    OutFileExists(GlobalSettings["Save"]+ "/" + same1D["Name"]+".root")
+    if GlobalSettings.get("Overwrite") != True:
+        OutFileExists(GlobalSettings["Save"]+ "/" + same1D["Name"]+".root")
     userFolder = GlobalSettings["userFolder"]
     plots_list = same1D["Plots"]
     hist_dict = {}
@@ -676,7 +678,7 @@ def MakeSame1D(same1D,GlobalSettings):
 
         # reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(plot)
         if "FluxReweight" in plot:
-            reweight_cfg = GrabFluxReWeights(plot)
+            reweight_cfg = GrabFluxReWeights(plot)   
         else:
             reweight_cfg = GrabFluxReWeights(GlobalSettings)
         reweight_flag = reweight_cfg[0]
@@ -999,7 +1001,8 @@ def MakeSame1D(same1D,GlobalSettings):
     
 
 def MakeContour(Contour,GlobalSettings):
-    OutFileExists(GlobalSettings["Save"]+ "/" + Contour["Name"]+".root")
+    if GlobalSettings.get("Overwrite") != True:
+        OutFileExists(GlobalSettings["Save"]+ "/" + Contour["Name"]+".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -1025,7 +1028,6 @@ def MakeContour(Contour,GlobalSettings):
         colors = []
         if(GlobalSettings["EvisB"]):
             df = pp.DefineEvis(df)
-            df = df.Filter("Evis_kin != -9999.9")
         if (GlobalSettings["KinematicsB"]):
             df = pp.DefineKinematics(df)
         if (GlobalSettings["TkiB"]):
@@ -1069,7 +1071,7 @@ def MakeContour(Contour,GlobalSettings):
     
         for word in Contour["AxisInfo"].split(','):
                 AxisInfo.append(word)
-        if Contour["AutoQuant"][0]:
+        if Contour.get("AutoQuant"):
             x = Contour["AutoQuant"][1]
             y = Contour["AutoQuant"][2]
             # Get the total number of events
@@ -1124,14 +1126,12 @@ def MakeContour(Contour,GlobalSettings):
         print(AxisInfo)
         histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts, Contour["TotalPercents"])
         save_L = GlobalSettings["Save"]+ "/"+ Contour["Name"] + "." + ext
-        # if Contour["ContStyle"]:
-        #     pp.SaveContHistStyles(histlist, AxisInfo, colors, Contour["styles"], Contour["Clabels"], Contour["Slabels"], save_L, Contour["logz"])
-        # else:
         pp.SaveContHist(histlist, AxisInfo, Legend, colors, Contour["TotalPercents"], save_L, Contour["logz"])
 
 
 def MakeContourStyle(ContourStyle,GlobalSettings):
-    OutFileExists(GlobalSettings["Save"]+ "/" + ContourStyle["Name"] + ".root")
+    if GlobalSettings.get("Overwrite") != True:
+        OutFileExists(GlobalSettings["Save"]+ "/" + ContourStyle["Name"] + ".root")
     reweight_cfg = GrabFluxReWeights(GlobalSettings)
     reweight_flag = reweight_cfg[0]
     areaB = reweight_cfg[5]
@@ -1158,7 +1158,6 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         name2 = " "
         if(GlobalSettings["EvisB"]):
             df = pp.DefineEvis(df)
-            df = df.Filter("Evis_kin != -9999.9")
         if (GlobalSettings["KinematicsB"]):
             df = pp.DefineKinematics(df)
         if (GlobalSettings["TkiB"]):

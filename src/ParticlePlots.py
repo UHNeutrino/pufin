@@ -38,7 +38,7 @@ def DefineKinematics(df):
     """)
     
     # Momentum of the highest momentum proton after the neutrino interaction, but BEFORE FSI (scalar)
-    df = df.Define("PProtonMax", """
+    df = df.Define("PProtonMax_PreFSI", """
     double max_proton_p_pfsi = -1.0; // Initialize to a negative value
     for (size_t i = 0; i < pdg_vert.size(); ++i) {
         if (pdg_vert[i] == 2212) { // Proton
@@ -162,18 +162,40 @@ def DefineKinematics(df):
     """)
 
     df = df.Define("PNucleon_init", """
-    float mags;
+    float mag;
+    float maxMag = 0.0;
     for (size_t i = 0; i < px_init.size(); ++i) {
         int pdg = pdg_init[i];
         if (pdg == 2212 || pdg == 2112){ 
             float px = px_init[i];
             float py = py_init[i];
             float pz = pz_init[i];
-            mags = std::sqrt(px*px + py*py + pz*pz);
+            mag = std::sqrt(px*px + py*py + pz*pz);
+            if (mag > maxMag){
+                maxMag = mag;
+            }
         }
     }
-    return mags;
+    return maxMag;
     """)
+
+    df = df.Define("PNucleon_vert", """
+        float mag;
+        float maxMag = 0.0;
+        for (size_t i = 0; i < px_vert.size(); ++i) {
+            int pdg = pdg_vert[i];
+            if (pdg == 2212 || pdg == 2112){ 
+                float px = px_vert[i];
+                float py = py_vert[i];
+                float pz = pz_vert[i];
+                mag = std::sqrt(px*px + py*py + pz*pz);
+                if (mag > maxMag){
+                    maxMag = mag;
+                }
+            }
+        }
+        return maxMag;
+        """)
     
     df = df.Define("Muon_KE", """
     double muonKE = -1.0;
@@ -209,11 +231,65 @@ def DefineKinematics(df):
     }
     return max_pi_ke;
     """)
+
+    df = df.Define("NucleonNoq3","""
+
+    double MaxInitialMag = -1;
+    double MaxVertexMag = -1;
+    double MaxPostFSIMag = -1;
+    int InitialIndex = -1;
+    int VertexIndex = -1;
+    int PostFSIIndex = -1;
+
+    double InitialMag = 0;
+    double VertexMag = 0;
+    double PostFSIMag = 0;
+
+    double FinalValue = 0;    
+
+    
+    for (size_t i = 0; i< pdg.size(); ++i){
+        if (pdg[i] == 2212 || pdg[i] == 2112){
+            PostFSIMag = std::sqrt(px[i]*px[i]+py[i]*py[i]+pz[i]*pz[i]);
+            if (PostFSIMag > MaxPostFSIMag) {
+                MaxPostFSIMag = PostFSIMag;
+                PostFSIIndex = i;
+            } 
+        }
+    }
+    for (size_t i = 0; i< pdg_vert.size(); ++i){
+        if (pdg_vert[i]==2212 || pdg_vert[i]==2112){
+            VertexMag = std::sqrt(px_vert[i]*px_vert[i]+py_vert[i]*py_vert[i]+pz_vert[i]*pz_vert[i]);
+            if (VertexMag > MaxVertexMag) {
+                MaxVertexMag = VertexMag;
+                VertexIndex = i;
+            }   
+        }
+    }
+    for (size_t i = 0; i< pdg_init.size(); ++i){
+        if (pdg_init[i] == 2212 || pdg_init[i]==2112){
+            InitialMag = std::sqrt(px_init[i]*px_init[i]+py_init[i]*py_init[i]+pz_init[i]*pz_init[i]);
+            if (InitialMag > MaxInitialMag) {
+                MaxInitialMag = InitialMag;
+                InitialIndex = i;
+            }
+        } 
+    }
+    
+    FinalValue = std::sqrt( TMath::Power(px[PostFSIIndex]+px_init[InitialIndex]-px_vert[VertexIndex],2) +TMath::Power(py[PostFSIIndex]+py_init[InitialIndex]-py_vert[VertexIndex],2)+TMath::Power(pz[PostFSIIndex]+pz_init[InitialIndex]-pz_vert[VertexIndex],2));
+     
+    return FinalValue;
+    """)
     return df
 
 def DefineEvis(df):
     # Define Evis_1 where EavAlt = q0 - KE(neutrons) - mass(pions)
-    df = df.Define("Evis_sim", "EavAlt + ELep")
+    df = df.Define("Evis_sim", """
+            if (flagCCINC == 1)
+                return EavAlt + ELep;               
+                
+            return EavAlt;
+                """)
     
     # E_had = KE (protons & charged pions) + E (pi0, e+/-, photons)
     df = df.Define("E_had", """
@@ -258,12 +334,23 @@ def DefineEvis(df):
                 if (pdg_val == 2212) { // Proton
                     e_had += energy - 0.938; // KE of proton
                 } 
-                //else if (pdg_val == 11 || pdg_val == -11 || pdg_val == 22) { // electron, positron, photon
-                //    e_had += energy; // Total energy
-                //}
+                else if (pdg_val == 11 || pdg_val == -11 || pdg_val == 22) { // electron, positron, photon
+                    e_had += energy; // Total energy
+                }
             }
             return e_had;
         """)
+    df = df.Define("Photo_Flag", """
+        bool PhotoFlag = false;
+        for (size_t i = 0; i < pdg.size(); ++i) {
+            int pdg_val = pdg[i];
+            if (pdg_val == 11 || pdg_val == -11 || pdg_val == 22) { // electron, positron, photon
+                PhotoFlag = true;
+            }
+        }
+        return PhotoFlag
+
+    """)
     # E_had after the neutrino interaction, but before FSI
     df = df.Define("E_had_pre", """
         double e_had_pfsi = 0;
@@ -283,13 +370,23 @@ def DefineEvis(df):
     """)
 
     # Add Ecal_simple to dataframe (based on Erecoil from nuisance)
-    df = df.Define("Ecal_simple", "E_had + ELep")
+    df = df.Define("Ecal_simple", """
+            if (flagCCINC == 1)
+                return E_had + ELep;
+
+            return E_had;
+                """)
     
     # Ecal_simple after the neutrino interaction but BEFORE FSI
-    df = df.Define("Ecal_simple_Pre", "E_had_pre + ELep")
+    df = df.Define("Ecal_simple_Pre", """
+            if (flagCCINC == 1)
+                return E_had_pre + ELep;
+
+            return E_had_pre;
+                """)
     
-    # E_had3 = kTrueEavail_NT from CAFAna/Vars/TruthVArs.cxx
-    # E_had3 = skip bindinos & nucleons + total energy minus proton mass of (Primarily) strange baryons
+    # E_had_inc = kTrueEavail_NT from CAFAna/Vars/TruthVArs.cxx
+    # E_had_inc = skip bindinos & nucleons + total energy minus proton mass of (Primarily) strange baryons
     # since decays will mostly contain protons 
     # + total energy plus proton mass of (primarily) anti-protons 
     # since anhillation is mostly the interaction mode
@@ -331,9 +428,63 @@ def DefineEvis(df):
         }
         return e_had3;
     """)
+    
+    # Same as E_had_inc but but omitting energy from electron(positron), which would be the primary lepton for nue(bar)s
+    df = df.Define("E_had_inc_nue", """
+        double e_had3 = 0;
+        for (size_t i = 0; i < pdg.size(); ++i) {
+            int pdg_val = pdg[i];
+            double energy = E[i];
+            double px_val = px[i];
+            double py_val = py[i];
+            double pz_val = pz[i];
+
+            if (pdg_val == 2212 || abs(pdg_val) == 211) { // Proton or charged pion
+                double mass_squared = energy * energy - px_val * px_val - py_val * py_val - pz_val * pz_val;
+                if (mass_squared > 0) {
+                    double mass = std::sqrt(mass_squared);
+                    double gamma = energy / mass;
+                    e_had3 += (gamma - 1) / gamma * energy;
+                }
+            } else if (pdg_val == 111 || pdg_val == 22) { // pi0, photon
+                e_had3 += energy;
+            }  else if (pdg_val >= 2000000000)
+	        {
+	        //skip the bindinos
+	        }  else if (pdg_val >= 1000000000)
+            {
+	        //do nothing for nucleons
+	        }  else if (pdg_val >= 2000 && pdg_val != 2212 && pdg_val !=2112){
+	            e_had3 += energy - 0.9382;
+	            //Primarily strange baryons add total energy minus proton mass since decays will mostly contain protons
+	        }  else if (pdg_val <= -2000){
+                e_had3 += energy + 0.9382;
+	            //Primarily anti-protons add total energy plus proton mass since anhillation is mostly the interaction mode
+	        }  else if (pdg_val != 2112 && (abs(pdg_val) < 11 || abs(pdg_val) > 16)){ // no neutrons or leptons
+	            e_had3 += energy; //mostly kaons add all the energy
+	        }
+
+        }
+        return e_had3;
+    """)
 
     # Add Ecal to data frame (based on code from NOvA)
-    df = df.Define("Ecal", "E_had_inc + ELep")
+    # df = df.Define("Ecal", """
+    #         if (flagCCINC == 1)
+    #             return E_had_inc + ELep;
+
+    #         return E_had_inc;
+    #             """)
+    df = df.Define("Ecal", """
+    if (flagCCINC == 1) {
+        if (abs(PDGnu) == 14)
+            return E_had_inc + ELep;
+        else if (abs(PDGnu) == 12)
+            return E_had_inc_nue + ELep;
+    }
+
+    return E_had_inc;
+    """)
 
     # nabbed formula from https://indico.fnal.gov/event/53004/contributions/244614/attachments/158383/207801/interactionModelTalk.pdf
     # Assuming we're using Carbon 12, might be wrong on that!
@@ -1600,28 +1751,6 @@ def defineWeights(df, rwRootFile, histName, Fscale = 1):
 
     return df    
 
-def make_xsec_hist_like_flux(h_flux, g_cc, g_nc, name="h_xsec"):
-    nb = h_flux.GetNbinsX()
-
-    # Build edges array from flux histogram (works for variable bins too)
-    edges = [h_flux.GetXaxis().GetBinLowEdge(1)]
-    for i in range(1, nb + 1):
-        edges.append(h_flux.GetXaxis().GetBinUpEdge(i))
-    edges_arr = pyarray.array('d', edges)
-
-    h_xsec = ROOT.TH1D(name, name, nb, edges_arr)
-    h_xsec.Sumw2()
-
-    for i in range(1, nb + 1):
-        x = h_flux.GetBinCenter(i)
-        cc = float(g_cc.Eval(x))
-        nc = float(g_nc.Eval(x))
-        if cc < 0: cc = 0.0
-        if nc < 0: nc = 0.0
-        h_xsec.SetBinContent(i, cc + nc)
-
-    h_xsec.SetDirectory(0)
-    return h_xsec    
 
 # def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline = "", areaB = False, undoNormB = False):
 def defineWeightsSpline(df, reweight_cfg, label=""):
@@ -1640,7 +1769,10 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         xsecpath,
         nucpert,
     ) = reweight_cfg
-    
+
+    if areaB == False and xsectype == "G":
+        Fscale = Fscale * 1e-38 
+        
     flux_file = ROOT.TFile.Open(rwRootFile, "READ")
     hist = flux_file.Get(histName)
     print(f"using flux: {rwRootFile}")
@@ -1672,22 +1804,7 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         spline_width_integral0 += spline0.Eval(x) * w
     print("spline width-integral0 (hist-like) =", spline_width_integral0)
     
-    # ABSOLUTE SCALE: Convert bin normalized histo to "per-bin" contents and apply Fscale
-    # if xspline:
-    #     Gen_code = xspline[0]
-    #     VersionCode = xspline.replace(Gen_code,"")
-    #     Genie_code = xspline if xspline.startswith("Genie") else ""
-    # else:
-    #     Gen_code = "X"
-    #     VersionCode = "X"
-    #     Genie_code = ""
-    # if Gen_code == "N" and VersionCode[0]=="R":
-    #     ChannelCode = VersionCode[-2] + VersionCode[-1]
-    #     VersionCode = VersionCode.replace(ChannelCode,"")
-    # print(Gen_code)
-    # print(VersionCode)
-    # print(xspline)
-    # exit()
+
 
     if xsectype == "G":
         pathx = xsecpath
@@ -1696,59 +1813,21 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         CCpath = f"{flavor}_{target}/tot_cc"
         NCpath = f"{flavor}_{target}/tot_nc"
         
-        # CCpath = "nu_mu_Ar40/tot_cc"
-        # NCpath = "nu_mu_Ar40/tot_nc"
-        # CCpath = "nu_mu_H1/tot_cc"
-        # NCpath = "nu_mu_H1/tot_nc"
-        # CCpath = "nu_mu_Cl35/tot_cc"
-        # NCpath = "nu_mu_Cl35/tot_nc"
-        # CCpath = "nu_mu_Ti48/tot_cc"
-        # NCpath = "nu_mu_Ti48/tot_nc"
-        # CCpath = "nu_mu_O16/tot_cc"
-        # NCpath = "nu_mu_O16/tot_nc"
-        # cc_npath = "nu_mu_C12/tot_cc_n"
-        # cc_ppath = "nu_mu_C12/tot_cc_p"
-        # cc_cohpath = "nu_mu_C12/coh_cc"
-        # cc_dispath = "nu_mu_C12/dis_cc"
-        # cc_resppath = "nu_mu_C12/res_cc_p"
-        # cc_resnpath = "nu_mu_C12/res_cc_n"
-        # cc_mecpath = "nu_mu_C12/mec_cc"
-        # cc_qel_n = "nu_mu_C12/qel_cc_n"
-        # nc_npath = "nu_mu_C12/tot_nc_n"
-        # nc_ppath = "nu_mu_C12/tot_nc_p"
         
         fx = ROOT.TFile.Open(pathx, "READ")
         if not fx or fx.IsZombie():
             raise RuntimeError(f"Could not open xsec file: {pathx}")
 
         g_cc = fx.Get(CCpath)
-        # g_cc_n = fx.Get(cc_npath)
-        # g_cc_p = fx.Get(cc_ppath)
-        # g_cc_coh = fx.Get(cc_cohpath)
-        # g_cc_dis = fx.Get(cc_dispath)
-        # g_cc_res_p = fx.Get(cc_resppath)
-        # g_cc_res_n = fx.Get(cc_resnpath)
-        # g_cc_mec = fx.Get(cc_mecpath)
-        # g_cc_qel_n = fx.Get(cc_qel_n)
-        # g_nc_n = fx.Get(nc_npath)
-        # g_nc_p = fx.Get(nc_ppath)
         g_nc = fx.Get(NCpath)
+
         if not g_cc or not g_nc:
             fx.ls()
             raise RuntimeError(f"Missing graph(s): CC={CCpath} NC={NCpath}")
 
         # Optional: detach so closing file won’t kill them
         g_cc = g_cc.Clone("g_cc")
-        # g_cc_n = g_cc_n.Clone("g_cc_n")
-        # g_cc_p = g_cc_p.Clone("g_cc_p")
-        # g_cc_coh = g_cc_coh.Clone("g_cc_coh")
-        # g_cc_dis = g_cc_dis.Clone("g_cc_dis")
-        # g_cc_res_p = g_cc_res_p.Clone("g_cc_res_p")
-        # g_cc_res_n = g_cc_res_n.Clone("g_cc_res_n")
-        # g_cc_mec = g_cc_mec.Clone("g_cc_mec")
-        # g_cc_qel_n = g_cc_qel_n.Clone("g_cc_qel_n")
-        # g_nc_n = g_nc_n.Clone("g_nc_n")
-        # g_nc_p = g_nc_p.Clone("g_nc_p")
+
         g_nc = g_nc.Clone("g_nc")
         fx.Close()
         
@@ -1773,11 +1852,6 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
     else:
         raise Exception("No Matching Generator code")
     
-
-
-    ##########################################################################
-    #h_xsec = make_xsec_hist_like_flux(hist, g_cc, g_nc, name="h_xsec")
-    ##########################################################################
     
     bin_integral_unnorm = 0.0  
     xsecTester = 0 
@@ -1796,30 +1870,10 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         if xsectype == "G":
             CCxsec = float(g_cc.Eval(x))
             NCxsec = float(g_nc.Eval(x))
-            # CC_n_xsec = float(g_cc_n.Eval(x))
-            # CC_p_xsec = float(g_cc_p.Eval(x))
-            # CC_coh_xsec = float(g_cc_coh.Eval(x)) 
-            # CC_dis_xsec = float(g_cc_dis.Eval(x))
-            # CC_res_p_xsec = float(g_cc_res_p.Eval(x))
-            # CC_res_n_xsec = float(g_cc_res_n.Eval(x)) 
-            # CC_mec_xsec = float(g_cc_mec.Eval(x))
-            # CC_qel_n_xsec = float(g_cc_qel_n.Eval(x)) 
-            # NC_n_xsec = float(g_nc_n.Eval(x))
-            # NC_p_xsec = float(g_nc_p.Eval(x))
 
             # clip negatives to 0
             if CCxsec < 0: CCxsec = 0.0
             if NCxsec < 0: NCxsec = 0.0
-            # if CC_n_xsec < 0: CC_n_xsec = 0.0
-            # if CC_p_xsec < 0: CC_p_xsec = 0.0
-            # if CC_coh_xsec < 0: CC_coh_xsec = 0.0 
-            # if CC_dis_xsec < 0: CC_dis_xsec = 0.0
-            # if CC_res_p_xsec < 0: CC_res_p_xsec = 0.0
-            # if CC_res_n_xsec < 0: CC_res_n_xsec = 0.0
-            # if CC_mec_xsec < 0: CC_mec_xsec = 0.0
-            # if CC_qel_n_xsec < 0: CC_qel_n_xsec = 0.0
-            # if NC_n_xsec < 0: NC_n_xsec = 0.0
-            # if NC_p_xsec < 0: NC_p_xsec = 0.0
             if xsecmode == "CC":
                 xsec = CCxsec / nucpert
             elif xsecmode == "NC":
@@ -1828,10 +1882,6 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
                 xsec = (CCxsec + NCxsec) / nucpert
             else:
                 raise ValueError("XsecMode must be either 'CC', 'NC' or 'total'")
-            #xsec = CCxsec/12 
-            #xsec = (CC_coh_xsec/12) + (CC_dis_xsec/12) + (CC_res_p_xsec/12) + (CC_res_n_xsec/12) + (CC_mec_xsec/12) + (CC_qel_n_xsec/12)
-            #xsec = (CC_n_xsec/12) + (CC_p_xsec/12) + (CC_coh_xsec/12) + (CC_mec_xsec/12)
-            #xsec = (CC_n_xsec/12) + (CC_p_xsec/12) + (NC_n_xsec/12) + (NC_p_xsec/12)
         elif xsectype == "N":
             xsec = neut_spline.Eval(x)
             if xsecTester<10:
@@ -2004,6 +2054,10 @@ def defineWeightsSplineStage2(
     flux_file.Close()
 
     print(histName)
+    
+    xspline_mode = spec["xspline_mode"]
+    xsec_mode = spec["xsec_mode"]
+    target_divisor = float(spec["target_divisor"])
 
     if areaB:
         integral1 = hist.Integral("width")
@@ -2011,6 +2065,8 @@ def defineWeightsSplineStage2(
             hist.Scale(1.0 / integral1)
         else:
             raise ValueError("Histogram has zero integral; cannot normalize.")
+    elif areaB == False and xspline_mode == "G":
+        Fscale = Fscale *1e-38
 
     print("original flux width integral")
     print(hist.Integral("width"))
@@ -2034,10 +2090,6 @@ def defineWeightsSplineStage2(
         w = hist.GetBinWidth(i)
         spline_width_integral0 += spline0.Eval(x) * w
     print("spline width-integral0 (hist-like) =", spline_width_integral0)
-
-    xspline_mode = spec["xspline_mode"]
-    xsec_mode = spec["xsec_mode"]
-    target_divisor = float(spec["target_divisor"])
 
     g_cc = None
     g_nc = None
@@ -2154,6 +2206,8 @@ def defineWeightsSplineStage2(
 def MakeNeutXsecGraph(XsecPath, InteractionMode, Flavor="NuMu"):
     xs, ys = [], []
     # Change the flavor format to the way that it is in the neut xsec hists
+    if "_" in Flavor:
+        Flavor = Flavor.replace("_","")
     Flavor = Flavor.lower()
     if "bar" in Flavor:
         Flavor = Flavor.replace("bar","b")
