@@ -510,7 +510,8 @@ def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict):
             )
 
             print(f"    effective_xsec_mode = {effective_xsec_mode}")
-            
+
+            # df, bin_integral_unnorm = pp.defineWeightsHistogramStage2(
             df, bin_integral_unnorm = pp.defineWeightsSplineStage2(
                 df,
                 rw_file,

@@ -1780,7 +1780,7 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
         Fscale = Fscale * 1e-38 
         
     flux_file = ROOT.TFile.Open(rwRootFile, "READ")
-    hist = flux_file.Get(histName)
+    hist = flux_file.Get(histName).Clone(histName)
     print(f"using flux: {rwRootFile}")
     print(histName)
     time.sleep(1)
@@ -2206,6 +2206,190 @@ def defineWeightsSplineStage2(
         }}
     """)
 
+    df = df.Define("weights", f"{func_name0}(Enu_true)")
+    return df, bin_integral_unnorm
+
+
+def defineWeightsHistogramStage2(
+    df,
+    rwRootFile,
+    histName,
+    spec,
+    label="",
+    Fscale=1.0,
+    areaB=False,
+    undoNormB=False,
+    energy_min=None,
+    energy_max=None,
+):
+    import re
+
+    flux_file = ROOT.TFile.Open(rwRootFile)
+    if not flux_file or flux_file.IsZombie():
+        raise RuntimeError(f"Could not open flux file: {rwRootFile}")
+
+    hist = flux_file.Get(histName)
+    if not hist:
+        flux_file.ls()
+        raise RuntimeError(f"Could not find histogram '{histName}' in {rwRootFile}")
+
+    hist = hist.Clone(f"h_flux_{label or 'stage2'}")
+    hist.SetDirectory(0)
+    flux_file.Close()
+
+    print(histName)
+    
+    xspline_mode = spec["xspline_mode"]
+    xsec_mode = spec["xsec_mode"]
+    target_divisor = float(spec["target_divisor"])
+
+    if areaB:
+        integral1 = hist.Integral("width")
+        if integral1 > 0:
+            hist.Scale(1.0 / integral1)
+        else:
+            raise ValueError("Histogram has zero integral; cannot normalize.")
+    elif areaB == False and xspline_mode == "G":
+        Fscale = Fscale *1e-38
+
+    print("original flux width integral")
+    print(hist.Integral("width"))
+
+    n_points0 = hist.GetNbinsX()
+    graph0 = ROOT.TGraph(n_points0)
+
+    for i in range(1, n_points0 + 1):
+        x = hist.GetBinCenter(i)
+        y = hist.GetBinContent(i)
+        graph0.SetPoint(i - 1, x, y)
+
+    safe_label = re.sub(r"\W+", "_", label or "stage2")
+    spline_name0 = f"g_fluxSpline_0_{safe_label}"
+    func_name0 = f"get_flux_weight_0_{safe_label}"
+    spline0 = ROOT.TSpline3(spline_name0, graph0)
+
+
+    spline_width_integral0 = 0.0
+    for i in range(1, hist.GetNbinsX() + 1):
+        x = hist.GetBinCenter(i)
+        w = hist.GetBinWidth(i)
+        spline_width_integral0 += spline0.Eval(x) * w
+    print("spline width-integral0 (hist-like) =", spline_width_integral0)
+
+    g_cc = None
+    g_nc = None
+    neut_spline = None
+
+    if xspline_mode == "G":
+        xsec_file = spec["xsec_file"]
+        cc_path = spec["cc_path"]
+        nc_path = spec["nc_path"]
+
+        fx = ROOT.TFile.Open(xsec_file, "READ")
+        if not fx or fx.IsZombie():
+            raise RuntimeError(f"Could not open xsec file: {xsec_file}")
+
+        g_cc = fx.Get(cc_path)
+        g_nc = fx.Get(nc_path)
+        if not g_cc or not g_nc:
+            fx.ls()
+            raise RuntimeError(f"Missing graph(s): CC={cc_path} NC={nc_path}")
+
+        g_cc = g_cc.Clone(f"g_cc_{safe_label}")
+        g_nc = g_nc.Clone(f"g_nc_{safe_label}")
+        fx.Close()
+
+    elif xspline_mode == "N":
+        OutPath = os.environ.get("PUFIN_OUT")
+        if OutPath == None:
+            raise EnvironmentError("PUFIN_OUT Must be defined to reweight NEUT")
+
+        version, tune, target = spec["version"], spec["tune"], spec["target"]
+
+        pathx = f"{OutPath}/NEUT/Xsecs/NEUT{version}_{tune}_{target}_XSECHIST.root"
+
+        nu_type = spec["nu_type"]
+        column_map = {
+            "numu": 1,
+            "numubar": 2,
+            "nue": 3,
+            "nuebar": 4,
+        }
+        if nu_type not in column_map:
+            raise ValueError(f"Unsupported nu_type for N spline: {nu_type}")
+        print(pathx)
+
+        xsecTFile = ROOT.TFile.Open(pathx, "READ")
+        if not xsecTFile or xsecTFile.IsZombie():
+            raise RuntimeError(f"Could not open NEUT xsec file: {pathx}")
+        xsecTFile.Close()
+
+        neut_graph = MakeNeutXsecGraph(pathx, spec["interaction"], Flavor=nu_type)
+        interaction = spec["interaction"]
+        neut_spline = ROOT.TSpline3(f"neut_spline_{safe_label}", neut_graph)
+        print(f"Using NEUT xsec histogram for {interaction}")
+        print(f"NEUT xsec at 3 GeV: {neut_spline.Eval(3)}")
+
+    bin_integral_unnorm = 0.0
+
+    for i in range(1, hist.GetNbinsX() + 1):
+        x = hist.GetBinCenter(i)
+        if energy_min is not None and x < energy_min:
+            continue
+        if energy_max is not None and x > energy_max:
+            continue
+        y = hist.GetBinContent(i)
+        w = hist.GetBinWidth(i)
+
+        if xspline_mode == "G":
+            cc_xsec = max(0.0, float(g_cc.Eval(x)))
+            nc_xsec = max(0.0, float(g_nc.Eval(x)))
+
+            if xsec_mode == "CC":
+                xsec = cc_xsec / target_divisor
+            elif xsec_mode == "NC":
+                xsec = nc_xsec / target_divisor
+            elif xsec_mode == "total":
+                xsec = (cc_xsec / target_divisor) + (nc_xsec / target_divisor)
+            else:
+                raise ValueError(f"Unsupported xsec_mode '{xsec_mode}'")
+
+        elif xspline_mode == "N":
+            xsec = max(0.0, float(neut_spline.Eval(x)))
+
+        else:
+            xsec = 1.0
+        # print(
+        #     f"[XSEC DEBUG] label={label} "
+        #     f"bin={i} E={x:.6f} "
+        #     f"target_divisor={target_divisor:.6f} "
+        #     f"cc_xsec={cc_xsec if cc_xsec is not None else 'NA'} "
+        #     f"nc_xsec={nc_xsec if nc_xsec is not None else 'NA'} "
+        #     f"xsec_used={xsec:.12e}"
+        # )
+
+        if undoNormB:
+            bin_integral_unnorm += y * w * Fscale * xsec
+        else:
+            bin_integral_unnorm += y * Fscale * xsec
+
+    print("bin integral after (content*width*Fscale*xsec) =", bin_integral_unnorm)
+
+    # stupid hack to get the correct varible type TH1D or TH1F 
+    fluxHist_name = f"g_fluxHist_0_{safe_label}"
+    a = str(type(hist)).split("TH1")[1][0]
+    # print(a)
+    ROOT.gROOT.ProcessLine(f"TH1{a}* {fluxHist_name};")  # Declare a global variable in C++
+    setattr(ROOT, fluxHist_name, hist)# Assign your Python-side TH1D to the C++ global
+
+    ROOT.gInterpreter.Declare(f"""
+    double {func_name0}(double energy) {{
+        int bin = {fluxHist_name}->GetXaxis()->FindBin(energy);
+        double weight = {fluxHist_name}->GetBinContent(bin);
+        return weight;
+    }}
+    """)
+    
     df = df.Define("weights", f"{func_name0}(Enu_true)")
     return df, bin_integral_unnorm
 
