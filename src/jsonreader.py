@@ -183,7 +183,8 @@ def MakePlots(plots, GlobalSettings):
         BinL = plots["Bins"]
         AxisInfo = []
         df = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"))
-        VbinBool = "VBins" in plots
+        # VbinBool = "VBins" in plots
+        VbinBool = plots.get("VBins", [False])[0]
         if VbinBool:
             Vbins = array.array('d',plots["VBins"][1])
             varBinInfo = ROOT.RDF.TH1DModel("h_varbins","h", len(Vbins) - 1, Vbins)
