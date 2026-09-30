@@ -300,22 +300,31 @@ if __name__ =="__main__":
     )
 
 # export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts
+# export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts/Test
 # source SetupPufin.sh
 # moldule load ROOT
 
 # python GenSubmit.py GenGenie \
-#     --container /project/cherdack/containers/Generators/t2k-nova-generator.sif \
+#     --container /project/cherdack/containers/Generators/Neut5_9_2GENIE_v3_06_00Full.sif \
 #     --events 10000 \
 #     --nchunks 1000 \
 #     --total_nodes 20 \
 #     --cpu_percent 100
 
 # python GenSubmit.py GenGenie \
-#     --container /project/cherdack/containers/Generators/t2k-nova-generator.sif \
+#     --container /project/cherdack/containers/Generators/Neut5_9_2GENIE_v3_06_00Full.sif \
 #     --events 1000 \
 #     --nchunks 80 \
 #     --total_nodes 2 \
 #     --cpu_percent 100
+
+# python GenSubmit.py GenGenie \
+#     --container /project/cherdack/containers/Generators/Neut5_9_2GENIE_v3_06_00_AR23_Full.sif \
+#     --events 1000 \
+#     --nchunks 2 \
+#     --total_nodes 2 \
+#     --cpu_percent 100
+
 
 
 
