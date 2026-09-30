@@ -78,7 +78,8 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         
 def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=None, Flavor=None, CPUPercent=None):
     OutPath = os.environ.get("PUFIN_OUT")
-    LogDir = f"{OutPath}/kdobbs_temp_dir"
+    user = os.environ.get("USER")
+    LogDir = f"{OutPath}/{user}_temp_dir"
     os.makedirs(LogDir, exist_ok=True)
 
     if OutPath is None:
