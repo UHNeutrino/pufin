@@ -188,6 +188,7 @@ PUfIN is compatible with standard and custom variable keys as well as Nuisance [
   <tr> <td> Adds up energy in the final state from protons, pions, electrons and photons </td>   <td> E_had </td> </tr>
   <tr> <td> Hadronic energy pre-fsi </td>   <td> E_had_pre </td> </tr>
   <tr> <td> Ehad but including other less common particles </td>   <td> E_had_inc </td> </tr>
+  <tr> <td> E_had_inc but omitting electrons and positrons </td>   <td> E_had_inc_nue </td> </tr>
   <tr> <td> Ehad including KE of Protons and Pions </td>   <td> E_had_less </td> </tr>
   <tr> <td> Ehad including KE of Protons and energy of electrons + photons </td>   <td> E_had_QE </td> </tr>
 

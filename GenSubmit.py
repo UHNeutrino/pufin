@@ -78,6 +78,9 @@ def NeutRunScript(Container, Tune, Events, TotalNodes, NChunks, Target=None, Mod
         
 def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=None, Flavor=None, CPUPercent=None):
     OutPath = os.environ.get("PUFIN_OUT")
+    user = os.environ.get("USER")
+    LogDir = f"{OutPath}/{user}_temp_dir"
+    os.makedirs(LogDir, exist_ok=True)
 
     if OutPath is None:
         raise ValueError("PUFIN_OUT Needs to be defined!")
@@ -163,7 +166,7 @@ def GenieRunScript(Container, Events, NChunks, TotalNodes, Target=None, Mode=Non
         --mem={MemoryGB}G \\
         --exclude=compute-6-9,compute-6-10,compute-6-36,compute-6-59,compute-4-32,compute-5-24,compute-5-25 \\
         --job-name=GENIE{Node+1}of{TotalNodes} \\
-        --output=GENIEGeneration_{Node+1}of{TotalNodes}_%j.out \\
+        --output={LogDir}/GENIEGeneration_{Node+1}of{TotalNodes}_%j.out \\
         --wrap "apptainer exec --writable-tmpfs --bind {OutPath}:{OutPath} {Container} bash -c 'source /opt/SetupAll.sh && export PUFIN_OUT={OutPath} && python GenMain.py GenieMult --Files {FilesFormatted} --CPUPercent {CPUPercent}'"
         """
         print(f"Sending GENIE job to Node {Node} of {TotalNodes}")
@@ -297,19 +300,32 @@ if __name__ =="__main__":
             CPUPercent=args.cpu_percent,
     )
 
+# export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts
+# export PUFIN_OUT=/project/cherdack/t2k-nova/PUfINOutPuts/Test
+# source SetupPufin.sh
+# moldule load ROOT
+
 # python GenSubmit.py GenGenie \
-#     --container /project/cherdack/containers/Generators/t2k-nova-generator.sif \
+#     --container /project/cherdack/containers/Generators/Neut5_9_2GENIE_v3_06_00Full.sif \
 #     --events 10000 \
 #     --nchunks 1000 \
 #     --total_nodes 20 \
 #     --cpu_percent 100
 
 # python GenSubmit.py GenGenie \
-#     --container /project/cherdack/containers/Generators/t2k-nova-generator.sif \
+#     --container /project/cherdack/containers/Generators/Neut5_9_2GENIE_v3_06_00Full.sif \
 #     --events 1000 \
 #     --nchunks 80 \
 #     --total_nodes 2 \
 #     --cpu_percent 100
+
+# python GenSubmit.py GenGenie \
+#     --container /project/cherdack/containers/Generators/Neut5_9_2GENIE_v3_06_00_AR23_Full.sif \
+#     --events 1000 \
+#     --nchunks 2 \
+#     --total_nodes 2 \
+#     --cpu_percent 100
+
 
 
 
