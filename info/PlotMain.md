@@ -113,7 +113,7 @@ git clone https://github.com/UHNeutrino/PUfIN/
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
 
-+ ```"File1":``` file (as a string)
++ ```"File":``` file (as a string)
 + ```"Type":``` plot dimensionality (```"1D"``` or ```"2D"```)
 + ```"Cut":``` see [making cuts](VariablesAndModes.md#making-cuts-with-variables-flags--modes) for more information
 + ```"Var1":``` x-axis variable
@@ -330,7 +330,30 @@ Channel overlap for GENIE Ar23 with BNB flux reweight from E<sub>&nu;</sub> = 1-
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
   
-+ 
++ ```"Cut":``` see [making cuts](VariablesAndModes.md#making-cuts-with-variables-flags--modes) for more information
++ ```"Name":``` name that created files will be saved as (entered as a string without extensions)
++ ```"Bins":``` entered as a list in the form ```[number of bins along x-axis, x-min, x-max]```
++ &dagger;```"VBins":``` sets variable bin width when ```true```; a list in the form
+   ```
+  [*boolean* , [*edges of bins for plotting with variable bin width*]]
+   ```
++ ```"logy":``` a boolean that sets the y-axis to a logarithmic scale when ```true```
++ &dagger;```"max":``` sets maximum y-axis value (event rate or reactions)
++ &dagger;```"ErrorBars":``` boolean that adds ???? error bars when ```true```
++ &dagger;```"Add_Ratio":``` boolean that adds a ratio panel below the main plot
++ &dagger;```"RatioNominal":``` denominator for plotted ratio(s); can be a list of keys or a single plot key
++ &dagger;```"RatioPlots":``` numerator for plotted ratio(s); list of keys or ```"all"```
+  (makes ratios of all entries over ```"RatioNominal"```)
++ &dagger;```"RatioRange":``` range of added ration; ```"auto"``` for automatic range or list ```[ratio_min, ratio_max]```
++ &dagger;```"RatioLabel":``` label for the ratio panel; entered as a string
++ ```"Plots":``` plots entered as a list of sub-dictionaries with the following entries
+  + ```"Key":``` unique key for the plotted file (used if ```"Add_Ratio":```); entered as a string
+  + ```"File":``` file name (as a string)
+  + ```"Label":``` unique key for the plotted file (used if ); entered as a string
+  + ```"Var":``` x-axis variable
+  + ```"Color":``` line color
+  + ```"Cut":``` see [making cuts](VariablesAndModes.md#making-cuts-with-variables-flags--modes) for more information
+  + &dagger;```"Style":``` line style
 
 </details>
 
@@ -338,17 +361,74 @@ Channel overlap for GENIE Ar23 with BNB flux reweight from E<sub>&nu;</sub> = 1-
 <summary><b> Example </b></summary>
   
 <!-- Example 1DSame entry and link to config file with another example -->
+> Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":```
 
 ```
-Example config
+"1DSame":
+    {
+        "Cut": "flagCCINC == true",
+        "AxisInfo": "Q^{2}, GeV^{2}, Event Rate, , RES Events (nu_mu Neut 6.1.4)",  // x-var, x-unit, y-var, y-unit, plot title
+        "Bins": [75, -0.1, 3.5],
+        "Name": "CORESEventsDCCRS_Q2",
+        "logy": false,
+        "ErrorBars": false,
+        "Add_Ratio": true,  
+        "RatioNominal": ["OxRS","CarbRS"], // can be a list of keys or a single key
+        "RatioPlots": ["OxDCC","CarbDCC"], // "all" for every ratio plot or a list of keys
+        "RatioRange": "auto", 
+        "RatioLabel":"DCC/RS",
+        "Plots": [
+            {
+            // %%%%%%%%%% Oxygen with DCC %%%%%%%%%%
+            "Key": "OxDCC",
+            "File": "Flat_NEUT6.1.4_OxygenDCC",
+            "Label": "Oxygen DCC",
+            "Style": 1,
+            "Color": "#e42536",
+            "Var": "Q2",
+            "Cut": "Mode == 11 || Mode == 12 || Mode == 13",
+            },
+            {
+            // %%%%%%%%%% Oxygen with RS (w/out DCC) %%%%%%%%%%
+            "Key": "OxRS",
+            "File": "Flat_NEUT6.1.4_OxygenRS",
+            "Label": "Oxygen RS",
+            "Color": "#e42536",
+            "Style": 2,
+            "Var": "Q2",
+            "Cut": "Mode == 11 || Mode == 12 || Mode == 13",
+            },            
+            {
+            // %%%%%%%%%% Carbon with DCC %%%%%%%%%%
+            "Key": "CarbDCC",
+            "File": "Flat_NEUT6.1.4_CarbonDCC",
+            "Label": "Carbon DCC",
+            "Style": 1,
+            "Color": "#5790fc",
+            "Var": "Q2",
+            "Cut": "Mode == 11 || Mode == 12 || Mode == 13",
+            },
+            {
+            // %%%%%%%%%% Carbon w/out DCC %%%%%%%%%%
+            "Key": "CarbRS",
+            "File": "Flat_NEUT6.1.4_CarbonRS",
+            "Label": "Carbon RS",
+            "Style": 2,
+            "Color": "#5790fc",
+            "Var": "Q2",
+            "Cut": "Mode == 11 || Mode == 12 || Mode == 13",
+            }  
+        ]
+    }
 ```
 
 <table>
 <tr> <td> 
 <!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+<img width="696" height="472" alt="image" src="https://github.com/user-attachments/assets/ffb0840f-6b98-40b3-aa59-6a3141a88653" />
 </td> </tr> 
 <tr> <td>
-<!-- type plot description here -->
+RES events plotted against Q<sup>2</sup> for each RS/DCC and Oxygen/Carbon model-target combination.
 </td> </tr>
 </table>
 
