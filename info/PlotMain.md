@@ -10,16 +10,18 @@ PlotMain.py is a plotting function that uses interaction data in flattened root 
   Useful Resources 
 </b> </summary>
 
++ Identify Nuisance interaction mode codes with [Nuisance HEPForge](https://nuisance.hepforge.org/tutorials/interaction_modes.html)
+  or this [internal document](info/VariablesAndModes.md)
+
++ Identify NEUT, GENIE, and PUfIN variables by referencing [VariablesAndModes.md](info/VariablesAndModes.md)
+  
++ Format plot titles with subscripts, special characters, etc. using ROOT's [classTLatex](https://root.cern/doc/v606/classTLatex.html#L1)
+
 + Find or generate color schemes using ROOT's [TColor Class Reference](https://root.cern.ch/doc/v636/classTColor.html)
   
 + Set other line attributes by referencing ROOT's [TAttLine Class Reference](https://root.cern.ch/doc/v630/classTAttLine.html)
   > Check [src/jsonreader.py](src/jsonreader.py)
     for attribute support in each PlotMain plotting type
-
-+ Identify Nuisance interaction mode codes with [Nuisance HEPForge](https://nuisance.hepforge.org/tutorials/interaction_modes.html)
-  or this [internal document](info/VariablesAndModes.md)
-
-+ Identify NEUT, GENIE, and PUfIN variables by referencing [VariablesAndModes.md](info/VariablesAndModes.md)
 
 </details>
 
@@ -105,28 +107,42 @@ git clone https://github.com/UHNeutrino/PUfIN/
 
 ### Plotting with ```"plots":```
 
-```"plots":``` creates a simple plot using events from a single (flattened) root file (see [plotting with ```"1DSame":```](#plotting-with-1dsame) to plot multiple files on the same plot). To use ```"plots"```, the mode must be defined in the called config file and the following entries edited.
+```"plots":``` creates a simple 1D or 2D plot using a single cut of events from *one* (flattened) root file (see [plotting with ```"1DSame":```](#plotting-with-1dsame) to plot multiple files on the same plot in 1D). To use ```"plots"```, the mode must be defined in the called config file and the following entries edited.
 
 
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
 
-+ ```"File":```
-+ ```"Type":```
-+ ```"Cut":```
-+ ```"Var1"```
-+ ```"Var2"```
-+ ```"AxisInfo":```
-+ ```"Bins":```
-  + For ```"Type": 1D```:
-  + For ```"Type": 2D```:
++ ```"File1":``` file (as a string)
++ ```"Type":``` plot dimensionality (```"1D"``` or ```"2D"```)
++ ```"Cut":``` see [making cuts](VariablesAndModes.md#making-cuts-with-variables-flags--modes) for more information
++ ```"Var1":``` x-axis variable
++ &dagger;```"Var2"``` y-axis variable (when ```"Type": "2D"```)
++ ```"AxisInfo":``` entered as a single string with entries separated by commas in the following form
+  
+  ```
+    "x-axis variable, Var1 unit, y-axis variable, Var2 unit, plot title"
+  ```
+  > for 1D, leave unused fields blank: ``` "x-axis variable, Var1 unit, , , plot title" ```
++ ```"Bins":``` 
+  + For ```"Type": 1D```: entered as a list in the following form
+  
+  ```
+  [number of bins along x-axis, x-min, x-max]
+  ```
+  
+  + For ```"Type": 2D```: entered as a list in the following form
+  
+  ```
+  [number of bins along x-axis, x-min, x-max, number of bins along y-axis, y-min, y-max]
+  ```
 + &dagger;```"VBins":```
-+ ```"Name":```
-+ ```"max":```
-+ ```"logz":```
-+ &dagger;```"profileX":```
-+ &dagger;```"diagonal":```
-+ &dagger;```"Style":```
++ ```"Name":``` name that created files will be saved as (entered as a string without extensions)
++ &dagger;```"max":``` manually maximum plot value (entered as a number, or omitted for automatic scaling)
++ ```"logz":``` sets z-axis (number of interactions) to a log scale (```true```/```false```)
++ &dagger;```"profileX":``` plots a point in each Var1-bin (x) at the mean Var2 (y) value for that bin (vert/horiz lines?); only works in 2D, activate by including ```"profileX": true```
++ &dagger;```"diagonal":``` creates a diagonal line where Var1=Var2; only works with profileX, activate by including ```"diagonal": true```
++ &dagger;```"Style":``` line style (see ROOT's [TAttLine Class Reference](https://root.cern.ch/doc/v630/classTAttLine.html) for line style codes)
 
 </details>
 
@@ -135,41 +151,66 @@ git clone https://github.com/UHNeutrino/PUfIN/
   
 <!-- Example plots entry and link to config file with another example -->
 
+> Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":```
 ```
-1D example config
+// 1D config
+    "plots":
+        {
+            "File":"Flat_GenieAR23_onAr_flatf_0-5GeV_NumuCC_SuSAv2_ghep_1e7",
+            "Type":"1D",
+            "Cut": "flagCCINC == true",
+            "Var1": "Enu_true",
+            "AxisInfo":"E_{#nu}, GeV, Interactions,  , GENIEAr23 BNB CC-INC",
+            "Bins": [160, 0, 8], // doesn't affect binning since VBins is activated
+            "VBins":[true,[0.0, 0.1, 0.2, 0.34, 0.4, 0.5, 0.6, 0.70, 0.8, 0.9, 1.0, 1.1, 1.200, 1.3, 1.40, 1.5, 1.6, 1.7, 1.8, 1.91, 2.0, 2.1, 2.2, 2.3, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.5, 5.0] ],
+            "Name": "GENIEAR23_Enu_true",
+            "logz": false,
+        }
 ```
 
+> Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":``` and the color palette was set using ```"Palette": "kBird"```
 ```
-2D example config
+// 2D config
+    "plots":
+        {
+            "File":"Flat_GenieAR23_onAr_flatf_0-5GeV_NumuCC_SuSAv2_ghep_1e7",
+            "Type":"2D",
+            "Cut": "flagCCINC == true",
+            "Var1": "q3",
+            "Var2": "q0",
+            "AxisInfo":"q_{3}, GeV, q_{0}, GeV, GENIEAr23 BNB",
+            "Bins": [60, 0, 4.5, 60, 0, 4],
+            "Name": "TEST_plots2D_ProfileX",
+            "logz": true,
+            "profileX": true, // only works with 2D
+            "diagonal": true // only works with profileX=true
+        }
 ```
 
-<table><tr>
 
-<td valign="top">
 <table>
-  <tr> <b> 1D Plot </b> </tr>
-  <tr> <td> 
-  <!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
-  </td> </tr> 
-  <tr> <td>
-  <!-- type plot description here -->
-  </td> </tr>
-</table>
-</td>
-
-<td valign="top">
-<table>
-  <tr> <b> 2D Plot </b> </tr>
-  <tr> <td> 
+  <!-- <tr> <b> 1D Plot </b> </tr> -->
+  <tr> 
+  <td> 
+     <!-- To add 1D plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+  <img width="896" height="472" alt="image" src="https://github.com/user-attachments/assets/086a7631-712a-463f-900a-1c0f10184757" />
+  </td> 
+  <td> 
   <!-- To add 2D plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
-  </td> </tr> 
-  <tr> <td>
+  <img width="696" height="472" alt="image" src="https://github.com/user-attachments/assets/2994c34c-486e-4eb4-b673-d4aae54fe161" />
+  </td>
+  </tr> 
+  
+  <tr> 
+  <td>
+  A plot, made using the 1D configuration above, showing the number of events (predicted by GENIE on Ar23) for different values of E<sub>&nu;</sub> using variable bin widths.
+  </td> 
+  <td>
   <!-- type 2D plot description here -->
-  </td> </tr>
+  A plot, made using the 2D configuration above, showing the q<sub>0</sub>-q<sub>3</sub> phase space occupation of events predicted by GENIE on an Ar23 target with a BNB flux reweight.
+  </td> 
+  </tr>
 </table>
-</td>
-
-</tr></table>
 
 > See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
   
@@ -178,7 +219,8 @@ git clone https://github.com/UHNeutrino/PUfIN/
 
 ### Plotting with ```"stacks":```
 
-***...still needs general description...***
+```"stacks":``` creates a 1D plot that vertically stacks events that fall within user-specified criteria.
+> For best use, the specified cuts should not overlap so as not to double-count events
 
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
@@ -197,16 +239,30 @@ git clone https://github.com/UHNeutrino/PUfIN/
   
 <!-- Example stacks entry and link to config file with another example -->
 
+> Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":```
+
 ```
-Example config
+    "stacks":
+        {
+            "File":"Flat_GenieAR23_onAr_flatf_0-5GeV_NumuCC_SuSAv2_ghep_1e7",
+            "Cut": "flagCCINC == true",
+            "Var1": "Enu_true",
+            "StackCuts":{"Mode == 1": "QE", "Mode == 2":"2p2h", "( Mode ==  12 || Mode == 13 || Mode == 14 )":"Neutron Resonance",
+              "(Mode == 11 )":"Proton Resonance","( Mode == 15 )":"Diffractive Channel", "Mode == 16":"Coherent Scatter",
+              "!(Mode==1 || Mode == 2 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 11 || Mode == 15 || Mode == 16):"Other"},
+            "Colors":"#ff5e02, #c91f16, #c849a9, #adad7d, #86c8dd, #578dff, #656364",
+            "AxisInfo":"#nu Energy, GeV, Unscaled Interactions, , Genie Argon Stacked CC events",
+            "Bins": [160, 0, 6], 
+            "Name": "TEST_stacks1D",
+        }
 ```
 
 <table>
 <tr> <td> 
-<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+<img width="996" height="572" alt="image" src="https://github.com/user-attachments/assets/6f9682df-32cd-421a-ab51-eaba6539399f" />
 </td> </tr> 
 <tr> <td>
-<!-- type plot description here -->
+Stacked CC events on Ar-23 target.
 </td> </tr>
 </table>
 
@@ -217,7 +273,7 @@ Example config
 
 ### Plotting with ```"overlap":```
 
-***...still needs general description...***
+```"overlap":``` used interaction data from a single file and plots multiple 1D curves representing events that satisfy multiple user-specified cuts.
 
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
@@ -230,17 +286,34 @@ Example config
 <summary><b> Example </b></summary>
   
 <!-- Example overlap entry and link to config file with another example -->
+> Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":```
 
 ```
-Example config
+    "overlap":
+        {
+            "File":"Flat_GenieAR23_onAr_flatf_0-5GeV_NumuCC_SuSAv2_ghep_1e7",
+            "Cut": "", 
+            "Var1": "Enu_true",
+            "StackCuts":{"Mode == 1":"QE",
+                "Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16":"RES",
+                "Mode == 26":"DIS",
+                "Mode == 21":"MPP"},
+            "Colors":"kOrange-3, kAzure+4, kRed-3, kViolet-3",
+            "AxisInfo":"Enu_true, GeV, counts, , Genie Ar23 Overlap #nu_{#mu} CC",
+            "Bins": [160, 0, 5.1], 
+            "Name": "TEST_overlap",
+            "logz": false
+        }
 ```
 
 <table>
 <tr> <td> 
 <!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+<img width="696" height="472" alt="image" src="https://github.com/user-attachments/assets/8c721c57-c509-4627-8721-f3bcfa49cfcf" />
 </td> </tr> 
 <tr> <td>
 <!-- type plot description here -->
+Channel overlap for GENIE Ar23 with BNB flux reweight from E<sub>&nu;</sub> = 1-5 GeV
 </td> </tr>
 </table>
 
@@ -251,7 +324,8 @@ Example config
 
 ### Plotting with ```"1DSame":```
 
-***...still needs general description...***
+```"1DSame":``` displays interaction data in 1D from multiple files on the same plot. 
+> Reweighting inside ```"1DSame":``` overrides global flux reweighting
 
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
@@ -285,7 +359,7 @@ Example config
 
 ### Plotting with ```"Contour":```
 
-***...still needs general description...***
+```"Contour":``` creates a 2D plot which displays the event distribution across Var1-Var2 phase space overlaid with contours encircling events that satisfy specified cuts. These cuts are differentiated using line color.
 
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
@@ -320,7 +394,7 @@ Example config
 
 ### Plotting with ```"ContourStyle":```
 
-***...still needs general description...***
+```"ContourStyle":``` creates a 2D plot which displays the event distribution across Var1-Var2 phase space overlaid with contours encircling events that satisfy 2 specified cuts. These cut combinations are differentiated using line color and line style.
 
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
@@ -333,48 +407,30 @@ Example config
 <summary><b> Example </b></summary>
   
 <!-- Example ContourStyle entry and link to config file with another example -->
+> Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":```
 
 ```
-Example config
-```
-
-<table>
-<tr> <td> 
-<!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
-</td> </tr> 
-<tr> <td>
-<!-- type plot description here -->
-</td> </tr>
-</table>
-
-> See [```PlotMain.json5```](../config/PlotMain.json5) for more examples of ```PlotMain.py``` plotting config entries.
-  
-</details>
-
-
-### Plotting with ```"quantiles":```
-
-***...still needs general description...***
-
-<details>
-<summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
-  
-+ 
-
-</details>
-
-<details>
-<summary><b> Example </b></summary>
-  
-<!-- Example quantiles entry and link to config file with another example -->
-
-```
-Example config
+    "ContourStyle":
+        {
+            "File":"Flat_NEUT6.1.4_OxygenRS",
+            "Cut": "", 
+            "Var1":"q0",
+            "Var2":"q3",
+            "TotalPercents":[90], // % of valid events to include in contour
+            "ColorCuts":{"Mode == 1":"QE, 868", //"Mode == 2":"2P2H, kOrange-3", 
+                "(Mode == 11 || Mode ==  12 || Mode == 13 || Mode == 14 || Mode == 15 || Mode == 16)":"Pion Abs, #c849a9"},
+            "StyleCuts":{"Enu_true < 0.7":"Enu < .7, 2","Enu_true > 0.7":"Enu_true > .7, 1"}, //"Eres_kin >= -0.1 && Eres_kin <= 0.1":"ErK ~ 0%, 1"  },//"Cut":"Label, style number"
+            "AxisInfo":"q_{0}, (GeV/c), q_{3}, (GeV), NEUT Oxygen RS Contours",
+            "Bins":[100,0,1.5,100,0,2],
+            "logz":true,
+            "Name": "TEST_ContourStyle"
+        }
 ```
 
 <table>
 <tr> <td> 
 <!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+<img width="996" height="572" alt="image" src="https://github.com/user-attachments/assets/4e34757f-3782-4c82-875d-70cbcdf958e8" />
 </td> </tr> 
 <tr> <td>
 <!-- type plot description here -->
@@ -388,7 +444,7 @@ Example config
 
 ### Plotting with ```"2DRatio":```
 
-***...still needs general description...***
+```"2DRatio":``` creates a 2D plot that displays the ratio between event data from 2 different files.
 
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
