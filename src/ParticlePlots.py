@@ -432,6 +432,16 @@ def DefineEvis(df):
     # Same as E_had_inc but but omitting energy from electron(positron), which would be the primary lepton for nue(bar)s
     df = df.Define("E_had_inc_nue", """
         double e_had3 = 0;
+        
+        // Identify the primary lepton by its position in pdg
+        int primaryLepton = -1;
+
+        if (pdg.size() > 0 && (abs(pdg[0]) == 11 || abs(pdg[0]) == 12)) {
+            primaryLepton = 0;
+        }
+        else if (pdg.size() > 1) {
+            primaryLepton = 1;
+        }
         for (size_t i = 0; i < pdg.size(); ++i) {
             int pdg_val = pdg[i];
             double energy = E[i];
@@ -446,7 +456,7 @@ def DefineEvis(df):
                     double gamma = energy / mass;
                     e_had3 += (gamma - 1) / gamma * energy;
                 }
-            } else if (pdg_val == 111 || pdg_val == 22) { // pi0, photon
+            } else if (pdg_val == 111 || pdg_val == 22 || ((pdg_val == 11 || pdg_val == -11) && i != primaryLepton)) { // pi0, photon
                 e_had3 += energy;
             }  else if (pdg_val >= 2000000000)
 	        {
