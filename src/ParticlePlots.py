@@ -2088,17 +2088,21 @@ def defineWeightsSplineStage2(
     print(hist.Integral("width"))
 
     n_points0 = hist.GetNbinsX()
-    graph0 = ROOT.TGraph(n_points0)
+    graph0 = ROOT.TGraph(n_points0+1)
+    graph0.SetPoint(0, 0, 0)
 
     for i in range(1, n_points0 + 1):
         x = hist.GetBinCenter(i)
         y = hist.GetBinContent(i)
         graph0.SetPoint(i - 1, x, y)
 
+    smoother = ROOT.TGraphSmooth("smooth")
+    graph0_smooth = smoother.SmoothLowess(graph0, "", 0.67, 3, 0.0)
+
     safe_label = re.sub(r"\W+", "_", label or "stage2")
     spline_name0 = f"g_fluxSpline_0_{safe_label}"
     func_name0 = f"get_flux_weight_0_{safe_label}"
-    spline0 = ROOT.TSpline3(spline_name0, graph0)
+    spline0 = ROOT.TSpline3(spline_name0, graph0_smooth)
 
     spline_width_integral0 = 0.0
     for i in range(1, hist.GetNbinsX() + 1):
