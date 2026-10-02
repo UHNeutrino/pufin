@@ -4,7 +4,8 @@ import os
 import src.SetupFunctions as SF
 import re
 import time
-
+from array import array
+import numpy as np
 
 SF.setupRoot()
 
@@ -2091,18 +2092,51 @@ def defineWeightsSplineStage2(
     graph0 = ROOT.TGraph(n_points0+1)
     graph0.SetPoint(0, 0, 0)
 
+    xList = [0]
+    yList = [0]
+
     for i in range(1, n_points0 + 1):
         x = hist.GetBinCenter(i)
         y = hist.GetBinContent(i)
-        graph0.SetPoint(i - 1, x, y)
+        x = round(x,6)
+        y = round(y,6)
+        xList.append(x)
+        yList.append(y)
+        graph0.SetPoint(i, x, y)
 
-    smoother = ROOT.TGraphSmooth("smooth")
-    graph0_smooth = smoother.SmoothLowess(graph0, "", 0.67, 3, 0.0)
+    smooth_thresh = max(yList) * 0.05
+    xSmall = [0]
+    ySmall = [0]
+    for i in range(1,len(xList)):
+        if yList[i] < smooth_thresh:
+            xSmall.append(xList[i])
+            ySmall.append(yList[i])
+
+    subGraph =  ROOT.TGraph(len(xSmall), array('d', xSmall), array('d', ySmall))
+    gs = ROOT.TGraphSmooth("ks")
+    gout = gs.SmoothKern(subGraph, "normal", 5 * hist.GetBinWidth(1), len(xSmall), array('d', xSmall))
+
+
+    graph0_smooth = ROOT.TGraph(graph0)
+    for i in range(0,len(xList)):
+        if xList[i] in xSmall and i>5:
+            iSmall = xSmall.index(xList[i])
+            graph0_smooth.SetPoint(i,xList[i], gout.GetPointY(iSmall))
+    
 
     safe_label = re.sub(r"\W+", "_", label or "stage2")
     spline_name0 = f"g_fluxSpline_0_{safe_label}"
     func_name0 = f"get_flux_weight_0_{safe_label}"
     spline0 = ROOT.TSpline3(spline_name0, graph0_smooth)
+
+
+    # TestOut= ROOT.TFile("/home/lboe/TestingSmoothing.root", "RECREATE")
+    # graph0.Write()
+    # graph0_smooth.SetName("Smooth")
+    # graph0_smooth.Write()
+    # spline0.Write()
+    # TestOut.Close()
+    # exit()
 
     spline_width_integral0 = 0.0
     for i in range(1, hist.GetNbinsX() + 1):
