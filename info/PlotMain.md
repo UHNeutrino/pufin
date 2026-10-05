@@ -439,12 +439,31 @@ RES events plotted against Q<sup>2</sup> for each RS/DCC and Oxygen/Carbon model
 
 ### Plotting with ```"Contour":```
 
-```"Contour":``` creates a 2D plot which displays the event distribution across Var1-Var2 phase space overlaid with contours encircling events that satisfy specified cuts. These cuts are differentiated using line color.
+```"Contour":``` creates a 2D plot which displays the event distribution across Var1-Var2 phase space overlaid with contours encircling events that satisfy specified cuts. These cuts are differentiated using line color only.
 
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
   
-+ 
++ ```"File":``` file (as a string) that data is pulled from
++ ```"Cut":``` see [making cuts](VariablesAndModes.md#making-cuts-with-variables-flags--modes) for more information
++ ```"Var1":``` x-axis variable
++ ```"Var2":``` y-axis variable
++ ```"ConCuts":``` contour cuts entered as a sub-dictionary with entries ```"*Cut*":"*displayed cut identifier*"```
++ ```"AutoQuant":``` ????
++ ```"TotalPercents":``` a single element list containing an integer from 1-100 (i.e. ```[85]``) that 
+   sets the percent of events satisfying the specified cuts that are enclosed in each contour
+   (requires pdf save for line textures to show up)
++ ```"Colors":``` a string containing contour colors separated by commas (i.e. ```"Color1, Color2, ..."```)
++ ```"AxisInfo":``` entered as a single string with entries separated by commas in the following form
+  ```
+    "x-axis variable (Var1), Var1 unit, y-axis variable (Var2), Var2 unit, plot title"
+  ```
++ ```"Bins":```
+  ```
+  [number of bins along x-axis, x-min, x-max, number of bins along y-axis, y-min, y-max]
+  ```
++ ```"logz":``` is a boolean that sets the event rate to a logarithmic scale when ```true```
++ ```"Name":``` name that created files will be saved as (entered as a string without extensions)
 
 </details>
 
@@ -454,16 +473,37 @@ RES events plotted against Q<sup>2</sup> for each RS/DCC and Oxygen/Carbon model
   
 <!-- Example Contour entry and link to config file with another example -->
 
+> Note: In ```global```, raw file data was reweighted and area normalized using ```"FluxReweight":```
+
 ```
-Example config
+    "Contour":
+        {
+            "File":"Flat_GenieAR23_onAr_flatf_0-5GeV_NumuCC_SuSAv2_ghep_1e7",
+            "Cut": "flagCC0pi==1",
+            "Var1":"q3",
+            "Var2":"q0",
+            "ConCuts":{ "Enu_true <= 0.65":"Enu_true <= 0.65",
+              "Enu_true > 0.65 && Enu_true <= 1.0":"0.65 < Enu_true <= 1.0",
+              "Enu_true > 1.0 && Enu_true <= 1.35": "1.0 < Enu_true <= 1.35",
+              "Enu_true > 1.35": " Enu_true > 1.35" },
+            "AutoQuant":[false, "Evis_kin", "Enu_true",true,5],
+            "TotalPercents":[90], 
+            "Colors":"kP6Blue, kP6Yellow, kP6Red, kP6Grape", 
+            "AxisInfo":"q3, (GeV), q0, (GeV), GENIEAr23 BNB 0Pi Enu_true Contours",
+            "Bins":[50,0,2.5,40,0,2],
+            "logz":true,
+            "Name": "TEST_Contour",
+        },
 ```
 
 <table>
 <tr> <td> 
 <!-- To add a plot image, just copy/paste it here (GitHub automatically adds necessary tags & hosts image) -->
+<img width="996" height="572" alt="image" src="https://github.com/user-attachments/assets/28e6b718-97d5-413c-81f6-108a0383d33c" />
 </td> </tr> 
 <tr> <td>
 <!-- type plot description here -->
+A Contour plot--generated using the configuration above--showing the GENIE Ar23 model predictions for resonant event occupation of q<sub>3</sub>-q<sub>0</sub> kinematic space as well as regions occupied by events in specified E<sub>&nu;</sub> ranges (demonstrated by contours).
 </td> </tr>
 </table>
 
@@ -479,7 +519,26 @@ Example config
 <details>
 <summary><b> Required & Supported&dagger; Key/Value Pairs </b></summary>
   
-+ 
++ ```"File":``` file (as a string) that data is pulled from
++ ```"Cut":``` see [making cuts](VariablesAndModes.md#making-cuts-with-variables-flags--modes) for more information
++ ```"Var1":``` x-axis variable
++ ```"Var2":``` y-axis variable
++ ```"ColorCuts":``` color cuts entered as a sub-dictionary with entries ```"*Cut*":"*displayed cut identifier*, *Color*"```
++ ```"StyleCuts":``` style cuts entered as a sub-dictionary with entries ```"*Cut*":"*displayed cut identifier*"```
+  (style variation is generated automatically)
++ ```"TotalPercents":``` a single element list containing an integer from 1-100 (i.e. ```[85]``) that 
+   sets the percent of events satisfying the specified cuts that are enclosed in each contour
+   (requires pdf save for line textures to show up)
++ ```"AxisInfo":``` entered as a single string with entries separated by commas in the following form
+  ```
+    "x-axis variable (Var1), Var1 unit, y-axis variable (Var2), Var2 unit, plot title"
+  ```
++ ```"Bins":```
+  ```
+  [number of bins along x-axis, x-min, x-max, number of bins along y-axis, y-min, y-max]
+  ```
++ ```"logz":``` is a boolean that sets the event rate to a logarithmic scale when ```true```
++ ```"Name":``` name that created files will be saved as (entered as a string without extensions)
 
 </details>
 
