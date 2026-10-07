@@ -3,6 +3,7 @@ import concurrent.futures
 import json5
 import multiprocessing as mp
 import src.GlobalV as GlobalV
+import src.SystClass as SC
 
 
 
@@ -1165,15 +1166,15 @@ def CheckGeneratedFiles(Verbosity, UseRoot):
     if (len(FlatNeutFiles)> 0):
         print("----------------Neut----------------")
         print(f"Total Files: {len(FlatNeutFiles)}")
-        EverythingLoop(FlatNeutFiles, UseRoot, Verbosity)
+        FindEverythingLoop(FlatNeutFiles, UseRoot, Verbosity)
 
     if (len(FlatGenieFiles)> 0 ):
         print("----------------Genie----------------")
         print(f"Total Files: {len(FlatGenieFiles)}")
-        EverythingLoop(FlatGenieFiles, UseRoot, Verbosity)
+        FindEverythingLoop(FlatGenieFiles, UseRoot, Verbosity)
     
 
-def EverythingLoop(FileList, UseRoot, Verbosity):
+def FindEverythingLoop(FileList, UseRoot, Verbosity):
     if Verbosity != None and Verbosity > 4:
         raise ValueError("Verbosity can be a maximum of 4")
     SpecificationList = []
@@ -1218,6 +1219,12 @@ def EverythingLoop(FileList, UseRoot, Verbosity):
             print(f"Total Events in RDataFrame:{Ndf.Count().GetValue()}")
         else:
             print(f"Total Events: {int(TotalEvents):e}")
+
+def RWNeutAll(Tune, Dials, Values):
+    FilesToRW = glob.glob(f"{OutPath}/NEUT/*/Original*{Tune}*.root")
+    
+    
+
 
 
 if __name__ =="__main__":
