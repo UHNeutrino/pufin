@@ -54,6 +54,7 @@ class T2KReWeight:
         # copy the template into temp dir with descriptive name
         template_name = path_to_template.split("/")[-1]
         file_name = original_file_path.split("/")[-1]
+        file_name = file_name.replace(".","_")
         if template_name[-1] != "C":
             raise ValueError(f"Template should end with C: {template_name}")
         new_name = "T2KRW" + "_" + file_name.replace(".root","") + f"_{self.DialName}_{self.ValueName}" + ".C"
