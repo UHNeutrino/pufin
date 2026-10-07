@@ -1964,7 +1964,7 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
     # tf1.Write()
     # f_out.Close()
 
-    # Draw
+    # # Draw
     # canvas = ROOT.TCanvas("c", "Spline", 800, 600)
     # tf1.Draw()
     # canvas.Update()
