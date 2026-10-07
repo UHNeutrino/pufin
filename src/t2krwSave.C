@@ -88,9 +88,8 @@ void t2krwSave(){
                 std::string key = name + "_" + std::to_string(value);
                 weight_branches[key] = rw->CalcWeight(neut_event);
             }
-            outtree->Fill();
         }   
-
+        outtree->Fill();
         
     }
 

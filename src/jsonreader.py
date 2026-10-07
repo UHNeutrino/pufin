@@ -34,7 +34,7 @@ def get_nucleons_per_target(target: str) -> int:
 
     return int(match.group())
 
-def GrabFluxReWeights(GlobalSettings):
+def GrabGlobalConfigs(GlobalSettings):
     if GlobalSettings.get("Palette"):
             pal = getattr(ROOT,GlobalSettings["Palette"])
     else:
@@ -44,60 +44,75 @@ def GrabFluxReWeights(GlobalSettings):
     frwDict = GlobalSettings.get("FluxReweight")
     
     if not frwDict:
-        return [False, "", "", 1, "X", False, False, "", "", "", "", "", "", 1]
-
-    reweight_flag = True
-    rw_file = frwDict.get("FluxPath")
-    rw_flux = frwDict.get("FluxHistogram")
-    targets_file = frwDict.get("TargetWeightsFile")
-    detector = frwDict.get("Detector")
-    target = frwDict.get("Target")
-    xsectype = frwDict.get("XsecType")
-    areaB = frwDict.get("AreaNormFlag")
-    undoNormB = frwDict.get("UndoFluxNormFlag")
-    xsecmode = frwDict.get("XsecMode")
-    flavor = frwDict.get("Flavor")
-    xsecpath = frwDict.get("XsecPath")
-    if not areaB:
-        nucpert = get_nucleons_per_target(target)
-        if (undoNormB == None):
-            raise ValueError("Need to define 'UndoFluxNormFlag' ")
-        elif (xsecmode == None):
-            raise ValueError("Need to define 'XsecMode' ")
-        elif (xsecpath == None):
-            raise ValueError("Need to define 'XsecPath' ")
-        elif (xsectype == None):
-            raise ValueError("Need to define 'XsecType' ")
-        elif (detector == None):
-            raise ValueError("Need to define 'Detector' ")
-        elif (target== None) or (flavor== None):
-            raise ValueError("Need to define 'Target' and 'Flavor' ")
+        reweight_cfg =  [False, "", "", 1, "X", False, False, "", "", "", "", "", "", 1]
     else:
-        nucpert = 1
-        xsectype = "X"
 
-    if areaB:
-        Fscale = 1
+        reweight_flag = True
+        rw_file = frwDict.get("FluxPath")
+        rw_flux = frwDict.get("FluxHistogram")
+        targets_file = frwDict.get("TargetWeightsFile")
+        detector = frwDict.get("Detector")
+        target = frwDict.get("Target")
+        xsectype = frwDict.get("XsecType")
+        areaB = frwDict.get("AreaNormFlag")
+        undoNormB = frwDict.get("UndoFluxNormFlag")
+        xsecmode = frwDict.get("XsecMode")
+        flavor = frwDict.get("Flavor")
+        xsecpath = frwDict.get("XsecPath")
+        if not areaB:
+            nucpert = get_nucleons_per_target(target)
+            if (undoNormB == None):
+                raise ValueError("Need to define 'UndoFluxNormFlag' ")
+            elif (xsecmode == None):
+                raise ValueError("Need to define 'XsecMode' ")
+            elif (xsecpath == None):
+                raise ValueError("Need to define 'XsecPath' ")
+            elif (xsectype == None):
+                raise ValueError("Need to define 'XsecType' ")
+            elif (detector == None):
+                raise ValueError("Need to define 'Detector' ")
+            elif (target== None) or (flavor== None):
+                raise ValueError("Need to define 'Target' and 'Flavor' ")
+        else:
+            nucpert = 1
+            xsectype = "X"
+
+        if areaB:
+            Fscale = 1
+        else:
+            Fscale = CalculateTargetWeightFactor(targets_file, detector, target)
+        
+        reweight_cfg =  [
+            reweight_flag,
+            rw_file,
+            rw_flux,
+            Fscale,
+            xsectype,
+            areaB,
+            undoNormB,
+            xsecmode,
+            flavor,
+            target,
+            xsecpath,
+            nucpert,
+        ]
+
+    syst_dict = GlobalSettings.get("SystematicReweight")
+
+    if not syst_dict:
+        syst_cfg = [False,"none","none"]
     else:
-        Fscale = CalculateTargetWeightFactor(targets_file, detector, target)
+        syst_path = syst_dict.get("SystPath")
+        syst_branch = syst_dict.get("SystBranchName")
+        syst_cfg = [True, syst_path, syst_branch]
     
-    reweight_cfg = [
-        reweight_flag,
-        rw_file,
-        rw_flux,
-        Fscale,
-        xsectype,
-        areaB,
-        undoNormB,
-        xsecmode,
-        flavor,
-        target,
-        xsecpath,
-        nucpert,
-    ]
-    print(f"Using Fscale for {detector} {target}: {Fscale:.18e}")
-    print(f"Nucleons per target for {target}: {nucpert}")
-    return reweight_cfg
+
+
+    # print(f"Using Fscale for {detector} {target}: {Fscale:.18e}")
+    # print(f"Nucleons per target for {target}: {nucpert}")
+
+
+    return reweight_cfg, syst_cfg
 
 
 
@@ -164,8 +179,9 @@ def CalculateTargetWeightFactor(targets_file, detector, target):
 def MakePlots(plots, GlobalSettings):
     if GlobalSettings.get("Overwrite") != True:
         OutFileExists(GlobalSettings["Save"]+ "/" + plots["Name"]+".root")
-    reweight_cfg = GrabFluxReWeights(GlobalSettings)
+    reweight_cfg, syst_cfg =  GrabGlobalConfigs(GlobalSettings)
     reweight_flag = reweight_cfg[0]
+    syst_flag = syst_cfg[0]
     areaB = reweight_cfg[5]
     
     userFolder = GlobalSettings["userFolder"]
@@ -182,7 +198,7 @@ def MakePlots(plots, GlobalSettings):
         Tevents = file_name.split('_')[3]
         BinL = plots["Bins"]
         AxisInfo = []
-        df = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"))
+        df, f = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"), reweight_cfg=syst_cfg)
         # VbinBool = "VBins" in plots
         VbinBool = plots.get("VBins", [False])[0]
         if VbinBool:
@@ -203,6 +219,15 @@ def MakePlots(plots, GlobalSettings):
             weight_col = "weights"
         else:
             weight_col = ""
+
+
+        if reweight_flag and syst_flag:
+            df.Define("weights2",f"return weights * {syst_cfg[2]};")
+            weight_col = "weights2"
+        elif syst_flag:
+            weight_col = syst_cfg[2]
+
+
 
         if plots["Type"] == "1D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
@@ -228,7 +253,7 @@ def MakePlots(plots, GlobalSettings):
 
         ################################################################
         #Histogram scaling for event rates
-        if not areaB and weight_col:
+        if not areaB and reweight_flag:
             target_integral = bin_integral_unnorm
             current = df.Sum(weight_col).GetValue()
             s = target_integral / current
@@ -270,7 +295,7 @@ def MakePlots(plots, GlobalSettings):
             if area_integral <= 0:
                 raise RuntimeError("Cut weighted histogram has zero area")
             hist_cut.Scale(1.0 / area_integral)
-        elif weight_col:
+        elif reweight_flag:
             hist_cut.Scale(s)
         if GlobalSettings["DebugPrint"] != 0:
             print("scaled bin integral (cut hist)")
@@ -292,12 +317,16 @@ def MakePlots(plots, GlobalSettings):
             pp.Savehist2DWithProfile(hist, p1,AxisInfo,GlobalSettings["Save"],fileN,ext,max = plots.get("max"), Normalize=False, logz = plots["logz"], diagonal=plots["diagonal"]) 
         else:
             pp.Savehist(hist,AxisInfo,GlobalSettings["Save"],fileN,ext,max = plots.get("max"), Normalize=False, logz = plots["logz"])
+
+        if f != None:
+            f.Close()
                 
 def Make2DRatio(Ratio2D, GlobalSettings):
     if GlobalSettings.get("Overwrite") != True:
         OutFileExists(GlobalSettings["Save"]+ "/" + Ratio2D["Name"]+".root")
-    reweight_cfg = GrabFluxReWeights(GlobalSettings)
+    reweight_cfg, syst_cfg =  GrabGlobalConfigs(GlobalSettings)
     reweight_flag = reweight_cfg[0]
+    syst_flag = syst_cfg[0]
     areaB = reweight_cfg[5]
     
     userFolder = GlobalSettings["userFolder"]
@@ -322,7 +351,7 @@ def Make2DRatio(Ratio2D, GlobalSettings):
     BinX = Ratio2D["BinsX"]
     BinY = Ratio2D["BinsY"]
     AxisInfo = []
-    df1, df2 = pp.CreateDataFrame(root_files1, cut ="None"), pp.CreateDataFrame(root_files2, cut ="None")
+    df1, f1, df2, f2 = pp.CreateDataFrame(root_files1, cut ="None", reweight_cfg=syst_cfg), pp.CreateDataFrame(root_files2, cut ="None",  reweight_cfg=syst_cfg)
 
     if(GlobalSettings["EvisB"]):
         df1, df2 = pp.DefineEvis(df1), pp.DefineEvis(df2)
@@ -339,6 +368,12 @@ def Make2DRatio(Ratio2D, GlobalSettings):
     else:
         weight_col = ""
 
+    if reweight_flag and syst_flag:
+        df1.Define("weights2",f"weights *{syst_cfg[2]}")
+        df2.Define("weights2",f"weights * {syst_cfg[2]}")
+        weight_col = "weights2"
+    elif syst_flag:
+        weight_col = syst_cfg[2]
 
     histInfo = (AxisInfo[-1],AxisInfo[-1],BinX[0],BinX[1],BinX[2],BinY[0],BinY[1],BinY[2])
     if(reweight_flag):
@@ -382,7 +417,7 @@ def Make2DRatio(Ratio2D, GlobalSettings):
         if area_integral1 <= 0 or area_integral2 <= 0:
             raise RuntimeError("Cut weighted histogram has zero area")
         hist_cut1.Scale(1.0 / area_integral1), hist_cut2.Scale(1.0/area_integral2)
-    elif weight_col:
+    elif reweight_flag:
         hist_cut1.Scale(s1), hist_cut2.Scale(s2)
     if GlobalSettings["DebugPrint"] != 0:
         print("scaled bin integral (cut hist)")
@@ -435,6 +470,10 @@ def Make2DRatio(Ratio2D, GlobalSettings):
     Fhist2.Draw("COLZ")  # Write the histogram to the file
     c2.Write()
     out_file.Close()  # Close to finalize writing
+    if f1 != None:
+        f1.Close()
+    if f2 != None:
+        f2.Close()
     
 
 
@@ -442,8 +481,9 @@ def Make2DRatio(Ratio2D, GlobalSettings):
 def MakeStacks(stacks,GlobalSettings):
     if GlobalSettings.get("Overwrite") != True:
         OutFileExists(GlobalSettings["Save"]+ "/" + stacks["Name"]+ ".root")
-    reweight_cfg = GrabFluxReWeights(GlobalSettings)
+    reweight_cfg, syst_cfg =  GrabGlobalConfigs(GlobalSettings)
     reweight_flag = reweight_cfg[0]
+    syst_flag = syst_cfg[0]
     areaB = reweight_cfg[5]
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder+ f'/*{stacks["File"]}*.root')
@@ -454,7 +494,7 @@ def MakeStacks(stacks,GlobalSettings):
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
-        df = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"))
+        df, f = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"), reweight_cfg=syst_cfg)
         weight_col = ""
         BinL = stacks["Bins"]
         AxisInfo = []
@@ -472,6 +512,12 @@ def MakeStacks(stacks,GlobalSettings):
             weight_col = "weights"
         else:
             weight_col = ""
+        
+        if reweight_flag and syst_flag:
+            df.Define("weights2",f"weights *{syst_cfg[2]}")
+            weight_col = "weights2"
+        elif syst_flag:
+            weight_col = syst_cfg[2]
 
         if reweight_flag and not areaB:
             target_integral = bin_integral_unnorm
@@ -517,7 +563,7 @@ def MakeStacks(stacks,GlobalSettings):
             print("Total stack integral after normalization:",
                 sum(hist.Integral() for hist in histlist))
             
-        elif weight_col:
+        elif reweight_flag:
             for hist in histlist:
                 hist.Scale(s)   
         
@@ -535,12 +581,16 @@ def MakeStacks(stacks,GlobalSettings):
 
         pp.SaveStackedHist(stack, histlist, AxisInfo, Legend,save_L)
 
+        if f != None:
+            f.Close()
+
 
 def MakeOverlap(overlap,GlobalSettings):
     if GlobalSettings.get("Overwrite") != True:
         OutFileExists(GlobalSettings["Save"]+ "/" + overlap["Name"]+ ".root")
-    reweight_cfg = GrabFluxReWeights(GlobalSettings)
+    reweight_cfg, syst_cfg =  GrabGlobalConfigs(GlobalSettings)
     reweight_flag = reweight_cfg[0]
+    syst_flag = syst_cfg[0]
     areaB = reweight_cfg[5]
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder + f'/*{overlap["File"]}*.root')
@@ -551,13 +601,19 @@ def MakeOverlap(overlap,GlobalSettings):
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
-        df = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"))
+        df, f = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"), reweight_cfg=syst_cfg)
         weight_col = ""
         if reweight_flag:
             df, bin_integral_unnorm = pp.defineWeightsSpline(df,reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
+
+        if reweight_flag and syst_flag:
+            df.Define("weights2",f"weights *{syst_cfg[2]}")
+            weight_col = "weights2"
+        elif syst_flag:
+            weight_col = syst_cfg[2]
 
         if reweight_flag and not areaB:
             target_integral = bin_integral_unnorm
@@ -614,7 +670,7 @@ def MakeOverlap(overlap,GlobalSettings):
                 sum(hist.Integral() for hist in histlist),
             )
 
-        elif weight_col:
+        elif reweight_flag:
             for hist in histlist:
                 hist.Scale(s)
 
@@ -625,6 +681,8 @@ def MakeOverlap(overlap,GlobalSettings):
         
         save_L = GlobalSettings["Save"] + "/" + overlap["Name"] + "." + ext
         pp.SaveOverlapPlot(histlist, AxisInfo, Legend,save_L, Normalize=False)
+        if f != None:
+            f.Close()
         
 def MakeSame1D(same1D,GlobalSettings):
     if GlobalSettings.get("Overwrite") != True:
@@ -677,12 +735,13 @@ def MakeSame1D(same1D,GlobalSettings):
         key = plot["Key"]
         label = plot["Label"]
 
-        # reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabFluxReWeights(plot)
+        # reweight_flag, rw_file, rw_flux, Fscale, xsectype, areaB, undoNormB = GrabGlobalConfigs(plot)
         if "FluxReweight" in plot:
-            reweight_cfg = GrabFluxReWeights(plot)   
+            reweight_cfg, syst_cfg =  GrabGlobalConfigs(plot)   
         else:
-            reweight_cfg = GrabFluxReWeights(GlobalSettings)
+            reweight_cfg, syst_cfg =  GrabGlobalConfigs(GlobalSettings)
         reweight_flag = reweight_cfg[0]
+        syst_flag = syst_cfg[0]
         areaB = reweight_cfg[5]
         hist_order.append(key)
 
@@ -694,7 +753,7 @@ def MakeSame1D(same1D,GlobalSettings):
 
         file_path = matches[0]
         print(f"Processing {file_path}")
-        df = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"))
+        df, f = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"), reweight_cfg=syst_cfg)
 
 
         if kin:
@@ -712,6 +771,12 @@ def MakeSame1D(same1D,GlobalSettings):
             weight_col = "weights"
         else:
             weight_col = ""
+
+        if reweight_flag and syst_flag:
+            df.Define("weights2",f"weights *{syst_cfg[2]}")
+            weight_col = "weights2"
+        elif syst_flag:
+            weight_col = syst_cfg[2]            
             
         bins = array.array('d',same1D["VBins"][1])
 
@@ -837,6 +902,9 @@ def MakeSame1D(same1D,GlobalSettings):
 
             hist.Draw(draw_opt)
             first_hist = False
+
+        if f != None:
+            f.Close()
         # if same1D["ErrorBars"]:
         #     draw_opt = "HIST E1" if len(hist_dict) == 0 else "HIST E1 SAME"
         # else:
@@ -1004,8 +1072,9 @@ def MakeSame1D(same1D,GlobalSettings):
 def MakeContour(Contour,GlobalSettings):
     if GlobalSettings.get("Overwrite") != True:
         OutFileExists(GlobalSettings["Save"]+ "/" + Contour["Name"]+".root")
-    reweight_cfg = GrabFluxReWeights(GlobalSettings)
+    reweight_cfg, syst_cfg =  GrabGlobalConfigs(GlobalSettings)
     reweight_flag = reweight_cfg[0]
+    syst_flag = syst_cfg[0]
     areaB = reweight_cfg[5]
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder + f'/*{Contour["File"]}*.root')
@@ -1021,7 +1090,7 @@ def MakeContour(Contour,GlobalSettings):
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
-        df = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"))
+        df, f = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"), reweight_cfg=syst_cfg)
         BinL = Contour["Bins"]
         AxisInfo = []
         cuts = []
@@ -1039,6 +1108,12 @@ def MakeContour(Contour,GlobalSettings):
             weight_col = "weights"
         else:
             weight_col = ""
+
+        if reweight_flag and syst_flag:
+            df.Define("weights2",f"weights *{syst_cfg[2]}")
+            weight_col = "weights2"
+        elif syst_flag:
+            weight_col = syst_cfg[2]            
 
         # Calculate normalization before applying the contour selection
         if reweight_flag and not areaB:
@@ -1128,13 +1203,16 @@ def MakeContour(Contour,GlobalSettings):
         histlist = pp.PlotContEventCuts(df, Contour["Var1"], Contour["Var2"], histInfo, cuts, Contour["TotalPercents"])
         save_L = GlobalSettings["Save"]+ "/"+ Contour["Name"] + "." + ext
         pp.SaveContHist(histlist, AxisInfo, Legend, colors, Contour["TotalPercents"], save_L, Contour["logz"])
+        if f != None:
+            f.Close()
 
 
 def MakeContourStyle(ContourStyle,GlobalSettings):
     if GlobalSettings.get("Overwrite") != True:
         OutFileExists(GlobalSettings["Save"]+ "/" + ContourStyle["Name"] + ".root")
-    reweight_cfg = GrabFluxReWeights(GlobalSettings)
+    reweight_cfg, syst_cfg =  GrabGlobalConfigs(GlobalSettings)
     reweight_flag = reweight_cfg[0]
+    syst_flag = syst_cfg[0]
     areaB = reweight_cfg[5]
 
     userFolder = GlobalSettings["userFolder"]
@@ -1146,7 +1224,7 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         file_name = file_path.split('/')[-1]
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
-        df = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"))
+        df, f = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"), reweight_cfg=syst_cfg)
         # df = ROOT.RDataFrame(GlobalSettings["treeName"],file_path)
         BinL = ContourStyle["Bins"]
         AxisInfo = []
@@ -1168,6 +1246,12 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
             weight_col = "weights"
         else:
             weight_col = ""
+
+        if reweight_flag and syst_flag:
+            df.Define("weights2",f"weights *{syst_cfg[2]}")
+            weight_col = "weights2"
+        elif syst_flag:
+            weight_col = syst_cfg[2]            
 
         if reweight_flag and not areaB:
             target_integral = bin_integral_unnorm
@@ -1239,3 +1323,6 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         histlist = pp.PlotContEventCuts(df, ContourStyle["Var1"], ContourStyle["Var2"], histInfo, cuts, ContourStyle["TotalPercents"])
         save_L = GlobalSettings["Save"]+ "/" + ContourStyle["Name"] + "." + ext
         pp.SaveContHistStyles(histlist, AxisInfo, colors, styles, ColorLabels, StyleLabels, save_L, ContourStyle["logz"])
+
+        if f != None:
+            f.Close()

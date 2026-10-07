@@ -27,6 +27,10 @@
                 "XsecMode": "total", // total, CC or NC
                 "XsecPath":"/path/to/your/xsec/file/xsecs.root", //path to the xsec path used to reweight
                 "Flavor": "nu_mu" //neutrino flavor
+            },
+            "SystematicReweight":{
+                "SystPath":"/path/to/Syst/weights/tree",
+                "SystBranchName":"systematicName"
             }
 
         },

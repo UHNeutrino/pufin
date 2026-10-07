@@ -1091,7 +1091,7 @@ def FlagParticleThresholds(df):
 
     return df
 
-def CreateDataFrame(file_path, cut, treeName=None):    # First get the data into a dataframe
+def CreateDataFrame(file_path, cut, treeName=None, reweight_cfg=None):    # First get the data into a dataframe
     if file_path is None:
         dir_location = input("Give Full Flat Tree Directory Location: ")
     else:
@@ -1105,19 +1105,34 @@ def CreateDataFrame(file_path, cut, treeName=None):    # First get the data into
     print(fileName)
 
     if isinstance(dir_location, list):
-        df = ROOT.RDataFrame(treeName,dir_location)
+        if reweight_cfg[0] == True:
+            f = ROOT.TFile(dir_location)
+            ft = f.Get(treeName)
+            ft.AddFriend("weighttree", reweight_cfg[1])
+            df = ROOT.RDataFrame(ft)
+        else:
+            f = None
+            df = ROOT.RDataFrame(treeName,dir_location)
     else:
-        df = ROOT.RDataFrame(treeName,fileName)
+        if reweight_cfg[0] == True:
+            f = ROOT.TFile(fileName)
+            ft = f.Get(treeName)
+            ft.AddFriend("weighttree", reweight_cfg[1])
+            df = ROOT.RDataFrame(ft)
+        else:
+            f= None
+            df = ROOT.RDataFrame(treeName,fileName)
+        
 
     if treeName=="FlatTree_VARS":
         df = df.Define("PLep","TMath::Power(TMath::Power(ELep, 2)-TMath::Power(.1056, 2), 0.5)")
-    #df = df.Define("PLep","TMath::Power(TMath::Power(El, 2)-TMath::Power(.1056, 2), 0.5)") # for gst files
 
     if cut == "None":
-        return df
+        df = df
     else:
         df = df.Filter(cut)
-        return df
+
+    return df, f
 
 
 def Savehist(hist, AxisInfo, save_location, filename, ext, max = None, Normalize = False, logz = False):
@@ -1962,7 +1977,7 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
     # Define new column in DataFrame from spline0 to give the right shape
     df = df.Define("weights", f"{func_name0}(Enu_true)")
     #df = df.Define("weights", f"{func_name0}(Ev)") # for gst files 
-
+    
     # df with weights give flux shape, bin_integral_unnorm give absolute scale for give Fscale (xsec, target, exposure, unit conversion)
     return df, bin_integral_unnorm
 
