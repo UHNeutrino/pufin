@@ -222,8 +222,8 @@ def MakePlots(plots, GlobalSettings):
 
 
         if reweight_flag and syst_flag:
-            df.Define("weights2",f"return weights * {syst_cfg[2]};")
-            weight_col = "weights2"
+            df = df.Define("weightsboth",f"weights * {syst_cfg[2]}")
+            weight_col = "weightsboth"
         elif syst_flag:
             weight_col = syst_cfg[2]
 
@@ -369,9 +369,9 @@ def Make2DRatio(Ratio2D, GlobalSettings):
         weight_col = ""
 
     if reweight_flag and syst_flag:
-        df1.Define("weights2",f"weights *{syst_cfg[2]}")
-        df2.Define("weights2",f"weights * {syst_cfg[2]}")
-        weight_col = "weights2"
+        df1 = df1.Define("weightsboth",f"weights *{syst_cfg[2]}")
+        df2 = df2.Define("weightsboth",f"weights * {syst_cfg[2]}")
+        weight_col = "weightsboth"
     elif syst_flag:
         weight_col = syst_cfg[2]
 
@@ -514,8 +514,8 @@ def MakeStacks(stacks,GlobalSettings):
             weight_col = ""
         
         if reweight_flag and syst_flag:
-            df.Define("weights2",f"weights *{syst_cfg[2]}")
-            weight_col = "weights2"
+            df = df.Define("weightsboth",f"weights * {syst_cfg[2]}")
+            weight_col = "weightsboth"
         elif syst_flag:
             weight_col = syst_cfg[2]
 
@@ -610,8 +610,8 @@ def MakeOverlap(overlap,GlobalSettings):
             weight_col = ""
 
         if reweight_flag and syst_flag:
-            df.Define("weights2",f"weights *{syst_cfg[2]}")
-            weight_col = "weights2"
+            df = df.Define("weightsboth",f"weights * {syst_cfg[2]}")
+            weight_col = "weightsboth"
         elif syst_flag:
             weight_col = syst_cfg[2]
 
@@ -773,8 +773,8 @@ def MakeSame1D(same1D,GlobalSettings):
             weight_col = ""
 
         if reweight_flag and syst_flag:
-            df.Define("weights2",f"weights *{syst_cfg[2]}")
-            weight_col = "weights2"
+            df = df.Define("weightsboth",f"weights * {syst_cfg[2]}")
+            weight_col = "weightsboth"
         elif syst_flag:
             weight_col = syst_cfg[2]            
             
@@ -1108,10 +1108,10 @@ def MakeContour(Contour,GlobalSettings):
             weight_col = "weights"
         else:
             weight_col = ""
-
+        
         if reweight_flag and syst_flag:
-            df.Define("weights2",f"weights *{syst_cfg[2]}")
-            weight_col = "weights2"
+            df = df.Define("weightsboth",f"weights * {syst_cfg[2]}")
+            weight_col = "weightsboth"
         elif syst_flag:
             weight_col = syst_cfg[2]            
 
@@ -1248,8 +1248,8 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
             weight_col = ""
 
         if reweight_flag and syst_flag:
-            df.Define("weights2",f"weights *{syst_cfg[2]}")
-            weight_col = "weights2"
+            df = df.Define("weightsboth",f"weights * {syst_cfg[2]}")
+            weight_col = "weightsboth"
         elif syst_flag:
             weight_col = syst_cfg[2]            
 

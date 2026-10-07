@@ -14,13 +14,13 @@
 #include "T2KReWeight/Interface/T2KReWeight.h"
 #include <memory>
 
-
 void t2krwSave(){
     std::string card_file = "/path/to/the/card/file.card";
     const char* infile = "/path/to/the/generated/file.root";
     const char* outfile = "/path/to/the/output/file.root";
     std::vector<float> DialValues = {-1.0, 0.0, 1.0};
     std::string BranchName = "";
+    std::string ValueName = "";
 
     TFile *fin = TFile::Open(infile, "READ");
     if (!fin || fin->IsZombie()) {
@@ -49,7 +49,12 @@ void t2krwSave(){
     std::map<std::string, double> weight_branches;
     for (auto &value : DialValues) {
         for (auto &name : syst_names) {
-            std::string key = name + "_" + std::to_string(value);
+            std::ostringstream oss;
+            oss << std::fixed << std::setprecision(3) << value;
+            ValueName = oss.str();
+            std::replace(ValueName.begin(), ValueName.end(), '.', 'p');
+            std::replace(ValueName.begin(), ValueName.end(), '-', 'm');
+            std::string key = name + "_" + ValueName;
             weight_branches[key] = 0.0;              // initialize entry to zero to be filled later
             outtree->Branch(key.c_str(), &weight_branches[key]);
         }
@@ -69,6 +74,7 @@ void t2krwSave(){
     // -------------------------------
     // Event loop
     // -------------------------------
+
     Long64_t nentries = intree->GetEntries();
     for (Long64_t i = 0; i < nentries; ++i) {
         intree->GetEntry(i);
@@ -81,16 +87,20 @@ void t2krwSave(){
 
         for (auto &value: DialValues) {
             for (auto &name : syst_names) {
+                std::ostringstream oss;
+                oss << std::fixed << std::setprecision(3) << value;
+                ValueName = oss.str();
+                std::replace(ValueName.begin(), ValueName.end(), '.', 'p');
+                std::replace(ValueName.begin(), ValueName.end(), '-', 'm');
                 rw->Reset();
                 auto dial_id = rw->DialFromString(name);
                 rw->SetDial_NumberOfSigmas(dial_id, value);
                 rw->Reconfigure();
-                std::string key = name + "_" + std::to_string(value);
+                std::string key = name + "_" + ValueName;
                 weight_branches[key] = rw->CalcWeight(neut_event);
             }
         }   
         outtree->Fill();
-        
     }
 
 
