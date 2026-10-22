@@ -1784,7 +1784,6 @@ def defineWeights(df, rwRootFile, histName, Fscale = 1):
     return df    
 
 
-# def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline = "", areaB = False, undoNormB = False):
 def defineWeightsSpline(df, reweight_cfg, label=""):
     # Unpack the reweight_cfg list
     (

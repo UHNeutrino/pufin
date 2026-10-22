@@ -1239,7 +1239,7 @@ def SystRWNeutAll(Tune, Dials, Values, SourcePath, GroupName=None, ValuesName=No
         RWInstance = SC.T2KReWeight(Dials,Values,group_name=GroupName,values_name=ValuesName)
         RWInstance.MakeScript(template_path,tmpdir,file,card_path,NeutRW_Path)
         RWInstance.RunRW(source_path=SourcePath)
-        # RWInstance.CleanUp()
+        RWInstance.CleanUp()
 
 def SystReWeighter(Preset, Generator, SourcePath, Tune=None, Dials=None, Values=None, GroupName=None, ValuesName=None):
     # outermost function that directs to T2KRW or NuSystematics
