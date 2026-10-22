@@ -205,28 +205,29 @@ def MakePlots(plots, GlobalSettings):
             Vbins = array.array('d',plots["VBins"][1])
             varBinInfo = ROOT.RDF.TH1DModel("h_varbins","h", len(Vbins) - 1, Vbins)
 
-
+        if (GlobalSettings["ThresholdsB"]):
+            df = pp.FlagParticleThresholds(df)
         if(GlobalSettings["EvisB"]):
             df = pp.DefineEvis(df)  
         if (GlobalSettings["KinematicsB"]):
             df = pp.DefineKinematics(df)
         if (GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
+            
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
+            df = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
-
-
         if reweight_flag and syst_flag:
             df = df.Define("weightsboth",f"weights * {syst_cfg[2]}")
             weight_col = "weightsboth"
         elif syst_flag:
             weight_col = syst_cfg[2]
-
+        if plots.get("Cut"):
+            df = df.Filter(plots["Cut"])
 
 
         if plots["Type"] == "1D":
@@ -251,57 +252,18 @@ def MakePlots(plots, GlobalSettings):
                 p1 = h2.ProfileX("hProfileX", 1, -1, "s")
                 p1.SetDirectory(0)
 
-        ################################################################
-        #Histogram scaling for event rates
-        if not areaB and reweight_flag:
-            target_integral = bin_integral_unnorm
-            current = df.Sum(weight_col).GetValue()
-            s = target_integral / current
-            hist.Scale(s)
-            if GlobalSettings["DebugPrint"] != 0:  
-                print("uncut bin integral")
-                print(current)
-                print("uncut scaled bin integral")
-                print(hist.Integral())
-
-            
-                    
-        if (GlobalSettings["ThresholdsB"]):
-            df = pp.FlagParticleThresholds(df)  
-        if plots.get("Cut"):
-            df_cut = df.Filter(plots["Cut"])
-        else:
-            df_cut = df
-        #df_cut = df  # uncomment if trying to scale using a specific interaction cross section 
-        
-        # Build the CUT histogram, still using weights if you have them
-        if plots["Type"] == "1D":
-            if weight_col:
-                rdf_cut = df_cut.Histo1D(histInfo, plots["Var1"], weight_col)
-            else:
-                rdf_cut = df_cut.Histo1D(histInfo, plots["Var1"])
-        if plots["Type"] == "2D":
-            if weight_col:
-                rdf_cut = df_cut.Histo2D(histInfo, plots["Var1"], plots["Var2"], weight_col)
-            else:
-                rdf_cut = df_cut.Histo2D(histInfo, plots["Var1"],plots["Var2"])
-            
-        hist_cut = rdf_cut.GetValue()
-        hist_cut.SetDirectory(0)
-        
         # Scale cut histogram by the same global factor s
         if areaB:
-            area_integral = hist_cut.Integral()
+            area_integral = hist.Integral()
             if area_integral <= 0:
                 raise RuntimeError("Cut weighted histogram has zero area")
-            hist_cut.Scale(1.0 / area_integral)
-        elif reweight_flag:
-            hist_cut.Scale(s)
+            hist.Scale(1.0 / area_integral)
+
         if GlobalSettings["DebugPrint"] != 0:
             print("scaled bin integral (cut hist)")
-            print(hist_cut.Integral())
+            print(hist.Integral())
         xvar, xunit, yvar, yunit, PlotTitle = AxisInfo
-        hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=plots.get("max"), PlotTitle=PlotTitle)
+        hist = sf.formatHist(hist, xvar, xunit, yvar, yunit, max=plots.get("max"), PlotTitle=PlotTitle)
         ########################################################################################################################
 
         nx = datetime.datetime.now()
