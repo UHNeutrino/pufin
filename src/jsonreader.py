@@ -659,7 +659,7 @@ def MakeSame1D(same1D,GlobalSettings):
 
 
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
+            df = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -670,8 +670,13 @@ def MakeSame1D(same1D,GlobalSettings):
         elif syst_flag:
             weight_col = syst_cfg[2]            
             
-        bins = array.array('d',same1D["VBins"][1])
 
+        if same1D.get("Cut"):
+            df = df.Filter(same1D["Cut"])
+        if plot.get("Cut"):
+            df = df.Filter(plot["Cut"])
+
+        bins = array.array('d',same1D["VBins"][1])
         histInfoScale = (f"h_scale_{key}", f"hist_{key}", 160, 0, 8)
         histInfo = (f"h_{key}", f"hist_{key}", BinL[0], BinL[1], BinL[2])
         varBinInfo = ROOT.RDF.TH1DModel(f"h_varbins_{key}", f"hist_{key}", len(bins) - 1, bins)
@@ -680,67 +685,29 @@ def MakeSame1D(same1D,GlobalSettings):
             histInfo = varBinInfo
         if weight_col:
             rdf_hist = df.Histo1D(histInfoScale, 'Enu_true', weight_col)
-            #rdf_hist = df.Histo1D(histInfoScale, 'Ev', weight_col) ## for gst files
         else:
             rdf_hist = df.Histo1D(histInfo, plot["Var"])
 
         hist_rdfs.append(rdf_hist)  # Keep RDF object alive
         hist = rdf_hist.GetValue()
-        pp.HistoErrorBars(hist)
-        if reweight_flag and not areaB:
-            target_integral = bin_integral_unnorm
-            current = df.Sum(weight_col).GetValue()
-            # current = hist.Integral() 
-            print(f"\n[{key}] Applying weight normalization factor")
-            print(f"target integral = {target_integral:.6e}")
-            print(f"current = {current:.6e}")
-            s = target_integral / current
-            hist.Scale(s)
-            print("uncut scaled bin integral after weight normalization")
-            print(hist.Integral())     
-        if same1D.get("Cut"):
-            df_cut = df.Filter(same1D["Cut"])
-        else:
-            df_cut = df
-        
-        if plot.get("Cut"):
-            df_cut = df_cut.Filter(plot["Cut"])
-        
-        # Build the CUT histogram, still using weights if you have them
-        if weight_col:
-            rdf_cut = df_cut.Histo1D(histInfo, plot["Var"], weight_col)
-        else:
-            rdf_cut = df_cut.Histo1D(histInfo, plot["Var"])
-            
-        hist_cut = rdf_cut.GetValue()
-        hist_cut.SetDirectory(0)
+        pp.HistoErrorBars(hist)        
 
         if areaB:
-            area_integral = hist_cut.Integral()
+            area_integral = hist.Integral()
 
             if area_integral <= 0:
                 raise RuntimeError(
                     f"{key} final weighted histogram has zero integral"
                 )
 
-            hist_cut.Scale(1.0 / area_integral)
+            hist.Scale(1.0 / area_integral)
 
             print(
                 f"[{key}] separately area-normalized integral = "
-                f"{hist_cut.Integral()}"
+                f"{hist.Integral()}"
             )
 
-        elif reweight_flag:
-            hist_cut.Scale(s)
-
-            print(
-                f"[{key}] event-rate-scaled cut integral = "
-                f"{hist_cut.Integral():.6e}"
-            )
-            
-        print("scaled bin integral (cut hist)")
-        print(hist_cut.Integral())
-        hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=same1D.get("max"), PlotTitle=PlotTitle)
+        hist = sf.formatHist(hist, xvar, xunit, yvar, yunit, max=same1D.get("max"), PlotTitle=PlotTitle)
         
         if "Style" in plot:
             styleint = plot["Style"]
