@@ -234,16 +234,16 @@ def MakePlots(plots, GlobalSettings):
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
             if VbinBool:
                 histInfo = varBinInfo
-            if reweight_flag:
-                hist = df.Histo1D(histInfo,plots["Var1"],"weights")
+            if (weight_col != None):
+                hist = df.Histo1D(histInfo,plots["Var1"],weight_col)
             else:
                 hist = df.Histo1D(histInfo,plots["Var1"])
         if plots["Type"] == "2D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
             if VbinBool:
                 histInfo = varBinInfo
-            if(reweight_flag):
-                hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"],"weights")
+            if(weight_col != None):
+                hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"],weight_col)
             else:
                 hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"])
             if(plots.get("profileX")):
