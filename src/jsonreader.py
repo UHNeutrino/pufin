@@ -305,15 +305,10 @@ def Make2DRatio(Ratio2D, GlobalSettings):
     if len(root_files1) > 1 or len(root_files2) > 1:
         raise ValueError(f"Got too many files: {root_files1} and {root_files2}")
 
-    # print(file_path)
-    # file_name1, file_name2 = root_files1.split('/')[-1], root_files2.split('/')[-1]
-    # generator = file_name.split('_')[1]
-    # flux = file_name.split('_')[2]
-    # Tevents = file_name.split('_')[3]
     BinX = Ratio2D["BinsX"]
     BinY = Ratio2D["BinsY"]
     AxisInfo = []
-    df1, f1, df2, f2 = pp.CreateDataFrame(root_files1, cut ="None", reweight_cfg=syst_cfg), pp.CreateDataFrame(root_files2, cut ="None",  reweight_cfg=syst_cfg)
+    (df1, f1), (df2, f2) = pp.CreateDataFrame(root_files1, cut ="None", reweight_cfg=syst_cfg), pp.CreateDataFrame(root_files2, cut ="None",  reweight_cfg=syst_cfg)
 
     if(GlobalSettings["EvisB"]):
         df1, df2 = pp.DefineEvis(df1), pp.DefineEvis(df2)
@@ -324,8 +319,8 @@ def Make2DRatio(Ratio2D, GlobalSettings):
     for word in Ratio2D["AxisInfo"].split(','):
         AxisInfo.append(word)
     if reweight_flag:
-        df1, bin_integral_unnorm1 = pp.defineWeightsSpline(df1, reweight_cfg)
-        df2, bin_integral_unnorm2 = pp.defineWeightsSpline(df2, reweight_cfg)
+        df1 = pp.defineWeightsSpline(df1, reweight_cfg)
+        df2 = pp.defineWeightsSpline(df2, reweight_cfg)
         weight_col = "weights"
     else:
         weight_col = ""
@@ -338,66 +333,45 @@ def Make2DRatio(Ratio2D, GlobalSettings):
         weight_col = syst_cfg[2]
 
     histInfo = (AxisInfo[-1],AxisInfo[-1],BinX[0],BinX[1],BinX[2],BinY[0],BinY[1],BinY[2])
-    if(reweight_flag):
-        hist1, hist2 = df1.Histo2D(histInfo,Ratio2D["Var1"],Ratio2D["Var2"],"weights"), df2.Histo2D(histInfo,Ratio2D["Var1"],Ratio2D["Var2"],"weights")
-    else:
-        hist1, hist2 = df1.Histo2D(histInfo,Ratio2D["Var1"],Ratio2D["Var2"]), df2.Histo2D(histInfo,Ratio2D["Var1"],Ratio2D["Var2"])
 
-    ################################################################
-    #Histogram scaling for event rates
-    if not areaB and weight_col:
-        target_integral1, target_integral2 = bin_integral_unnorm1, bin_integral_unnorm2
-        current1, current2 = df1.Sum(weight_col).GetValue(), df2.Sum(weight_col).GetValue()
-        s1, s2 = target_integral1/current1, target_integral2/current2
-        hist1.Scale(s1), hist2.Scale(s2)
-        if GlobalSettings["DebugPrint"] != 0:  
-            print("uncut bin integral")
-            print(f"hist1: {current1} hist2: {current2}")
-            print("uncut scaled bin integral")
-            print(f"hist1: {hist1.Integral()} hist2: {hist2.Integral()}")
-
-        
-                
-    if (GlobalSettings["ThresholdsB"]):
-        df1, df2 = pp.FlagParticleThresholds(df1), pp.FlagParticleThresholds(df2)
     if Ratio2D.get("Cut"):
-        df_cut1, df_cut2 = df1.Filter(Ratio2D["Cut"]), df2.Filter(Ratio2D["Cut"])
-    else:
-        df_cut1,  df_cut2 = df1, df2      
+        df1, df2 = df1.Filter(Ratio2D["Cut"]), df2.Filter(Ratio2D["Cut"])
+ 
     # Build the CUT histogram, still using weights if you have them
     if weight_col:
-        rdf_cut1, rdf_cut2 = df_cut1.Histo2D(histInfo, Ratio2D["Var1"], Ratio2D["Var2"], weight_col), df_cut2.Histo2D(histInfo, Ratio2D["Var1"], Ratio2D["Var2"], weight_col)
+        hist1, hist2 = df1.Histo2D(histInfo, Ratio2D["Var1"], Ratio2D["Var2"], weight_col), df2.Histo2D(histInfo, Ratio2D["Var1"], Ratio2D["Var2"], weight_col)
     else:
-        rdf_cut1, rdf_cut2 = df_cut1.Histo2D(histInfo, Ratio2D["Var1"],Ratio2D["Var2"]), df_cut2.Histo2D(histInfo, Ratio2D["Var1"],Ratio2D["Var2"])
+        hist1, hist2 = df1.Histo2D(histInfo, Ratio2D["Var1"],Ratio2D["Var2"]), df2.Histo2D(histInfo, Ratio2D["Var1"],Ratio2D["Var2"])
         
-    hist_cut1, hist_cut2 = rdf_cut1.GetValue(), rdf_cut2.GetValue()
-    hist_cut1.SetDirectory(0), hist_cut2.SetDirectory(0)
     
     # Scale cut histogram by the same global factor s
     if areaB:
-        area_integral1, area_integral2 = hist_cut1.Integral(), hist_cut2.Integral()
+        area_integral1, area_integral2 = hist1.Integral(), hist2.Integral()
         if area_integral1 <= 0 or area_integral2 <= 0:
             raise RuntimeError("Cut weighted histogram has zero area")
-        hist_cut1.Scale(1.0 / area_integral1), hist_cut2.Scale(1.0/area_integral2)
-    elif reweight_flag:
-        hist_cut1.Scale(s1), hist_cut2.Scale(s2)
+        hist1.Scale(1.0 / area_integral1), hist2.Scale(1.0/area_integral2)
+
+
     if GlobalSettings["DebugPrint"] != 0:
         print("scaled bin integral (cut hist)")
-        print(f"hist 1 {hist_cut1.Integral()} hist 2 {hist_cut1.Integral()}")
+        print(f"hist 1 {hist1.Integral()} hist 2 {hist1.Integral()}")
     xvar, xunit, yvar, yunit, PlotTitle = AxisInfo
-    Fhist1, Fhist2 = sf.formatHist(hist_cut1, xvar, xunit, yvar, yunit, max=Ratio2D.get("max"), PlotTitle=PlotTitle), sf.formatHist(hist_cut2, xvar, xunit, yvar, yunit, max=Ratio2D.get("max"), PlotTitle=PlotTitle)
+    Fhist1, Fhist2 = sf.formatHist(hist1, xvar, xunit, yvar, yunit, max=Ratio2D.get("max"), PlotTitle=PlotTitle), sf.formatHist(hist2, xvar, xunit, yvar, yunit, max=Ratio2D.get("max"), PlotTitle=PlotTitle)
     ########################################################################################################################
     Fhist1.SetName("h1"), Fhist2.SetName("h2")
     saveLoc = GlobalSettings["Save"]+"/"+Ratio2D["Name"]
     
-
+    Fhist2_Value = Fhist2.GetValue()
     ratio = Fhist1.Clone("ratio")
-    ratio.Divide(Fhist2)
+    ratio.Divide(Fhist2_Value)
     Fhist1.SetStats(0), Fhist2.SetStats(0), ratio.SetStats(0)
+
+    # sets minimum and max for the ratio
     if Ratio2D.get("RatioMin")!= None and Ratio2D.get("RatioMax"):
         ratio.SetMinimum(Ratio2D["RatioMin"])
         ratio.SetMaximum(Ratio2D["RatioMax"])
 
+    # sets the places where x/0 equal to -1 * the maximum ratio
     if Ratio2D.get("MissingPS"):
         zmin = -1 * ratio.GetMaximum()
         binsx = Fhist1.GetNbinsX()
@@ -419,18 +393,11 @@ def Make2DRatio(Ratio2D, GlobalSettings):
 
     out_file = ROOT.TFile(f"{saveLoc}.root", "RECREATE")
     print(f"Saved {saveLoc}.root")
-    c = ROOT.TCanvas("ratio", "ratio", 800, 600)
-
     
 
-    ratio.Draw("COLZ")
-    c.Write() 
-    c1 = ROOT.TCanvas("hist1", "hist1", 800, 600)
-    Fhist1.Draw("COLZ")  # Write the histogram to the file
-    c1.Write()
-    c2 = ROOT.TCanvas("hist2", "hist2", 800, 600)
-    Fhist2.Draw("COLZ")  # Write the histogram to the file
-    c2.Write()
+    ratio.Write()
+    Fhist1.Write()  # Write the histogram to the file
+    Fhist2.Write()  # Write the histogram to the file
     out_file.Close()  # Close to finalize writing
     if f1 != None:
         f1.Close()
