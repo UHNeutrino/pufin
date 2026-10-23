@@ -204,15 +204,15 @@ def MakePlots(plots, GlobalSettings):
         if VbinBool:
             Vbins = array.array('d',plots["VBins"][1])
             varBinInfo = ROOT.RDF.TH1DModel("h_varbins","h", len(Vbins) - 1, Vbins)
-
-        if (GlobalSettings["ThresholdsB"]):
-            df = pp.FlagParticleThresholds(df)
+    
         if(GlobalSettings["EvisB"]):
             df = pp.DefineEvis(df)  
         if (GlobalSettings["KinematicsB"]):
             df = pp.DefineKinematics(df)
         if (GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
+        if (GlobalSettings["ThresholdsB"]):
+            df = pp.FlagParticleThresholds(df)
             
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
@@ -764,14 +764,7 @@ def MakeSame1D(same1D,GlobalSettings):
 
         if f != None:
             f.Close()
-        # if same1D["ErrorBars"]:
-        #     draw_opt = "HIST E1" if len(hist_dict) == 0 else "HIST E1 SAME"
-        # else:
-        #     draw_opt = "HIST" if len(hist_dict) == 0 else "HIST SAME"
-        # hist.Draw(draw_opt)
-        # legend.AddEntry(hist, label, "l")
-        # hist_dict[key] = hist
-        # histCounter += 1
+
     if logy:
         c.SetLogy()
         if Add_Ratio:
@@ -795,7 +788,6 @@ def MakeSame1D(same1D,GlobalSettings):
             raise ValueError(
                 "Add_Ratio is true, but RatioPlots is empty"
             )
-
 
         # Make it a list if its just one
         if isinstance(RatioNominal, str):
@@ -963,7 +955,7 @@ def MakeContour(Contour,GlobalSettings):
             df = pp.DefineTKI(df)
 
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
+            df = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -975,21 +967,6 @@ def MakeContour(Contour,GlobalSettings):
             weight_col = syst_cfg[2]            
 
         # Calculate normalization before applying the contour selection
-        if reweight_flag and not areaB:
-            target_integral = bin_integral_unnorm
-            current = df.Sum(weight_col).GetValue()
-
-            if current <= 0:
-                raise RuntimeError("Uncut weighted dataframe sum is non-positive")
-
-            s = target_integral / current
-
-            print("Contour normalization:")
-            print(f"target integral = {target_integral:.6e}")
-            print(f"current integral = {current:.6e}")
-            print(f"scale factor = {s:.6e}")
-
-            df = df.Redefine("weights", f"weights * {s}")
 
         elif reweight_flag and areaB:
             current = df.Sum(weight_col).GetValue()
@@ -997,7 +974,8 @@ def MakeContour(Contour,GlobalSettings):
             if current <= 0:
                 raise RuntimeError("Uncut weighted dataframe sum is non-positive")
 
-            df = df.Redefine("weights", f"weights / {current}")
+            df = df.Define("AreaWeights", f"{weight_col} / {current}")
+            weight_col = "AreaWeights"
 
         if GlobalSettings["ThresholdsB"]:
             df = pp.FlagParticleThresholds(df)
@@ -1053,8 +1031,6 @@ def MakeContour(Contour,GlobalSettings):
                 cuts.append(cut)
                 Legend.append(name)
 
-        # for num in Contour["Colors"].split(","):
-        #     colors.append(int(num))
         for color_spec in Contour["Colors"].split(","):
             colors.append(sf.parse_color(color_spec))
         histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
@@ -1084,7 +1060,6 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
         df, f = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"), reweight_cfg=syst_cfg)
-        # df = ROOT.RDataFrame(GlobalSettings["treeName"],file_path)
         BinL = ContourStyle["Bins"]
         AxisInfo = []
         cuts = []
@@ -1101,7 +1076,7 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         if (GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
+            df = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -1111,21 +1086,6 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
             weight_col = "weightsboth"
         elif syst_flag:
             weight_col = syst_cfg[2]            
-
-        if reweight_flag and not areaB:
-            target_integral = bin_integral_unnorm
-            current = df.Sum(weight_col).GetValue()
-
-            if current <= 0:
-                raise RuntimeError("Uncut weighted dataframe sum is non-positive")
-
-            s = target_integral / current
-            df = df.Redefine("weights", f"weights * {s}")
-
-            print("ContourStyle normalization:")
-            print(f"target integral = {target_integral:.6e}")
-            print(f"current integral = {current:.6e}")
-            print(f"scale factor = {s:.6e}")
 
         elif reweight_flag and areaB:
             current = df.Sum(weight_col).GetValue()
@@ -1171,7 +1131,7 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         print(f"colors {colors}")
         print(f"styles {styles}")
         print(f"Labels {ColorLabels} and { StyleLabels}") 
-        if GlobalSettings.get("SavePdf"):
+        if GlobalSettings.get("SavePdf") == True:
             ext = "pdf"
         else:
             ext = "png"
