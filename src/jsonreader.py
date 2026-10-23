@@ -437,7 +437,7 @@ def MakeStacks(stacks,GlobalSettings):
         if(GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
+            df = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -448,21 +448,6 @@ def MakeStacks(stacks,GlobalSettings):
         elif syst_flag:
             weight_col = syst_cfg[2]
 
-        if reweight_flag and not areaB:
-            target_integral = bin_integral_unnorm
-            current = df.Sum(weight_col).GetValue()
-
-            if current <= 0:
-                raise RuntimeError(
-                    "Uncut weighted dataframe sum is non-positive"
-                )
-
-            s = target_integral / current
-
-            print("Stack normalization:")
-            print(f"target integral = {target_integral:.6e}")
-            print(f"current integral = {current:.6e}")
-            print(f"scale factor = {s:.6e}")
             
         if (GlobalSettings["ThresholdsB"]):
             df = pp.FlagParticleThresholds(df)
@@ -492,9 +477,6 @@ def MakeStacks(stacks,GlobalSettings):
             print("Total stack integral after normalization:",
                 sum(hist.Integral() for hist in histlist))
             
-        elif reweight_flag:
-            for hist in histlist:
-                hist.Scale(s)   
         
         # Rebuild the stack from the scaled histograms
         stack = ROOT.THStack("stack_scaled", "")
