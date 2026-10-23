@@ -351,7 +351,7 @@ def Make2DRatio(Ratio2D, GlobalSettings):
     BinX = Ratio2D["BinsX"]
     BinY = Ratio2D["BinsY"]
     AxisInfo = []
-    df1, f1, df2, f2 = pp.CreateDataFrame(root_files1, cut ="None", reweight_cfg=syst_cfg), pp.CreateDataFrame(root_files2, cut ="None",  reweight_cfg=syst_cfg)
+    (df1, f1), (df2, f2) = pp.CreateDataFrame(root_files1, cut ="None", reweight_cfg=syst_cfg), pp.CreateDataFrame(root_files2, cut ="None",  reweight_cfg=syst_cfg)
 
     if(GlobalSettings["EvisB"]):
         df1, df2 = pp.DefineEvis(df1), pp.DefineEvis(df2)
