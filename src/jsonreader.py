@@ -1107,10 +1107,6 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         for cut1, info1 in ContourStyle["ColorCuts"].items():
             for cut2, info2 in ContourStyle["StyleCuts"].items():
                 cuts.append(cut1+" && "+cut2)
-                # name1, color = info1.split(",")
-                # name2, style = info2.split(",")
-                # colors.append(int(color))
-                
                 name1, color = [x.strip() for x in info1.split(",", 1)]
                 name2, style = [x.strip() for x in info2.split(",", 1)]
                 colors.append(sf.parse_color(color))
