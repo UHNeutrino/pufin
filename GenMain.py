@@ -10,6 +10,7 @@ import src.SystClass as SC
 OutPath = os.environ.get("PUFIN_OUT")
 user = os.environ.get("USER")
 tmpdir = f"{OutPath}/{user}_temp_dir"
+pufin_dir = os.path.realpath(__file__).replace("GenMain.py","")
 
 def DirectorySetup(Generator, SingleTarget=None, Mode=None):
     Targets = []
@@ -1220,9 +1221,53 @@ def FindEverythingLoop(FileList, UseRoot, Verbosity):
         else:
             print(f"Total Events: {int(TotalEvents):e}")
 
-def RWNeutAll(Tune, Dials, Values):
+def SystRWNeutAll(Tune, Dials, Values, SourcePath, GroupName=None, ValuesName=None):
+    NeutRW_Path = f"{OutPath}/NEUT/T2KRWTrees"
+    os.makedirs(NeutRW_Path, exist_ok=True)
     FilesToRW = glob.glob(f"{OutPath}/NEUT/*/Original*{Tune}*.root")
+    print(f"Making Systemtatic Reweights for {len(FilesToRW)} Neut Files")
+    for file in FilesToRW:
+        card_name = file.split("/")[-1].replace(".root","")
+        card_name = card_name.replace("Original_","")
+        if card_name[-4] == "P":
+            card_name=card_name[:-4]
+
+        card_path = f"{OutPath}/NEUT/Cards/{card_name}.card"
+        template_path = pufin_dir+"src/t2krwSave.C"
+
+
+        RWInstance = SC.T2KReWeight(Dials,Values,group_name=GroupName,values_name=ValuesName)
+        RWInstance.MakeScript(template_path,tmpdir,file,card_path,NeutRW_Path)
+        RWInstance.RunRW(source_path=SourcePath)
+        RWInstance.CleanUp()
+
+def SystReWeighter(Preset, Generator, SourcePath, Tune=None, Dials=None, Values=None, GroupName=None, ValuesName=None):
+    # outermost function that directs to T2KRW or NuSystematics
+    if Generator.upper()=="NEUT":
+        PresetDict = GlobalV.T2KRWPresets.get(Preset)
+        if Preset == "0":
+            ValueError("this will be the option for no presets")
+        elif PresetDict == None:
+            ValueError("No such preset")
+        else:
+            Dials = PresetDict.get("dial")
+            Values = PresetDict.get("value")
+            GroupName = PresetDict.get("group_name")
+            ValuesName = PresetDict.get("value_name")
+        
+        if any(v is None for v in (Tune,Dials,Values,SourcePath)):
+            print(f"Tune: {Tune}")
+            print(f"Dials: {Dials}")
+            print(f"Values: {Values}")
+            print(f"SourcePath: {SourcePath}")
+            raise ValueError("Need Tune Dial Value and SourcePath at least to do a syst RW")
+        
+        SystRWNeutAll(Tune,Dials,Values,SourcePath,GroupName=GroupName,ValuesName=ValuesName)
     
+    elif Generator.upper()=="GENIE":
+        print("Under Construction")
+
+
     
 
 
@@ -1268,6 +1313,14 @@ if __name__ =="__main__":
     GenCheckParser.add_argument("--Verbosity", type=int)
     GenCheckParser.add_argument("--UseRoot", action="store_true")
 
+    # For Making Systematic reweight trees
+    SystParser = subparsers.add_parser("SystRW")
+    SystParser.add_argument("--generator", required=True)
+    SystParser.add_argument("--tune", required=True)
+    SystParser.add_argument("--preset", required=True)
+    SystParser.add_argument("--source", required=True)
+
+
     args = parser.parse_args()
     if args.command=="Gen":
         Generate(
@@ -1303,6 +1356,9 @@ if __name__ =="__main__":
         )
     elif args.command=="Check":
         CheckGeneratedFiles(Verbosity=args.Verbosity, UseRoot=args.UseRoot)
+    elif args.command=="SystRW":
+        SystReWeighter(Preset=args.preset,Generator=args.generator,SourcePath=args.source, Tune=args.tune)
+
 
     
     # Tune = "Prod7E"

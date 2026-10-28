@@ -204,45 +204,46 @@ def MakePlots(plots, GlobalSettings):
         if VbinBool:
             Vbins = array.array('d',plots["VBins"][1])
             varBinInfo = ROOT.RDF.TH1DModel("h_varbins","h", len(Vbins) - 1, Vbins)
-
-
+    
         if(GlobalSettings["EvisB"]):
             df = pp.DefineEvis(df)  
         if (GlobalSettings["KinematicsB"]):
             df = pp.DefineKinematics(df)
         if (GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
+        if (GlobalSettings["ThresholdsB"]):
+            df = pp.FlagParticleThresholds(df)
+            
         for word in plots["AxisInfo"].split(','):
             AxisInfo.append(word)
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
+            df = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
-
-
         if reweight_flag and syst_flag:
             df = df.Define("weightsboth",f"weights * {syst_cfg[2]}")
             weight_col = "weightsboth"
         elif syst_flag:
             weight_col = syst_cfg[2]
-
+        if plots.get("Cut"):
+            df = df.Filter(plots["Cut"])
 
 
         if plots["Type"] == "1D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2])
             if VbinBool:
                 histInfo = varBinInfo
-            if reweight_flag:
-                hist = df.Histo1D(histInfo,plots["Var1"],"weights")
+            if (weight_col != None):
+                hist = df.Histo1D(histInfo,plots["Var1"],weight_col)
             else:
                 hist = df.Histo1D(histInfo,plots["Var1"])
         if plots["Type"] == "2D":
             histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
             if VbinBool:
                 histInfo = varBinInfo
-            if(reweight_flag):
-                hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"],"weights")
+            if(weight_col != None):
+                hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"],weight_col)
             else:
                 hist = df.Histo2D(histInfo,plots["Var1"],plots["Var2"])
             if(plots.get("profileX")):
@@ -251,57 +252,18 @@ def MakePlots(plots, GlobalSettings):
                 p1 = h2.ProfileX("hProfileX", 1, -1, "s")
                 p1.SetDirectory(0)
 
-        ################################################################
-        #Histogram scaling for event rates
-        if not areaB and reweight_flag:
-            target_integral = bin_integral_unnorm
-            current = df.Sum(weight_col).GetValue()
-            s = target_integral / current
-            hist.Scale(s)
-            if GlobalSettings["DebugPrint"] != 0:  
-                print("uncut bin integral")
-                print(current)
-                print("uncut scaled bin integral")
-                print(hist.Integral())
-
-            
-                    
-        if (GlobalSettings["ThresholdsB"]):
-            df = pp.FlagParticleThresholds(df)  
-        if plots.get("Cut"):
-            df_cut = df.Filter(plots["Cut"])
-        else:
-            df_cut = df
-        #df_cut = df  # uncomment if trying to scale using a specific interaction cross section 
-        
-        # Build the CUT histogram, still using weights if you have them
-        if plots["Type"] == "1D":
-            if weight_col:
-                rdf_cut = df_cut.Histo1D(histInfo, plots["Var1"], weight_col)
-            else:
-                rdf_cut = df_cut.Histo1D(histInfo, plots["Var1"])
-        if plots["Type"] == "2D":
-            if weight_col:
-                rdf_cut = df_cut.Histo2D(histInfo, plots["Var1"], plots["Var2"], weight_col)
-            else:
-                rdf_cut = df_cut.Histo2D(histInfo, plots["Var1"],plots["Var2"])
-            
-        hist_cut = rdf_cut.GetValue()
-        hist_cut.SetDirectory(0)
-        
         # Scale cut histogram by the same global factor s
         if areaB:
-            area_integral = hist_cut.Integral()
+            area_integral = hist.Integral()
             if area_integral <= 0:
                 raise RuntimeError("Cut weighted histogram has zero area")
-            hist_cut.Scale(1.0 / area_integral)
-        elif reweight_flag:
-            hist_cut.Scale(s)
+            hist.Scale(1.0 / area_integral)
+
         if GlobalSettings["DebugPrint"] != 0:
             print("scaled bin integral (cut hist)")
-            print(hist_cut.Integral())
+            print(hist.Integral())
         xvar, xunit, yvar, yunit, PlotTitle = AxisInfo
-        hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=plots.get("max"), PlotTitle=PlotTitle)
+        hist = sf.formatHist(hist, xvar, xunit, yvar, yunit, max=plots.get("max"), PlotTitle=PlotTitle)
         ########################################################################################################################
 
         nx = datetime.datetime.now()
@@ -343,11 +305,6 @@ def Make2DRatio(Ratio2D, GlobalSettings):
     if len(root_files1) > 1 or len(root_files2) > 1:
         raise ValueError(f"Got too many files: {root_files1} and {root_files2}")
 
-    # print(file_path)
-    # file_name1, file_name2 = root_files1.split('/')[-1], root_files2.split('/')[-1]
-    # generator = file_name.split('_')[1]
-    # flux = file_name.split('_')[2]
-    # Tevents = file_name.split('_')[3]
     BinX = Ratio2D["BinsX"]
     BinY = Ratio2D["BinsY"]
     AxisInfo = []
@@ -362,8 +319,8 @@ def Make2DRatio(Ratio2D, GlobalSettings):
     for word in Ratio2D["AxisInfo"].split(','):
         AxisInfo.append(word)
     if reweight_flag:
-        df1, bin_integral_unnorm1 = pp.defineWeightsSpline(df1, reweight_cfg)
-        df2, bin_integral_unnorm2 = pp.defineWeightsSpline(df2, reweight_cfg)
+        df1 = pp.defineWeightsSpline(df1, reweight_cfg)
+        df2 = pp.defineWeightsSpline(df2, reweight_cfg)
         weight_col = "weights"
     else:
         weight_col = ""
@@ -376,66 +333,45 @@ def Make2DRatio(Ratio2D, GlobalSettings):
         weight_col = syst_cfg[2]
 
     histInfo = (AxisInfo[-1],AxisInfo[-1],BinX[0],BinX[1],BinX[2],BinY[0],BinY[1],BinY[2])
-    if(reweight_flag):
-        hist1, hist2 = df1.Histo2D(histInfo,Ratio2D["Var1"],Ratio2D["Var2"],"weights"), df2.Histo2D(histInfo,Ratio2D["Var1"],Ratio2D["Var2"],"weights")
-    else:
-        hist1, hist2 = df1.Histo2D(histInfo,Ratio2D["Var1"],Ratio2D["Var2"]), df2.Histo2D(histInfo,Ratio2D["Var1"],Ratio2D["Var2"])
 
-    ################################################################
-    #Histogram scaling for event rates
-    if not areaB and weight_col:
-        target_integral1, target_integral2 = bin_integral_unnorm1, bin_integral_unnorm2
-        current1, current2 = df1.Sum(weight_col).GetValue(), df2.Sum(weight_col).GetValue()
-        s1, s2 = target_integral1/current1, target_integral2/current2
-        hist1.Scale(s1), hist2.Scale(s2)
-        if GlobalSettings["DebugPrint"] != 0:  
-            print("uncut bin integral")
-            print(f"hist1: {current1} hist2: {current2}")
-            print("uncut scaled bin integral")
-            print(f"hist1: {hist1.Integral()} hist2: {hist2.Integral()}")
-
-        
-                
-    if (GlobalSettings["ThresholdsB"]):
-        df1, df2 = pp.FlagParticleThresholds(df1), pp.FlagParticleThresholds(df2)
     if Ratio2D.get("Cut"):
-        df_cut1, df_cut2 = df1.Filter(Ratio2D["Cut"]), df2.Filter(Ratio2D["Cut"])
-    else:
-        df_cut1,  df_cut2 = df1, df2      
+        df1, df2 = df1.Filter(Ratio2D["Cut"]), df2.Filter(Ratio2D["Cut"])
+ 
     # Build the CUT histogram, still using weights if you have them
     if weight_col:
-        rdf_cut1, rdf_cut2 = df_cut1.Histo2D(histInfo, Ratio2D["Var1"], Ratio2D["Var2"], weight_col), df_cut2.Histo2D(histInfo, Ratio2D["Var1"], Ratio2D["Var2"], weight_col)
+        hist1, hist2 = df1.Histo2D(histInfo, Ratio2D["Var1"], Ratio2D["Var2"], weight_col), df2.Histo2D(histInfo, Ratio2D["Var1"], Ratio2D["Var2"], weight_col)
     else:
-        rdf_cut1, rdf_cut2 = df_cut1.Histo2D(histInfo, Ratio2D["Var1"],Ratio2D["Var2"]), df_cut2.Histo2D(histInfo, Ratio2D["Var1"],Ratio2D["Var2"])
+        hist1, hist2 = df1.Histo2D(histInfo, Ratio2D["Var1"],Ratio2D["Var2"]), df2.Histo2D(histInfo, Ratio2D["Var1"],Ratio2D["Var2"])
         
-    hist_cut1, hist_cut2 = rdf_cut1.GetValue(), rdf_cut2.GetValue()
-    hist_cut1.SetDirectory(0), hist_cut2.SetDirectory(0)
     
     # Scale cut histogram by the same global factor s
     if areaB:
-        area_integral1, area_integral2 = hist_cut1.Integral(), hist_cut2.Integral()
+        area_integral1, area_integral2 = hist1.Integral(), hist2.Integral()
         if area_integral1 <= 0 or area_integral2 <= 0:
             raise RuntimeError("Cut weighted histogram has zero area")
-        hist_cut1.Scale(1.0 / area_integral1), hist_cut2.Scale(1.0/area_integral2)
-    elif reweight_flag:
-        hist_cut1.Scale(s1), hist_cut2.Scale(s2)
+        hist1.Scale(1.0 / area_integral1), hist2.Scale(1.0/area_integral2)
+
+
     if GlobalSettings["DebugPrint"] != 0:
         print("scaled bin integral (cut hist)")
-        print(f"hist 1 {hist_cut1.Integral()} hist 2 {hist_cut1.Integral()}")
+        print(f"hist 1 {hist1.Integral()} hist 2 {hist1.Integral()}")
     xvar, xunit, yvar, yunit, PlotTitle = AxisInfo
-    Fhist1, Fhist2 = sf.formatHist(hist_cut1, xvar, xunit, yvar, yunit, max=Ratio2D.get("max"), PlotTitle=PlotTitle), sf.formatHist(hist_cut2, xvar, xunit, yvar, yunit, max=Ratio2D.get("max"), PlotTitle=PlotTitle)
+    Fhist1, Fhist2 = sf.formatHist(hist1, xvar, xunit, yvar, yunit, max=Ratio2D.get("max"), PlotTitle=PlotTitle), sf.formatHist(hist2, xvar, xunit, yvar, yunit, max=Ratio2D.get("max"), PlotTitle=PlotTitle)
     ########################################################################################################################
     Fhist1.SetName("h1"), Fhist2.SetName("h2")
     saveLoc = GlobalSettings["Save"]+"/"+Ratio2D["Name"]
     
-
+    Fhist2_Value = Fhist2.GetValue()
     ratio = Fhist1.Clone("ratio")
-    ratio.Divide(Fhist2)
+    ratio.Divide(Fhist2_Value)
     Fhist1.SetStats(0), Fhist2.SetStats(0), ratio.SetStats(0)
+
+    # sets minimum and max for the ratio
     if Ratio2D.get("RatioMin")!= None and Ratio2D.get("RatioMax"):
         ratio.SetMinimum(Ratio2D["RatioMin"])
         ratio.SetMaximum(Ratio2D["RatioMax"])
 
+    # sets the places where x/0 equal to -1 * the maximum ratio
     if Ratio2D.get("MissingPS"):
         zmin = -1 * ratio.GetMaximum()
         binsx = Fhist1.GetNbinsX()
@@ -457,18 +393,11 @@ def Make2DRatio(Ratio2D, GlobalSettings):
 
     out_file = ROOT.TFile(f"{saveLoc}.root", "RECREATE")
     print(f"Saved {saveLoc}.root")
-    c = ROOT.TCanvas("ratio", "ratio", 800, 600)
-
     
 
-    ratio.Draw("COLZ")
-    c.Write() 
-    c1 = ROOT.TCanvas("hist1", "hist1", 800, 600)
-    Fhist1.Draw("COLZ")  # Write the histogram to the file
-    c1.Write()
-    c2 = ROOT.TCanvas("hist2", "hist2", 800, 600)
-    Fhist2.Draw("COLZ")  # Write the histogram to the file
-    c2.Write()
+    ratio.Write()
+    Fhist1.Write()  # Write the histogram to the file
+    Fhist2.Write()  # Write the histogram to the file
     out_file.Close()  # Close to finalize writing
     if f1 != None:
         f1.Close()
@@ -508,7 +437,7 @@ def MakeStacks(stacks,GlobalSettings):
         if(GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
+            df = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -519,21 +448,6 @@ def MakeStacks(stacks,GlobalSettings):
         elif syst_flag:
             weight_col = syst_cfg[2]
 
-        if reweight_flag and not areaB:
-            target_integral = bin_integral_unnorm
-            current = df.Sum(weight_col).GetValue()
-
-            if current <= 0:
-                raise RuntimeError(
-                    "Uncut weighted dataframe sum is non-positive"
-                )
-
-            s = target_integral / current
-
-            print("Stack normalization:")
-            print(f"target integral = {target_integral:.6e}")
-            print(f"current integral = {current:.6e}")
-            print(f"scale factor = {s:.6e}")
             
         if (GlobalSettings["ThresholdsB"]):
             df = pp.FlagParticleThresholds(df)
@@ -563,9 +477,6 @@ def MakeStacks(stacks,GlobalSettings):
             print("Total stack integral after normalization:",
                 sum(hist.Integral() for hist in histlist))
             
-        elif reweight_flag:
-            for hist in histlist:
-                hist.Scale(s)   
         
         # Rebuild the stack from the scaled histograms
         stack = ROOT.THStack("stack_scaled", "")
@@ -604,7 +515,7 @@ def MakeOverlap(overlap,GlobalSettings):
         df, f = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"), reweight_cfg=syst_cfg)
         weight_col = ""
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df,reweight_cfg)
+            df = pp.defineWeightsSpline(df,reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -615,21 +526,6 @@ def MakeOverlap(overlap,GlobalSettings):
         elif syst_flag:
             weight_col = syst_cfg[2]
 
-        if reweight_flag and not areaB:
-            target_integral = bin_integral_unnorm
-            current = df.Sum(weight_col).GetValue()
-
-            if current <= 0:
-                raise RuntimeError(
-                    "Uncut weighted dataframe sum is non-positive"
-                )
-
-            s = target_integral / current
-
-            print("Overlap normalization:")
-            print(f"target integral = {target_integral:.6e}")
-            print(f"current integral = {current:.6e}")
-            print(f"scale factor = {s:.6e}")
             
         BinL = overlap["Bins"]
         AxisInfo = []
@@ -669,10 +565,6 @@ def MakeOverlap(overlap,GlobalSettings):
                 "Total overlap integral after normalization:",
                 sum(hist.Integral() for hist in histlist),
             )
-
-        elif reweight_flag:
-            for hist in histlist:
-                hist.Scale(s)
 
         if GlobalSettings.get("SavePdf"):
             ext = "pdf"
@@ -767,7 +659,7 @@ def MakeSame1D(same1D,GlobalSettings):
 
 
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
+            df = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -778,8 +670,13 @@ def MakeSame1D(same1D,GlobalSettings):
         elif syst_flag:
             weight_col = syst_cfg[2]            
             
-        bins = array.array('d',same1D["VBins"][1])
 
+        if same1D.get("Cut"):
+            df = df.Filter(same1D["Cut"])
+        if plot.get("Cut"):
+            df = df.Filter(plot["Cut"])
+
+        bins = array.array('d',same1D["VBins"][1])
         histInfoScale = (f"h_scale_{key}", f"hist_{key}", 160, 0, 8)
         histInfo = (f"h_{key}", f"hist_{key}", BinL[0], BinL[1], BinL[2])
         varBinInfo = ROOT.RDF.TH1DModel(f"h_varbins_{key}", f"hist_{key}", len(bins) - 1, bins)
@@ -788,67 +685,29 @@ def MakeSame1D(same1D,GlobalSettings):
             histInfo = varBinInfo
         if weight_col:
             rdf_hist = df.Histo1D(histInfoScale, 'Enu_true', weight_col)
-            #rdf_hist = df.Histo1D(histInfoScale, 'Ev', weight_col) ## for gst files
         else:
             rdf_hist = df.Histo1D(histInfo, plot["Var"])
 
         hist_rdfs.append(rdf_hist)  # Keep RDF object alive
         hist = rdf_hist.GetValue()
-        pp.HistoErrorBars(hist)
-        if reweight_flag and not areaB:
-            target_integral = bin_integral_unnorm
-            current = df.Sum(weight_col).GetValue()
-            # current = hist.Integral() 
-            print(f"\n[{key}] Applying weight normalization factor")
-            print(f"target integral = {target_integral:.6e}")
-            print(f"current = {current:.6e}")
-            s = target_integral / current
-            hist.Scale(s)
-            print("uncut scaled bin integral after weight normalization")
-            print(hist.Integral())     
-        if same1D.get("Cut"):
-            df_cut = df.Filter(same1D["Cut"])
-        else:
-            df_cut = df
-        
-        if plot.get("Cut"):
-            df_cut = df_cut.Filter(plot["Cut"])
-        
-        # Build the CUT histogram, still using weights if you have them
-        if weight_col:
-            rdf_cut = df_cut.Histo1D(histInfo, plot["Var"], weight_col)
-        else:
-            rdf_cut = df_cut.Histo1D(histInfo, plot["Var"])
-            
-        hist_cut = rdf_cut.GetValue()
-        hist_cut.SetDirectory(0)
+        pp.HistoErrorBars(hist)        
 
         if areaB:
-            area_integral = hist_cut.Integral()
+            area_integral = hist.Integral()
 
             if area_integral <= 0:
                 raise RuntimeError(
                     f"{key} final weighted histogram has zero integral"
                 )
 
-            hist_cut.Scale(1.0 / area_integral)
+            hist.Scale(1.0 / area_integral)
 
             print(
                 f"[{key}] separately area-normalized integral = "
-                f"{hist_cut.Integral()}"
+                f"{hist.Integral()}"
             )
 
-        elif reweight_flag:
-            hist_cut.Scale(s)
-
-            print(
-                f"[{key}] event-rate-scaled cut integral = "
-                f"{hist_cut.Integral():.6e}"
-            )
-            
-        print("scaled bin integral (cut hist)")
-        print(hist_cut.Integral())
-        hist = sf.formatHist(hist_cut, xvar, xunit, yvar, yunit, max=same1D.get("max"), PlotTitle=PlotTitle)
+        hist = sf.formatHist(hist, xvar, xunit, yvar, yunit, max=same1D.get("max"), PlotTitle=PlotTitle)
         
         if "Style" in plot:
             styleint = plot["Style"]
@@ -905,14 +764,7 @@ def MakeSame1D(same1D,GlobalSettings):
 
         if f != None:
             f.Close()
-        # if same1D["ErrorBars"]:
-        #     draw_opt = "HIST E1" if len(hist_dict) == 0 else "HIST E1 SAME"
-        # else:
-        #     draw_opt = "HIST" if len(hist_dict) == 0 else "HIST SAME"
-        # hist.Draw(draw_opt)
-        # legend.AddEntry(hist, label, "l")
-        # hist_dict[key] = hist
-        # histCounter += 1
+
     if logy:
         c.SetLogy()
         if Add_Ratio:
@@ -936,7 +788,6 @@ def MakeSame1D(same1D,GlobalSettings):
             raise ValueError(
                 "Add_Ratio is true, but RatioPlots is empty"
             )
-
 
         # Make it a list if its just one
         if isinstance(RatioNominal, str):
@@ -1104,7 +955,7 @@ def MakeContour(Contour,GlobalSettings):
             df = pp.DefineTKI(df)
 
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
+            df = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -1116,21 +967,6 @@ def MakeContour(Contour,GlobalSettings):
             weight_col = syst_cfg[2]            
 
         # Calculate normalization before applying the contour selection
-        if reweight_flag and not areaB:
-            target_integral = bin_integral_unnorm
-            current = df.Sum(weight_col).GetValue()
-
-            if current <= 0:
-                raise RuntimeError("Uncut weighted dataframe sum is non-positive")
-
-            s = target_integral / current
-
-            print("Contour normalization:")
-            print(f"target integral = {target_integral:.6e}")
-            print(f"current integral = {current:.6e}")
-            print(f"scale factor = {s:.6e}")
-
-            df = df.Redefine("weights", f"weights * {s}")
 
         elif reweight_flag and areaB:
             current = df.Sum(weight_col).GetValue()
@@ -1138,7 +974,8 @@ def MakeContour(Contour,GlobalSettings):
             if current <= 0:
                 raise RuntimeError("Uncut weighted dataframe sum is non-positive")
 
-            df = df.Redefine("weights", f"weights / {current}")
+            df = df.Define("AreaWeights", f"{weight_col} / {current}")
+            weight_col = "AreaWeights"
 
         if GlobalSettings["ThresholdsB"]:
             df = pp.FlagParticleThresholds(df)
@@ -1194,8 +1031,6 @@ def MakeContour(Contour,GlobalSettings):
                 cuts.append(cut)
                 Legend.append(name)
 
-        # for num in Contour["Colors"].split(","):
-        #     colors.append(int(num))
         for color_spec in Contour["Colors"].split(","):
             colors.append(sf.parse_color(color_spec))
         histInfo = (AxisInfo[-1],AxisInfo[-1],BinL[0],BinL[1],BinL[2],BinL[3],BinL[4],BinL[5])
@@ -1225,7 +1060,6 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         generator = file_name.split('_')[1]
         flux = file_name.split('_')[2]
         df, f = pp.CreateDataFrame(file_path, cut="None", treeName=GlobalSettings.get("treeName"), reweight_cfg=syst_cfg)
-        # df = ROOT.RDataFrame(GlobalSettings["treeName"],file_path)
         BinL = ContourStyle["Bins"]
         AxisInfo = []
         cuts = []
@@ -1242,7 +1076,7 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         if (GlobalSettings["TkiB"]):
             df = pp.DefineTKI(df)
         if reweight_flag:
-            df, bin_integral_unnorm = pp.defineWeightsSpline(df, reweight_cfg)
+            df = pp.defineWeightsSpline(df, reweight_cfg)
             weight_col = "weights"
         else:
             weight_col = ""
@@ -1252,21 +1086,6 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
             weight_col = "weightsboth"
         elif syst_flag:
             weight_col = syst_cfg[2]            
-
-        if reweight_flag and not areaB:
-            target_integral = bin_integral_unnorm
-            current = df.Sum(weight_col).GetValue()
-
-            if current <= 0:
-                raise RuntimeError("Uncut weighted dataframe sum is non-positive")
-
-            s = target_integral / current
-            df = df.Redefine("weights", f"weights * {s}")
-
-            print("ContourStyle normalization:")
-            print(f"target integral = {target_integral:.6e}")
-            print(f"current integral = {current:.6e}")
-            print(f"scale factor = {s:.6e}")
 
         elif reweight_flag and areaB:
             current = df.Sum(weight_col).GetValue()
@@ -1288,10 +1107,6 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         for cut1, info1 in ContourStyle["ColorCuts"].items():
             for cut2, info2 in ContourStyle["StyleCuts"].items():
                 cuts.append(cut1+" && "+cut2)
-                # name1, color = info1.split(",")
-                # name2, style = info2.split(",")
-                # colors.append(int(color))
-                
                 name1, color = [x.strip() for x in info1.split(",", 1)]
                 name2, style = [x.strip() for x in info2.split(",", 1)]
                 colors.append(sf.parse_color(color))
@@ -1312,7 +1127,7 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         print(f"colors {colors}")
         print(f"styles {styles}")
         print(f"Labels {ColorLabels} and { StyleLabels}") 
-        if GlobalSettings.get("SavePdf"):
+        if GlobalSettings.get("SavePdf") == True:
             ext = "pdf"
         else:
             ext = "png"

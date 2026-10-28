@@ -1784,7 +1784,6 @@ def defineWeights(df, rwRootFile, histName, Fscale = 1):
     return df    
 
 
-# def defineWeightsSpline(df, rwRootFile, histName, label="", Fscale = 1, xspline = "", areaB = False, undoNormB = False):
 def defineWeightsSpline(df, reweight_cfg, label=""):
     # Unpack the reweight_cfg list
     (
@@ -1975,11 +1974,12 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
     ##############################################################
    
     # Define new column in DataFrame from spline0 to give the right shape
-    df = df.Define("weights", f"{func_name0}(Enu_true)")
-    #df = df.Define("weights", f"{func_name0}(Ev)") # for gst files 
+    df = df.Define("weights_first", f"{func_name0}(Enu_true)")
+    current = df.Sum("weights_first").GetValue()
+    df = df.Define("weights", f"{func_name0}(Enu_true) * ({bin_integral_unnorm}/{current})")
     
     # df with weights give flux shape, bin_integral_unnorm give absolute scale for give Fscale (xsec, target, exposure, unit conversion)
-    return df, bin_integral_unnorm
+    return df
 
 
 def _parse_target_token(target: str):
