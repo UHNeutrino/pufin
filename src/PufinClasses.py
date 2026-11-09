@@ -241,7 +241,7 @@ class SpliningSyst:
                     used_value.append(value_list[i])
 
             
-            if len(branch_list)%len(KnotPointsF) != 0:
+            if len(used_branches)%len(KnotPointsF) != 0:
                 print("ERROR WARNING")
                 for knot in KnotPointsF:
                     if not (knot in value_list):
@@ -268,10 +268,16 @@ class SpliningSyst:
                 xsortedL, ysortedL = list(xsorted), list(ysorted)
                 xsortedL_inC = "ROOT::RVec<double>{" + ", ".join(repr(float(x)) for x in xsortedL) + "}"
                 ysorted_inC = "ROOT::RVec<double>{" + ", ".join(f"{b}" for b in ysortedL) + "}"
+
+
+                print(f"MakeSpline({systematic}_x, {systematic}_y)")
                 df = df.Define(f"{systematic}_x", xsortedL_inC)
                 df = df.Define(f"{systematic}_y", ysorted_inC)
                 df = df.Define(f"{systematic}_spline", f"MakeSpline({systematic}_x, {systematic}_y)")
+
                 branch_list.append(f"{systematic}_spline")
+                branch_list.append(f"{systematic}_x")
+
 
             print("Splines Made, Taking a snapshot")
             df.Snapshot("WeightsAndSplines","W&Stest.root",branch_list)
@@ -287,7 +293,6 @@ class SpliningSyst:
 
     def GroupSplines(self):
         raise NotImplementedError("Working on Spline Tests against full systematics")
-
 
 
 if __name__ == "__main__":
