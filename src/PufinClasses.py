@@ -2,7 +2,7 @@ import os
 import subprocess
 import shutil
 import numpy as np
-
+import ROOT
 
 class T2KReWeight:
     def __init__(self, dial, value, group_name=None, values_name=None):
@@ -156,6 +156,138 @@ class NuSystematics:
     def __init__(self):
         print("Under Construction")
         pass
+
+class SpliningSyst:
+    #######################################
+    ## Grabs the file with reweights in it
+    ## Makes a list of all branches
+    ## Saves points based on StartingPoints
+    ### X points if StartingPoints is an int
+    ### [X,Y,Z...] exact points if StartingPoints is a list
+    ## These Points make a branch of Splines that can get saved, or stay within the Splining Obj
+    ###############################################
+    def __init__(self,RWPath,TreeName,SplinePoints=None,Bounds=None):
+        MakeSplines = True #will make splines unless you give it a file with splines already made
+        
+        # decide on spline points
+        if Bounds == None:
+            Bounds = (-3,3)
+        lower_b, upper_b = Bounds
+        if lower_b>upper_b:
+            temp = lower_b
+            lower_b = upper_b
+            upper_b = temp
+            print("Wrong Bound Order, fixing")
+
+        KnotPoints = [] #this will actually store the points
+
+        if type(SplinePoints) == int:
+            mult_value = 10 #shouldn't go lower than the 10s place for splines (?)
+            Range = upper_b - lower_b
+
+            if SplinePoints > Range*mult_value:
+                raise ValueError("too many points requested")
+
+            step = int(Range*mult_value/SplinePoints)
+
+            for i in range(lower_b*mult_value,upper_b*mult_value,step):
+                KnotPoints.append(i/mult_value)
+    
+        elif type(SplinePoints) == list:
+            KnotPoints = SplinePoints
+
+        
+        elif SplinePoints==None:
+            KnotPoints = [-3,-2,-1,0,1,2,3]
+
+        KnotPointsF = [float(x) for x in KnotPoints]
+
+        df = ROOT.RDataFrame(TreeName,RWPath)
+        branches = df.GetColumnNames()
+        branch_list = [str(c) for c in branches]
+
+
+        for branch in branch_list:
+            branch_type = df.GetColumnType(branch) #If there's one spline, assuming all splines are there
+            if "TSpline" in branch_type:
+                MakeSplines = False
+                continue
+       
+        if MakeSplines: #Makes a branch of splines for each dial and saves it separately this df replace the weight df after
+            dial_list = []
+            value_list = []
+            
+            for branch in branch_list:
+                # Assuming a branch name of "Dial_Name_DialValue" or "DialName_Dialvalue"
+                value = branch.split("_")[-1]
+                dial = branch.split(value)[0]
+                value_list.append(float(value))
+                dial_list.append(dial)
+
+            for i in range(0,len(branch_list)):
+                if "-" in branch_list[i] or "." in branch_list[i]:
+                    branchSafe = branch_list[i].replace("-","m")
+                    branchSafe = branchSafe.replace(".","p")
+                    df = df.Alias(branchSafe,branch_list[i])
+                    branch_list[i] = branchSafe
+
+            used_branches = []
+            used_dial = []
+            used_value = []
+            for i in range(0,len(value_list)):
+                if float(value_list[i]) in KnotPointsF:
+                    used_branches.append(branch_list[i])
+                    used_dial.append(dial_list[i])
+                    used_value.append(value_list[i])
+
+            
+            if len(branch_list)%len(KnotPointsF) != 0:
+                print("ERROR WARNING")
+                for knot in KnotPointsF:
+                    if not (knot in value_list):
+                        raise RuntimeError(f"X point not found in weight file: {knot} not in {value_list}")
+
+            self.SplineDict = {}
+            #This dictionany will take the form {"systematic1":([x1,x2,x3],[branchName1,branchName2]),"systematic2":([x1,...],[branch1,...]),...}
+            for i in range (0,len(used_value)):
+                if not (used_dial[i] in self.SplineDict):
+                    self.SplineDict[used_dial[i]] = ([],[])
+                self.SplineDict[used_dial[i]][0].append(used_value[i])
+                self.SplineDict[used_dial[i]][1].append(used_branches[i])
+
+            ROOT.gInterpreter.Declare("""
+                TSpline3 MakeSpline(const ROOT::RVec<double> &x, const ROOT::RVec<double> &y)
+                {
+                    return TSpline3("spline", const_cast<double*>(x.data()),const_cast<double*>(y.data()), (Int_t)x.size());
+                }
+            """)
+
+            for systematic, XValuesAndBranches in self.SplineDict.items():
+                xs, ys = XValuesAndBranches
+                xsorted,ysorted = zip(*sorted(zip(xs, ys)))
+                xsortedL, ysortedL = list(xsorted), list(ysorted)
+                xsortedL_inC = "ROOT::RVec<double>{" + ", ".join(repr(float(x)) for x in xsortedL) + "}"
+                ysorted_inC = "ROOT::RVec<double>{" + ", ".join(f"{b}" for b in ysortedL) + "}"
+                df = df.Define(f"{systematic}_x", xsortedL_inC)
+                df = df.Define(f"{systematic}_y", ysorted_inC)
+                df = df.Define(f"{systematic}_spline", f"MakeSpline({systematic}_x, {systematic}_y)")
+                branch_list.append(f"{systematic}_spline")
+
+            print("Splines Made, Taking a snapshot")
+            df.Snapshot("WeightsAndSplines","W&Stest.root",branch_list)
+    
+        else:
+            raise NotImplementedError("Working on already made splines")
+
+    ##################
+    ## Takes all splines made and compares them to the full reweights with all points
+    ## For each event, grabs all points between spline nodes in the full density rw
+    ## Finds difference between spline and RW value and saves it as a new column
+    ## Each dial will have a branch that showes the total difference and the fractional difference(?)
+
+    def GroupSplines(self):
+        raise NotImplementedError("Working on Spline Tests against full systematics")
+
 
 
 if __name__ == "__main__":

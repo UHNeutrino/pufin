@@ -3,7 +3,7 @@ import concurrent.futures
 import json5
 import multiprocessing as mp
 import src.GlobalV as GlobalV
-import src.SystClass as SC
+import src.PufinClasses as PC
 
 
 
@@ -1236,7 +1236,7 @@ def SystRWNeutAll(Tune, Dials, Values, SourcePath, GroupName=None, ValuesName=No
         template_path = pufin_dir+"src/t2krwSave.C"
 
 
-        RWInstance = SC.T2KReWeight(Dials,Values,group_name=GroupName,values_name=ValuesName)
+        RWInstance = PC.T2KReWeight(Dials,Values,group_name=GroupName,values_name=ValuesName)
         RWInstance.MakeScript(template_path,tmpdir,file,card_path,NeutRW_Path)
         RWInstance.RunRW(source_path=SourcePath)
         RWInstance.CleanUp()
