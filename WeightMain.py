@@ -129,12 +129,7 @@ def group_by_sample_and_target(file_meta: list[dict]) -> list[dict]:
         )
     return out
 
-# def expand_requested_nc_flavors(flavors):
-#     if not flavors:
-#         return None
-#     return list(flavors)
 
-#### If requested_flavor = NC NuE(NuEBar), the code uses NC NuMu(NuMuBar) ROOT files and xsec splines since they are the same ####
 def resolve_source_flavor(interaction: str, requested_flavor: str):
     if interaction != "NC":
         return requested_flavor
