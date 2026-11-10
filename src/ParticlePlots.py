@@ -1105,20 +1105,22 @@ def CreateDataFrame(file_path, cut, treeName=None, reweight_cfg=None):    # Firs
     print(fileName)
 
     if isinstance(dir_location, list):
-        if reweight_cfg[0] == True:
-            f = ROOT.TFile(dir_location)
-            ft = f.Get(treeName)
-            ft.AddFriend("weighttree", reweight_cfg[1])
-            df = ROOT.RDataFrame(ft)
+        if reweight_cfg!= None:
+            if reweight_cfg[0] == True:
+                f = ROOT.TFile(dir_location)
+                ft = f.Get(treeName)
+                ft.AddFriend("weighttree", reweight_cfg[1])
+                df = ROOT.RDataFrame(ft)
         else:
             f = None
             df = ROOT.RDataFrame(treeName,dir_location)
     else:
-        if reweight_cfg[0] == True:
-            f = ROOT.TFile(fileName)
-            ft = f.Get(treeName)
-            ft.AddFriend("weighttree", reweight_cfg[1])
-            df = ROOT.RDataFrame(ft)
+        if reweight_cfg!= None:
+            if reweight_cfg[0] == True:
+                f = ROOT.TFile(fileName)
+                ft = f.Get(treeName)
+                ft.AddFriend("weighttree", reweight_cfg[1])
+                df = ROOT.RDataFrame(ft)
         else:
             f= None
             df = ROOT.RDataFrame(treeName,fileName)
@@ -1132,7 +1134,10 @@ def CreateDataFrame(file_path, cut, treeName=None, reweight_cfg=None):    # Firs
     else:
         df = df.Filter(cut)
 
-    return df, f
+    if f==None:
+        return df
+    else:
+        return df, f
 
 
 def Savehist(hist, AxisInfo, save_location, filename, ext, max = None, Normalize = False, logz = False):

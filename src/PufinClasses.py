@@ -6,15 +6,29 @@ import ROOT
 
 
 class UHMC:
-    def __init__(self, Files, Config):
+    def __init__(self, Files, Config, PUFIN_OUT):
         print("Under Construction")
 
         self.Config = Config
         self.Files = Files
-        
+
+        # Create Specifications for Weighting for each file in a dictionary of dictionaries
+        # Dictionary structure is:
+        #{"FileName1":{"target": target, "interaction": interaction, "nu_type": nu_type, "detector": detector, "xspline_mode": xspline_mode, "xsec_mode": xsec_mode, "xsec_file": xsec_file, "target_divisor": float(target_divisor), || -> For Genie Only "cc_path": "", "nc_path": "",}}
+        self.FileDictionary = {}
+        for file in Files:
+            self.FileDictionary[file] = {}
+            self.FileDictionary[file]["FileName"] = {file.split("/")[-1]}
+            self.FileDictionary[file]["Tune"] = {self.FileDictionary[file]["FileName"].split("_")[2]}
+            self.FileDictionary[file]["Interaction"] = {self.FileDictionary[file]["FileName"].split("_")[3]}
+            self.FileDictionary[file]["Flavor"] = {self.FileDictionary[file]["FileName"].split("_")[4]}
+            self.FileDictionary[file]["E_Range"] = {self.FileDictionary[file]["FileName"].split("_")[5]}
+            self.FileDictionary[file]["Target"] = {self.FileDictionary[file]["FileName"].split("_")[6]}
 
     def MakeDF(self):
         raise NotImplemented("Making a dataframe is not implemented yet")
+        df = ROOT.RDataFrame(Files) #or make a TChain for systematics
+        df = df.DefinePerSample("source", "rdfsampleinfo_.AsString()") #This will tell you which file is associated to each event which is then used to build the Weight Column ()
 
 class T2KReWeight:
     def __init__(self, dial, value, group_name=None, values_name=None):

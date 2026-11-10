@@ -388,7 +388,6 @@ def calculate_target_weight_factors(
 
 
 def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict):
-    
     discovered = "nothing"
     filters = get_filters(stage2)
     selected = build_selected_entries(discovered, filters)
