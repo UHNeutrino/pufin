@@ -4,6 +4,18 @@ import shutil
 import numpy as np
 import ROOT
 
+
+class UHMC:
+    def __init__(self, Files, Config):
+        print("Under Construction")
+
+        self.Config = Config
+        self.Files = Files
+        
+
+    def MakeDF(self):
+        raise NotImplemented("Making a dataframe is not implemented yet")
+
 class T2KReWeight:
     def __init__(self, dial, value, group_name=None, values_name=None):
         if type(dial) != str and type(dial) != list:

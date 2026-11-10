@@ -8,6 +8,7 @@ from pathlib import Path
 import src.GlobalV as GlobalV
 import src.ParticlePlots as pp
 import src.SetupFunctions as sf
+import src.PufinClasses as pc
 
 
 PUFIN_OUT = os.environ.get("PUFIN_OUT")
@@ -387,9 +388,8 @@ def calculate_target_weight_factors(
 
 
 def make_fullmc_weighted_same1d(stage2: dict, global_settings: dict):
-    discovered = discover_pufin_files(
-        base_dir=PUFIN_OUT,stage2=stage2,)
-
+    
+    discovered = "nothing"
     filters = get_filters(stage2)
     selected = build_selected_entries(discovered, filters)
     grouped = group_by_sample_and_target(selected)
@@ -591,10 +591,11 @@ def main():
     sf.setupRoot()
 
     config = load_json5(CONFIG_FILE)
-    global_settings = config["global"]
-    stage2 = config["stage2"]
+    files = discover_pufin_files(
+            base_dir=PUFIN_OUT,stage2=config,)
 
-    make_fullmc_weighted_same1d(stage2, global_settings)
+    
+    uhmc = pc.UHMC(config,files)
 
 
 if __name__ == "__main__":
