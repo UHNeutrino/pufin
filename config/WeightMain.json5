@@ -1,49 +1,47 @@
 {
-    "UHMCConfig": {
-      "save": "/Path/to/output/dir",
-      "generator": "GENIE",
-      "detector": "Nova",
-      "version":"5-9-0",
-      "tune":"Prod7E",
-  
-      "filters": {
-        // "interactions": ["CC", "NC"],
-        "interactions": ["CC"],
-        // "flavors": ["NuMu", "NuMuBar", "NuE","NuEBar"],
-        "flavors": ["NuMu"],
-        // "energy_ranges": ["0-8GeV", "8-20GeV", "8-30GeV", "30-120GeV"],
-        "energy_ranges": ["0-8GeV"],
-        "targets": ["C12", "H1", "Cl35", "O16", "Ti48"]
-        // "targets": ["C12"]
+  "save": "/Path/to/output/dir",
+  "generator": "GENIE",
+  "detector": "Nova",
+  "version":"5-9-0",
+  "tune":"Prod7E",
+
+  "filters": {
+    // "interaction": ["CC", "NC"],
+    "interaction": ["CC"],
+    // "flavor": ["NuMu", "NuMuBar", "NuE","NuEBar"],
+    "flavor": ["NuMu"],
+    // "e_range": ["0-8GeV", "8-20GeV", "8-30GeV", "30-120GeV"],
+    "e_range": ["0-8GeV"],
+    "target": ["C12", "H1", "Cl35", "O16", "Ti48"]
+    // "target": ["C12"]
+  },
+
+  "targets_file": "./config/TargetWeights.json5",
+
+  "reweight": {
+    "enabled": true,
+    "flux_inputs": {
+      "NuMu": {
+        "rw_file": "/path/to/you/flux/file",
+        "rw_flux": "numu"
       },
-  
-      "targets_file": "./config/TargetWeights.json5",
-  
-      "reWeight": {
-        "enabled": true,
-        "flux_inputs": {
-          "NuMu": {
-            "rw_file": "/path/to/you/flux/file",
-            "rw_flux": "numu"
-          },
-          "NuMuBar": {
-            "rw_file": "/path/to/you/flux/file",
-            "rw_flux": "numubar"
-          },
-          "NuE": {
-            "rw_file": "/path/to/you/flux/file",
-            "rw_flux": "nue"
-          },
-          "NuEBar": {
-            "rw_file": "/path/to/you/flux/file",
-            "rw_flux": "nuebar"
-          }
-        },
-        "xspline_mode": "G",
-        "xsec_file": "/path/to/xsec/file/xsec.root",
-        "xsec_mode": "auto",
-        "areaB": false,
-        "undoNormB": false
+      "NuMuBar": {
+        "rw_file": "/path/to/you/flux/file",
+        "rw_flux": "numubar"
       },
-    }
+      "NuE": {
+        "rw_file": "/path/to/you/flux/file",
+        "rw_flux": "nue"
+      },
+      "NuEBar": {
+        "rw_file": "/path/to/you/flux/file",
+        "rw_flux": "nuebar"
+      }
+    },
+    "xspline_mode": "G",
+    "xsec_file": "/path/to/xsec/file/xsec.root",
+    "xsec_mode": "auto",
+    "areaB": false,
+    "undoNormB": false
+  },
 }

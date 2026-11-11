@@ -1,7 +1,7 @@
 import ROOT
 import array as pyarray
 import os
-import src.SetupFunctions as SF
+import SetupFunctions as SF
 import re
 import time
 from array import array
@@ -2629,6 +2629,34 @@ def HistoErrorBars(hist):
     """
     hist.Sumw2()  # Tells ROOT to store sum of weights^2 per bin
     return hist
+
+def CheckUHMCConfig(Config):
+    FirstLevelKeys = ['save', 'generator', 'detector', 'version', 'tune', 'filters', 'targets_file', 'reweight']
+    FiltersKeys = ['interaction', 'flavor', 'e_range', 'target']
+    ReweightKeysL1 = ['enabled', 'flux_inputs', 'xspline_mode', 'xsec_file', 'xsec_mode', 'areaB', 'undoNormB']
+    
+    for key in FirstLevelKeys:
+        if not (key in Config):
+            raise ValueError(f"Missing Key {key} from UHMC Config (see full list in ParticlePlots -> CheckUHMCConfig)")
+    for key in FiltersKeys:
+        if not (key in Config['filters']):
+            raise ValueError(f"Missing Key {key} from UHMC Filters Config (see full list in ParticlePlots -> CheckUHMCConfig)")
+    for key in ReweightKeysL1:
+        if not (key in Config['reweight']):
+            raise ValueError(f"Missing Key {key} from UHMC Reweight Config (see full list in ParticlePlots -> CheckUHMCConfig)")
+
+    ReweightKeysL2 = Config['filters']['flavor']
+    ReweightKeysL3 = ['rw_file', 'rw_flux']
+
+    for key in ReweightKeysL2:
+        if not (key in Config['reweight']['flux_inputs']):
+            raise ValueError(f"Missing Key {key} from UHMC Flux Inputs Config (see full list in ParticlePlots -> CheckUHMCConfig)")
+    for key in ReweightKeysL3:
+        for Flavor in ReweightKeysL2:               
+            if not (key in Config['reweight']['flux_inputs'][Flavor]):
+                raise ValueError(f"Missing Key {key} from UHMC Flux Inputs Config (see full list in ParticlePlots -> CheckUHMCConfig)")
+    
+
 
 
 if __name__=="__main__":

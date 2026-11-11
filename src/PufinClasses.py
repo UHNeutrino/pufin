@@ -3,32 +3,63 @@ import subprocess
 import shutil
 import numpy as np
 import ROOT
+import glob
+import ParticlePlots as pp
 
 
 class UHMC:
-    def __init__(self, Files, Config, PUFIN_OUT):
-        print("Under Construction")
+    def __init__(self, Config):
+        pp.CheckUHMCConfig(Config) #this will raise an error if something is missing from the config
+
+        PUFIN_OUT = os.environ.get("PUFIN_OUT")
+        if PUFIN_OUT == None:
+            raise EnvironmentError("PUFIN_OUT Must be defined for WeightMain")
 
         self.Config = Config
-        self.Files = Files
-
         # Create Specifications for Weighting for each file in a dictionary of dictionaries
         # Dictionary structure is:
         #{"FileName1":{"target": target, "interaction": interaction, "nu_type": nu_type, "detector": detector, "xspline_mode": xspline_mode, "xsec_mode": xsec_mode, "xsec_file": xsec_file, "target_divisor": float(target_divisor), || -> For Genie Only "cc_path": "", "nc_path": "",}}
+        self.Files = []
         self.FileDictionary = {}
-        for file in Files:
-            self.FileDictionary[file] = {}
-            self.FileDictionary[file]["FileName"] = {file.split("/")[-1]}
-            self.FileDictionary[file]["Tune"] = {self.FileDictionary[file]["FileName"].split("_")[2]}
-            self.FileDictionary[file]["Interaction"] = {self.FileDictionary[file]["FileName"].split("_")[3]}
-            self.FileDictionary[file]["Flavor"] = {self.FileDictionary[file]["FileName"].split("_")[4]}
-            self.FileDictionary[file]["E_Range"] = {self.FileDictionary[file]["FileName"].split("_")[5]}
-            self.FileDictionary[file]["Target"] = {self.FileDictionary[file]["FileName"].split("_")[6]}
+        
+        # Find files in PUFIN_OUT Based on Config
+        AllFiles = glob.glob(f"{PUFIN_OUT}/{self.Config['generator'].upper()}/*/Flat*{self.Config['generator']}*{self.Config['version']}*{self.Config['tune']}*.root")
+        AllFileDictionary = {}
+        for file in AllFiles:
+            AllFileDictionary[file] = {}
+            AllFileDictionary[file]["filename"] = file.split("/")[-1]
+            AllFileDictionary[file]["tune"] = AllFileDictionary[file]["filename"].split("_")[2]
+            AllFileDictionary[file]["interaction"] = AllFileDictionary[file]["filename"].split("_")[3]
+            AllFileDictionary[file]["flavor"] = AllFileDictionary[file]["filename"].split("_")[4]
+            AllFileDictionary[file]["e_range"] = AllFileDictionary[file]["filename"].split("_")[5]
+            AllFileDictionary[file]["target"] = AllFileDictionary[file]["filename"].split("_")[6]
+
+        print(f"All Files length = {len(AllFiles)}")
+        #This loop checks if the files in the all files match the filters requested
+        for File in AllFiles:
+            for filter in self.Config['filters']:
+                AllowedBool = AllFileDictionary[File][filter] in self.Config['filters'][filter]
+                if not (AllowedBool):
+                    break
+            if AllowedBool:
+                self.Files.append(File)
+                self.FileDictionary[File] = AllFileDictionary[File]
+        
+        print(f"selected Files length = {len(self.Files)}")
+
+        if self.Files == []:
+            raise ValueError(f"No files found for given filters: {self.Config['filters']}")
+
+        self.Chain = ROOT.TChain("FlatTree_VARS")
+        for f in self.Files:
+            self.Chain.Add(f)
+        print("Root TChain made")
 
     def MakeDF(self):
-        raise NotImplemented("Making a dataframe is not implemented yet")
-        df = ROOT.RDataFrame(Files) #or make a TChain for systematics
+        # raise NotImplemented("Making a dataframe is not implemented yet")
+        df = ROOT.RDataFrame(self.Chain) #or make a TChain for systematics
         df = df.DefinePerSample("source", "rdfsampleinfo_.AsString()") #This will tell you which file is associated to each event which is then used to build the Weight Column ()
+        print("DataFrame Made")
 
 class T2KReWeight:
     def __init__(self, dial, value, group_name=None, values_name=None):
@@ -322,31 +353,38 @@ class SpliningSyst:
 
 
 if __name__ == "__main__":
-    testrw1 = T2KReWeight(dial="MaCCQE", value=1.0)
-    testrw2 = T2KReWeight(dial=["MaCCQE","MaRES","CA5RES"], value=[-1.0,1.0,0.2],group_name="1st_Group_Test",values_name="randomPoints")
+    # testrw1 = T2KReWeight(dial="MaCCQE", value=1.0)
+    # testrw2 = T2KReWeight(dial=["MaCCQE","MaRES","CA5RES"], value=[-1.0,1.0,0.2],group_name="1st_Group_Test",values_name="randomPoints")
 
-    file_path = os.path.abspath(__file__)
-    dir_path = os.path.dirname(file_path)
+    # file_path = os.path.abspath(__file__)
+    # dir_path = os.path.dirname(file_path)
 
-    templatePath = f"{dir_path}/t2krwSave.C"
-    OutPath = os.environ.get("PUFIN_OUT")
-    if OutPath == None:
-        raise ValueError("PUFIN_OUT not defined!!")
+    # templatePath = f"{dir_path}/t2krwSave.C"
+    # OutPath = os.environ.get("PUFIN_OUT")
+    # if OutPath == None:
+    #     raise ValueError("PUFIN_OUT not defined!!")
 
-    user = os.environ.get("USER")
-    workingDir = f"{OutPath}/{user}_temp_dir"
+    # user = os.environ.get("USER")
+    # workingDir = f"{OutPath}/{user}_temp_dir"
 
-    FilePath = "/path/to/your/NeutFileTest.root"
-    CardPath = "/path/to/your/NeutCardTest.card"
+    # FilePath = "/path/to/your/NeutFileTest.root"
+    # CardPath = "/path/to/your/NeutCardTest.card"
 
-    output_pufin_dir = f"{OutPath}/NEUT/T2KRW"
-    os.makedirs(output_pufin_dir, exist_ok=True)
+    # output_pufin_dir = f"{OutPath}/NEUT/T2KRW"
+    # os.makedirs(output_pufin_dir, exist_ok=True)
 
-    testrw1.MakeScript(path_to_template=templatePath, temp_dir=workingDir, original_file_path=FilePath, original_card_path=CardPath, output_dir=output_pufin_dir)
-    testrw2.MakeScript(path_to_template=templatePath, temp_dir=workingDir, original_file_path=FilePath, original_card_path=CardPath, output_dir=output_pufin_dir)
+    # testrw1.MakeScript(path_to_template=templatePath, temp_dir=workingDir, original_file_path=FilePath, original_card_path=CardPath, output_dir=output_pufin_dir)
+    # testrw2.MakeScript(path_to_template=templatePath, temp_dir=workingDir, original_file_path=FilePath, original_card_path=CardPath, output_dir=output_pufin_dir)
 
-    testrw1.RunRW(source_path="/path/to/your/T2KRWsetup.sh")
-    testrw2.RunRW(source_path="/path/to/your/T2KRWsetup.sh")
+    # testrw1.RunRW(source_path="/path/to/your/T2KRWsetup.sh")
+    # testrw2.RunRW(source_path="/path/to/your/T2KRWsetup.sh")
+    import json5
+    f = open("testConfigHere")
+    print("reading json5")
+    testConfig = json5.load(f)
+    print("read json5")
+    testUHMC = UHMC(testConfig)
+    testUHMC.MakeDF()
 
 
 
