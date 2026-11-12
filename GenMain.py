@@ -652,7 +652,6 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
     os.makedirs(CardPath, exist_ok=True)
     CardNames = []
     FlatFluxNames = ["flat_flux_0-8GeV.root","flat_flux_8-30GeV.root"]
-    Erange = "0-8GeV"
 
     if not Modes:
         Modes = ["NC", "CC"]
@@ -673,9 +672,12 @@ def MakeNeutCards(Tune, Targets, Events, Modes=None, Flavors=None):
                         CardNames.append(CName0) #one is to iterate over, one is to save at the end
                         CNameList.append(CName0)
                 elif (Mode == "CC"):
-                    CName0 = f"NEUT{NeutVersion}_{Tune}_{Mode}_{Flavor}_{Erange}_{TargetLabel}_{Events:.0e}.card".replace("+", "")
-                    CardNames.append(CName0)
-                    CNameList.append(CName0)
+                    for Name in FlatFluxNames:
+                        part = Name.split("_")[2]        # "x-YGeV.root"
+                        ErangeCC = part.replace(".root","")
+                        CName0 = f"NEUT{NeutVersion}_{Tune}_{Mode}_{Flavor}_{ErangeCC}_{TargetLabel}_{Events:.0e}.card".replace("+", "")
+                        CardNames.append(CName0)
+                        CNameList.append(CName0)
                 else:
                     raise ValueError(f"Mode {Mode} Does Not Exist!!")
                 for CName in CNameList:
@@ -838,6 +840,7 @@ def CheckNeutFiles(CardNames, NChunks):
         Mode = Card.split("_")[2]
         Target = GlobalV.NeutLabelTargets.get(TargetLabel)
         Flavor = Card.split("_")[3]
+        e_range = Card.split("_")[4]
         GenDir = OutPath + f"/NEUT/{Target}"
         if Flavor=="NuMu":
             TempChunks = NChunks
@@ -852,7 +855,9 @@ def CheckNeutFiles(CardNames, NChunks):
         
         if Mode.upper()=="NC":
             TempChunks = int(NChunks/10)
-        
+
+        if e_range != "0-8GeV":
+            TempChunks = int(NChunks/10)
         
         if TempChunks < 1:
             TempChunks = 1
