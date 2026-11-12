@@ -4,26 +4,37 @@ import shutil
 import numpy as np
 import ROOT
 import glob
-import ParticlePlots as pp
+import json5
+from itertools import product
+if __package__:
+    import src.ParticlePlots as pp
+else:
+    import ParticlePlots as pp            
 
 
 class UHMC:
     def __init__(self, Config):
         pp.CheckUHMCConfig(Config) #this will raise an error if something is missing from the config
+        self.Config = Config
+        TargetF = open(Config['targets_file'])
+        TargetConfig = json5.load(TargetF)
+        DetectorConfig = TargetConfig[Config['detector']]
+        pp.CheckDetectorConfig(DetectorConfig,Config)
+        self.DetectorConfig = DetectorConfig
 
-        PUFIN_OUT = os.environ.get("PUFIN_OUT")
-        if PUFIN_OUT == None:
+
+        self.PUFIN_OUT = os.environ.get("PUFIN_OUT")
+        if self.PUFIN_OUT == None:
             raise EnvironmentError("PUFIN_OUT Must be defined for WeightMain")
 
-        self.Config = Config
+        
         # Create Specifications for Weighting for each file in a dictionary of dictionaries
         # Dictionary structure is:
         #{"FileName1":{"target": target, "interaction": interaction, "nu_type": nu_type, "detector": detector, "xspline_mode": xspline_mode, "xsec_mode": xsec_mode, "xsec_file": xsec_file, "target_divisor": float(target_divisor), || -> For Genie Only "cc_path": "", "nc_path": "",}}
-        self.Files = []
         self.FileDictionary = {}
         
         # Find files in PUFIN_OUT Based on Config
-        AllFiles = glob.glob(f"{PUFIN_OUT}/{self.Config['generator'].upper()}/*/Flat*{self.Config['generator']}*{self.Config['version']}*{self.Config['tune']}*.root")
+        AllFiles = glob.glob(f"{self.PUFIN_OUT}/{self.Config['generator'].upper()}/*/Flat*{self.Config['generator']}*{self.Config['version']}*{self.Config['tune']}*.root")
         AllFileDictionary = {}
         for file in AllFiles:
             AllFileDictionary[file] = {}
@@ -34,6 +45,21 @@ class UHMC:
             AllFileDictionary[file]["e_range"] = AllFileDictionary[file]["filename"].split("_")[5]
             AllFileDictionary[file]["target"] = AllFileDictionary[file]["filename"].split("_")[6]
 
+        # This loop checks to see if all the requested files exist 
+        for interaction,flavor,e_range,target in product(self.Config['filters']['interaction'],self.Config['filters']['flavor'],self.Config['filters']['e_range'],self.Config['filters']['target']):
+            FileExists = False
+            if e_range == "8-20GeV" and interaction != "NC":
+                continue
+            elif interaction == "NC" and (flavor == "NuE" or flavor == "NuEBar"):
+                continue
+            for file in AllFileDictionary:
+                if (AllFileDictionary[file]['interaction'] == interaction) and (AllFileDictionary[file]['flavor']==flavor) and (AllFileDictionary[file]['e_range']==e_range) and (AllFileDictionary[file]['target']==target):
+                    FileExists = True
+                    break
+
+            if FileExists==False:
+                raise FileExistsError(f"Requested file with Interaction {interaction} Flavor {flavor} e_range {e_range} target {target} Does Not Exist")
+
         print(f"All Files length = {len(AllFiles)}")
         #This loop checks if the files in the all files match the filters requested
         for File in AllFiles:
@@ -42,24 +68,164 @@ class UHMC:
                 if not (AllowedBool):
                     break
             if AllowedBool:
-                self.Files.append(File)
                 self.FileDictionary[File] = AllFileDictionary[File]
         
-        print(f"selected Files length = {len(self.Files)}")
+        print(f"selected Files length = {len(self.FileDictionary)}")
 
-        if self.Files == []:
+        if len(self.FileDictionary) == 0:
             raise ValueError(f"No files found for given filters: {self.Config['filters']}")
 
         self.Chain = ROOT.TChain("FlatTree_VARS")
-        for f in self.Files:
+        for f in self.FileDictionary:
             self.Chain.Add(f)
         print("Root TChain made")
 
     def MakeDF(self):
-        # raise NotImplemented("Making a dataframe is not implemented yet")
-        df = ROOT.RDataFrame(self.Chain) #or make a TChain for systematics
-        df = df.DefinePerSample("source", "rdfsampleinfo_.AsString()") #This will tell you which file is associated to each event which is then used to build the Weight Column ()
+        self.df = ROOT.RDataFrame(self.Chain)
+        self.df = self.df.DefinePerSample("source", "rdfsampleinfo_.AsString()") #This will tell you which file is associated to each event which is then used to build the Weight Column ()
         print("DataFrame Made")
+
+    def MakeExpWeights(self):
+        if self.df == None:
+            raise ValueError("No df found, run MakeDF first")
+        self.Fluxes = {}
+        # self.FluxFiles = [] #might need this to keep tfiles alive?
+        for flavor in self.Config['reweight']['flux_inputs']:
+            f = ROOT.TFile.Open(self.Config['reweight']['flux_inputs'][flavor]['rw_file'])
+            h = f.Get(self.Config['reweight']['flux_inputs'][flavor]['rw_flux'])
+            h.SetDirectory(0)
+            f.Close()
+            self.Fluxes[flavor] = h
+        print("Grabbed Fluxes")
+
+        self.FluxSplines = {}
+        # Makes a different Flux spline for each combination of Flavor * Interaction Type but NC doesn't care about flavor  
+        for flavor in self.Config['filters']['flavor']:
+            hist = self.Fluxes[flavor]
+            n_points = hist.GetNbinsX()
+            graph = ROOT.TGraph(n_points)
+        
+            for i in range(1, n_points + 1):
+                x = hist.GetBinCenter(i)
+                y = hist.GetBinContent(i)
+                graph.SetPoint(i - 1, x, y)
+
+            # SHAPE (RELATIVE SCALE): First spline made from original histogram
+            spline_name = f"g_fluxSpline_{flavor}"
+            spline = ROOT.TSpline3(spline_name, graph)
+            self.FluxSplines[flavor] = spline
+        print("Made Splines")
+        self.SplineNormalizations = {}
+
+        # Make Exp Scaling per target
+        ExpScaling = {}
+
+        common_factor = (
+                self.DetectorConfig['exp_pot']
+                * self.DetectorConfig['fv_nucleon_targets']
+                * self.DetectorConfig['flux_cm_conv']
+                / self.DetectorConfig['flux_pot']
+                /  self.DetectorConfig['flux_gev_norm']
+            )
+        for target in self.Config['filters']['target']:
+            ExpScaling[target] = common_factor*self.DetectorConfig['target_percent'][target]
+
+        for interaction, flavor, target, energy_range, in product(self.Config['filters']['interaction'], self.Config['filters']['flavor'], self.Config['filters']['target'],self.Config['filters']['e_range']):
+            if interaction == "NC" and flavor == "NuE":
+                continue
+            elif interaction == "NC" and flavor == "NuEBar":
+                continue
+
+            label = f"{interaction}_{flavor}_{target}_{energy_range}"
+            hist = self.Fluxes[flavor]
+            Fscale = ExpScaling[target]
+            
+
+            if self.Config['generator'].upper() == "GENIE":
+                PathLabelDic = {"NuMu":"nu_mu", "NuMuBar":"nu_mu_bar","NuE":"nu_e","NuEBar":"nu_e_bar"}
+                Fscale = Fscale *1e-38 #Genie xsec values don't include the 1e-38
+                cc_path = f"{PathLabelDic[flavor]}_{target}/tot_cc"
+                nc_path = f"{PathLabelDic[flavor]}_{target}/tot_nc"
+
+                fx = ROOT.TFile.Open(self.Config['reweight']['xsec_file'], "READ")
+                if not fx or fx.IsZombie():
+                    raise RuntimeError(f"Could not open xsec file: {self.Config['reweight']['xsec_file']}")
+
+                g_cc = fx.Get(cc_path)
+                g_nc = fx.Get(nc_path)
+                if not g_cc or not g_nc:
+                    fx.ls()
+                    raise RuntimeError(f"Missing graph(s): CC={cc_path} NC={nc_path}")
+
+                g_cc = g_cc.Clone(f"g_cc_{label}")
+                g_nc = g_nc.Clone(f"g_nc_{label}")
+                fx.Close()
+
+            elif self.Config['generator'].upper() == "NEUT":
+                xsec_path = f"{self.PUFIN_OUT}/NEUT/Xsecs/NEUT{self.Config['version']}_{self.Config['tune']}_{target}_XSECHIST.root"
+                fx = ROOT.TFile.Open(xsec_path, "READ")
+                if not fx or fx.IsZombie():
+                    raise RuntimeError(f"Could not open NEUT xsec file: {xsec_path}")
+                fx.Close()
+        
+                neut_graph = pp.MakeNeutXsecGraph(xsec_path, interaction, Flavor=flavor)
+                neut_spline = ROOT.TSpline3(f"neut_spline_{label}", neut_graph)
+
+            else:
+                raise ValueError("No Matching Generator Type")
+            
+            Spline_normalization = 0.0
+            energy_min = float(energy_range[0])
+            energy_max_s = energy_range.replace(str(energy_min),"")
+            energy_max_s = energy_max_s.replace("-","")
+            energy_max = float(energy_max_s.replace("GeV",""))
+
+            for i in range(1, hist.GetNbinsX() + 1):
+                
+                x = hist.GetBinCenter(i)
+                if energy_min is not None and x < energy_min:
+                    continue
+                if energy_max is not None and x > energy_max:
+                    continue
+                y = hist.GetBinContent(i)
+                w = hist.GetBinWidth(i)
+        
+                if self.Config['generator'].upper() == "GENIE":
+                    if target == "H1":
+                        target_divisor = 1
+                    else:
+                        target_divisor = int(target[-2])
+                    cc_xsec = max(0.0, float(g_cc.Eval(x)))
+                    nc_xsec = max(0.0, float(g_nc.Eval(x)))
+        
+                    if interaction == "CC":
+                        xsec = cc_xsec / target_divisor
+                    elif interaction == "NC":
+                        xsec = nc_xsec / target_divisor
+                    else:
+                        raise ValueError(f"Unsupported xsec_mode '{interaction}'")
+        
+                elif self.Config['generator'].upper() == "NEUT":
+                    xsec = max(0.0, float(neut_spline.Eval(x)))
+        
+                if self.Config['reweight']['undoNormB']:
+                    Spline_normalization += y * w * Fscale * xsec
+                else:
+                    Spline_normalization += y * Fscale * xsec
+            self.SplineNormalizations[label] = Spline_normalization
+        print("Spline Normalizations Made")
+
+        # Last give the dataframe the correct Spline and Normalization
+
+            
+            
+                
+
+
+        
+        
+
+        
 
 class T2KReWeight:
     def __init__(self, dial, value, group_name=None, values_name=None):
@@ -379,12 +545,13 @@ if __name__ == "__main__":
     # testrw1.RunRW(source_path="/path/to/your/T2KRWsetup.sh")
     # testrw2.RunRW(source_path="/path/to/your/T2KRWsetup.sh")
     import json5
-    f = open("testConfigHere")
+    f = open("/home/lboe/pufin/config/NewNeutT2KWeightALL.json5")
     print("reading json5")
     testConfig = json5.load(f)
     print("read json5")
     testUHMC = UHMC(testConfig)
     testUHMC.MakeDF()
+    testUHMC.MakeExpWeights()
 
 
 
