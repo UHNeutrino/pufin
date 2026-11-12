@@ -43,10 +43,10 @@ FGD1 = {
     "Titanium":0.1632
 }
 
-NeutCardModes = {"CC": "NEUT-CRS 1 1 1 1 1 0 0 0 0  0  0  0  0  1  0  1  0  0  1  0  0  0  1  0  1  0  0  1  1  0\n",
-                 "NC": "NEUT-CRS 0 0 0 0 0 1 1 1 1  1  1  1  1  0  1  0  1  1  0  1  1  1  0  1  0  1  1  0  0  1\n"}
-AntiNeutCardModes = {"CC": "NEUT-CRSB 1 1 1 1 1 0 0 0 0  0  0  0  0  1  0  1  0  0  1  0  0  0  1  0  1  0  0  1  1  0\n",
-                 "NC": "NEUT-CRSB 0 0 0 0 0 1 1 1 1  1  1  1  1  0  1  0  1  1  0  1  1  1  0  1  0  1  1  0  0  1\n"}
+NeutCardModes = {    "CC": "NEUT-CRS 1 1 1 1 1 0 0 0 0 0 0 0 0 1 0 1 0 0 1 0 0 0 1 0 1 0 0 1 1 0\n",
+                     "NC": "NEUT-CRS 0 0 0 0 0 1 1 1 1 1 1 1 1 0 1 0 1 1 0 1 1 0 0 1 0 1 1 0 0 1\n"}
+AntiNeutCardModes = {"CC": "NEUT-CRSB 1 1 1 1 1 0 0 0 0 0 1 0 0 0 1 0 1 0 0 1 0 0 1 0 1 0 0 1 1 0\n",
+                     "NC": "NEUT-CRSB 0 0 0 0 0 1 1 1 1 1 0 1 1 1 0 1 0 1 1 0 1 1 0 1 0 1 1 0 0 1\n"}
 
 NeutCardFlavors = {"NuMu": "EVCT-IDPT 14 \n",
                     "NuMuBar":"EVCT-IDPT -14 \n",
