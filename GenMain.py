@@ -850,7 +850,7 @@ def CheckNeutFiles(CardNames, NChunks):
         else:
             raise ValueError(f"No Such Flavor {Flavor}")
         
-        if Mode.Upper()=="NC":
+        if Mode.upper()=="NC":
             TempChunks = int(NChunks/10)
         
         
