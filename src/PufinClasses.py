@@ -213,20 +213,79 @@ class UHMC:
                 else:
                     Spline_normalization += y * Fscale * xsec
             self.SplineNormalizations[label] = Spline_normalization
-        print("Spline Normalizations Made")
-
-        # Last give the dataframe the correct Spline and Normalization
-
-            
-            
-                
-
-
-        
         
 
-        
+        FlavorToNumber = {"NuMu":14,"NuMuBar":-14,"NuE":12,"NuEBar":-12 }
+        RFunctionDeclare = ""
 
+        for flavor in self.Config['filters']['flavor']:
+            spline = self.FluxSplines[flavor]
+            spline_name = f"g_fluxSpline_{flavor}"
+            # Give the dataframe the correct Spline and Normalization
+            ROOT.gInterpreter.Declare(f"TSpline3* {spline_name};")
+                # Assign from Python side using setattr
+            setattr(ROOT, spline_name, spline)
+        
+            ROOT.gInterpreter.Declare(f"""
+                extern TSpline3* {spline_name};
+            """)
+            RFunctionDeclare = RFunctionDeclare + f"""
+            if (flavor=={FlavorToNumber[flavor]}){{
+                return {spline_name}->Eval(E);
+            }}"""
+
+        
+        ROOT.gInterpreter.Declare(f"""
+            double GetFluxSplineValue (double E, int flavor) {{
+                {RFunctionDeclare}
+            else {{
+                return 0.0;
+            }}
+        }}
+        """)
+        self.df = self.df.Define("Flux_weights", f"GetFluxSplineValue(Enu_true,PDGnu)")
+
+        # Make get the denominator for the normalization for each spline
+        self.SplineNormalizationsDenom = {}
+        print("Making Spline Normalization Denominator, this part takes while")
+        for flavor in self.Config['filters']['flavor']:
+            flavordf = self.df.Filter(f"PDGnu == {FlavorToNumber[flavor]}")
+            self.SplineNormalizationsDenom[flavor] = flavordf.Sum('Flux_weights').GetValue()  #this line takes a long time
+
+        for file in self.FileDictionary:
+            file_flavor = self.FileDictionary[file]['flavor']
+            file_interaction = self.FileDictionary[file]['interaction']
+            file_target = self.FileDictionary[file]['target']
+            file_energy_range =self.FileDictionary[file]['e_range']
+            fileLabel = f"{file_interaction}_{file_flavor}_{file_target}_{file_energy_range}"
+            self.FileDictionary[file]["Normalization"] = self.SplineNormalizationsDenom[file_flavor]/self.SplineNormalizations[fileLabel]
+
+        PerFileWeight = ""
+        for file in self.FileDictionary:
+            PerFileWeight = PerFileWeight + f"""
+            if (file=="{file}/FlatTree_VARS"){{
+                return {self.FileDictionary[file]["Normalization"]};
+        }}"""
+
+
+        # self.df.Display(["source"], 10).Print()
+
+        
+        ROOT.gInterpreter.Declare(f"""
+            #include <string>
+            double FileNorm (const std::string& file) {{
+                {PerFileWeight}
+            else {{
+                return 0.0;
+            }}
+        }}
+        """)
+        self.df = self.df.Define("File_Norms", "FileNorm(source)")
+        # self.df.Display(["File_Norms"], 10).Print()
+        self.df = self.df.Define("Final_Weights","Flux_weights*File_Norms")
+
+        print("Weighting Done!!")
+    
 class T2KReWeight:
     def __init__(self, dial, value, group_name=None, values_name=None):
         if type(dial) != str and type(dial) != list:
@@ -545,13 +604,15 @@ if __name__ == "__main__":
     # testrw1.RunRW(source_path="/path/to/your/T2KRWsetup.sh")
     # testrw2.RunRW(source_path="/path/to/your/T2KRWsetup.sh")
     import json5
-    f = open("/home/lboe/pufin/config/NewNeutT2KWeightALL.json5")
+    f = open("Config/file/path.json5")
     print("reading json5")
     testConfig = json5.load(f)
     print("read json5")
     testUHMC = UHMC(testConfig)
     testUHMC.MakeDF()
     testUHMC.MakeExpWeights()
+    testUHMC.df.Snapshot("FlatTree_VARS","FirstSnapshot.root")
+    print("Snapshot Taken!!!")
 
 
 
