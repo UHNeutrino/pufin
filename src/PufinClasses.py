@@ -82,8 +82,6 @@ class UHMC:
 
     def MakeDF(self):
         self.df = ROOT.RDataFrame(self.Chain)
-        self.df = self.df.DefinePerSample("source", "rdfsampleinfo_.AsString()") #This will tell you which file is associated to each event which is then used to build the Weight Column ()
-        print("DataFrame Made")
 
     def MakeExpWeights(self):
         if self.df == None:
@@ -225,7 +223,6 @@ class UHMC:
             ROOT.gInterpreter.Declare(f"TSpline3* {spline_name};")
                 # Assign from Python side using setattr
             setattr(ROOT, spline_name, spline)
-        
             ROOT.gInterpreter.Declare(f"""
                 extern TSpline3* {spline_name};
             """)
@@ -233,7 +230,6 @@ class UHMC:
             if (flavor=={FlavorToNumber[flavor]}){{
                 return {spline_name}->Eval(E);
             }}"""
-
         
         ROOT.gInterpreter.Declare(f"""
             double GetFluxSplineValue (double E, int flavor) {{
@@ -248,9 +244,25 @@ class UHMC:
         # Make get the denominator for the normalization for each spline
         self.SplineNormalizationsDenom = {}
         print("Making Spline Normalization Denominator, this part takes while")
-        for flavor in self.Config['filters']['flavor']:
-            flavordf = self.df.Filter(f"PDGnu == {FlavorToNumber[flavor]}")
-            self.SplineNormalizationsDenom[flavor] = flavordf.Sum('Flux_weights').GetValue()  #this line takes a long time
+        for file in self.FileDictionary:
+            cut = f'source=="{file}/FlatTree_VARS"'
+            fileDF = self.df
+            fileDF = fileDF.DefinePerSample("source", "rdfsampleinfo_.AsString()")
+            self.SplineNormalizationsDenom[f"{file}_m"] = fileDF.Filter(cut).Sum('Flux_weights')  #this line takes a long time
+            # some extremely strange bullshit happens if you uncomment this:
+            # if fileDF.Count().GetValue() ==0:
+            #     raise ValueError("Cut Resulted in empty df")
+            # else:
+            #     print(fileDF.Count().GetValue())
+
+        current = self.df.Sum('Flux_weights').GetValue()
+
+        print(f"got current {current}")
+
+        for file in self.FileDictionary:
+            self.SplineNormalizationsDenom[file] = self.SplineNormalizationsDenom[f"{file}_m"].GetValue()
+            if self.SplineNormalizationsDenom[file] == 0:
+                raise ValueError("file cut resulted in 0 events")
 
         for file in self.FileDictionary:
             file_flavor = self.FileDictionary[file]['flavor']
@@ -258,8 +270,7 @@ class UHMC:
             file_target = self.FileDictionary[file]['target']
             file_energy_range =self.FileDictionary[file]['e_range']
             fileLabel = f"{file_interaction}_{file_flavor}_{file_target}_{file_energy_range}"
-            self.FileDictionary[file]["Normalization"] = self.SplineNormalizationsDenom[file_flavor]/self.SplineNormalizations[fileLabel]
-
+            self.FileDictionary[file]["Normalization"] = self.SplineNormalizations[fileLabel]/self.SplineNormalizationsDenom[file]
         PerFileWeight = ""
         for file in self.FileDictionary:
             PerFileWeight = PerFileWeight + f"""
@@ -268,7 +279,8 @@ class UHMC:
         }}"""
 
 
-        # self.df.Display(["source"], 10).Print()
+
+        self.df = self.df.DefinePerSample("source", "rdfsampleinfo_.AsString()") #This will tell you which file is associated to each even. Warning that this is very buggy!!      
 
         
         ROOT.gInterpreter.Declare(f"""
@@ -281,9 +293,9 @@ class UHMC:
         }}
         """)
         self.df = self.df.Define("File_Norms", "FileNorm(source)")
-        # self.df.Display(["File_Norms"], 10).Print()
-        self.df = self.df.Define("Final_Weights","Flux_weights*File_Norms")
+        self.df = self.df.Define("UHMC_Weights","Flux_weights*File_Norms")
 
+        print("UHMC WEIGHTS")
         print("Weighting Done!!")
     
 class T2KReWeight:
@@ -604,15 +616,16 @@ if __name__ == "__main__":
     # testrw1.RunRW(source_path="/path/to/your/T2KRWsetup.sh")
     # testrw2.RunRW(source_path="/path/to/your/T2KRWsetup.sh")
     import json5
-    f = open("Config/file/path.json5")
+    f = open("/home/lboe/pufin/config/NewNeutT2KWeightALL.json5")
     print("reading json5")
     testConfig = json5.load(f)
     print("read json5")
     testUHMC = UHMC(testConfig)
     testUHMC.MakeDF()
     testUHMC.MakeExpWeights()
-    testUHMC.df.Snapshot("FlatTree_VARS","FirstSnapshot.root")
-    print("Snapshot Taken!!!")
+    name = "/home/lboe/WeightMainRefactor/NuMuCCSnapShotThree.root"
+    testUHMC.df.Snapshot("FlatTree_VARS",name)
+    print(f"Snapshot Taken!!! name {name}")
 
 
 
