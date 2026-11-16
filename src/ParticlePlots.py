@@ -1110,21 +1110,19 @@ def CreateDataFrame(file_path, cut, treeName=None, reweight_cfg=None):    # Firs
 
     if isinstance(dir_location, list):
         if reweight_cfg!= None:
-            if reweight_cfg[0] == True:
-                f = ROOT.TFile(dir_location)
-                ft = f.Get(treeName)
-                ft.AddFriend("weighttree", reweight_cfg[1])
-                df = ROOT.RDataFrame(ft)
+            f = ROOT.TFile(dir_location)
+            ft = f.Get(treeName)
+            ft.AddFriend("weighttree", reweight_cfg[1])
+            df = ROOT.RDataFrame(ft)
         else:
             f = None
             df = ROOT.RDataFrame(treeName,dir_location)
     else:
         if reweight_cfg!= None:
-            if reweight_cfg[0] == True:
-                f = ROOT.TFile(fileName)
-                ft = f.Get(treeName)
-                ft.AddFriend("weighttree", reweight_cfg[1])
-                df = ROOT.RDataFrame(ft)
+            f = ROOT.TFile(fileName)
+            ft = f.Get(treeName)
+            ft.AddFriend("weighttree", reweight_cfg[1])
+            df = ROOT.RDataFrame(ft)
         else:
             f= None
             df = ROOT.RDataFrame(treeName,fileName)
@@ -1138,10 +1136,8 @@ def CreateDataFrame(file_path, cut, treeName=None, reweight_cfg=None):    # Firs
     else:
         df = df.Filter(cut)
 
-    if f==None:
-        return df
-    else:
-        return df, f
+
+    return df, f
 
 
 def Savehist(hist, AxisInfo, save_location, filename, ext, max = None, Normalize = False, logz = False):
@@ -1986,6 +1982,13 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
     df = df.Define("weights_first", f"{func_name0}(Enu_true)")
     current = df.Sum("weights_first").GetValue()
     df = df.Define("weights", f"{func_name0}(Enu_true) * ({bin_integral_unnorm}/{current})")
+    print("Flux Weights:")
+    df.Display(["weights_first"], 10).Print()
+    print("bin_integral_unnorm/Current")
+    print(bin_integral_unnorm/current)
+    print("Final Weights")
+    df.Display(["weights"], 10).Print()
+
     
     # df with weights give flux shape, bin_integral_unnorm give absolute scale for give Fscale (xsec, target, exposure, unit conversion)
     return df

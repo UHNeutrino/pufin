@@ -80,8 +80,7 @@ def GrabGlobalConfigs(GlobalSettings):
         if areaB:
             Fscale = 1
         else:
-            Fscale = CalculateTargetWeightFactor(targets_file, detector, target)
-        
+            Fscale = CalculateTargetWeightFactor(targets_file, detector, target)        
         reweight_cfg =  [
             reweight_flag,
             rw_file,
@@ -100,7 +99,7 @@ def GrabGlobalConfigs(GlobalSettings):
     syst_dict = GlobalSettings.get("SystematicReweight")
 
     if not syst_dict:
-        syst_cfg = [False,"none","none"]
+        syst_cfg = None
     else:
         syst_path = syst_dict.get("SystPath")
         syst_branch = syst_dict.get("SystBranchName")
@@ -181,7 +180,7 @@ def MakePlots(plots, GlobalSettings):
         OutFileExists(GlobalSettings["Save"]+ "/" + plots["Name"]+".root")
     reweight_cfg, syst_cfg =  GrabGlobalConfigs(GlobalSettings)
     reweight_flag = reweight_cfg[0]
-    syst_flag = syst_cfg[0]
+    syst_flag = syst_cfg != None
     areaB = reweight_cfg[5]
     
     userFolder = GlobalSettings["userFolder"]
@@ -288,7 +287,7 @@ def Make2DRatio(Ratio2D, GlobalSettings):
         OutFileExists(GlobalSettings["Save"]+ "/" + Ratio2D["Name"]+".root")
     reweight_cfg, syst_cfg =  GrabGlobalConfigs(GlobalSettings)
     reweight_flag = reweight_cfg[0]
-    syst_flag = syst_cfg[0]
+    syst_flag = syst_cfg != None
     areaB = reweight_cfg[5]
     
     userFolder = GlobalSettings["userFolder"]
@@ -412,7 +411,7 @@ def MakeStacks(stacks,GlobalSettings):
         OutFileExists(GlobalSettings["Save"]+ "/" + stacks["Name"]+ ".root")
     reweight_cfg, syst_cfg =  GrabGlobalConfigs(GlobalSettings)
     reweight_flag = reweight_cfg[0]
-    syst_flag = syst_cfg[0]
+    syst_flag = syst_cfg != None
     areaB = reweight_cfg[5]
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder+ f'/*{stacks["File"]}*.root')
@@ -501,7 +500,7 @@ def MakeOverlap(overlap,GlobalSettings):
         OutFileExists(GlobalSettings["Save"]+ "/" + overlap["Name"]+ ".root")
     reweight_cfg, syst_cfg =  GrabGlobalConfigs(GlobalSettings)
     reweight_flag = reweight_cfg[0]
-    syst_flag = syst_cfg[0]
+    syst_flag = syst_cfg != None
     areaB = reweight_cfg[5]
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder + f'/*{overlap["File"]}*.root')
@@ -633,7 +632,7 @@ def MakeSame1D(same1D,GlobalSettings):
         else:
             reweight_cfg, syst_cfg =  GrabGlobalConfigs(GlobalSettings)
         reweight_flag = reweight_cfg[0]
-        syst_flag = syst_cfg[0]
+        syst_flag = syst_cfg != None
         areaB = reweight_cfg[5]
         hist_order.append(key)
 
@@ -925,7 +924,7 @@ def MakeContour(Contour,GlobalSettings):
         OutFileExists(GlobalSettings["Save"]+ "/" + Contour["Name"]+".root")
     reweight_cfg, syst_cfg =  GrabGlobalConfigs(GlobalSettings)
     reweight_flag = reweight_cfg[0]
-    syst_flag = syst_cfg[0]
+    syst_flag = syst_cfg != None
     areaB = reweight_cfg[5]
     userFolder = GlobalSettings["userFolder"]
     root_files = glob.glob( userFolder + f'/*{Contour["File"]}*.root')
@@ -1047,7 +1046,7 @@ def MakeContourStyle(ContourStyle,GlobalSettings):
         OutFileExists(GlobalSettings["Save"]+ "/" + ContourStyle["Name"] + ".root")
     reweight_cfg, syst_cfg =  GrabGlobalConfigs(GlobalSettings)
     reweight_flag = reweight_cfg[0]
-    syst_flag = syst_cfg[0]
+    syst_flag = syst_cfg != None
     areaB = reweight_cfg[5]
 
     userFolder = GlobalSettings["userFolder"]
