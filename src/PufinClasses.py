@@ -113,7 +113,46 @@ class UHMC:
             spline = ROOT.TSpline3(spline_name, graph)
             self.FluxSplines[flavor] = spline
         print("Made Splines")
+
+        FlavorToNumber = {"NuMu":14,"NuMuBar":-14,"NuE":12,"NuEBar":-12 }
+        TargetToNumber = {"C12":1000060120, "H1":1000010010, "O16":1000080160, "Ti48":1000220480, "Cl35":1000170350}
+        EnergyToCut = {"0-8GeV":"Enu_true<8.01","8-30GeV":"Enu_true>8.01 &&Enu_true<30.01"}
+        InteractionToNumber = {"NC":0,"CC":1}
+
+
+
+        RFunctionDeclare = ""
+
+        for flavor in self.Config['filters']['flavor']:
+            spline = self.FluxSplines[flavor]
+            spline_name = f"g_fluxSpline_{flavor}"
+            # Give the dataframe the correct Spline and Normalization
+            ROOT.gInterpreter.Declare(f"TSpline3* {spline_name};")
+                # Assign from Python side using setattr
+            setattr(ROOT, spline_name, spline)
+            ROOT.gInterpreter.Declare(f"""
+                extern TSpline3* {spline_name};
+            """)
+            RFunctionDeclare = RFunctionDeclare + f"""
+            if (flavor=={FlavorToNumber[flavor]}){{
+                return {spline_name}->Eval(E);
+            }}"""
+        
+        ROOT.gInterpreter.Declare(f"""
+            double GetFluxSplineValue (double E, int flavor) {{
+                {RFunctionDeclare}
+            else {{
+                return 0.0;
+            }}
+        }}
+        """)
+        self.df = self.df.Define("Flux_weights", f"GetFluxSplineValue(Enu_true,PDGnu)")
+        print("Flux Weights defined")
+
+
         self.SplineNormalizations = {}
+        self.SplineNormalizationsDenom = {}
+        SplineNormalizationsDenomM = {} 
 
         # Make Exp Scaling per target
         ExpScaling = {}
@@ -211,56 +250,23 @@ class UHMC:
                 else:
                     Spline_normalization += y * Fscale * xsec
             self.SplineNormalizations[label] = Spline_normalization
+
+            cut = f"PDGnu == {FlavorToNumber[flavor]} && tgt =={TargetToNumber[target]} && cc == {InteractionToNumber[interaction]} && {EnergyToCut[energy_range]}"
+            flavorDF = self.df
+            # flavorDF = flavorDF.DefinePerSample("source", "rdfsampleinfo_.AsString()")
+            SplineNormalizationsDenomM[f"{label}_m"] = flavorDF.Filter(cut).Sum('Flux_weights')
         
-
-        FlavorToNumber = {"NuMu":14,"NuMuBar":-14,"NuE":12,"NuEBar":-12 }
-        RFunctionDeclare = ""
-
-        for flavor in self.Config['filters']['flavor']:
-            spline = self.FluxSplines[flavor]
-            spline_name = f"g_fluxSpline_{flavor}"
-            # Give the dataframe the correct Spline and Normalization
-            ROOT.gInterpreter.Declare(f"TSpline3* {spline_name};")
-                # Assign from Python side using setattr
-            setattr(ROOT, spline_name, spline)
-            ROOT.gInterpreter.Declare(f"""
-                extern TSpline3* {spline_name};
-            """)
-            RFunctionDeclare = RFunctionDeclare + f"""
-            if (flavor=={FlavorToNumber[flavor]}){{
-                return {spline_name}->Eval(E);
-            }}"""
-        
-        ROOT.gInterpreter.Declare(f"""
-            double GetFluxSplineValue (double E, int flavor) {{
-                {RFunctionDeclare}
-            else {{
-                return 0.0;
-            }}
-        }}
-        """)
-        self.df = self.df.Define("Flux_weights", f"GetFluxSplineValue(Enu_true,PDGnu)")
-
         # Make get the denominator for the normalization for each spline
-        self.SplineNormalizationsDenom = {}
-        print("Making Spline Normalization Denominator, this part takes while")
-        for file in self.FileDictionary:
-            cut = f'source=="{file}/FlatTree_VARS"'
-            fileDF = self.df
-            fileDF = fileDF.DefinePerSample("source", "rdfsampleinfo_.AsString()")
-            self.SplineNormalizationsDenom[f"{file}_m"] = fileDF.Filter(cut).Sum('Flux_weights')  #this line takes a long time
-            # some extremely strange bullshit happens if you uncomment this:
-            # if fileDF.Count().GetValue() ==0:
-            #     raise ValueError("Cut Resulted in empty df")
-            # else:
-            #     print(fileDF.Count().GetValue())
+        
+        print("Grabbing Spline Normalization Denominator, this part takes a while")
 
-        current = self.df.Sum('Flux_weights').GetValue()
-
-        print(f"got current {current}")
+        for label in SplineNormalizationsDenomM:
+            Newlabel = label.replace("_m","")
+            self.SplineNormalizationsDenom[Newlabel] = SplineNormalizationsDenomM[label].GetValue()
 
         for file in self.FileDictionary:
-            self.SplineNormalizationsDenom[file] = self.SplineNormalizationsDenom[f"{file}_m"].GetValue()
+            label = f"{self.FileDictionary[file]['interaction']}_{self.FileDictionary[file]['flavor']}_{self.FileDictionary[file]['target']}_{self.FileDictionary[file]['e_range']}"
+            self.SplineNormalizationsDenom[file] = self.SplineNormalizationsDenom[label]
             if self.SplineNormalizationsDenom[file] == 0:
                 raise ValueError("file cut resulted in 0 events")
 
@@ -278,8 +284,6 @@ class UHMC:
                 return {self.FileDictionary[file]["Normalization"]};
         }}"""
 
-
-
         self.df = self.df.DefinePerSample("source", "rdfsampleinfo_.AsString()") #This will tell you which file is associated to each even. Warning that this is very buggy!!      
 
         
@@ -295,8 +299,28 @@ class UHMC:
         self.df = self.df.Define("File_Norms", "FileNorm(source)")
         self.df = self.df.Define("UHMC_Weights","Flux_weights*File_Norms")
 
+
+        # print("Norms:")
+        # self.df.Display(["File_Norms"], 10).Print()
+        # print("Flux Weights:")
+        # self.df.Display(["Flux_weights"], 10).Print()
+        # print("Final Weights:")
+        # self.df.Display(["UHMC_Weights"], 10).Print()
+        
+
+
         print("UHMC WEIGHTS")
         print("Weighting Done!!")
+    
+    def PlotEnuTrue(self,outfile):
+
+        histInfo = ("UHMCUEnuTrue","UHMC Scaled True Neutrino Energy",160,0,8)
+        hist = self.df.Histo1D(histInfo,"Enu_true","UHMC_Weights")
+        hist.GetXaxis().SetTitle("E_{#nu} true (GeV)")
+        hist.GetYaxis().SetTitle(f"event rate for {self.Config['detector']}")
+        f = ROOT.TFile(outfile,"RECREATE")
+        hist.Write()
+        f.Close()
     
 class T2KReWeight:
     def __init__(self, dial, value, group_name=None, values_name=None):
@@ -623,9 +647,11 @@ if __name__ == "__main__":
     testUHMC = UHMC(testConfig)
     testUHMC.MakeDF()
     testUHMC.MakeExpWeights()
-    name = "/home/lboe/WeightMainRefactor/NuMuCCSnapShotThree.root"
-    testUHMC.df.Snapshot("FlatTree_VARS",name)
-    print(f"Snapshot Taken!!! name {name}")
+    name = "/home/lboe/WeightMainRefactor/NewNeutT2KWeightALL_EnuTrue.root"
+    testUHMC.PlotEnuTrue(name)
+    # print("Taking a Snapshot, this takes really long")
+    # testUHMC.df.Snapshot("FlatTree_VARS",name)
+    # print(f"Snapshot Taken!!! name {name}")
 
 
 

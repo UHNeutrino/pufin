@@ -1982,14 +1982,6 @@ def defineWeightsSpline(df, reweight_cfg, label=""):
     df = df.Define("weights_first", f"{func_name0}(Enu_true)")
     current = df.Sum("weights_first").GetValue()
     df = df.Define("weights", f"{func_name0}(Enu_true) * ({bin_integral_unnorm}/{current})")
-    print("Flux Weights:")
-    df.Display(["weights_first"], 10).Print()
-    print("bin_integral_unnorm/Current")
-    print(bin_integral_unnorm/current)
-    print("Final Weights")
-    df.Display(["weights"], 10).Print()
-
-    
     # df with weights give flux shape, bin_integral_unnorm give absolute scale for give Fscale (xsec, target, exposure, unit conversion)
     return df
 
