@@ -614,6 +614,7 @@ class SpliningSyst:
 
 
 if __name__ == "__main__":
+    print("test classes here")
     # testrw1 = T2KReWeight(dial="MaCCQE", value=1.0)
     # testrw2 = T2KReWeight(dial=["MaCCQE","MaRES","CA5RES"], value=[-1.0,1.0,0.2],group_name="1st_Group_Test",values_name="randomPoints")
 
@@ -639,16 +640,16 @@ if __name__ == "__main__":
 
     # testrw1.RunRW(source_path="/path/to/your/T2KRWsetup.sh")
     # testrw2.RunRW(source_path="/path/to/your/T2KRWsetup.sh")
-    import json5
-    f = open("/home/lboe/pufin/config/NewNeutT2KWeightALL.json5")
-    print("reading json5")
-    testConfig = json5.load(f)
-    print("read json5")
-    testUHMC = UHMC(testConfig)
-    testUHMC.MakeDF()
-    testUHMC.MakeExpWeights()
-    name = "/home/lboe/WeightMainRefactor/NewNeutT2KWeightALL_EnuTrue.root"
-    testUHMC.PlotEnuTrue(name)
+    # import json5
+    # f = open("path/to/test/file.json5")
+    # print("reading json5")
+    # testConfig = json5.load(f)
+    # print("read json5")
+    # testUHMC = UHMC(testConfig)
+    # testUHMC.MakeDF()
+    # testUHMC.MakeExpWeights()
+    # name = "output/path/file.root"
+    # testUHMC.PlotEnuTrue(name)
     # print("Taking a Snapshot, this takes really long")
     # testUHMC.df.Snapshot("FlatTree_VARS",name)
     # print(f"Snapshot Taken!!! name {name}")

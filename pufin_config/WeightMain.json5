@@ -16,7 +16,7 @@
     // "target": ["C12"]
   },
 
-  "targets_file": "./config/TargetWeights.json5",
+  "targets_file": "./pufin_config/TargetWeights.json5",
 
   "reweight": {
     "enabled": true,
@@ -38,10 +38,10 @@
         "rw_flux": "nuebar"
       }
     },
-    "xspline_mode": "G",
     "xsec_file": "/path/to/xsec/file/xsec.root",
-    "xsec_mode": "auto",
     "areaB": false,
     "undoNormB": false
   },
+  "saveDF":"/dir/to/saved/dataframe/Name.root",
+  "saveEnu":"/dir/to/saved/enu/spec/Name.root"
 }
