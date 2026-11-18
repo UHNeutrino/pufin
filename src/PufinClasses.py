@@ -118,7 +118,7 @@ class UHMC:
         print("Made Splines")
 
         FlavorToNumber = {"NuMu":14,"NuMuBar":-14,"NuE":12,"NuEBar":-12 }
-        TargetToNumber = {"C12":1000060120, "H1":1000010010, "O16":1000080160, "Ti48":1000220480, "Cl35":1000170350}
+        TargetToNumber = {"C12":"tgt == 1000060120", "H1":"(tgt == 1000010010 || tgt == 2212)", "O16":"tgt==1000080160", "Ti48":"tgt ==1000220480", "Cl35":"tgt ==1000170350"}
         EnergyToCut = {"0-8GeV":"Enu_true<8.01","8-30GeV":"Enu_true>8.01 &&Enu_true<30.01"}
         InteractionToNumber = {"NC":0,"CC":1}
 
@@ -255,7 +255,7 @@ class UHMC:
                     Spline_normalization += y * Fscale * xsec
             self.SplineNormalizations[label] = Spline_normalization
 
-            cut = f"PDGnu == {FlavorToNumber[flavor]} && tgt =={TargetToNumber[target]} && cc == {InteractionToNumber[interaction]} && {EnergyToCut[energy_range]}"
+            cut = f"PDGnu == {FlavorToNumber[flavor]} && {TargetToNumber[target]} && cc == {InteractionToNumber[interaction]} && {EnergyToCut[energy_range]}"
             FileCuts[label] = cut
             flavorDF = self.df
             # flavorDF = flavorDF.DefinePerSample("source", "rdfsampleinfo_.AsString()")
@@ -264,19 +264,23 @@ class UHMC:
         # Make get the denominator for the normalization for each spline
         
         print("Grabbing Spline Normalization Denominator, this part takes a while")
-
+        labelsNumber = len(SplineNormalizationsDenomM)
+        i = 0
         for label in SplineNormalizationsDenomM:
             Newlabel = label.replace("_m","")
             self.SplineNormalizationsDenom[Newlabel] = SplineNormalizationsDenomM[label].GetValue()
-
-        for file in self.FileDictionary:
-            label = f"{self.FileDictionary[file]['interaction']}_{self.FileDictionary[file]['flavor']}_{self.FileDictionary[file]['target']}_{self.FileDictionary[file]['e_range']}"
-            self.SplineNormalizationsDenom[file] = self.SplineNormalizationsDenom[label]
-            if self.SplineNormalizationsDenom[file] == 0:
+            if i%(int(labelsNumber/10))==0:
+                print(f"Percent Done {i/labelsNumber}")
+            i+=1
+            if self.SplineNormalizationsDenom[Newlabel] == 0:
                 print(f"File:  {file}\nLabel: {label}")
                 print(f"Cut: {FileCuts[label]}")
                 raise ValueError("file cut resulted in 0 events")
 
+        for file in self.FileDictionary:
+            label = f"{self.FileDictionary[file]['interaction']}_{self.FileDictionary[file]['flavor']}_{self.FileDictionary[file]['target']}_{self.FileDictionary[file]['e_range']}"
+            self.SplineNormalizationsDenom[file] = self.SplineNormalizationsDenom[label]
+            
         for file in self.FileDictionary:
             file_flavor = self.FileDictionary[file]['flavor']
             file_interaction = self.FileDictionary[file]['interaction']
