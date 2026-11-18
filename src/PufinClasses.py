@@ -35,6 +35,9 @@ class UHMC:
         
         # Find files in PUFIN_OUT Based on Config
         AllFiles = glob.glob(f"{self.PUFIN_OUT}/{self.Config['generator'].upper()}/*/Flat*{self.Config['generator']}*{self.Config['version']}*{self.Config['tune']}*.root")
+
+        if len(AllFiles) == 0:
+            raise ValueError(f"No Files found for {self.PUFIN_OUT}/{self.Config['generator'].upper()}/*/Flat*{self.Config['generator']}*{self.Config['version']}*{self.Config['tune']}*.root")
         AllFileDictionary = {}
         for file in AllFiles:
             AllFileDictionary[file] = {}
