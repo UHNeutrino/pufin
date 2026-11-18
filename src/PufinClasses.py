@@ -156,6 +156,7 @@ class UHMC:
         self.SplineNormalizations = {}
         self.SplineNormalizationsDenom = {}
         SplineNormalizationsDenomM = {} 
+        FileCuts = {}
 
         # Make Exp Scaling per target
         ExpScaling = {}
@@ -255,6 +256,7 @@ class UHMC:
             self.SplineNormalizations[label] = Spline_normalization
 
             cut = f"PDGnu == {FlavorToNumber[flavor]} && tgt =={TargetToNumber[target]} && cc == {InteractionToNumber[interaction]} && {EnergyToCut[energy_range]}"
+            FileCuts[label] = cut
             flavorDF = self.df
             # flavorDF = flavorDF.DefinePerSample("source", "rdfsampleinfo_.AsString()")
             SplineNormalizationsDenomM[f"{label}_m"] = flavorDF.Filter(cut).Sum('Flux_weights')
@@ -271,6 +273,8 @@ class UHMC:
             label = f"{self.FileDictionary[file]['interaction']}_{self.FileDictionary[file]['flavor']}_{self.FileDictionary[file]['target']}_{self.FileDictionary[file]['e_range']}"
             self.SplineNormalizationsDenom[file] = self.SplineNormalizationsDenom[label]
             if self.SplineNormalizationsDenom[file] == 0:
+                print(f"File:  {file}\nLabel: {label}")
+                print(f"Cut: {FileCuts[label]}")
                 raise ValueError("file cut resulted in 0 events")
 
         for file in self.FileDictionary:
