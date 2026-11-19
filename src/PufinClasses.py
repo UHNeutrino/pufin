@@ -235,7 +235,7 @@ class UHMC:
                     if target == "H1":
                         target_divisor = 1
                     else:
-                        target_divisor = int(target[-2])
+                        target_divisor = int(target[-2:])
                     cc_xsec = max(0.0, float(g_cc.Eval(x)))
                     nc_xsec = max(0.0, float(g_nc.Eval(x)))
         
