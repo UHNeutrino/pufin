@@ -265,6 +265,9 @@ class UHMC:
         
         print("Grabbing Spline Normalization Denominator, this part takes a while")
         labelsNumber = len(SplineNormalizationsDenomM)
+        TenPercent = labelsNumber/10
+        if int(TenPercent)<1:
+            TenPercent = 1
         i = 0
         for label in SplineNormalizationsDenomM:
             Newlabel = label.replace("_m","")
