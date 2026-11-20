@@ -272,7 +272,7 @@ class UHMC:
         for label in SplineNormalizationsDenomM:
             Newlabel = label.replace("_m","")
             self.SplineNormalizationsDenom[Newlabel] = SplineNormalizationsDenomM[label].GetValue()
-            if i%(int(labelsNumber/10))==0:
+            if i%(int(TenPercent))==0:
                 print(f"Percent Done {i/labelsNumber}")
             i+=1
             if self.SplineNormalizationsDenom[Newlabel] == 0:
